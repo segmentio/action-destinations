@@ -1,0 +1,93 @@
+{
+  "name": "PlayerZero Cloud",
+  "basicOptions": ["projectToken"],
+  "options": {
+    "projectToken": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Project Token for the PlayerZero project you want to send data to. You can find this Token on the [Segment (Cloud) Connector](https://go.playerzero.app/connector/segment-cloud) page.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "PlayerZero Project Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The projectToken property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Forward identify, group, and alias events from Segment to PlayerZero.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Forward page, screen, and track events from Segment to PlayerZero.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\" or type = \"group\" or type = \"alias\"",
+      "mapping": {},
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "mapping": {},
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,733 @@
+{
+  "name": "Liveramp Audiences",
+  "basicOptions": ["__segment_internal_engage_force_full_sync", "__segment_internal_engage_batch_sync"],
+  "options": {
+    "__segment_internal_engage_force_full_sync": {
+      "tags": ["authentication:test"],
+      "default": true,
+      "description": "",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Force Full Sync",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The __segment_internal_engage_force_full_sync property is required."]],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "tags": ["authentication:test"],
+      "default": true,
+      "description": "",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Supports batch sync via ADS",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The __segment_internal_engage_batch_sync property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "audienceEnteredS3",
+      "name": "Audience Entered (S3)",
+      "description": "Uploads audience membership data to a file in S3 for LiveRamp ingestion.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "s3_aws_access_key",
+          "type": "string",
+          "label": "AWS Access Key ID",
+          "description": "IAM user credentials with write permissions to the S3 bucket.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "s3_aws_access_key": {
+                "title": "AWS Access Key ID",
+                "description": "IAM user credentials with write permissions to the S3 bucket.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "s3_aws_secret_key",
+          "type": "password",
+          "label": "AWS Secret Access Key",
+          "description": "IAM user credentials with write permissions to the S3 bucket.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "s3_aws_secret_key": {
+                "title": "AWS Secret Access Key",
+                "description": "IAM user credentials with write permissions to the S3 bucket.",
+                "type": "string",
+                "format": "password"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "s3_aws_bucket_name",
+          "type": "string",
+          "label": "AWS Bucket Name",
+          "description": "Name of the S3 bucket where the files will be uploaded to.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "s3_aws_bucket_name": {
+                "title": "AWS Bucket Name",
+                "description": "Name of the S3 bucket where the files will be uploaded to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "s3_aws_region",
+          "type": "string",
+          "label": "AWS Region (S3 only)",
+          "description": "Region where the S3 bucket is hosted.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "s3_aws_region": {
+                "title": "AWS Region (S3 only)",
+                "description": "Region where the S3 bucket is hosted.",
+                "type": "string"
+              }
+            },
+            "required": ["s3_aws_region"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_key",
+          "type": "string",
+          "label": "LiveRamp Audience Key",
+          "description": "Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key) ",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_key": {
+                "title": "LiveRamp Audience Key",
+                "description": "Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key) ",
+                "type": "string"
+              }
+            },
+            "required": ["audience_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "identifier_data",
+          "type": "object",
+          "label": "Identifier Data",
+          "description": "Additional data pertaining to the user to be written to the file.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifier_data": {
+                "title": "Identifier Data",
+                "description": "Additional data pertaining to the user to be written to the file.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unhashed_identifier_data",
+          "type": "object",
+          "label": "Hashable Identifier Data",
+          "description": "Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unhashed_identifier_data": {
+                "title": "Hashable Identifier Data",
+                "description": "Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "delimiter",
+          "type": "string",
+          "label": "Delimeter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "defaultValue": ",",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delimiter": {
+                "title": "Delimeter",
+                "description": "Character used to separate tokens in the resulting file.",
+                "type": "string"
+              }
+            },
+            "required": ["delimiter"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "filename",
+          "type": "string",
+          "label": "Filename",
+          "description": "Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.",
+          "defaultValue": {
+            "@template": "{{properties.audience_key}}.csv"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filename": {
+                "title": "Filename",
+                "description": "Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.",
+                "type": "string"
+              }
+            },
+            "required": ["filename"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data",
+          "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data",
+                "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "s3_aws_bucket_path",
+          "type": "string",
+          "label": "AWS Bucket Path [optional]",
+          "description": "Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: \"folder1/folder2\"",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "s3_aws_bucket_path": {
+                "title": "AWS Bucket Path [optional]",
+                "description": "Optional path within the S3 bucket where the files will be uploaded to. If not provided, files will be uploaded to the root of the bucket. Example: \"folder1/folder2\"",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "audienceEnteredSFTP",
+      "name": "Audience Entered (SFTP)",
+      "description": "Uploads audience membership data to a file through SFTP for LiveRamp ingestion.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "sftp_username",
+          "type": "string",
+          "label": "Username",
+          "description": "User credentials for establishing an SFTP connection with LiveRamp.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sftp_username": {
+                "title": "Username",
+                "description": "User credentials for establishing an SFTP connection with LiveRamp.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sftp_password",
+          "type": "password",
+          "label": "Password",
+          "description": "User credentials for establishing an SFTP connection with LiveRamp.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sftp_password": {
+                "title": "Password",
+                "description": "User credentials for establishing an SFTP connection with LiveRamp.",
+                "type": "string",
+                "format": "password"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sftp_folder_path",
+          "type": "string",
+          "label": "Folder Path",
+          "description": "Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+          "defaultValue": {
+            "@template": "/uploads/"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sftp_folder_path": {
+                "title": "Folder Path",
+                "description": "Path within the LiveRamp SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+                "type": "string",
+                "format": "uri-reference"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_key",
+          "type": "string",
+          "label": "LiveRamp Audience Key",
+          "description": "Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key)",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_key": {
+                "title": "LiveRamp Audience Key",
+                "description": "Unique ID that identifies members of an audience. A typical audience key might be client customer IDs, email addresses, or phone numbers. See more information on [LiveRamp Audience Key](https://docs.liveramp.com/connect/en/onboarding-terms-and-concepts.html#audience-key)",
+                "type": "string"
+              }
+            },
+            "required": ["audience_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "identifier_data",
+          "type": "object",
+          "label": "Identifier Data",
+          "description": "Additional data pertaining to the user to be written to the file.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifier_data": {
+                "title": "Identifier Data",
+                "description": "Additional data pertaining to the user to be written to the file.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unhashed_identifier_data",
+          "type": "object",
+          "label": "Hashable Identifier Data",
+          "description": "Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unhashed_identifier_data": {
+                "title": "Hashable Identifier Data",
+                "description": "Additional data pertaining to the user to be hashed before written to the file. Use field name **phone_number** or **email** to apply LiveRamp's specific hashing rules.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "delimiter",
+          "type": "string",
+          "label": "Delimeter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "defaultValue": ",",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delimiter": {
+                "title": "Delimeter",
+                "description": "Character used to separate tokens in the resulting file.",
+                "type": "string"
+              }
+            },
+            "required": ["delimiter"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "filename",
+          "type": "string",
+          "label": "Filename",
+          "description": "Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.",
+          "defaultValue": {
+            "@template": "{{properties.audience_key}}_PII.csv"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filename": {
+                "title": "Filename",
+                "description": "Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.",
+                "type": "string"
+              }
+            },
+            "required": ["filename"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data",
+          "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data",
+                "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "audienceEnteredS3",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "audience_key": {
+          "@path": "$.userId"
+        },
+        "delimiter": ",",
+        "filename": {
+          "@template": "{{properties.audience_key}}.csv"
+        },
+        "enable_batching": true,
+        "batch_size": 50000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "audienceEnteredSFTP",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "sftp_folder_path": {
+          "@template": "/uploads/"
+        },
+        "audience_key": {
+          "@path": "$.userId"
+        },
+        "delimiter": ",",
+        "filename": {
+          "@template": "{{properties.audience_key}}_PII.csv"
+        },
+        "enable_batching": true,
+        "batch_size": 50000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    }
+  ]
+}

@@ -1,0 +1,1012 @@
+{
+  "name": "LinkedIn Conversions API",
+  "basicOptions": [],
+  "options": {
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "streamConversion",
+      "name": "Stream Conversion Event",
+      "description": "Directly streams conversion events to a specific conversion rule.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "conversionHappenedAt",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversionHappenedAt": {
+                "title": "Timestamp",
+                "description": "Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.",
+                "type": "string"
+              }
+            },
+            "required": ["conversionHappenedAt"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "conversionValue",
+          "type": "object",
+          "label": "Conversion Value",
+          "description": "The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.",
+          "defaultValue": {
+            "currencyCode": {
+              "@path": "$.properties.currency"
+            },
+            "amount": {
+              "@path": "$.properties.revenue"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversionValue": {
+                "title": "Conversion Value",
+                "description": "The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "currencyCode": {
+                    "title": "Currency Code",
+                    "description": "ISO format",
+                    "type": "string"
+                  },
+                  "amount": {
+                    "title": "Amount",
+                    "description": "Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.",
+                    "type": "string"
+                  }
+                },
+                "required": ["currencyCode", "amount"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventId",
+          "type": "string",
+          "label": "Event ID",
+          "description": "The unique id for each event. This field is optional and is used for deduplication.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventId": {
+                "title": "Event ID",
+                "description": "The unique id for each event. This field is optional and is used for deduplication.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "linkedInUUID",
+          "type": "string",
+          "label": "LinkedIn First Party Ads Tracking UUID",
+          "description": "First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "linkedInUUID": {
+                "title": "LinkedIn First Party Ads Tracking UUID",
+                "description": "First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "acxiomID",
+          "type": "string",
+          "label": "Acxiom ID",
+          "description": "User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "acxiomID": {
+                "title": "Acxiom ID",
+                "description": "User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "oracleID",
+          "type": "string",
+          "label": "Oracle ID",
+          "description": "User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "oracleID": {
+                "title": "Oracle ID",
+                "description": "User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userInfo",
+          "type": "object",
+          "label": "User Info",
+          "description": "Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userInfo": {
+                "title": "User Info",
+                "description": "Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "firstName": {
+                    "title": "First Name",
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "title": "Last Name",
+                    "type": "string"
+                  },
+                  "companyName": {
+                    "title": "Company Name",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "type": "string"
+                  },
+                  "countryCode": {
+                    "title": "Country Code",
+                    "type": "string"
+                  }
+                },
+                "required": ["firstName", "lastName"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalIds",
+          "type": "string",
+          "label": "External ID",
+          "description": "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalIds": {
+                "title": "External ID",
+                "description": "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 5000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "adAccountId",
+          "type": "string",
+          "label": "Ad Account",
+          "description": "The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "adAccountId": {
+                "title": "Ad Account",
+                "description": "The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)",
+                "type": "string"
+              }
+            },
+            "required": ["adAccountId"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaignId",
+          "type": "string",
+          "label": "Add Campaigns to Conversion",
+          "description": "Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaignId": {
+                "title": "Add Campaigns to Conversion",
+                "description": "Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "conversionRuleId",
+          "type": "string",
+          "label": "Existing Conversion Rule ID",
+          "description": "The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversionRuleId": {
+                "title": "Existing Conversion Rule ID",
+                "description": "The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The name of the conversion rule.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The name of the conversion rule.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "conversionRuleId",
+                "operator": "is"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "conversionType",
+          "type": "string",
+          "label": "Conversion Type",
+          "description": "The type of conversion rule.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Add to Cart",
+              "value": "ADD_TO_CART"
+            },
+            {
+              "label": "Download",
+              "value": "DOWNLOAD"
+            },
+            {
+              "label": "Install",
+              "value": "INSTALL"
+            },
+            {
+              "label": "Key Page View",
+              "value": "KEY_PAGE_VIEW"
+            },
+            {
+              "label": "Lead",
+              "value": "LEAD"
+            },
+            {
+              "label": "Purchase",
+              "value": "PURCHASE"
+            },
+            {
+              "label": "Sign Up",
+              "value": "SIGN_UP"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER"
+            },
+            {
+              "label": "Talent Lead",
+              "value": "TALENT_LEAD"
+            },
+            {
+              "label": "Job Apply",
+              "value": "JOB_APPLY"
+            },
+            {
+              "label": "Save",
+              "value": "SAVE"
+            },
+            {
+              "label": "Start Checkout",
+              "value": "START_CHECKOUT"
+            },
+            {
+              "label": "Schedule",
+              "value": "SCHEDULE"
+            },
+            {
+              "label": "View Content",
+              "value": "VIEW_CONTENT"
+            },
+            {
+              "label": "View Video",
+              "value": "VIEW_VIDEO"
+            },
+            {
+              "label": "Add Billing Info",
+              "value": "ADD_BILLING_INFO"
+            },
+            {
+              "label": "Book Appointment",
+              "value": "BOOK_APPOINTMENT"
+            },
+            {
+              "label": "Request Quote",
+              "value": "REQUEST_QUOTE"
+            },
+            {
+              "label": "Search",
+              "value": "SEARCH"
+            },
+            {
+              "label": "Subscribe",
+              "value": "SUBSCRIBE"
+            },
+            {
+              "label": "Ad Click",
+              "value": "AD_CLICK"
+            },
+            {
+              "label": "Ad View",
+              "value": "AD_VIEW"
+            },
+            {
+              "label": "Complete Signup",
+              "value": "COMPLETE_SIGNUP"
+            },
+            {
+              "label": "Submit Application",
+              "value": "SUBMIT_APPLICATION"
+            },
+            {
+              "label": "Phone Call",
+              "value": "PHONE_CALL"
+            },
+            {
+              "label": "Invite",
+              "value": "INVITE"
+            },
+            {
+              "label": "Login",
+              "value": "LOGIN"
+            },
+            {
+              "label": "Share",
+              "value": "SHARE"
+            },
+            {
+              "label": "Donate",
+              "value": "DONATE"
+            },
+            {
+              "label": "Add to List",
+              "value": "ADD_TO_LIST"
+            },
+            {
+              "label": "Rate",
+              "value": "RATE"
+            },
+            {
+              "label": "Start Trial",
+              "value": "START_TRIAL"
+            },
+            {
+              "label": "Outbound Click",
+              "value": "OUTBOUND_CLICK"
+            },
+            {
+              "label": "Contact",
+              "value": "CONTACT"
+            },
+            {
+              "label": "Marketing Qualified Lead",
+              "value": "MARKETING_QUALIFIED_LEAD"
+            },
+            {
+              "label": "Sales Qualified Lead",
+              "value": "SALES_QUALIFIED_LEAD"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversionType": {
+                "title": "Conversion Type",
+                "description": "The type of conversion rule.",
+                "type": "string",
+                "enum": [
+                  "ADD_TO_CART",
+                  "DOWNLOAD",
+                  "INSTALL",
+                  "KEY_PAGE_VIEW",
+                  "LEAD",
+                  "PURCHASE",
+                  "SIGN_UP",
+                  "OTHER",
+                  "TALENT_LEAD",
+                  "JOB_APPLY",
+                  "SAVE",
+                  "START_CHECKOUT",
+                  "SCHEDULE",
+                  "VIEW_CONTENT",
+                  "VIEW_VIDEO",
+                  "ADD_BILLING_INFO",
+                  "BOOK_APPOINTMENT",
+                  "REQUEST_QUOTE",
+                  "SEARCH",
+                  "SUBSCRIBE",
+                  "AD_CLICK",
+                  "AD_VIEW",
+                  "COMPLETE_SIGNUP",
+                  "SUBMIT_APPLICATION",
+                  "PHONE_CALL",
+                  "INVITE",
+                  "LOGIN",
+                  "SHARE",
+                  "DONATE",
+                  "ADD_TO_LIST",
+                  "RATE",
+                  "START_TRIAL",
+                  "OUTBOUND_CLICK",
+                  "CONTACT",
+                  "MARKETING_QUALIFIED_LEAD",
+                  "SALES_QUALIFIED_LEAD"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "conversionRuleId",
+                "operator": "is"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attribution_type",
+          "type": "string",
+          "label": "Attribution Type",
+          "description": "The attribution type for the conversion rule.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Each Campaign",
+              "value": "LAST_TOUCH_BY_CAMPAIGN"
+            },
+            {
+              "label": "Single Campaign",
+              "value": "LAST_TOUCH_BY_CONVERSION"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attribution_type": {
+                "title": "Attribution Type",
+                "description": "The attribution type for the conversion rule.",
+                "type": "string",
+                "enum": ["LAST_TOUCH_BY_CAMPAIGN", "LAST_TOUCH_BY_CONVERSION"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "conversionRuleId",
+                "operator": "is"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "post_click_attribution_window_size",
+          "type": "number",
+          "label": "Post-Click Attribution Window Size",
+          "description": "Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.",
+          "defaultValue": 30,
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "1 day",
+              "value": 1
+            },
+            {
+              "label": "7 days",
+              "value": 7
+            },
+            {
+              "label": "30 days",
+              "value": 30
+            },
+            {
+              "label": "90 days",
+              "value": 90
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "post_click_attribution_window_size": {
+                "title": "Post-Click Attribution Window Size",
+                "description": "Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.",
+                "type": "number",
+                "enum": [1, 7, 30, 90]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "conversionRuleId",
+                "operator": "is"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "view_through_attribution_window_size",
+          "type": "number",
+          "label": "View-Through Attribution Window Size",
+          "description": "Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.",
+          "defaultValue": 7,
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "1 day",
+              "value": 1
+            },
+            {
+              "label": "7 days",
+              "value": 7
+            },
+            {
+              "label": "30 days",
+              "value": 30
+            },
+            {
+              "label": "90 days",
+              "value": 90
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "view_through_attribution_window_size": {
+                "title": "View-Through Attribution Window Size",
+                "description": "Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.",
+                "type": "number",
+                "enum": [1, 7, 30, 90]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "conversionRuleId",
+                "operator": "is"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "onMappingSave",
+          "type": "object",
+          "label": "Create a Conversion Rule",
+          "description": "When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.\n To configure: either provide an existing conversion rule ID or fill in the fields below to create a new conversion rule.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "onMappingSave": {
+                "title": "Create a Conversion Rule",
+                "description": "When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.\n To configure: either provide an existing conversion rule ID or fill in the fields below to create a new conversion rule.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The ID of the conversion rule.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the conversion rule.",
+                    "type": "string"
+                  },
+                  "conversionType": {
+                    "title": "Conversion Type",
+                    "description": "The type of conversion rule.",
+                    "type": "string"
+                  },
+                  "attribution_type": {
+                    "title": "Attribution Type",
+                    "description": "The attribution type for the conversion rule.",
+                    "type": "string"
+                  },
+                  "post_click_attribution_window_size": {
+                    "title": "Post-Click Attribution Window Size",
+                    "description": "Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad.",
+                    "type": "number"
+                  },
+                  "view_through_attribution_window_size": {
+                    "title": "View-Through Attribution Window Size",
+                    "description": "Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "conversionType",
+                  "attribution_type",
+                  "post_click_attribution_window_size",
+                  "view_through_attribution_window_size"
+                ]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "onMappingSave"
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

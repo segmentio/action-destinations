@@ -1,0 +1,4703 @@
+{
+  "name": "Blackbaud Raiser's Edge NXT",
+  "basicOptions": ["bbApiSubscriptionKey"],
+  "options": {
+    "bbApiSubscriptionKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The access key found on your Blackbaud \"My subscriptions\" page.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Blackbaud API Subscription Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The bbApiSubscriptionKey property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth-managed",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "createConstituentAction",
+      "name": "Create Constituent Action",
+      "description": "Create a Constituent Action record in Raiser's Edge NXT.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "date",
+          "type": "datetime",
+          "label": "Date",
+          "description": "The action date in ISO-8601 format.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "date": {
+                "title": "Date",
+                "description": "The action date in ISO-8601 format.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["date"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "category",
+          "type": "string",
+          "label": "Category",
+          "description": "The channel or intent of the constituent interaction. Available values are Phone Call, Meeting, Mailing, Email, and Task/Other.",
+          "defaultValue": {
+            "@path": "$.properties.category"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Phone Call",
+              "value": "Phone Call"
+            },
+            {
+              "label": "Meeting",
+              "value": "Meeting"
+            },
+            {
+              "label": "Mailing",
+              "value": "Mailing"
+            },
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "Task/Other",
+              "value": "Task/Other"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "title": "Category",
+                "description": "The channel or intent of the constituent interaction. Available values are Phone Call, Meeting, Mailing, Email, and Task/Other.",
+                "type": "string",
+                "enum": ["Phone Call", "Meeting", "Mailing", "Email", "Task/Other"]
+              }
+            },
+            "required": ["category"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "completed",
+          "type": "boolean",
+          "label": "Completed",
+          "description": "Indicates whether the action is complete.",
+          "defaultValue": {
+            "@path": "$.properties.completed"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "completed": {
+                "title": "Completed",
+                "description": "Indicates whether the action is complete.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "completed_date",
+          "type": "datetime",
+          "label": "Completed Date",
+          "description": "The date when the action was completed in ISO-8601 format.",
+          "defaultValue": {
+            "@path": "$.properties.completedDate"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "completed_date": {
+                "title": "Completed Date",
+                "description": "The date when the action was completed in ISO-8601 format.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "The detailed explanation that elaborates on the action summary.",
+          "defaultValue": {
+            "@path": "$.properties.description"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "The detailed explanation that elaborates on the action summary.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "direction",
+          "type": "string",
+          "label": "Direction",
+          "description": "The direction of the action. Available values are \"Inbound\" and \"Outbound\".",
+          "defaultValue": "Inbound",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Inbound",
+              "value": "Inbound"
+            },
+            {
+              "label": "Outbound",
+              "value": "Outbound"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "direction": {
+                "title": "Direction",
+                "description": "The direction of the action. Available values are \"Inbound\" and \"Outbound\".",
+                "type": "string",
+                "enum": ["Inbound", "Outbound"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "end_time",
+          "type": "string",
+          "label": "End Time",
+          "description": "The end time of the action. Uses 24-hour time in the HH:mm format. For example, 17:30 represents 5:30 p.m.",
+          "defaultValue": {
+            "@path": "$.properties.endTime"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "end_time": {
+                "title": "End Time",
+                "description": "The end time of the action. Uses 24-hour time in the HH:mm format. For example, 17:30 represents 5:30 p.m.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fundraisers",
+          "type": "string",
+          "label": "Fundraisers",
+          "description": "The set of immutable constituent system record IDs for the fundraisers associated with the action.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fundraisers": {
+                "title": "Fundraisers",
+                "description": "The set of immutable constituent system record IDs for the fundraisers associated with the action.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "string",
+          "label": "Location",
+          "description": "The location of the action. Available values are the entries in the Action Locations table.",
+          "defaultValue": {
+            "@path": "$.properties.location"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "The location of the action. Available values are the entries in the Action Locations table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "opportunity_id",
+          "type": "string",
+          "label": "Opportunity ID",
+          "description": "The immutable system record ID of the opportunity associated with the action.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "opportunity_id": {
+                "title": "Opportunity ID",
+                "description": "The immutable system record ID of the opportunity associated with the action.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "outcome",
+          "type": "string",
+          "label": "Outcome",
+          "description": "The outcome of the action. Available values are Successful and Unsuccessful.",
+          "defaultValue": {
+            "@path": "$.properties.outcome"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Successful",
+              "value": "Successful"
+            },
+            {
+              "label": "Unsuccessful",
+              "value": "Unsuccessful"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "outcome": {
+                "title": "Outcome",
+                "description": "The outcome of the action. Available values are Successful and Unsuccessful.",
+                "type": "string",
+                "enum": ["Successful", "Unsuccessful"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "priority",
+          "type": "string",
+          "label": "Priority",
+          "description": "The priority of the action. Available values are Normal, High, and Low.",
+          "defaultValue": "Normal",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "High",
+              "value": "High"
+            },
+            {
+              "label": "Low",
+              "value": "Low"
+            },
+            {
+              "label": "Normal",
+              "value": "Normal"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "priority": {
+                "title": "Priority",
+                "description": "The priority of the action. Available values are Normal, High, and Low.",
+                "type": "string",
+                "enum": ["High", "Low", "Normal"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "start_time",
+          "type": "string",
+          "label": "Start Time",
+          "description": "The start time of the action. Uses 24-hour time in the HH:mm format. For example, 17:30 represents 5:30 p.m.",
+          "defaultValue": {
+            "@path": "$.properties.startTime"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "start_time": {
+                "title": "Start Time",
+                "description": "The start time of the action. Uses 24-hour time in the HH:mm format. For example, 17:30 represents 5:30 p.m.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "status",
+          "type": "string",
+          "label": "Status",
+          "description": "The action status. If the system is configured to use custom action statuses, available values are the entries in the Action Status table.",
+          "defaultValue": {
+            "@path": "$.properties.status"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "title": "Status",
+                "description": "The action status. If the system is configured to use custom action statuses, available values are the entries in the Action Status table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "summary",
+          "type": "string",
+          "label": "Summary",
+          "description": "The short description of the action that appears at the top of the record. Limited to 255 characters.",
+          "defaultValue": {
+            "@path": "$.properties.summary"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "summary": {
+                "title": "Summary",
+                "description": "The short description of the action that appears at the top of the record. Limited to 255 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "Additional description of the action to complement the category. Available values are the entries in the Actions table.",
+          "defaultValue": {
+            "@path": "$.properties.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "Additional description of the action to complement the category. Available values are the entries in the Actions table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "author",
+          "type": "string",
+          "label": "Author",
+          "description": "The author of the action's summary and description. If not supplied, will have a default set based on the user's account. Limited to 50 characters.",
+          "defaultValue": {
+            "@path": "$.properties.author"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "author": {
+                "title": "Author",
+                "description": "The author of the action's summary and description. If not supplied, will have a default set based on the user's account. Limited to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_address",
+          "type": "object",
+          "label": "Constituent Address",
+          "description": "The constituent's address.",
+          "defaultValue": {
+            "address_lines": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.street"
+                },
+                "then": {
+                  "@path": "$.traits.address.street"
+                },
+                "else": {
+                  "@path": "$.properties.address.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.properties.address.city"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.properties.address.country"
+                }
+              }
+            },
+            "do_not_mail": "",
+            "postal_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postalCode"
+                },
+                "then": {
+                  "@path": "$.traits.address.postalCode"
+                },
+                "else": {
+                  "@path": "$.properties.address.postalCode"
+                }
+              }
+            },
+            "primary": "",
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.properties.address.state"
+                }
+              }
+            },
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_address": {
+                "title": "Constituent Address",
+                "description": "The constituent's address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address_lines": {
+                    "title": "Address Lines",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "type": "string"
+                  },
+                  "do_not_mail": {
+                    "title": "Do Not Mail",
+                    "type": "boolean"
+                  },
+                  "postal_code": {
+                    "title": "ZIP/Postal Code",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "state": {
+                    "title": "State/Province",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Address Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_birthdate",
+          "type": "datetime",
+          "label": "Constituent Birthdate",
+          "description": "The constituent's birthdate.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthday"
+              },
+              "then": {
+                "@path": "$.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_birthdate": {
+                "title": "Constituent Birthdate",
+                "description": "The constituent's birthdate.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_birthplace",
+          "type": "string",
+          "label": "Constituent Birthplace",
+          "description": "The birthplace of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthplace"
+              },
+              "then": {
+                "@path": "$.traits.birthplace"
+              },
+              "else": {
+                "@path": "$.properties.birthplace"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_birthplace": {
+                "title": "Constituent Birthplace",
+                "description": "The birthplace of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_id",
+          "type": "string",
+          "label": "Constituent ID",
+          "description": "The ID of the constituent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_id": {
+                "title": "Constituent ID",
+                "description": "The ID of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_email",
+          "type": "object",
+          "label": "Constituent Email",
+          "description": "The constituent's email address.",
+          "defaultValue": {
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "do_not_email": "",
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_email": {
+                "title": "Constituent Email",
+                "description": "The constituent's email address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Email Address",
+                    "type": "string"
+                  },
+                  "do_not_email": {
+                    "title": "Do Not Email",
+                    "type": "boolean"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Email Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_ethnicity",
+          "type": "string",
+          "label": "Constituent Ethnicity",
+          "description": "The ethnicity of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.ethnicity"
+              },
+              "then": {
+                "@path": "$.traits.ethnicity"
+              },
+              "else": {
+                "@path": "$.properties.ethnicity"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_ethnicity": {
+                "title": "Constituent Ethnicity",
+                "description": "The ethnicity of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_first",
+          "type": "string",
+          "label": "Constituent First Name",
+          "description": "The constituent's first name up to 50 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_first": {
+                "title": "Constituent First Name",
+                "description": "The constituent's first name up to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_former_name",
+          "type": "string",
+          "label": "Constituent Former Name",
+          "description": "The constituent's former name up to 100 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.formerName"
+              },
+              "then": {
+                "@path": "$.traits.formerName"
+              },
+              "else": {
+                "@path": "$.properties.formerName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_former_name": {
+                "title": "Constituent Former Name",
+                "description": "The constituent's former name up to 100 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_gender",
+          "type": "string",
+          "label": "Constituent Gender",
+          "description": "The constituent's gender.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_gender": {
+                "title": "Constituent Gender",
+                "description": "The constituent's gender.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_gives_anonymously",
+          "type": "boolean",
+          "label": "Constituent Gives Anonymously",
+          "description": "Indicates whether the constituent gives anonymously.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.givesAnonymously"
+              },
+              "then": {
+                "@path": "$.traits.givesAnonymously"
+              },
+              "else": {
+                "@path": "$.properties.givesAnonymously"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_gives_anonymously": {
+                "title": "Constituent Gives Anonymously",
+                "description": "Indicates whether the constituent gives anonymously.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_income",
+          "type": "string",
+          "label": "Constituent Income",
+          "description": "The constituent's income.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.income"
+              },
+              "then": {
+                "@path": "$.traits.income"
+              },
+              "else": {
+                "@path": "$.properties.income"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_income": {
+                "title": "Constituent Income",
+                "description": "The constituent's income.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_industry",
+          "type": "string",
+          "label": "Constituent Industry",
+          "description": "The constituent's industry.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.industry"
+              },
+              "then": {
+                "@path": "$.traits.industry"
+              },
+              "else": {
+                "@path": "$.properties.industry"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_industry": {
+                "title": "Constituent Industry",
+                "description": "The constituent's industry.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_last",
+          "type": "string",
+          "label": "Constituent Last Name",
+          "description": "The constituent's last name up to 100 characters. This is required to create a constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_last": {
+                "title": "Constituent Last Name",
+                "description": "The constituent's last name up to 100 characters. This is required to create a constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_lookup_id",
+          "type": "string",
+          "label": "Constituent Lookup ID",
+          "description": "The organization-defined identifier for the constituent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_lookup_id": {
+                "title": "Constituent Lookup ID",
+                "description": "The organization-defined identifier for the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_marital_status",
+          "type": "string",
+          "label": "Constituent Marital Status",
+          "description": "The constituent's marital status. Available values are the entries in the Marital Status table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.maritalStatus"
+              },
+              "then": {
+                "@path": "$.traits.maritalStatus"
+              },
+              "else": {
+                "@path": "$.properties.maritalStatus"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_marital_status": {
+                "title": "Constituent Marital Status",
+                "description": "The constituent's marital status. Available values are the entries in the Marital Status table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_online_presence",
+          "type": "object",
+          "label": "Constituent Online Presence",
+          "description": "The constituent's online presence.",
+          "defaultValue": {
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.website"
+                },
+                "then": {
+                  "@path": "$.traits.website"
+                },
+                "else": {
+                  "@path": "$.properties.website"
+                }
+              }
+            },
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_online_presence": {
+                "title": "Constituent Online Presence",
+                "description": "The constituent's online presence.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Web Address",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Online Presence Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_phone",
+          "type": "object",
+          "label": "Constituent Phone",
+          "description": "The constituent's phone number.",
+          "defaultValue": {
+            "do_not_call": "",
+            "number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_phone": {
+                "title": "Constituent Phone",
+                "description": "The constituent's phone number.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "do_not_call": {
+                    "title": "Do Not Call",
+                    "type": "boolean"
+                  },
+                  "number": {
+                    "title": "Phone Number",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Phone Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_preferred_name",
+          "type": "string",
+          "label": "Constituent Preferred Name",
+          "description": "The constituent's preferred name up to 50 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.preferredName"
+              },
+              "then": {
+                "@path": "$.traits.preferredName"
+              },
+              "else": {
+                "@path": "$.properties.preferredName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_preferred_name": {
+                "title": "Constituent Preferred Name",
+                "description": "The constituent's preferred name up to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_religion",
+          "type": "string",
+          "label": "Constituent Religion",
+          "description": "The religion of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.religion"
+              },
+              "then": {
+                "@path": "$.traits.religion"
+              },
+              "else": {
+                "@path": "$.properties.religion"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_religion": {
+                "title": "Constituent Religion",
+                "description": "The religion of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_suffix",
+          "type": "string",
+          "label": "Constituent Suffix",
+          "description": "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.suffix"
+              },
+              "then": {
+                "@path": "$.traits.suffix"
+              },
+              "else": {
+                "@path": "$.properties.suffix"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_suffix": {
+                "title": "Constituent Suffix",
+                "description": "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_suffix_2",
+          "type": "string",
+          "label": "Constituent Secondary Suffix",
+          "description": "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.suffix2"
+              },
+              "then": {
+                "@path": "$.traits.suffix2"
+              },
+              "else": {
+                "@path": "$.properties.suffix2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_suffix_2": {
+                "title": "Constituent Secondary Suffix",
+                "description": "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_title",
+          "type": "string",
+          "label": "Constituent Title",
+          "description": "The constituent's primary title. Available values are the entries in the Titles table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title"
+              },
+              "then": {
+                "@path": "$.traits.title"
+              },
+              "else": {
+                "@path": "$.properties.title"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_title": {
+                "title": "Constituent Title",
+                "description": "The constituent's primary title. Available values are the entries in the Titles table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_title_2",
+          "type": "string",
+          "label": "Constituent Secondary Title",
+          "description": "The constituent's secondary title. Available values are the entries in the Titles table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title2"
+              },
+              "then": {
+                "@path": "$.traits.title2"
+              },
+              "else": {
+                "@path": "$.properties.title2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_title_2": {
+                "title": "Constituent Secondary Title",
+                "description": "The constituent's secondary title. Available values are the entries in the Titles table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createGift",
+      "name": "Create Gift",
+      "description": "Create a Gift record in Raiser's Edge NXT.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Donation Completed\"",
+      "fields": [
+        {
+          "fieldKey": "acknowledgement",
+          "type": "object",
+          "label": "Acknowledgement",
+          "description": "The gift acknowledgement.",
+          "defaultValue": {
+            "date": {
+              "@path": "$.properties.acknowledgement.date"
+            },
+            "status": {
+              "@path": "$.properties.acknowledgement.status"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "acknowledgement": {
+                "title": "Acknowledgement",
+                "description": "The gift acknowledgement.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "date": {
+                    "title": "Date",
+                    "description": "The date associated with the acknowledgement in ISO-8601 format.",
+                    "type": ["string", "number"],
+                    "format": "date-like"
+                  },
+                  "status": {
+                    "title": "Status",
+                    "description": "The status of the acknowledgement. Available values are: ACKNOWLEDGED, NEEDSACKNOWLEDGEMENT, and DONOTACKNOWLEDGE.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "amount",
+          "type": "number",
+          "label": "Gift Amount",
+          "description": "The monetary amount of the gift in number format, e.g. 12.34",
+          "defaultValue": {
+            "@path": "$.properties.revenue"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "title": "Gift Amount",
+                "description": "The monetary amount of the gift in number format, e.g. 12.34",
+                "type": "number"
+              }
+            },
+            "required": ["amount"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_number",
+          "type": "string",
+          "label": "Batch Number",
+          "description": "The batch number of the gift up to 50 characters (including the batch prefix).",
+          "defaultValue": {
+            "@path": "$.properties.batchNumber"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_number": {
+                "title": "Batch Number",
+                "description": "The batch number of the gift up to 50 characters (including the batch prefix).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_prefix",
+          "type": "string",
+          "label": "Batch Prefix",
+          "description": "The batch prefix of the gift. If provided, must include at least one letter. Required when Batch Number has a value, and defaults to \"API\" if no value is provided.",
+          "defaultValue": {
+            "@path": "$.properties.batchPrefix"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_prefix": {
+                "title": "Batch Prefix",
+                "description": "The batch prefix of the gift. If provided, must include at least one letter. Required when Batch Number has a value, and defaults to \"API\" if no value is provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "check_date",
+          "type": "datetime",
+          "label": "Check Date",
+          "description": "The check date in ISO-8601 format.",
+          "defaultValue": {
+            "@path": "$.properties.checkDate"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "check_date": {
+                "title": "Check Date",
+                "description": "The check date in ISO-8601 format.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "payment_method",
+                "value": "PersonalCheck",
+                "operator": "is"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "check_number",
+          "type": "string",
+          "label": "Check Number",
+          "description": "The check number in string format, e.g. \"12345\"",
+          "defaultValue": {
+            "@path": "$.properties.checkNumber"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "check_number": {
+                "title": "Check Number",
+                "description": "The check number in string format, e.g. \"12345\"",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "payment_method",
+                "value": "PersonalCheck",
+                "operator": "is"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituency",
+          "type": "string",
+          "label": "Constituency",
+          "description": "The constituency value of the gift. If no value is provided, the default constituency of the donor will be used.",
+          "defaultValue": {
+            "@path": "$.properties.constituency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituency": {
+                "title": "Constituency",
+                "description": "The constituency value of the gift. If no value is provided, the default constituency of the donor will be used.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "date",
+          "type": "datetime",
+          "label": "Gift Date",
+          "description": "The gift date in ISO-8601 format.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "date": {
+                "title": "Gift Date",
+                "description": "The gift date in ISO-8601 format.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "default_fundraiser_credits",
+          "type": "boolean",
+          "label": "Default Fundraiser Credits",
+          "description": "Indicates whether to use default fundraiser credits.",
+          "defaultValue": {
+            "@path": "$.properties.defaultFundraiserCredits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "default_fundraiser_credits": {
+                "title": "Default Fundraiser Credits",
+                "description": "Indicates whether to use default fundraiser credits.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "default_soft_credits",
+          "type": "boolean",
+          "label": "Default Soft Credits",
+          "description": "Indicates whether to use default soft credits.",
+          "defaultValue": {
+            "@path": "$.properties.defaultSoftCredits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "default_soft_credits": {
+                "title": "Default Soft Credits",
+                "description": "Indicates whether to use default soft credits.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fund_id",
+          "type": "string",
+          "label": "Fund ID",
+          "description": "The ID of the fund associated with the gift.",
+          "defaultValue": {
+            "@path": "$.properties.fundId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fund_id": {
+                "title": "Fund ID",
+                "description": "The ID of the fund associated with the gift.",
+                "type": "string"
+              }
+            },
+            "required": ["fund_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gift_code",
+          "type": "string",
+          "label": "Gift Code",
+          "description": "The gift code. Available values are the entries in the Gift Code table.",
+          "defaultValue": {
+            "@path": "$.properties.giftCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gift_code": {
+                "title": "Gift Code",
+                "description": "The gift code. Available values are the entries in the Gift Code table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gift_status",
+          "type": "string",
+          "label": "Gift Status",
+          "description": "The status of the gift. Available values are \"Active\", \"Held\", \"Terminated\", \"Completed\", and \"Cancelled\".",
+          "defaultValue": {
+            "@path": "$.properties.giftStatus"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Active",
+              "value": "Active"
+            },
+            {
+              "label": "Held",
+              "value": "Held"
+            },
+            {
+              "label": "Terminated",
+              "value": "Terminated"
+            },
+            {
+              "label": "Completed",
+              "value": "Completed"
+            },
+            {
+              "label": "Cancelled",
+              "value": "Cancelled"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gift_status": {
+                "title": "Gift Status",
+                "description": "The status of the gift. Available values are \"Active\", \"Held\", \"Terminated\", \"Completed\", and \"Cancelled\".",
+                "type": "string",
+                "enum": ["Active", "Held", "Terminated", "Completed", "Cancelled"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "is_anonymous",
+          "type": "boolean",
+          "label": "Is Anonymous",
+          "description": "Indicates whether the gift is anonymous.",
+          "defaultValue": {
+            "@path": "$.properties.isAnonymous"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "is_anonymous": {
+                "title": "Is Anonymous",
+                "description": "Indicates whether the gift is anonymous.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "linked_gifts",
+          "type": "string",
+          "label": "Linked Gifts",
+          "description": "The recurring gift associated with the payment being added. When adding a recurring gift payment, a linked_gifts field must be included as an array of strings with the ID of the recurring gift to which the payment is linked.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "linked_gifts": {
+                "title": "Linked Gifts",
+                "description": "The recurring gift associated with the payment being added. When adding a recurring gift payment, a linked_gifts field must be included as an array of strings with the ID of the recurring gift to which the payment is linked.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lookup_id",
+          "type": "string",
+          "label": "Lookup ID",
+          "description": "The organization-defined identifier for the gift.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lookup_id": {
+                "title": "Lookup ID",
+                "description": "The organization-defined identifier for the gift.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "payment_method",
+          "type": "string",
+          "label": "Payment Method",
+          "description": "The payment method. Available values are \"Cash\", \"CreditCard\", \"PersonalCheck\", \"DirectDebit\", \"Other\", \"PayPal\", or \"Venmo\".",
+          "defaultValue": {
+            "@path": "$.properties.paymentMethod"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Cash",
+              "value": "Cash"
+            },
+            {
+              "label": "Credit Card",
+              "value": "CreditCard"
+            },
+            {
+              "label": "Personal Check",
+              "value": "PersonalCheck"
+            },
+            {
+              "label": "Direct Debit",
+              "value": "DirectDebit"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            },
+            {
+              "label": "PayPal",
+              "value": "PayPal"
+            },
+            {
+              "label": "Venmo",
+              "value": "Venmo"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "payment_method": {
+                "title": "Payment Method",
+                "description": "The payment method. Available values are \"Cash\", \"CreditCard\", \"PersonalCheck\", \"DirectDebit\", \"Other\", \"PayPal\", or \"Venmo\".",
+                "type": "string",
+                "enum": ["Cash", "CreditCard", "PersonalCheck", "DirectDebit", "Other", "PayPal", "Venmo"]
+              }
+            },
+            "required": ["payment_method"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "post_date",
+          "type": "datetime",
+          "label": "Post Date",
+          "description": "The date that the gift was posted to general ledger in ISO-8601 format.",
+          "defaultValue": {
+            "@path": "$.properties.postDate"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "post_date": {
+                "title": "Post Date",
+                "description": "The date that the gift was posted to general ledger in ISO-8601 format.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "post_status",
+          "type": "string",
+          "label": "Post Status",
+          "description": "The general ledger post status of the gift. Available values are \"Posted\", \"NotPosted\", and \"DoNotPost\".",
+          "defaultValue": "NotPosted",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Posted",
+              "value": "Posted"
+            },
+            {
+              "label": "Not Posted",
+              "value": "NotPosted"
+            },
+            {
+              "label": "Do Not Post",
+              "value": "DoNotPost"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "post_status": {
+                "title": "Post Status",
+                "description": "The general ledger post status of the gift. Available values are \"Posted\", \"NotPosted\", and \"DoNotPost\".",
+                "type": "string",
+                "enum": ["Posted", "NotPosted", "DoNotPost"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "receipt",
+          "type": "object",
+          "label": "Receipt",
+          "description": "The gift receipt.",
+          "defaultValue": {
+            "date": {
+              "@path": "$.properties.receipt.date"
+            },
+            "status": {
+              "@path": "$.properties.receipt.status"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "receipt": {
+                "title": "Receipt",
+                "description": "The gift receipt.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "date": {
+                    "title": "Date",
+                    "description": "The date that the gift was receipted. Includes an offset from UTC in ISO-8601 format: 1969-11-21T10:29:43.",
+                    "type": ["string", "number"],
+                    "format": "date-like"
+                  },
+                  "status": {
+                    "title": "Status",
+                    "description": "The receipt status of the gift. Available values are RECEIPTED, NEEDSRECEIPT, and DONOTRECEIPT.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recurring_gift_schedule",
+          "type": "object",
+          "label": "Recurring Gift Schedule",
+          "description": "The recurring gift schedule. When adding a recurring gift, a schedule is required.",
+          "defaultValue": {
+            "end_date": {
+              "@path": "$.properties.recurring_gift_schedule.end_date"
+            },
+            "frequency": {
+              "@path": "$.properties.recurring_gift_schedule.frequency"
+            },
+            "start_date": {
+              "@path": "$.properties.recurring_gift_schedule.start_date"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recurring_gift_schedule": {
+                "title": "Recurring Gift Schedule",
+                "description": "The recurring gift schedule. When adding a recurring gift, a schedule is required.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "end_date": {
+                    "title": "End Date",
+                    "description": "Date the recurring gift should end in ISO-8601 format.",
+                    "type": ["string", "number"],
+                    "format": "date-like"
+                  },
+                  "frequency": {
+                    "title": "Frequency",
+                    "description": "Installment frequency of the recurring gift to add. Available values are WEEKLY, EVERY_TWO_WEEKS, EVERY_FOUR_WEEKS, MONTHLY, QUARTERLY, ANNUALLY.",
+                    "type": "string"
+                  },
+                  "start_date": {
+                    "title": "Start Date",
+                    "description": "Date the recurring gift should start in ISO-8601 format.",
+                    "type": ["string", "number"],
+                    "format": "date-like"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "reference",
+          "type": "string",
+          "label": "Reference",
+          "description": "Notes to track special details about a gift such as the motivation behind it or a detailed description of a gift-in-kind. Limited to 255 characters.",
+          "defaultValue": {
+            "@path": "$.properties.reference"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "reference": {
+                "title": "Reference",
+                "description": "Notes to track special details about a gift such as the motivation behind it or a detailed description of a gift-in-kind. Limited to 255 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subtype",
+          "type": "string",
+          "label": "Subtype",
+          "description": "The subtype of the gift.",
+          "defaultValue": {
+            "@path": "$.properties.subtype"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subtype": {
+                "title": "Subtype",
+                "description": "The subtype of the gift.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The gift type. Available values are \"Donation\", \"Other\", \"GiftInKind\", \"RecurringGift\", and \"RecurringGiftPayment\".",
+          "defaultValue": "Donation",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Donation",
+              "value": "Donation"
+            },
+            {
+              "label": "Other",
+              "value": "Other"
+            },
+            {
+              "label": "GiftInKind",
+              "value": "GiftInKind"
+            },
+            {
+              "label": "RecurringGift",
+              "value": "RecurringGift"
+            },
+            {
+              "label": "RecurringGiftPayment",
+              "value": "RecurringGiftPayment"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The gift type. Available values are \"Donation\", \"Other\", \"GiftInKind\", \"RecurringGift\", and \"RecurringGiftPayment\".",
+                "type": "string",
+                "enum": ["Donation", "Other", "GiftInKind", "RecurringGift", "RecurringGiftPayment"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_address",
+          "type": "object",
+          "label": "Constituent Address",
+          "description": "The constituent's address.",
+          "defaultValue": {
+            "address_lines": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.street"
+                },
+                "then": {
+                  "@path": "$.traits.address.street"
+                },
+                "else": {
+                  "@path": "$.properties.address.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.properties.address.city"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.properties.address.country"
+                }
+              }
+            },
+            "do_not_mail": "",
+            "postal_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postalCode"
+                },
+                "then": {
+                  "@path": "$.traits.address.postalCode"
+                },
+                "else": {
+                  "@path": "$.properties.address.postalCode"
+                }
+              }
+            },
+            "primary": "",
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.properties.address.state"
+                }
+              }
+            },
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_address": {
+                "title": "Constituent Address",
+                "description": "The constituent's address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address_lines": {
+                    "title": "Address Lines",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "type": "string"
+                  },
+                  "do_not_mail": {
+                    "title": "Do Not Mail",
+                    "type": "boolean"
+                  },
+                  "postal_code": {
+                    "title": "ZIP/Postal Code",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "state": {
+                    "title": "State/Province",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Address Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_birthdate",
+          "type": "datetime",
+          "label": "Constituent Birthdate",
+          "description": "The constituent's birthdate.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthday"
+              },
+              "then": {
+                "@path": "$.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_birthdate": {
+                "title": "Constituent Birthdate",
+                "description": "The constituent's birthdate.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_birthplace",
+          "type": "string",
+          "label": "Constituent Birthplace",
+          "description": "The birthplace of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthplace"
+              },
+              "then": {
+                "@path": "$.traits.birthplace"
+              },
+              "else": {
+                "@path": "$.properties.birthplace"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_birthplace": {
+                "title": "Constituent Birthplace",
+                "description": "The birthplace of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_id",
+          "type": "string",
+          "label": "Constituent ID",
+          "description": "The ID of the constituent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_id": {
+                "title": "Constituent ID",
+                "description": "The ID of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_email",
+          "type": "object",
+          "label": "Constituent Email",
+          "description": "The constituent's email address.",
+          "defaultValue": {
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "do_not_email": "",
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_email": {
+                "title": "Constituent Email",
+                "description": "The constituent's email address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Email Address",
+                    "type": "string"
+                  },
+                  "do_not_email": {
+                    "title": "Do Not Email",
+                    "type": "boolean"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Email Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_ethnicity",
+          "type": "string",
+          "label": "Constituent Ethnicity",
+          "description": "The ethnicity of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.ethnicity"
+              },
+              "then": {
+                "@path": "$.traits.ethnicity"
+              },
+              "else": {
+                "@path": "$.properties.ethnicity"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_ethnicity": {
+                "title": "Constituent Ethnicity",
+                "description": "The ethnicity of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_first",
+          "type": "string",
+          "label": "Constituent First Name",
+          "description": "The constituent's first name up to 50 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_first": {
+                "title": "Constituent First Name",
+                "description": "The constituent's first name up to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_former_name",
+          "type": "string",
+          "label": "Constituent Former Name",
+          "description": "The constituent's former name up to 100 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.formerName"
+              },
+              "then": {
+                "@path": "$.traits.formerName"
+              },
+              "else": {
+                "@path": "$.properties.formerName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_former_name": {
+                "title": "Constituent Former Name",
+                "description": "The constituent's former name up to 100 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_gender",
+          "type": "string",
+          "label": "Constituent Gender",
+          "description": "The constituent's gender.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_gender": {
+                "title": "Constituent Gender",
+                "description": "The constituent's gender.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_gives_anonymously",
+          "type": "boolean",
+          "label": "Constituent Gives Anonymously",
+          "description": "Indicates whether the constituent gives anonymously.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.givesAnonymously"
+              },
+              "then": {
+                "@path": "$.traits.givesAnonymously"
+              },
+              "else": {
+                "@path": "$.properties.givesAnonymously"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_gives_anonymously": {
+                "title": "Constituent Gives Anonymously",
+                "description": "Indicates whether the constituent gives anonymously.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_income",
+          "type": "string",
+          "label": "Constituent Income",
+          "description": "The constituent's income.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.income"
+              },
+              "then": {
+                "@path": "$.traits.income"
+              },
+              "else": {
+                "@path": "$.properties.income"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_income": {
+                "title": "Constituent Income",
+                "description": "The constituent's income.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_industry",
+          "type": "string",
+          "label": "Constituent Industry",
+          "description": "The constituent's industry.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.industry"
+              },
+              "then": {
+                "@path": "$.traits.industry"
+              },
+              "else": {
+                "@path": "$.properties.industry"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_industry": {
+                "title": "Constituent Industry",
+                "description": "The constituent's industry.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_last",
+          "type": "string",
+          "label": "Constituent Last Name",
+          "description": "The constituent's last name up to 100 characters. This is required to create a constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_last": {
+                "title": "Constituent Last Name",
+                "description": "The constituent's last name up to 100 characters. This is required to create a constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_lookup_id",
+          "type": "string",
+          "label": "Constituent Lookup ID",
+          "description": "The organization-defined identifier for the constituent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_lookup_id": {
+                "title": "Constituent Lookup ID",
+                "description": "The organization-defined identifier for the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_marital_status",
+          "type": "string",
+          "label": "Constituent Marital Status",
+          "description": "The constituent's marital status. Available values are the entries in the Marital Status table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.maritalStatus"
+              },
+              "then": {
+                "@path": "$.traits.maritalStatus"
+              },
+              "else": {
+                "@path": "$.properties.maritalStatus"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_marital_status": {
+                "title": "Constituent Marital Status",
+                "description": "The constituent's marital status. Available values are the entries in the Marital Status table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_online_presence",
+          "type": "object",
+          "label": "Constituent Online Presence",
+          "description": "The constituent's online presence.",
+          "defaultValue": {
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.website"
+                },
+                "then": {
+                  "@path": "$.traits.website"
+                },
+                "else": {
+                  "@path": "$.properties.website"
+                }
+              }
+            },
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_online_presence": {
+                "title": "Constituent Online Presence",
+                "description": "The constituent's online presence.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Web Address",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Online Presence Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_phone",
+          "type": "object",
+          "label": "Constituent Phone",
+          "description": "The constituent's phone number.",
+          "defaultValue": {
+            "do_not_call": "",
+            "number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_phone": {
+                "title": "Constituent Phone",
+                "description": "The constituent's phone number.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "do_not_call": {
+                    "title": "Do Not Call",
+                    "type": "boolean"
+                  },
+                  "number": {
+                    "title": "Phone Number",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Phone Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_preferred_name",
+          "type": "string",
+          "label": "Constituent Preferred Name",
+          "description": "The constituent's preferred name up to 50 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.preferredName"
+              },
+              "then": {
+                "@path": "$.traits.preferredName"
+              },
+              "else": {
+                "@path": "$.properties.preferredName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_preferred_name": {
+                "title": "Constituent Preferred Name",
+                "description": "The constituent's preferred name up to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_religion",
+          "type": "string",
+          "label": "Constituent Religion",
+          "description": "The religion of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.religion"
+              },
+              "then": {
+                "@path": "$.traits.religion"
+              },
+              "else": {
+                "@path": "$.properties.religion"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_religion": {
+                "title": "Constituent Religion",
+                "description": "The religion of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_suffix",
+          "type": "string",
+          "label": "Constituent Suffix",
+          "description": "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.suffix"
+              },
+              "then": {
+                "@path": "$.traits.suffix"
+              },
+              "else": {
+                "@path": "$.properties.suffix"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_suffix": {
+                "title": "Constituent Suffix",
+                "description": "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_suffix_2",
+          "type": "string",
+          "label": "Constituent Secondary Suffix",
+          "description": "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.suffix2"
+              },
+              "then": {
+                "@path": "$.traits.suffix2"
+              },
+              "else": {
+                "@path": "$.properties.suffix2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_suffix_2": {
+                "title": "Constituent Secondary Suffix",
+                "description": "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_title",
+          "type": "string",
+          "label": "Constituent Title",
+          "description": "The constituent's primary title. Available values are the entries in the Titles table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title"
+              },
+              "then": {
+                "@path": "$.traits.title"
+              },
+              "else": {
+                "@path": "$.properties.title"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_title": {
+                "title": "Constituent Title",
+                "description": "The constituent's primary title. Available values are the entries in the Titles table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_title_2",
+          "type": "string",
+          "label": "Constituent Secondary Title",
+          "description": "The constituent's secondary title. Available values are the entries in the Titles table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title2"
+              },
+              "then": {
+                "@path": "$.traits.title2"
+              },
+              "else": {
+                "@path": "$.properties.title2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_title_2": {
+                "title": "Constituent Secondary Title",
+                "description": "The constituent's secondary title. Available values are the entries in the Titles table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createOrUpdateIndividualConstituent",
+      "name": "Create or Update Individual Constituent",
+      "description": "Create or update an Individual Constituent record in Raiser's Edge NXT.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "The constituent's address.",
+          "defaultValue": {
+            "address_lines": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.street"
+                },
+                "then": {
+                  "@path": "$.traits.address.street"
+                },
+                "else": {
+                  "@path": "$.properties.address.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.properties.address.city"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.properties.address.country"
+                }
+              }
+            },
+            "do_not_mail": "",
+            "postal_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postalCode"
+                },
+                "then": {
+                  "@path": "$.traits.address.postalCode"
+                },
+                "else": {
+                  "@path": "$.properties.address.postalCode"
+                }
+              }
+            },
+            "primary": "",
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.properties.address.state"
+                }
+              }
+            },
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "The constituent's address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address_lines": {
+                    "title": "Address Lines",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "type": "string"
+                  },
+                  "do_not_mail": {
+                    "title": "Do Not Mail",
+                    "type": "boolean"
+                  },
+                  "postal_code": {
+                    "title": "ZIP/Postal Code",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "state": {
+                    "title": "State/Province",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Address Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "birthdate",
+          "type": "datetime",
+          "label": "Birthdate",
+          "description": "The constituent's birthdate.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthday"
+              },
+              "then": {
+                "@path": "$.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birthdate": {
+                "title": "Birthdate",
+                "description": "The constituent's birthdate.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "birthplace",
+          "type": "string",
+          "label": "Birthplace",
+          "description": "The birthplace of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthplace"
+              },
+              "then": {
+                "@path": "$.traits.birthplace"
+              },
+              "else": {
+                "@path": "$.properties.birthplace"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birthplace": {
+                "title": "Birthplace",
+                "description": "The birthplace of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "constituent_id",
+          "type": "string",
+          "label": "Constituent ID",
+          "description": "The ID of the constituent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "constituent_id": {
+                "title": "Constituent ID",
+                "description": "The ID of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "object",
+          "label": "Email",
+          "description": "The constituent's email address.",
+          "defaultValue": {
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "do_not_email": "",
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The constituent's email address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Email Address",
+                    "type": "string"
+                  },
+                  "do_not_email": {
+                    "title": "Do Not Email",
+                    "type": "boolean"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Email Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ethnicity",
+          "type": "string",
+          "label": "Ethnicity",
+          "description": "The ethnicity of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.ethnicity"
+              },
+              "then": {
+                "@path": "$.traits.ethnicity"
+              },
+              "else": {
+                "@path": "$.properties.ethnicity"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ethnicity": {
+                "title": "Ethnicity",
+                "description": "The ethnicity of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first",
+          "type": "string",
+          "label": "First Name",
+          "description": "The constituent's first name up to 50 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first": {
+                "title": "First Name",
+                "description": "The constituent's first name up to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "former_name",
+          "type": "string",
+          "label": "Former Name",
+          "description": "The constituent's former name up to 100 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.formerName"
+              },
+              "then": {
+                "@path": "$.traits.formerName"
+              },
+              "else": {
+                "@path": "$.properties.formerName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "former_name": {
+                "title": "Former Name",
+                "description": "The constituent's former name up to 100 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gender",
+          "type": "string",
+          "label": "Gender",
+          "description": "The constituent's gender.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gender": {
+                "title": "Gender",
+                "description": "The constituent's gender.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gives_anonymously",
+          "type": "boolean",
+          "label": "Gives Anonymously",
+          "description": "Indicates whether the constituent gives anonymously.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.givesAnonymously"
+              },
+              "then": {
+                "@path": "$.traits.givesAnonymously"
+              },
+              "else": {
+                "@path": "$.properties.givesAnonymously"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gives_anonymously": {
+                "title": "Gives Anonymously",
+                "description": "Indicates whether the constituent gives anonymously.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "income",
+          "type": "string",
+          "label": "Income",
+          "description": "The constituent's income.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.income"
+              },
+              "then": {
+                "@path": "$.traits.income"
+              },
+              "else": {
+                "@path": "$.properties.income"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "income": {
+                "title": "Income",
+                "description": "The constituent's income.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "industry",
+          "type": "string",
+          "label": "Industry",
+          "description": "The constituent's industry.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.industry"
+              },
+              "then": {
+                "@path": "$.traits.industry"
+              },
+              "else": {
+                "@path": "$.properties.industry"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "industry": {
+                "title": "Industry",
+                "description": "The constituent's industry.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The constituent's last name up to 100 characters. This is required to create a constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last": {
+                "title": "Last Name",
+                "description": "The constituent's last name up to 100 characters. This is required to create a constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lookup_id",
+          "type": "string",
+          "label": "Lookup ID",
+          "description": "The organization-defined identifier for the constituent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lookup_id": {
+                "title": "Lookup ID",
+                "description": "The organization-defined identifier for the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "marital_status",
+          "type": "string",
+          "label": "Marital Status",
+          "description": "The constituent's marital status. Available values are the entries in the Marital Status table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.maritalStatus"
+              },
+              "then": {
+                "@path": "$.traits.maritalStatus"
+              },
+              "else": {
+                "@path": "$.properties.maritalStatus"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "marital_status": {
+                "title": "Marital Status",
+                "description": "The constituent's marital status. Available values are the entries in the Marital Status table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "online_presence",
+          "type": "object",
+          "label": "Online Presence",
+          "description": "The constituent's online presence.",
+          "defaultValue": {
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.website"
+                },
+                "then": {
+                  "@path": "$.traits.website"
+                },
+                "else": {
+                  "@path": "$.properties.website"
+                }
+              }
+            },
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "online_presence": {
+                "title": "Online Presence",
+                "description": "The constituent's online presence.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "address": {
+                    "title": "Web Address",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Online Presence Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "object",
+          "label": "Phone",
+          "description": "The constituent's phone number.",
+          "defaultValue": {
+            "do_not_call": "",
+            "number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "primary": "",
+            "type": ""
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "The constituent's phone number.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "do_not_call": {
+                    "title": "Do Not Call",
+                    "type": "boolean"
+                  },
+                  "number": {
+                    "title": "Phone Number",
+                    "type": "string"
+                  },
+                  "primary": {
+                    "title": "Is Primary",
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "title": "Phone Type",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "preferred_name",
+          "type": "string",
+          "label": "Preferred Name",
+          "description": "The constituent's preferred name up to 50 characters.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.preferredName"
+              },
+              "then": {
+                "@path": "$.traits.preferredName"
+              },
+              "else": {
+                "@path": "$.properties.preferredName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "preferred_name": {
+                "title": "Preferred Name",
+                "description": "The constituent's preferred name up to 50 characters.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "religion",
+          "type": "string",
+          "label": "Religion",
+          "description": "The religion of the constituent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.religion"
+              },
+              "then": {
+                "@path": "$.traits.religion"
+              },
+              "else": {
+                "@path": "$.properties.religion"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "religion": {
+                "title": "Religion",
+                "description": "The religion of the constituent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "suffix",
+          "type": "string",
+          "label": "Suffix",
+          "description": "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.suffix"
+              },
+              "then": {
+                "@path": "$.traits.suffix"
+              },
+              "else": {
+                "@path": "$.properties.suffix"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "suffix": {
+                "title": "Suffix",
+                "description": "The constituent's primary suffix. Available values are the entries in the Suffixes table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "suffix_2",
+          "type": "string",
+          "label": "Secondary Suffix",
+          "description": "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.suffix2"
+              },
+              "then": {
+                "@path": "$.traits.suffix2"
+              },
+              "else": {
+                "@path": "$.properties.suffix2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "suffix_2": {
+                "title": "Secondary Suffix",
+                "description": "The constituent's secondary suffix. Available values are the entries in the Suffixes table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "Title",
+          "description": "The constituent's primary title. Available values are the entries in the Titles table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title"
+              },
+              "then": {
+                "@path": "$.traits.title"
+              },
+              "else": {
+                "@path": "$.properties.title"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "Title",
+                "description": "The constituent's primary title. Available values are the entries in the Titles table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title_2",
+          "type": "string",
+          "label": "Secondary Title",
+          "description": "The constituent's secondary title. Available values are the entries in the Titles table.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title2"
+              },
+              "then": {
+                "@path": "$.traits.title2"
+              },
+              "else": {
+                "@path": "$.properties.title2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title_2": {
+                "title": "Secondary Title",
+                "description": "The constituent's secondary title. Available values are the entries in the Titles table.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

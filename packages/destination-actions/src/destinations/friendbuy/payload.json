@@ -1,0 +1,2330 @@
+{
+  "name": "Friendbuy (Cloud Destination)",
+  "basicOptions": ["authKey", "authSecret"],
+  "options": {
+    "authKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Contact your Friendbuy account manager to generate your Friendbuy MAPI key and secret.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Friendbuy MAPI Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The authKey property is required."]],
+      "uIMetadata": null
+    },
+    "authSecret": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "See Friendbuy MAPI Key.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Friendbuy MAPI Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The authSecret property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackCustomEvent",
+      "name": "Track Custom Event",
+      "description": "Record when a customer completes any custom event that you define.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of the event to track.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of the event to track.",
+                "type": "string"
+              }
+            },
+            "required": ["eventType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventProperties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Object containing the properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventProperties": {
+                "title": "Event Properties",
+                "description": "Object containing the properties for the event being tracked. All of the fields in this object will be sent in the root of the Friendbuy track event.",
+                "type": "object"
+              }
+            },
+            "required": ["eventProperties"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deduplicationId",
+          "type": "string",
+          "label": "Event ID",
+          "description": "An identifier for the event being tracked to prevent the same event from being rewarded more than once.",
+          "defaultValue": {
+            "@path": "$.properties.deduplicationId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deduplicationId": {
+                "title": "Event ID",
+                "description": "An identifier for the event being tracked to prevent the same event from being rewarded more than once.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerId",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The user's customer ID.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.customerId"
+              },
+              "then": {
+                "@path": "$.properties.customerId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerId": {
+                "title": "Customer ID",
+                "description": "The user's customer ID.",
+                "type": "string"
+              }
+            },
+            "required": ["customerId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The user's anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The user's anonymous id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email address.",
+          "defaultValue": {
+            "@path": "$.properties.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email address.",
+                "type": "string"
+              }
+            },
+            "required": ["email"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageUrl",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The URL of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageUrl": {
+                "title": "Page URL",
+                "description": "The URL of the web page the event was generated on.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageTitle",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageTitle": {
+                "title": "Page Title",
+                "description": "The title of the web page the event was generated on.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The browser's User-Agent string.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The browser's User-Agent string.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ipAddress",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The users's IP address.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ipAddress": {
+                "title": "IP Address",
+                "description": "The users's IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackCustomer",
+      "name": "Track Customer",
+      "description": "Create a new customer profile or update an existing customer profile.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerId",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The user's customer ID.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerId": {
+                "title": "Customer ID",
+                "description": "The user's customer ID.",
+                "type": "string"
+              }
+            },
+            "required": ["customerId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The user's anonymous id.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The user's anonymous id.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email address.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email address.",
+                "type": "string"
+              }
+            },
+            "required": ["email"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "The user's given name.",
+          "defaultValue": {
+            "@path": "$.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "The user's given name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The user's surname.",
+          "defaultValue": {
+            "@path": "$.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "The user's surname.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The user's full name. If the name trait doesn't exist then it will be automatically derived from the firstName and lastName traits if they are defined.",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The user's full name. If the name trait doesn't exist then it will be automatically derived from the firstName and lastName traits if they are defined.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "age",
+          "type": "number",
+          "label": "Age",
+          "description": "The user's age.",
+          "defaultValue": {
+            "@path": "$.traits.age"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "age": {
+                "title": "Age",
+                "description": "The user's age.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "birthday",
+          "type": "string",
+          "label": "Birthday",
+          "description": "The user's birthday in the format \"YYYY-MM-DD\", or \"0000-MM-DD\" to omit the year.",
+          "defaultValue": {
+            "@path": "$.traits.birthday"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birthday": {
+                "title": "Birthday",
+                "description": "The user's birthday in the format \"YYYY-MM-DD\", or \"0000-MM-DD\" to omit the year.",
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "The user's language.",
+          "defaultValue": {
+            "@path": "$.traits.language"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "The user's language.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "addressCountry",
+          "type": "string",
+          "label": "Country",
+          "description": "The user's country.",
+          "defaultValue": {
+            "@path": "$.traits.address.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "addressCountry": {
+                "title": "Country",
+                "description": "The user's country.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "addressState",
+          "type": "string",
+          "label": "State",
+          "description": "The user's state.",
+          "defaultValue": {
+            "@path": "$.traits.address.state"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "addressState": {
+                "title": "State",
+                "description": "The user's state.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "addressCity",
+          "type": "string",
+          "label": "City",
+          "description": "The user's city.",
+          "defaultValue": {
+            "@path": "$.traits.address.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "addressCity": {
+                "title": "City",
+                "description": "The user's city.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "addressPostalCode",
+          "type": "string",
+          "label": "State",
+          "description": "The user's postal code.",
+          "defaultValue": {
+            "@path": "$.traits.address.postalCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "addressPostalCode": {
+                "title": "State",
+                "description": "The user's postal code.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerSince",
+          "type": "string",
+          "label": "Customer Since",
+          "description": "The date the user became a customer.",
+          "defaultValue": {
+            "@path": "$.traits.customerSince"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerSince": {
+                "title": "Customer Since",
+                "description": "The date the user became a customer.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "loyaltyStatus",
+          "type": "string",
+          "label": "Loyalty Status",
+          "description": "The status of the user in your loyalty program. Valid values are \"in\", \"out\", or \"blocked\".",
+          "defaultValue": {
+            "@path": "$.traits.loyaltyStatus"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loyaltyStatus": {
+                "title": "Loyalty Status",
+                "description": "The status of the user in your loyalty program. Valid values are \"in\", \"out\", or \"blocked\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isNewCustomer",
+          "type": "boolean",
+          "label": "New Customer Flag",
+          "description": "Flag to indicate whether the user is a new customer.",
+          "defaultValue": {
+            "@path": "$.traits.isNewCustomer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isNewCustomer": {
+                "title": "New Customer Flag",
+                "description": "Flag to indicate whether the user is a new customer.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "friendbuyAttributes",
+          "type": "object",
+          "label": "Custom Attributes",
+          "description": "Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.",
+          "defaultValue": {
+            "@path": "$.traits.friendbuyAttributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "friendbuyAttributes": {
+                "title": "Custom Attributes",
+                "description": "Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageUrl",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The URL of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageUrl": {
+                "title": "Page URL",
+                "description": "The URL of the web page the event was generated on.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageTitle",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageTitle": {
+                "title": "Page Title",
+                "description": "The title of the web page the event was generated on.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The browser's User-Agent string.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The browser's User-Agent string.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ipAddress",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The users's IP address.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ipAddress": {
+                "title": "IP Address",
+                "description": "The users's IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPurchase",
+      "name": "Track Purchase",
+      "description": "Record when a customer makes a purchase.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "orderId",
+          "type": "string",
+          "label": "Order ID",
+          "description": "The order ID.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "orderId": {
+                "title": "Order ID",
+                "description": "The order ID.",
+                "type": "string"
+              }
+            },
+            "required": ["orderId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "amount",
+          "type": "number",
+          "label": "Purchase Amount",
+          "description": "Purchase amount to be considered when evaluating reward rules.",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "title": "Purchase Amount",
+                "description": "Purchase amount to be considered when evaluating reward rules.",
+                "type": "number"
+              }
+            },
+            "required": ["amount"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "The currency of the purchase amount.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "The currency of the purchase amount.",
+                "type": "string"
+              }
+            },
+            "required": ["currency"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "coupon",
+          "type": "string",
+          "label": "Coupon",
+          "description": "The coupon code of any coupon redeemed with the order.",
+          "defaultValue": {
+            "@path": "$.properties.coupon"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coupon": {
+                "title": "Coupon",
+                "description": "The coupon code of any coupon redeemed with the order.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributionId",
+          "type": "string",
+          "label": "Friendbuy Attribution ID",
+          "description": "Friendbuy attribution ID that associates the purchase with the advocate who referred the purchaser.",
+          "defaultValue": {
+            "@path": "$.properties.attributionId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributionId": {
+                "title": "Friendbuy Attribution ID",
+                "description": "Friendbuy attribution ID that associates the purchase with the advocate who referred the purchaser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referralCode",
+          "type": "string",
+          "label": "Friendbuy Referral ID",
+          "description": "Friendbuy referral code that associates the purchase with the advocate who referred the purchaser.",
+          "defaultValue": {
+            "@path": "$.properties.referralCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referralCode": {
+                "title": "Friendbuy Referral ID",
+                "description": "Friendbuy referral code that associates the purchase with the advocate who referred the purchaser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "giftCardCodes",
+          "type": "string",
+          "label": "Gift Card Codes",
+          "description": "An array of gift card codes applied to the order.",
+          "defaultValue": {
+            "@path": "$.properties.giftCardCodes"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "giftCardCodes": {
+                "title": "Gift Card Codes",
+                "description": "An array of gift card codes applied to the order.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "Products purchased.",
+          "defaultValue": {
+            "@path": "$.properties.products"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "Products purchased.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "sku": {
+                      "title": "Product SKU",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity (default 1)",
+                      "type": "integer"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "type": "number"
+                    },
+                    "description": {
+                      "title": "Product Description",
+                      "type": "string"
+                    },
+                    "category": {
+                      "title": "Product Category",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Product URL",
+                      "type": "string"
+                    },
+                    "image_url": {
+                      "title": "Product Image URL",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["price"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerId",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The user's customer ID.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.customerId"
+              },
+              "then": {
+                "@path": "$.properties.customerId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerId": {
+                "title": "Customer ID",
+                "description": "The user's customer ID.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The user's anonymous ID.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The user's anonymous ID.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email address.",
+          "defaultValue": {
+            "@path": "$.properties.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isNewCustomer",
+          "type": "boolean",
+          "label": "New Customer Flag",
+          "description": "Flag to indicate whether the user is a new customer.",
+          "defaultValue": {
+            "@path": "$.properties.isNewCustomer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isNewCustomer": {
+                "title": "New Customer Flag",
+                "description": "Flag to indicate whether the user is a new customer.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "loyaltyStatus",
+          "type": "string",
+          "label": "Loyalty Program Status",
+          "description": "The status of the user in your loyalty program. Valid values are \"in\", \"out\", or \"blocked\".",
+          "defaultValue": {
+            "@path": "$.properties.loyaltyStatus"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loyaltyStatus": {
+                "title": "Loyalty Program Status",
+                "description": "The status of the user in your loyalty program. Valid values are \"in\", \"out\", or \"blocked\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "The user's given name.",
+          "defaultValue": {
+            "@path": "$.properties.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "The user's given name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The user's surname.",
+          "defaultValue": {
+            "@path": "$.properties.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "The user's surname.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The user's full name.",
+          "defaultValue": {
+            "@path": "$.properties.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The user's full name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "age",
+          "type": "number",
+          "label": "Age",
+          "description": "The user's age.",
+          "defaultValue": {
+            "@path": "$.properties.age"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "age": {
+                "title": "Age",
+                "description": "The user's age.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "birthday",
+          "type": "string",
+          "label": "Birthday",
+          "description": "The user's birthday in the format \"YYYY-MM-DD\", or \"0000-MM-DD\" to omit the year.",
+          "defaultValue": {
+            "@path": "$.properties.birthday"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birthday": {
+                "title": "Birthday",
+                "description": "The user's birthday in the format \"YYYY-MM-DD\", or \"0000-MM-DD\" to omit the year.",
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "friendbuyAttributes",
+          "type": "object",
+          "label": "Custom Attributes",
+          "description": "Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.",
+          "defaultValue": {
+            "@path": "$.properties.friendbuyAttributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "friendbuyAttributes": {
+                "title": "Custom Attributes",
+                "description": "Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageUrl",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The URL of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageUrl": {
+                "title": "Page URL",
+                "description": "The URL of the web page the event was generated on.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageTitle",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageTitle": {
+                "title": "Page Title",
+                "description": "The title of the web page the event was generated on.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The browser's User-Agent string.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The browser's User-Agent string.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ipAddress",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The users's IP address.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ipAddress": {
+                "title": "IP Address",
+                "description": "The users's IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackSignUp",
+      "name": "Track Sign Up",
+      "description": "Record when a customer signs up for a service.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerId",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The user's customer ID.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.customerId"
+              },
+              "then": {
+                "@path": "$.properties.customerId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerId": {
+                "title": "Customer ID",
+                "description": "The user's customer ID.",
+                "type": "string"
+              }
+            },
+            "required": ["customerId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The user's anonymous ID.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The user's anonymous ID.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email address.",
+          "defaultValue": {
+            "@path": "$.properties.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email address.",
+                "type": "string"
+              }
+            },
+            "required": ["email"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isNewCustomer",
+          "type": "boolean",
+          "label": "New Customer Flag",
+          "description": "Flag to indicate whether the user is a new customer.",
+          "defaultValue": {
+            "@path": "$.properties.isNewCustomer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isNewCustomer": {
+                "title": "New Customer Flag",
+                "description": "Flag to indicate whether the user is a new customer.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "loyaltyStatus",
+          "type": "string",
+          "label": "Loyalty Program Status",
+          "description": "The status of the user in your loyalty program. Valid values are \"in\", \"out\", or \"blocked\".",
+          "defaultValue": {
+            "@path": "$.properties.loyaltyStatus"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loyaltyStatus": {
+                "title": "Loyalty Program Status",
+                "description": "The status of the user in your loyalty program. Valid values are \"in\", \"out\", or \"blocked\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "The user's given name.",
+          "defaultValue": {
+            "@path": "$.properties.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "The user's given name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The user's surname.",
+          "defaultValue": {
+            "@path": "$.properties.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "The user's surname.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The user's full name.",
+          "defaultValue": {
+            "@path": "$.properties.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The user's full name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "age",
+          "type": "number",
+          "label": "Age",
+          "description": "The user's age.",
+          "defaultValue": {
+            "@path": "$.properties.age"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "age": {
+                "title": "Age",
+                "description": "The user's age.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "birthday",
+          "type": "string",
+          "label": "Birthday",
+          "description": "The user's birthday in the format \"YYYY-MM-DD\", or \"0000-MM-DD\" to omit the year.",
+          "defaultValue": {
+            "@path": "$.properties.birthday"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birthday": {
+                "title": "Birthday",
+                "description": "The user's birthday in the format \"YYYY-MM-DD\", or \"0000-MM-DD\" to omit the year.",
+                "type": "string",
+                "format": "date"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "coupon",
+          "type": "string",
+          "label": "Coupon Code",
+          "description": "Coupon code that customer supplied when they signed up.",
+          "defaultValue": {
+            "@path": "$.properties.coupon"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coupon": {
+                "title": "Coupon Code",
+                "description": "Coupon code that customer supplied when they signed up.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributionId",
+          "type": "string",
+          "label": "Friendbuy Attribution ID",
+          "description": "Friendbuy attribution ID that associates the customer who is signing up with the advocate who referred them.",
+          "defaultValue": {
+            "@path": "$.properties.attributionId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributionId": {
+                "title": "Friendbuy Attribution ID",
+                "description": "Friendbuy attribution ID that associates the customer who is signing up with the advocate who referred them.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referralCode",
+          "type": "string",
+          "label": "Friendbuy Referral ID",
+          "description": "Friendbuy referral code that associates the customer who is signing up with the advocate who referred them.",
+          "defaultValue": {
+            "@path": "$.properties.referralCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referralCode": {
+                "title": "Friendbuy Referral ID",
+                "description": "Friendbuy referral code that associates the customer who is signing up with the advocate who referred them.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "friendbuyAttributes",
+          "type": "object",
+          "label": "Custom Attributes",
+          "description": "Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.",
+          "defaultValue": {
+            "@path": "$.properties.friendbuyAttributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "friendbuyAttributes": {
+                "title": "Custom Attributes",
+                "description": "Custom attributes to send to Friendbuy. You should pass an object whose keys are the names of the custom attributes and whose values are strings. Non-string-valued attributes will be dropped.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageUrl",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The URL of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageUrl": {
+                "title": "Page URL",
+                "description": "The URL of the web page the event was generated on.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageTitle",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the web page the event was generated on.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageTitle": {
+                "title": "Page Title",
+                "description": "The title of the web page the event was generated on.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The browser's User-Agent string.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The browser's User-Agent string.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ipAddress",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The users's IP address.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ipAddress": {
+                "title": "IP Address",
+                "description": "The users's IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

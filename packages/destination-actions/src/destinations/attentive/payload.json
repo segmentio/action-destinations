@@ -1,0 +1,1213 @@
+{
+  "name": "Attentive",
+  "description": "Send Segment analytics events to Attentive.",
+  "basicOptions": ["apiKey"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Attentive API Key.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "customEvents",
+      "name": "Send Custom Events",
+      "description": "Send custom Segment analytics events to Attentive.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event != \"Product Viewed\" and event != \"Product Added\" and event != \"Order Completed\" and event != \"User Subscribed\"",
+      "fields": [
+        {
+          "fieldKey": "userIdentifiers",
+          "type": "object",
+          "label": "User Identifiers",
+          "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+          "defaultValue": {
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "clientUserId": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userIdentifiers": {
+                "title": "User Identifiers",
+                "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The user's phone number in E.164 format.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "clientUserId": {
+                    "title": "Client User ID",
+                    "description": "A primary ID for a user. Should be a UUID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userIdentifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "occurredAt",
+          "type": "string",
+          "label": "Occurred At",
+          "description": "Timestamp for the event, ISO 8601 format.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "occurredAt": {
+                "title": "Occurred At",
+                "description": "Timestamp for the event, ISO 8601 format.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalEventId",
+          "type": "string",
+          "label": "External Event Id",
+          "description": "A unique identifier representing this specific event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalEventId": {
+                "title": "External Event Id",
+                "description": "A unique identifier representing this specific event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of event. This name is case sensitive. \"Order shipped\" and \"Order Shipped\" would be considered different event types.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of event. This name is case sensitive. \"Order shipped\" and \"Order Shipped\" would be considered different event types.",
+                "type": "string"
+              }
+            },
+            "required": ["type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Metadata to associate with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Metadata to associate with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "ecommEvent",
+      "name": "Send Ecommerce Event",
+      "description": "Send Segment ecommerce events to Attentive.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Product Viewed\" or event = \"Product Added\" or event = \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "userIdentifiers",
+          "type": "object",
+          "label": "User Identifiers",
+          "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+          "defaultValue": {
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "clientUserId": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userIdentifiers": {
+                "title": "User Identifiers",
+                "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The user's phone number in E.164 format.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "clientUserId": {
+                    "title": "Client User ID",
+                    "description": "A primary ID for a user. Should be a UUID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userIdentifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "occurredAt",
+          "type": "string",
+          "label": "Occurred At",
+          "description": "Timestamp for the event, ISO 8601 format.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "occurredAt": {
+                "title": "Occurred At",
+                "description": "Timestamp for the event, ISO 8601 format.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of ecommerce event",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "product-view",
+              "value": "product-view"
+            },
+            {
+              "label": "add-to-cart",
+              "value": "add-to-cart"
+            },
+            {
+              "label": "purchase",
+              "value": "purchase"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of ecommerce event",
+                "type": "string",
+                "enum": ["product-view", "add-to-cart", "purchase"]
+              }
+            },
+            "required": ["eventType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Items",
+          "description": "List of items.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "productId": {
+                  "@path": "$.product_id"
+                },
+                "productVariantId": {
+                  "@path": "$.variant"
+                },
+                "value": {
+                  "@path": "$.price"
+                },
+                "productImage": {
+                  "@path": "$.image_url"
+                },
+                "productUrl": {
+                  "@path": "$.url"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "currency": {
+                  "@path": "$.currency"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "title": "Items",
+                "description": "List of items.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "productId": {
+                      "title": "productId",
+                      "description": "A unique identifier for the product (i.e. \"T-Shirt\").",
+                      "type": "string"
+                    },
+                    "productVariantId": {
+                      "title": "productVariantId",
+                      "description": "A unique identifier for the product variant (i.e. \"Medium Blue T-Shirt\").",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "value",
+                      "description": "The price of the product.",
+                      "type": "number"
+                    },
+                    "productImage": {
+                      "title": "productImage",
+                      "description": "A link to the image of the product. The image should not be larger than 500kb. This image will be used when sending MMS text messages.",
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "productUrl": {
+                      "title": "productUrl",
+                      "description": "The URL for the product.",
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "name": {
+                      "title": "name",
+                      "description": "The name of the product. This should be in a format that could be used directly in a message.",
+                      "type": "string"
+                    },
+                    "currency": {
+                      "title": "currency",
+                      "description": "Default: \"USD\". The currency used for the price in ISO 4217 format.",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "quantity",
+                      "description": "The number of products.",
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["productId", "productVariantId", "value"]
+                }
+              }
+            },
+            "required": ["items"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "subscribeUser",
+      "name": "Subscribe User to Attentive",
+      "description": "Send a subscription request to Attentive.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"User Subscibed\"",
+      "fields": [
+        {
+          "fieldKey": "userIdentifiers",
+          "type": "object",
+          "label": "User Identifiers",
+          "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+          "defaultValue": {
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "clientUserId": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userIdentifiers": {
+                "title": "User Identifiers",
+                "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The user's phone number in E.164 format.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "clientUserId": {
+                    "title": "Client User ID",
+                    "description": "A primary ID for a user. Should be a UUID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userIdentifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "occurredAt",
+          "type": "string",
+          "label": "Occurred At",
+          "description": "Timestamp for the event, ISO 8601 format.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "occurredAt": {
+                "title": "Occurred At",
+                "description": "Timestamp for the event, ISO 8601 format.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalEventId",
+          "type": "string",
+          "label": "External Event Id",
+          "description": "A unique identifier representing this specific event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalEventId": {
+                "title": "External Event Id",
+                "description": "A unique identifier representing this specific event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subscriptionType",
+          "type": "string",
+          "label": "Subscription Type",
+          "description": "Type of subscription",
+          "defaultValue": "TRANSACTIONAL",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "MARKETING",
+              "value": "MARKETING"
+            },
+            {
+              "label": "TRANSACTIONAL",
+              "value": "TRANSACTIONAL"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subscriptionType": {
+                "title": "Subscription Type",
+                "description": "Type of subscription",
+                "type": "string",
+                "enum": ["MARKETING", "TRANSACTIONAL"]
+              }
+            },
+            "required": ["subscriptionType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "User locale. e.g. \"en-US\". Either Locale or Signup Source ID is required.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "User locale. e.g. \"en-US\". Either Locale or Signup Source ID is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "signUpSourceId",
+          "type": "string",
+          "label": "Signup Source ID",
+          "description": "A unique identifier for the sign up source. Talk to your Attentive represenative. Either Locale or Signup Source ID is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "signUpSourceId": {
+                "title": "Signup Source ID",
+                "description": "A unique identifier for the sign up source. Talk to your Attentive represenative. Either Locale or Signup Source ID is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "singleOptIn",
+          "type": "boolean",
+          "label": "Single Opt-In",
+          "description": "Whether to use single opt-in for the subscription.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "singleOptIn": {
+                "title": "Single Opt-In",
+                "description": "Whether to use single opt-in for the subscription.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertUserAttributes",
+      "name": "Upsert Custom Attributes",
+      "description": "Upserts custom attributes on a user profile in Attentive.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "userIdentifiers",
+          "type": "object",
+          "label": "User Identifiers",
+          "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+          "defaultValue": {
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "clientUserId": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userIdentifiers": {
+                "title": "User Identifiers",
+                "description": "At least one identifier is required. Custom identifiers can be added as additional key:value pairs.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The user's phone number in E.164 format.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "clientUserId": {
+                    "title": "Client User ID",
+                    "description": "A primary ID for a user. Should be a UUID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userIdentifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Metadata to associate with the event.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Metadata to associate with the event.",
+                "type": "object"
+              }
+            },
+            "required": ["properties"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "ecommEvent",
+      "name": "Add to Cart",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "userIdentifiers": {
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "clientUserId": {
+            "@path": "$.userId"
+          }
+        },
+        "occurredAt": {
+          "@path": "$.timestamp"
+        },
+        "items": {
+          "productId": {
+            "@path": "$.properties.product_id"
+          },
+          "productVariantId": {
+            "@path": "$.properties.variant"
+          },
+          "value": {
+            "@path": "$.properties.price"
+          },
+          "productImage": {
+            "@path": "$.properties.image_url"
+          },
+          "productUrl": {
+            "@path": "$.properties.url"
+          },
+          "name": {
+            "@path": "$.properties.name"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "quantity": {
+            "@path": "$.properties.quantity"
+          }
+        },
+        "eventType": "add-to-cart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "ecommEvent",
+      "name": "Purchase",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "userIdentifiers": {
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "clientUserId": {
+            "@path": "$.userId"
+          }
+        },
+        "occurredAt": {
+          "@path": "$.timestamp"
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "productId": {
+                "@path": "$.product_id"
+              },
+              "productVariantId": {
+                "@path": "$.variant"
+              },
+              "value": {
+                "@path": "$.price"
+              },
+              "productImage": {
+                "@path": "$.image_url"
+              },
+              "productUrl": {
+                "@path": "$.url"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "currency": {
+                "@path": "$.currency"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "eventType": "purchase"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "subscribeUser",
+      "name": "Subscribe User",
+      "subscribe": "type = \"track\" and event = \"User Subscribed\"",
+      "mapping": {
+        "userIdentifiers": {
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "clientUserId": {
+            "@path": "$.userId"
+          }
+        },
+        "occurredAt": {
+          "@path": "$.timestamp"
+        },
+        "externalEventId": {
+          "@path": "$.messageId"
+        },
+        "subscriptionType": "TRANSACTIONAL",
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "singleOptIn": false
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "upsertUserAttributes",
+      "name": "Upsert User Attributes",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userIdentifiers": {
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "clientUserId": {
+            "@path": "$.userId"
+          }
+        },
+        "properties": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "ecommEvent",
+      "name": "View Item",
+      "subscribe": "event = \"Product Viewed\"",
+      "mapping": {
+        "userIdentifiers": {
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "clientUserId": {
+            "@path": "$.userId"
+          }
+        },
+        "occurredAt": {
+          "@path": "$.timestamp"
+        },
+        "items": {
+          "productId": {
+            "@path": "$.properties.product_id"
+          },
+          "productVariantId": {
+            "@path": "$.properties.variant"
+          },
+          "value": {
+            "@path": "$.properties.price"
+          },
+          "productImage": {
+            "@path": "$.properties.image_url"
+          },
+          "productUrl": {
+            "@path": "$.properties.url"
+          },
+          "name": {
+            "@path": "$.properties.name"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "quantity": {
+            "@path": "$.properties.quantity"
+          }
+        },
+        "eventType": "view-item"
+      },
+      "type": "automatic"
+    }
+  ]
+}

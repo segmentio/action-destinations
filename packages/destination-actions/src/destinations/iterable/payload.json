@@ -1,0 +1,1725 @@
+{
+  "name": "Iterable (Actions)",
+  "basicOptions": ["apiKey", "dataCenterLocation"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "dataCenterLocation": {
+      "tags": ["authentication:test"],
+      "default": "united_states",
+      "description": "The location where your Iterable data is hosted.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Data Center Location",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "united_states",
+          "label": "United States",
+          "text": "United States"
+        },
+        {
+          "value": "europe",
+          "label": "Europe",
+          "text": "Europe"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "updateCart",
+      "name": "Cart Updates",
+      "description": "Updates the shoppingCartItems field on the user profile.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event == \"Cart Updated\"",
+      "fields": [
+        {
+          "fieldKey": "user",
+          "type": "object",
+          "label": "User Data",
+          "description": "Updates user data or adds a user if none exists",
+          "defaultValue": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "dataFields": {
+              "@path": "$.context.traits"
+            },
+            "phoneNumber": {
+              "@path": "$.context.traits.phone"
+            },
+            "mergeNestedObjects": false
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user": {
+                "title": "User Data",
+                "description": "Updates user data or adds a user if none exists",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email Address",
+                    "description": "An email address that identifies a user profile in Iterable.",
+                    "type": "string",
+                    "format": "email",
+                    "default": {
+                      "@if": {
+                        "exists": {
+                          "@path": "$.properties.email"
+                        },
+                        "then": {
+                          "@path": "$.properties.email"
+                        },
+                        "else": {
+                          "@path": "$.context.traits.email"
+                        }
+                      }
+                    }
+                  },
+                  "userId": {
+                    "title": "User ID",
+                    "description": "A user ID that identifies a user profile in Iterable.",
+                    "type": "string",
+                    "default": {
+                      "@path": "$.userId"
+                    }
+                  },
+                  "mergeNestedObjects": {
+                    "title": "Merge Nested Objects",
+                    "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "dataFields": {
+                    "title": "User Data Fields",
+                    "description": "Data to store on the user profile.",
+                    "type": "object",
+                    "default": {
+                      "@path": "$.traits"
+                    }
+                  },
+                  "phoneNumber": {
+                    "title": "User Phone Number",
+                    "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+                    "type": ["string", "null"],
+                    "default": {
+                      "@path": "$.traits.phone"
+                    }
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["user"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Cart items",
+          "description": "Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "product_id"
+                },
+                "sku": {
+                  "@path": "sku"
+                },
+                "categories": {
+                  "@path": "category"
+                },
+                "name": {
+                  "@path": "name"
+                },
+                "price": {
+                  "@path": "price"
+                },
+                "quantity": {
+                  "@path": "quantity"
+                },
+                "url": {
+                  "@path": "url"
+                },
+                "imageUrl": {
+                  "@path": "image_url"
+                },
+                "description": {
+                  "@path": "description"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "items": {
+                "title": "Cart items",
+                "description": "Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "id": {
+                      "title": "Product Id",
+                      "description": "The unique identifier of the commerce item in the cart.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "The name or title of the product in the cart.",
+                      "type": "string"
+                    },
+                    "sku": {
+                      "title": "Product SKU",
+                      "description": "The Stock Keeping Unit (SKU) code that identifies the specific product.",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "The quantity of the product in the cart.",
+                      "type": "integer"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "description": "The unit price of the product in the cart.",
+                      "type": "number"
+                    },
+                    "description": {
+                      "title": "Product Description",
+                      "description": "A brief description of the product in the cart.",
+                      "type": "string"
+                    },
+                    "categories": {
+                      "title": "Product Category",
+                      "description": "A category name or label associated with the product in the cart.",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Product URL",
+                      "description": "The URL to view or purchase the product in the cart.",
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "title": "Product Image URL",
+                      "description": "The URL of an image representing the product in the cart.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "name", "quantity", "price"]
+                }
+              }
+            },
+            "required": ["items"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Custom Event",
+      "description": "Track a custom event to a user profile",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event != \"Order Completed\" and event != \"Cart Updated\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "An email address that identifies a user profile in Iterable.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "An email address that identifies a user profile in Iterable.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A user ID that identifies a user profile in Iterable.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A user ID that identifies a user profile in Iterable.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event name",
+          "description": "Name of the event",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event name",
+                "description": "Name of the event",
+                "type": "string"
+              }
+            },
+            "required": ["eventName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataFields",
+          "type": "object",
+          "label": "Event Data Fields",
+          "description": "Additional event properties.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataFields": {
+                "title": "Event Data Fields",
+                "description": "Additional event properties.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "A unique ID. If an event exists with that id, the event will be updated",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Event ID",
+                "description": "A unique ID. If an event exists with that id, the event will be updated",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "createdAt",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Time the event took place.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "createdAt": {
+                "title": "Timestamp",
+                "description": "Time the event took place.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaignId",
+          "type": "integer",
+          "label": "Campaign ID",
+          "description": "Iterable campaign the event can be attributed to.",
+          "defaultValue": {
+            "@path": "$.properties.campaignId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaignId": {
+                "title": "Campaign ID",
+                "description": "Iterable campaign the event can be attributed to.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "templateId",
+          "type": "integer",
+          "label": "Template ID",
+          "description": "Iterable template the event can be attributed to.",
+          "defaultValue": {
+            "@path": "$.properties.templateId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "templateId": {
+                "title": "Template ID",
+                "description": "Iterable template the event can be attributed to.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, Segment will send data to Iterable in batches of up to 1001",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, Segment will send data to Iterable in batches of up to 1001",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1001,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPurchase",
+      "name": "Track Purchase",
+      "description": "Tracks a purchase to Iterable",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event == \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Order ID",
+          "description": "Similar to `Event ID` in custom events. Iterable recommends mapping `order_id` or `messageId`. If a purchase exists with that id, the purchase will be updated. If none is specified, a new id will automatically be generated by Iterable",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Order ID",
+                "description": "Similar to `Event ID` in custom events. Iterable recommends mapping `order_id` or `messageId`. If a purchase exists with that id, the purchase will be updated. If none is specified, a new id will automatically be generated by Iterable",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user",
+          "type": "object",
+          "label": "User Data",
+          "description": "Updates user data or adds a user if none exists",
+          "defaultValue": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "dataFields": {
+              "@path": "$.context.traits"
+            },
+            "phoneNumber": {
+              "@path": "$.context.traits.phone"
+            },
+            "mergeNestedObjects": false
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user": {
+                "title": "User Data",
+                "description": "Updates user data or adds a user if none exists",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email Address",
+                    "description": "An email address that identifies a user profile in Iterable.",
+                    "type": "string",
+                    "format": "email",
+                    "default": {
+                      "@if": {
+                        "exists": {
+                          "@path": "$.properties.email"
+                        },
+                        "then": {
+                          "@path": "$.properties.email"
+                        },
+                        "else": {
+                          "@path": "$.context.traits.email"
+                        }
+                      }
+                    }
+                  },
+                  "userId": {
+                    "title": "User ID",
+                    "description": "A user ID that identifies a user profile in Iterable.",
+                    "type": "string",
+                    "default": {
+                      "@path": "$.userId"
+                    }
+                  },
+                  "dataFields": {
+                    "title": "User Data Fields",
+                    "description": "Data to store on the user profile.",
+                    "type": "object",
+                    "default": {
+                      "@path": "$.traits"
+                    }
+                  },
+                  "mergeNestedObjects": {
+                    "title": "Merge Nested Objects",
+                    "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "phoneNumber": {
+                    "title": "User Phone Number",
+                    "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+                    "type": ["string", "null"],
+                    "default": {
+                      "@path": "$.traits.phone"
+                    }
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["user"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataFields",
+          "type": "object",
+          "label": "Event Data Fields",
+          "description": "Additional event properties.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataFields": {
+                "title": "Event Data Fields",
+                "description": "Additional event properties.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Cart items",
+          "description": "Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "product_id"
+                },
+                "sku": {
+                  "@path": "sku"
+                },
+                "categories": {
+                  "@path": "category"
+                },
+                "name": {
+                  "@path": "name"
+                },
+                "price": {
+                  "@path": "price"
+                },
+                "quantity": {
+                  "@path": "quantity"
+                },
+                "url": {
+                  "@path": "url"
+                },
+                "imageUrl": {
+                  "@path": "image_url"
+                },
+                "description": {
+                  "@path": "description"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "items": {
+                "title": "Cart items",
+                "description": "Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "id": {
+                      "title": "Product Id",
+                      "description": "The unique identifier of the commerce item in the cart.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "The name or title of the product in the cart.",
+                      "type": "string"
+                    },
+                    "sku": {
+                      "title": "Product SKU",
+                      "description": "The Stock Keeping Unit (SKU) code that identifies the specific product.",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "The quantity of the product in the cart.",
+                      "type": "integer"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "description": "The unit price of the product in the cart.",
+                      "type": "number"
+                    },
+                    "description": {
+                      "title": "Product Description",
+                      "description": "A brief description of the product in the cart.",
+                      "type": "string"
+                    },
+                    "categories": {
+                      "title": "Product Category",
+                      "description": "A category name or label associated with the product in the cart.",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Product URL",
+                      "description": "The URL to view or purchase the product in the cart.",
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "title": "Product Image URL",
+                      "description": "The URL of an image representing the product in the cart.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "name", "quantity", "price"]
+                }
+              }
+            },
+            "required": ["items"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "total",
+          "type": "number",
+          "label": "Total",
+          "description": "Total order amount.",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "total": {
+                "title": "Total",
+                "description": "Total order amount.",
+                "type": "number"
+              }
+            },
+            "required": ["total"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "createdAt",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Time the event took place.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "createdAt": {
+                "title": "Timestamp",
+                "description": "Time the event took place.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaignId",
+          "type": "integer",
+          "label": "Campaign ID",
+          "description": "Iterable campaign the event can be attributed to.",
+          "defaultValue": {
+            "@path": "$.properties.campaignId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaignId": {
+                "title": "Campaign ID",
+                "description": "Iterable campaign the event can be attributed to.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "templateId",
+          "type": "integer",
+          "label": "Template ID",
+          "description": "Iterable template the event can be attributed to.",
+          "defaultValue": {
+            "@path": "$.properties.templateId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "templateId": {
+                "title": "Template ID",
+                "description": "Iterable template the event can be attributed to.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateUser",
+      "name": "Upsert User",
+      "description": "Creates or updates a user",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "An email address that identifies a user profile in Iterable.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "An email address that identifies a user profile in Iterable.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A user ID that identifies a user profile in Iterable.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A user ID that identifies a user profile in Iterable.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataFields",
+          "type": "object",
+          "label": "User Data Fields",
+          "description": "Data to store on the user profile.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataFields": {
+                "title": "User Data Fields",
+                "description": "Data to store on the user profile.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phoneNumber",
+          "type": "string",
+          "label": "User Phone Number",
+          "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phoneNumber": {
+                "title": "User Phone Number",
+                "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mergeNestedObjects",
+          "type": "boolean",
+          "label": "Merge Nested Objects",
+          "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mergeNestedObjects": {
+                "title": "Merge Nested Objects",
+                "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, Segment will send data to Iterable in batches of up to 1001",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, Segment will send data to Iterable in batches of up to 1001",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1001,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "trackEvent",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "updateUser",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "dataFields": {
+          "@path": "$.traits"
+        },
+        "phoneNumber": {
+          "@path": "$.traits.phone"
+        },
+        "mergeNestedObjects": false,
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Entities Exited",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "partnerAction": "updateUser",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "dataFields": {
+          "@path": "$.traits"
+        },
+        "phoneNumber": {
+          "@path": "$.traits.phone"
+        },
+        "mergeNestedObjects": false,
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "updateUser",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "dataFields": {
+          "@path": "$.traits"
+        },
+        "phoneNumber": {
+          "@path": "$.traits.phone"
+        },
+        "mergeNestedObjects": false,
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Journeys Step Transition Track",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "partnerAction": "trackPurchase",
+      "name": "Order Completed Calls",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "id": {
+          "@path": "$.properties.order_id"
+        },
+        "user": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "dataFields": {
+            "@path": "$.context.traits"
+          },
+          "phoneNumber": {
+            "@path": "$.context.traits.phone"
+          },
+          "mergeNestedObjects": false
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "product_id"
+              },
+              "sku": {
+                "@path": "sku"
+              },
+              "categories": {
+                "@path": "category"
+              },
+              "name": {
+                "@path": "name"
+              },
+              "price": {
+                "@path": "price"
+              },
+              "quantity": {
+                "@path": "quantity"
+              },
+              "url": {
+                "@path": "url"
+              },
+              "imageUrl": {
+                "@path": "image_url"
+              },
+              "description": {
+                "@path": "description"
+              }
+            }
+          ]
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\" and event != \"Order Completed\" and event != \"Cart Updated\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "updateCart",
+      "name": "Update Cart Calls",
+      "subscribe": "type = \"track\" and event = \"Cart Updated\"",
+      "mapping": {
+        "user": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "dataFields": {
+            "@path": "$.context.traits"
+          },
+          "phoneNumber": {
+            "@path": "$.context.traits.phone"
+          },
+          "mergeNestedObjects": false
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "product_id"
+              },
+              "sku": {
+                "@path": "sku"
+              },
+              "categories": {
+                "@path": "category"
+              },
+              "name": {
+                "@path": "name"
+              },
+              "price": {
+                "@path": "price"
+              },
+              "quantity": {
+                "@path": "quantity"
+              },
+              "url": {
+                "@path": "url"
+              },
+              "imageUrl": {
+                "@path": "image_url"
+              },
+              "description": {
+                "@path": "description"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

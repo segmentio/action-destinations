@@ -1,0 +1,520 @@
+{
+  "name": "Display and Video 360 (Actions)",
+  "basicOptions": [
+    "advertiserId",
+    "accountType",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "advertiserId": {
+      "tags": [],
+      "default": "",
+      "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The advertiserId property is required."]],
+      "uIMetadata": null
+    },
+    "accountType": {
+      "tags": [],
+      "default": "",
+      "description": "The type of the advertiser account you have linked to this Display & Video 360 destination.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Account Type",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "DISPLAY_VIDEO_ADVERTISER",
+          "label": "Advertiser",
+          "text": "Advertiser"
+        },
+        {
+          "value": "DISPLAY_VIDEO_PARTNER",
+          "label": "Partner",
+          "text": "Partner"
+        },
+        {
+          "value": "GOOGLE_AD_MANAGER",
+          "label": "Publisher",
+          "text": "Publisher"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The accountType property is required."]],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "addToAudience",
+      "name": "Add to Audience",
+      "description": "Add a user to a Display & Video 360 audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the Display & Video 360.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the Display & Video 360.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "External Audience ID",
+          "description": "The Audience ID in Google's DB.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "External Audience ID",
+                "description": "The Audience ID in Google's DB.",
+                "type": "string"
+              }
+            },
+            "required": ["external_audience_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mobile_advertising_id",
+          "type": "string",
+          "label": "Mobile Advertising ID",
+          "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobile_advertising_id": {
+                "title": "Mobile Advertising ID",
+                "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "google_gid",
+          "type": "string",
+          "label": "Google GID",
+          "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+          "defaultValue": {
+            "@path": "$.context.DV360.google_gid"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "google_gid": {
+                "title": "Google GID",
+                "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "partner_provided_id",
+          "type": "string",
+          "label": "Partner Provided ID",
+          "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "partner_provided_id": {
+                "title": "Partner Provided ID",
+                "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeFromAudience",
+      "name": "Remove from Audience",
+      "description": "Remove users from an audience",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the Display & Video 360.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the Display & Video 360.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "External Audience ID",
+          "description": "The Audience ID in Google's DB.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "External Audience ID",
+                "description": "The Audience ID in Google's DB.",
+                "type": "string"
+              }
+            },
+            "required": ["external_audience_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mobile_advertising_id",
+          "type": "string",
+          "label": "Mobile Advertising ID",
+          "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobile_advertising_id": {
+                "title": "Mobile Advertising ID",
+                "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "google_gid",
+          "type": "string",
+          "label": "Google GID",
+          "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+          "defaultValue": {
+            "@path": "$.context.DV360.google_gid"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "google_gid": {
+                "title": "Google GID",
+                "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "partner_provided_id",
+          "type": "string",
+          "label": "Partner Provided ID",
+          "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "partner_provided_id": {
+                "title": "Partner Provided ID",
+                "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "addToAudience",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "removeFromAudience",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "addToAudience",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "removeFromAudience",
+      "name": "Entities Audience Exited",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "partnerAction": "addToAudience",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

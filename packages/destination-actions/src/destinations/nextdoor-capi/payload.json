@@ -1,0 +1,892 @@
+{
+  "name": "Nextdoor Conversions API",
+  "basicOptions": ["apiKey", "client_id", "pixel_id"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Embed API Key for your account. You can find this on your settings pages.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "client_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Nextdoor Advertiser ID for self serve clients can be found in your NAM account for managed your support team can provide",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Nextdoor Advertiser ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The client_id property is required."]],
+      "uIMetadata": null
+    },
+    "pixel_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Nextdoor Pixel Id. Used for deduplication when events are sent via CAPI and front end Pixel.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Nextdoor Pixel Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The pixel_id property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "nextdoorPlugin",
+      "name": "Nextdoor Browser Plugin",
+      "description": "Enriches Segment payloads the Nextdoor Click ID",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "fields": []
+    },
+    {
+      "slug": "sendConversion",
+      "name": "Send Conversion",
+      "description": "Send Conversion Event to Nextdoor",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to track",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Custom Conversion 1",
+              "value": "custom_conversion_1"
+            },
+            {
+              "label": "Custom Conversion 2",
+              "value": "custom_conversion_2"
+            },
+            {
+              "label": "Custom Conversion 3",
+              "value": "custom_conversion_3"
+            },
+            {
+              "label": "Custom Conversion 4",
+              "value": "custom_conversion_4"
+            },
+            {
+              "label": "Custom Conversion 5",
+              "value": "custom_conversion_5"
+            },
+            {
+              "label": "Custom Conversion 6",
+              "value": "custom_conversion_6"
+            },
+            {
+              "label": "Custom Conversion 7",
+              "value": "custom_conversion_7"
+            },
+            {
+              "label": "Custom Conversion 8",
+              "value": "custom_conversion_8"
+            },
+            {
+              "label": "Custom Conversion 9",
+              "value": "custom_conversion_9"
+            },
+            {
+              "label": "Custom Conversion 10",
+              "value": "custom_conversion_10"
+            },
+            {
+              "label": "Lead",
+              "value": "lead"
+            },
+            {
+              "label": "Purchase",
+              "value": "purchase"
+            },
+            {
+              "label": "Sign Up",
+              "value": "sign_up"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event to track",
+                "type": "string",
+                "enum": [
+                  "custom_conversion_1",
+                  "custom_conversion_2",
+                  "custom_conversion_3",
+                  "custom_conversion_4",
+                  "custom_conversion_5",
+                  "custom_conversion_6",
+                  "custom_conversion_7",
+                  "custom_conversion_8",
+                  "custom_conversion_9",
+                  "custom_conversion_10",
+                  "lead",
+                  "purchase",
+                  "sign_up"
+                ]
+              }
+            },
+            "required": ["event_name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "A unique ID for the event. This is used to deduplicate events sent by the browser and server.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "A unique ID for the event. This is used to deduplicate events sent by the browser and server.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_time",
+          "type": "string",
+          "label": "Event Time",
+          "description": "UCT Timestamp with ISO 8601 format. For example, 2022-11-23T03:30:52Z",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_time": {
+                "title": "Event Time",
+                "description": "UCT Timestamp with ISO 8601 format. For example, 2022-11-23T03:30:52Z",
+                "type": "string"
+              }
+            },
+            "required": ["event_time"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action_source",
+          "type": "string",
+          "label": "Action Source",
+          "description": "Indicates the channel through which conversion happened.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "email",
+              "value": "email"
+            },
+            {
+              "label": "website",
+              "value": "website"
+            },
+            {
+              "label": "app",
+              "value": "app"
+            },
+            {
+              "label": "phone_call",
+              "value": "phone_call"
+            },
+            {
+              "label": "chat",
+              "value": "chat"
+            },
+            {
+              "label": "physical_store",
+              "value": "physical_store"
+            },
+            {
+              "label": "system_generated",
+              "value": "system_generated"
+            },
+            {
+              "label": "other",
+              "value": "custom_conversion_8"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action_source": {
+                "title": "Action Source",
+                "description": "Indicates the channel through which conversion happened.",
+                "type": "string",
+                "enum": [
+                  "email",
+                  "website",
+                  "app",
+                  "phone_call",
+                  "chat",
+                  "physical_store",
+                  "system_generated",
+                  "custom_conversion_8"
+                ]
+              }
+            },
+            "required": ["action_source"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action_source_url",
+          "type": "string",
+          "label": "Action Source url",
+          "description": "The browser URL where the event happened (required for web events).",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action_source_url": {
+                "title": "Action Source url",
+                "description": "The browser URL where the event happened (required for web events).",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["action_source"],
+                  "properties": {
+                    "action_source": {
+                      "const": "website"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["action_source_url"]
+                }
+              }
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "action_source",
+                  "operator": "is",
+                  "value": "website"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "delivery_optimization",
+          "type": "boolean",
+          "label": "Delivery Optimization",
+          "description": "True indicates data can be used for optimization. False indicates the data will only be used for attribution",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delivery_optimization": {
+                "title": "Delivery Optimization",
+                "description": "True indicates data can be used for optimization. False indicates the data will only be used for attribution",
+                "type": "boolean"
+              }
+            },
+            "required": ["delivery_optimization"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "test_event",
+          "type": "boolean",
+          "label": "Test Event",
+          "description": "Flag to indicate if this is a test event.",
+          "defaultValue": false,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "test_event": {
+                "title": "Test Event",
+                "description": "Flag to indicate if this is a test event.",
+                "type": "boolean"
+              }
+            },
+            "required": ["test_event"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "partner_id",
+          "type": "string",
+          "label": "Partner Id",
+          "description": "ID of partners like Segment",
+          "defaultValue": "segment",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Segment",
+              "value": "segment"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "partner_id": {
+                "title": "Partner Id",
+                "description": "ID of partners like Segment",
+                "type": "string",
+                "enum": ["segment"]
+              }
+            },
+            "required": ["partner_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customer",
+          "type": "object",
+          "label": "Customer Data",
+          "description": "Customer profile data used to match with Nextdoor users. At least one of the fields is required.",
+          "defaultValue": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "phone_number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "first_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.context.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.context.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "date_of_birth": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.birthday"
+                },
+                "then": {
+                  "@path": "$.context.traits.birthday"
+                },
+                "else": {
+                  "@path": "$.properties.birthday"
+                }
+              }
+            },
+            "street_address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.street"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.street"
+                },
+                "else": {
+                  "@path": "$.properties.address.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.properties.address.city"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.properties.address.state"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.properties.address.country"
+                }
+              }
+            },
+            "zip_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.properties.address.postal_code"
+                }
+              }
+            },
+            "click_id": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Nextdoor Conversions API.click_id"
+                },
+                "then": {
+                  "@path": "$.integrations.Nextdoor Conversions API.click_id"
+                },
+                "else": {
+                  "@path": "$.properties.click_id"
+                }
+              }
+            },
+            "client_ip_address": {
+              "@path": "$.context.ip"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer": {
+                "title": "Customer Data",
+                "description": "Customer profile data used to match with Nextdoor users. At least one of the fields is required.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email",
+                    "description": "Customer email address",
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "title": "Phone Number",
+                    "description": "Phone number format should consist of exactly ten digits, devoid of any special characters or international country codes e.g. 4129614932",
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "Customer first name.",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "Customer last name.",
+                    "type": "string"
+                  },
+                  "date_of_birth": {
+                    "title": "Date of Birth",
+                    "description": "Customer date of birth in ISO 8601 format. For example, 1990-01-01",
+                    "type": "string"
+                  },
+                  "street_address": {
+                    "title": "Street Address",
+                    "description": "Customer street address.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "Customer city.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "Customer State.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Customer Country",
+                    "description": "Customer Customer country code (2-letter country codes in ISO 3166-1 alpha-2).",
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "title": "Zip Code",
+                    "description": "Customer Zip code.",
+                    "type": "string"
+                  },
+                  "click_id": {
+                    "title": "Nextdoor Click ID",
+                    "description": "Next Door Click ID - ndclid parameter from the URL",
+                    "type": "string"
+                  },
+                  "client_ip_address": {
+                    "title": "Customer IP Address",
+                    "description": "Customer IP Address Must be a valid IPV4 or IPV6 address.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["customer"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom",
+          "type": "object",
+          "label": "Custom Data",
+          "description": "Custom objects contains fields specific to advertisers that are not already covered in standard fields.",
+          "defaultValue": {
+            "order_value": {
+              "@path": "$.properties.total"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "delivery_category": "not_specified"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom": {
+                "title": "Custom Data",
+                "description": "Custom objects contains fields specific to advertisers that are not already covered in standard fields.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "order_value": {
+                    "title": "Order Value",
+                    "description": "Required for purchase events. Total numeric value associated with the event. E.g. 99.99 denotes $99.99 USD. Currency is specified in the Currency field.",
+                    "type": "number"
+                  },
+                  "currency": {
+                    "title": "Currency",
+                    "description": "Currency of the order value. Use the 3-letter currency code from ISO 4217 standard.",
+                    "type": "string"
+                  },
+                  "order_id": {
+                    "title": "Order ID",
+                    "description": "The order ID for this transaction. Required for offline events.",
+                    "type": "string"
+                  },
+                  "delivery_category": {
+                    "title": "Delivery Category",
+                    "description": "How a product is delivered",
+                    "type": "string",
+                    "enum": ["not_specified", "in_store", "curbside", "home_delivery"]
+                  }
+                },
+                "required": ["delivery_category"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "product_context",
+          "type": "object",
+          "label": "Product Context",
+          "description": "Product details associated with the event.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_price": {
+                  "@path": "$.price"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "product_context": {
+                "title": "Product Context",
+                "description": "Product details associated with the event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "id": {
+                      "title": "Product ID",
+                      "description": "Product ID",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Product Quantity",
+                      "description": "Product Quantity",
+                      "type": "number"
+                    },
+                    "item_price": {
+                      "title": "Product Price",
+                      "description": "Product Price",
+                      "type": "number"
+                    }
+                  },
+                  "required": ["id"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app",
+          "type": "object",
+          "label": "Mobile App Event Parameters",
+          "description": "Data about the source Mobile app. Required for app events",
+          "defaultValue": {
+            "app_id": {
+              "@path": "$.context.app.name"
+            },
+            "app_tracking_enabled": {
+              "@path": "$.context.device.adTrackingEnabled"
+            },
+            "platform": {
+              "@path": "$.context.app.type"
+            },
+            "app_version": {
+              "@path": "$.context.app.version"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app": {
+                "title": "Mobile App Event Parameters",
+                "description": "Data about the source Mobile app. Required for app events",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "app_id": {
+                    "title": "App Id",
+                    "description": "A unique ID for advertisers mobile app ID from App store and Google Play Store.",
+                    "type": "string"
+                  },
+                  "app_tracking_enabled": {
+                    "title": "App Tracking Enabled",
+                    "description": "Users opt out settings for ATT",
+                    "type": "boolean"
+                  },
+                  "platform": {
+                    "title": "App Platfrom",
+                    "description": "Mobile app platform",
+                    "type": "string",
+                    "enum": ["ios", "android"]
+                  },
+                  "app_version": {
+                    "title": "App Version",
+                    "description": "Mobile app version",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,1321 @@
+{
+  "name": "Engage Messaging SendGrid",
+  "description": "This is an Engage specific action to send an email",
+  "basicOptions": [
+    "unlayerApiKey",
+    "sendGridApiKey",
+    "profileApiEnvironment",
+    "profileApiAccessToken",
+    "spaceId",
+    "sourceId",
+    "region"
+  ],
+  "options": {
+    "unlayerApiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The API key for your Unlayer account",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Unlayer API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "sendGridApiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Api Key for your SendGrid account",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The sendGridApiKey property is required."]],
+      "uIMetadata": null
+    },
+    "profileApiEnvironment": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Profile API Environment",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Profile API Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The profileApiEnvironment property is required."]],
+      "uIMetadata": null
+    },
+    "profileApiAccessToken": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Profile API Access Token",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Profile API Access Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The profileApiAccessToken property is required."]],
+      "uIMetadata": null
+    },
+    "spaceId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Space ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Space ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The spaceId property is required."]],
+      "uIMetadata": null
+    },
+    "sourceId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Source ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Source ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The sourceId property is required."]],
+      "uIMetadata": null
+    },
+    "region": {
+      "tags": ["authentication:test"],
+      "default": "us-west-2",
+      "description": "The region where the email is originating from",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "us-west-2",
+          "label": "US West 2",
+          "text": "US West 2"
+        },
+        {
+          "value": "eu-west-1",
+          "label": "EU West 1",
+          "text": "EU West 1"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "previewApiLookup",
+      "name": "Perform a single API lookup",
+      "description": "Perform a single API lookup and return the response",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "ID",
+          "description": "The id of the API lookup for use in logging & observability",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "ID",
+                "description": "The id of the API lookup for use in logging & observability",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The name of the API lookup referenced in liquid syntax",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The name of the API lookup referenced in liquid syntax",
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The URL endpoint to call",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The URL endpoint to call",
+                "type": "string"
+              }
+            },
+            "required": ["url"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "method",
+          "type": "string",
+          "label": "Request Method",
+          "description": "The request method, e.g. GET/POST/etc.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "method": {
+                "title": "Request Method",
+                "description": "The request method, e.g. GET/POST/etc.",
+                "type": "string"
+              }
+            },
+            "required": ["method"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cacheTtl",
+          "type": "integer",
+          "label": "Cache TTL",
+          "description": "The cache TTL in ms",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cacheTtl": {
+                "title": "Cache TTL",
+                "description": "The cache TTL in ms",
+                "type": "integer"
+              }
+            },
+            "required": ["cacheTtl"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "body",
+          "type": "string",
+          "label": "Request Body",
+          "description": "The request body for use with POST/PUT/PATCH requests",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+                "title": "Request Body",
+                "description": "The request body for use with POST/PUT/PATCH requests",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Request Headers",
+          "description": "Headers in JSON to be sent with the request",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "title": "Request Headers",
+                "description": "Headers in JSON to be sent with the request",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "responseType",
+          "type": "string",
+          "label": "Response Type",
+          "description": "The response type of the request. Currently only supporting JSON.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "responseType": {
+                "title": "Response Type",
+                "description": "The response type of the request. Currently only supporting JSON.",
+                "type": "string"
+              }
+            },
+            "required": ["responseType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "shouldRetryOnRetryableError",
+          "type": "boolean",
+          "label": "Should Retry",
+          "description": "Whether the message should be retried (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "shouldRetryOnRetryableError": {
+                "title": "Should Retry",
+                "description": "Whether the message should be retried (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "A user profile's traits",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "A user profile's traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendEmail",
+      "name": "Send Email",
+      "description": "Sends Email to a user powered by SendGrid",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "send",
+          "type": "boolean",
+          "label": "Send Message",
+          "description": "Whether or not the message should actually get sent.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send": {
+                "title": "Send Message",
+                "description": "Whether or not the message should actually get sent.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traitEnrichment",
+          "type": "boolean",
+          "label": "Trait Enrich",
+          "description": "Whether or not trait enrich from event (i.e without profile api call)",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traitEnrichment": {
+                "title": "Trait Enrich",
+                "description": "Whether or not trait enrich from event (i.e without profile api call)",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "User ID in Segment",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "User ID in Segment",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "toEmail",
+          "type": "string",
+          "label": "Test Email",
+          "description": "Email to send to when testing",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "toEmail": {
+                "title": "Test Email",
+                "description": "Email to send to when testing",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fromDomain",
+          "type": "string",
+          "label": "From Domain",
+          "description": "Verified domain in Sendgrid",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fromDomain": {
+                "title": "From Domain",
+                "description": "Verified domain in Sendgrid",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fromEmail",
+          "type": "string",
+          "label": "From Email",
+          "description": "From Email",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fromEmail": {
+                "title": "From Email",
+                "description": "From Email",
+                "type": "string"
+              }
+            },
+            "required": ["fromEmail"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fromName",
+          "type": "string",
+          "label": "From Name",
+          "description": "From Name displayed to end user email",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fromName": {
+                "title": "From Name",
+                "description": "From Name displayed to end user email",
+                "type": "string"
+              }
+            },
+            "required": ["fromName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "replyToEqualsFrom",
+          "type": "boolean",
+          "label": "Reply To Equals From",
+          "description": "Whether \"reply to\" settings are the same as \"from\"",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "replyToEqualsFrom": {
+                "title": "Reply To Equals From",
+                "description": "Whether \"reply to\" settings are the same as \"from\"",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "replyToEmail",
+          "type": "string",
+          "label": "Reply To Email",
+          "description": "The Email used by user to Reply To",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "replyToEmail": {
+                "title": "Reply To Email",
+                "description": "The Email used by user to Reply To",
+                "type": "string"
+              }
+            },
+            "required": ["replyToEmail"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "replyToName",
+          "type": "string",
+          "label": "Reply To Name",
+          "description": "The Name used by user to Reply To",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "replyToName": {
+                "title": "Reply To Name",
+                "description": "The Name used by user to Reply To",
+                "type": "string"
+              }
+            },
+            "required": ["replyToName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bcc",
+          "type": "string",
+          "label": "BCC",
+          "description": "BCC list of emails",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bcc": {
+                "title": "BCC",
+                "description": "BCC list of emails",
+                "type": "string"
+              }
+            },
+            "required": ["bcc"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "previewText",
+          "type": "string",
+          "label": "Preview Text",
+          "description": "Preview Text",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "previewText": {
+                "title": "Preview Text",
+                "description": "Preview Text",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subject",
+          "type": "string",
+          "label": "Subject",
+          "description": "Subject for the email to be sent",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subject": {
+                "title": "Subject",
+                "description": "Subject for the email to be sent",
+                "type": "string"
+              }
+            },
+            "required": ["subject"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "body",
+          "type": "text",
+          "label": "Body",
+          "description": "The message body",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+                "title": "Body",
+                "description": "The message body",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bodyUrl",
+          "type": "text",
+          "label": "Body URL",
+          "description": "URL to the message body",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bodyUrl": {
+                "title": "Body URL",
+                "description": "URL to the message body",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bodyType",
+          "type": "string",
+          "label": "Body Type",
+          "description": "The type of body which is used generally html | design",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bodyType": {
+                "title": "Body Type",
+                "description": "The type of body which is used generally html | design",
+                "type": "string"
+              }
+            },
+            "required": ["bodyType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bodyHtml",
+          "type": "string",
+          "label": "Body Html",
+          "description": "The HTML content of the body",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bodyHtml": {
+                "title": "Body Html",
+                "description": "The HTML content of the body",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "Subscription group ID",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "Subscription group ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "byPassSubscription",
+          "type": "boolean",
+          "label": "By Pass Subscription",
+          "description": "Send email without subscription check",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "byPassSubscription": {
+                "title": "By Pass Subscription",
+                "description": "Send email without subscription check",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ipPool",
+          "type": "string",
+          "label": "IP Pool",
+          "description": "Send email with an ip pool",
+          "defaultValue": "",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ipPool": {
+                "title": "IP Pool",
+                "description": "Send email with an ip pool",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendBasedOnOptOut",
+          "type": "boolean",
+          "label": "Send OptOut",
+          "description": "Send to any subscription status other than unsubscribed",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendBasedOnOptOut": {
+                "title": "Send OptOut",
+                "description": "Send to any subscription status other than unsubscribed",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "apiLookups",
+          "type": "object",
+          "label": "API Lookups",
+          "description": "Any API lookup configs that are needed to send the template",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "apiLookups": {
+                "title": "API Lookups",
+                "description": "Any API lookup configs that are needed to send the template",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "title": "ID",
+                      "description": "The id of the API lookup for use in logging & observability",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "description": "The name of the API lookup referenced in liquid syntax",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "URL",
+                      "description": "The URL endpoint to call",
+                      "type": "string"
+                    },
+                    "method": {
+                      "title": "Request Method",
+                      "description": "The request method, e.g. GET/POST/etc.",
+                      "type": "string"
+                    },
+                    "cacheTtl": {
+                      "title": "Cache TTL",
+                      "description": "The cache TTL in ms",
+                      "type": "integer"
+                    },
+                    "body": {
+                      "title": "Request Body",
+                      "description": "The request body for use with POST/PUT/PATCH requests",
+                      "type": "string"
+                    },
+                    "headers": {
+                      "title": "Request Headers",
+                      "description": "Headers in JSON to be sent with the request",
+                      "type": "object"
+                    },
+                    "responseType": {
+                      "title": "Response Type",
+                      "description": "The response type of the request. Currently only supporting JSON.",
+                      "type": "string"
+                    },
+                    "shouldRetryOnRetryableError": {
+                      "title": "Should Retry",
+                      "description": "Whether the message should be retried (if the error code is retryable) when the data feed fails or if it should be sent with empty data instead",
+                      "type": "boolean"
+                    }
+                  },
+                  "required": ["name", "url", "method", "cacheTtl", "responseType"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segmentComputationId",
+          "type": "string",
+          "label": "Segment Computation ID",
+          "description": "Segment computation ID",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentComputationId": {
+                "title": "Segment Computation ID",
+                "description": "Segment computation ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalIds",
+          "type": "object",
+          "label": "External IDs",
+          "description": "An array of user profile identity information.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.external_ids",
+              {
+                "id": {
+                  "@path": "$.id"
+                },
+                "type": {
+                  "@path": "$.type"
+                },
+                "subscriptionStatus": {
+                  "@path": "$.isSubscribed"
+                },
+                "unsubscribeLink": {
+                  "@path": "$.unsubscribeLink"
+                },
+                "preferencesLink": {
+                  "@path": "$.preferencesLink"
+                },
+                "groups": {
+                  "@path": "$.groups"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalIds": {
+                "title": "External IDs",
+                "description": "An array of user profile identity information.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "title": "ID",
+                      "description": "A unique identifier for the collection.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "type",
+                      "description": "The external ID contact type.",
+                      "type": "string"
+                    },
+                    "subscriptionStatus": {
+                      "title": "subscriptionStatus",
+                      "description": "The subscription status for the identity.",
+                      "type": "string"
+                    },
+                    "unsubscribeLink": {
+                      "title": "unsubscribeLink",
+                      "description": "Unsubscribe link for the end user",
+                      "type": "string"
+                    },
+                    "preferencesLink": {
+                      "title": "preferencesLink",
+                      "description": "Preferences link for the end user",
+                      "type": "string"
+                    },
+                    "groups": {
+                      "title": "Subscription Groups",
+                      "description": "Subscription groups and their statuses for this id.",
+                      "type": "array",
+                      "items": {
+                        "$schema": "http://json-schema.org/schema#",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "title": "Subscription group id",
+                            "type": "string"
+                          },
+                          "isSubscribed": {
+                            "title": "status",
+                            "description": "Group subscription status true is subscribed, false is unsubscribed or did-not-subscribe",
+                            "type": "boolean"
+                          },
+                          "groupUnsubscribeLink": {
+                            "title": "groupUnsubscribeLink",
+                            "description": "Group unsubscribe link for the end user",
+                            "type": "string"
+                          }
+                        },
+                        "required": []
+                      }
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customArgs",
+          "type": "object",
+          "label": "Custom Args",
+          "description": "Additional custom args that we be passed back opaquely on webhook events",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customArgs": {
+                "title": "Custom Args",
+                "description": "Additional custom args that we be passed back opaquely on webhook events",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "A user profile's traits",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "A user profile's traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventOccurredTS",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventOccurredTS": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

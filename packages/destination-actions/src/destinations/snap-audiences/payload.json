@@ -1,0 +1,655 @@
+{
+  "name": "Snap Audiences (Actions)",
+  "basicOptions": [
+    "ad_account_id",
+    "customAudienceName",
+    "description",
+    "retention_in_days",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "ad_account_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The ID of the Snap Ad Account",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Ad Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The ad_account_id property is required."]],
+      "uIMetadata": null
+    },
+    "customAudienceName": {
+      "tags": [],
+      "default": "",
+      "description": "Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Audience Name",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "description": {
+      "tags": [],
+      "default": "",
+      "description": "Description of for the audience that will be created in Snap.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Audience Description",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "retention_in_days": {
+      "tags": [],
+      "default": 9999,
+      "description": "Number of days to retain audience members. (Default retention is lifetime represented as 9999)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Retention in days",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "syncAudience",
+      "name": "Sync Audience",
+      "description": "Sync Engage Audiences to Snap",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "External Audience ID",
+          "description": "Unique Audience Identifier returned by the createAudience() function call.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "External Audience ID",
+                "description": "Unique Audience Identifier returned by the createAudience() function call.",
+                "type": "string"
+              }
+            },
+            "required": ["external_audience_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audienceKey",
+          "type": "string",
+          "label": "Audience Key",
+          "description": "Audience key.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceKey": {
+                "title": "Audience Key",
+                "description": "Audience key.",
+                "type": "string"
+              }
+            },
+            "required": ["audienceKey"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "props",
+          "type": "object",
+          "label": "Properties object",
+          "description": "Object that contains audience name and value.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "props": {
+                "title": "Properties object",
+                "description": "Object that contains audience name and value.",
+                "type": "object"
+              }
+            },
+            "required": ["props"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
+          "defaultValue": {
+            "@path": "$.properties.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email address.",
+          "defaultValue": {
+            "@path": "$.properties.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "Mobile Advertising ID",
+          "description": "If using Mobile Ad ID as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'ios.idfa' is configured to 'ios_idfa' and 'android.idfa' is configured to 'android_idfa' in the Audience settings tab.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.android_idfa"
+              },
+              "then": {
+                "@path": "$.properties.android_idfa"
+              },
+              "else": {
+                "@path": "$.properties.ios_idfa"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "Mobile Advertising ID",
+                "description": "If using Mobile Ad ID as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'ios.idfa' is configured to 'ios_idfa' and 'android.idfa' is configured to 'android_idfa' in the Audience settings tab.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, events will be batched before being sent to Snap.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, events will be batched before being sent to Snap.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "max_batch_size",
+          "type": "number",
+          "label": "Max Batch Size",
+          "description": "Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.",
+          "defaultValue": 100000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "max_batch_size": {
+                "title": "Max Batch Size",
+                "description": "Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            },
+            "required": ["max_batch_size"]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 100000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events. Ensures events from different audiences are sent in separate batches. This is Segment default behavior with Engage Audiences anyway.",
+          "defaultValue": ["external_audience_id"],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events. Ensures events from different audiences are sent in separate batches. This is Segment default behavior with Engage Audiences anyway.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "syncAudience",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": ["external_audience_id"]
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": ["external_audience_id"]
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": ["external_audience_id"]
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": ["external_audience_id"]
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Sync Engage Audience",
+      "subscribe": "type = \"track\" or type = \"identify\"",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": ["external_audience_id"]
+      },
+      "type": "automatic"
+    }
+  ]
+}

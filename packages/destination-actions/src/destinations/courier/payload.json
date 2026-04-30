@@ -1,0 +1,387 @@
+{
+  "name": "Courier (Actions)",
+  "basicOptions": ["apiKey", "region"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Courier API Key from Segment integration page in the Courier Designer.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "region": {
+      "tags": ["authentication:test"],
+      "default": "US",
+      "description": "Courier Region (US or EU)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US",
+          "label": "US",
+          "text": "US"
+        },
+        {
+          "value": "EU",
+          "label": "EU",
+          "text": "EU"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The region property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "postToCourier",
+      "name": "Forward to Courier",
+      "description": "Forward track, group and identify events to Courier",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Payload",
+          "description": "All payload data",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Payload",
+                "description": "All payload data",
+                "type": "object"
+              }
+            },
+            "required": ["data"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_computation_action",
+          "type": "string",
+          "label": "Segment Computation Action",
+          "description": "Segment computation class used to determine if input event is from an Engage Audience'",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_action": {
+                "title": "Segment Computation Action",
+                "description": "Segment computation class used to determine if input event is from an Engage Audience'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "audienceToList",
+      "name": "Sync Audience",
+      "description": "Sync Engage Audiences to Courier lists",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "segment_audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "Segment Audience ID to which user identifier should be added or removed",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_audience_id": {
+                "title": "Audience ID",
+                "description": "Segment Audience ID to which user identifier should be added or removed",
+                "type": "string"
+              }
+            },
+            "required": ["segment_audience_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_audience_key",
+          "type": "string",
+          "label": "Audience Key",
+          "description": "Segment Audience key to which user identifier should be added or removed",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_audience_key": {
+                "title": "Audience Key",
+                "description": "Segment Audience key to which user identifier should be added or removed",
+                "type": "string"
+              }
+            },
+            "required": ["segment_audience_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_computation_action",
+          "type": "string",
+          "label": "Segment Computation Action",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_action": {
+                "title": "Segment Computation Action",
+                "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+                "type": "string",
+                "enum": ["audience", "journey_step"]
+              }
+            },
+            "required": ["segment_computation_action"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_user_id",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "The Segment userId value.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_user_id": {
+                "title": "Segment User ID",
+                "description": "The Segment userId value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_anonymous_id",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "The Segment anonymousId value.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_anonymous_id": {
+                "title": "Segment Anonymous ID",
+                "description": "The Segment anonymousId value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or properties object",
+          "description": "A computed object for track and identify events. This field should not need to be edited.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or properties object",
+                "description": "A computed object for track and identify events. This field should not need to be edited.",
+                "type": "object"
+              }
+            },
+            "required": ["traits_or_props"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_action",
+          "type": "string",
+          "label": "Audience Action",
+          "description": "Indicates if the user will be added or removed from the Audience",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "ADD",
+              "value": "ADD"
+            },
+            {
+              "label": "REMOVE",
+              "value": "REMOVE"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_action": {
+                "title": "Audience Action",
+                "description": "Indicates if the user will be added or removed from the Audience",
+                "type": "string",
+                "enum": ["ADD", "REMOVE"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

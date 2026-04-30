@@ -1,0 +1,2260 @@
+{
+  "name": "Actions Pipedrive",
+  "basicOptions": ["domain", "apiToken", "personField", "organizationField", "dealField"],
+  "options": {
+    "domain": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Pipedrive domain. This is found in Pipedrive in Settings > Company settings > Company domain.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Domain",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The domain property is required."]],
+      "uIMetadata": null
+    },
+    "apiToken": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Pipedrive API token. This is found in Pipedrive in Settings > Personal preferences > API > Your personal API token.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiToken property is required."]],
+      "uIMetadata": null
+    },
+    "personField": {
+      "tags": ["authentication:test"],
+      "default": "id",
+      "description": "This is a key by which a Person in Pipedrive will be searched. It can be either Person id or has of a custom field containing external id. Default value is `person_id`.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "External ID field for a Person in Pipedrive",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "organizationField": {
+      "tags": ["authentication:test"],
+      "default": "id",
+      "description": "This is a key by which an Organization in Pipedrive will be searched. It can be either Organization id or has of a custom field containing external id. Default value is `org_id`.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "External ID field for an Organization in Pipedrive",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "dealField": {
+      "tags": ["authentication:test"],
+      "default": "id",
+      "description": "This is a key by which a Deal in Pipedrive will be searched. It can be either Deal id or has of a custom field containing external id. Default value is `deal_id`.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "External ID field for a Deal in Pipedrive",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "createUpdateOrganization",
+      "name": "Create or Update Organization",
+      "description": "Update an organization in Pipedrive or create it if it doesn't exist yet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "match_field",
+          "type": "string",
+          "label": "Match field",
+          "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "match_field": {
+                "title": "Match field",
+                "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "match_value",
+          "type": "string",
+          "label": "Match value",
+          "description": "Value to find existing organization by",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "match_value": {
+                "title": "Match value",
+                "description": "Value to find existing organization by",
+                "type": "string"
+              }
+            },
+            "required": ["match_value"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Organization Name",
+          "description": "Name of the organization",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Organization Name",
+                "description": "Name of the organization",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "visible_to",
+          "type": "string",
+          "label": "Visible To",
+          "description": "Visibility of the Organization. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Owner & followers (private)",
+              "value": "1"
+            },
+            {
+              "label": "Entire company (shared)",
+              "value": "3"
+            },
+            {
+              "label": "Owner's visibility group and sub-groups",
+              "value": "5"
+            },
+            {
+              "label": "Entire company",
+              "value": "7"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "visible_to": {
+                "title": "Visible To",
+                "description": "Visibility of the Organization. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+                "type": "string",
+                "enum": ["1", "3", "5", "7"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "add_time",
+          "type": "datetime",
+          "label": "Created At",
+          "description": "If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "add_time": {
+                "title": "Created At",
+                "description": "If the organization is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom fields",
+          "description": "New values for custom fields.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom fields",
+                "description": "New values for custom fields.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdatePerson",
+      "name": "Create or Update Person",
+      "description": "Update a person in Pipedrive or create them if they don't exist yet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "match_field",
+          "type": "string",
+          "label": "Match field",
+          "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "match_field": {
+                "title": "Match field",
+                "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "match_value",
+          "type": "string",
+          "label": "Match value",
+          "description": "Value to find existing person by",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "match_value": {
+                "title": "Match value",
+                "description": "Value to find existing person by",
+                "type": "string"
+              }
+            },
+            "required": ["match_value"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Person Name",
+          "description": "Name of the person",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Person Name",
+                "description": "Name of the person",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "Email addresses for this person.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "Email addresses for this person.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "Phone numbers for the person.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone Number",
+                "description": "Phone numbers for the person.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "visible_to",
+          "type": "string",
+          "label": "Visible To",
+          "description": "Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Owner & followers (private)",
+              "value": "1"
+            },
+            {
+              "label": "Entire company (shared)",
+              "value": "3"
+            },
+            {
+              "label": "Owner's visibility group and sub-groups",
+              "value": "5"
+            },
+            {
+              "label": "Entire company",
+              "value": "7"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "visible_to": {
+                "title": "Visible To",
+                "description": "Visibility of the Person. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+                "type": "string",
+                "enum": ["1", "3", "5", "7"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "add_time",
+          "type": "datetime",
+          "label": "Created At",
+          "description": "If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "add_time": {
+                "title": "Created At",
+                "description": "If the person is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom fields",
+          "description": "New values for custom fields.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom fields",
+                "description": "New values for custom fields.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdateLead",
+      "name": "Create or update Lead",
+      "description": "Update a Lead in Pipedrive or create it if it doesn't exist yet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "lead_id",
+          "type": "string",
+          "label": "Lead ID",
+          "description": "ID of Lead in Pipedrive to Update. If left empty, a new one will be created",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lead_id"
+              },
+              "then": {
+                "@path": "$.traits.lead_id"
+              },
+              "else": {
+                "@path": "$.properties.lead_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lead_id": {
+                "title": "Lead ID",
+                "description": "ID of Lead in Pipedrive to Update. If left empty, a new one will be created",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_field",
+          "type": "string",
+          "label": "Person match field",
+          "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_field": {
+                "title": "Person match field",
+                "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_value",
+          "type": "string",
+          "label": "Person match value",
+          "description": "Value to find existing person by. Required unless organization_match_value present",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_value": {
+                "title": "Person match value",
+                "description": "Value to find existing person by. Required unless organization_match_value present",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_field",
+          "type": "string",
+          "label": "Organization match field",
+          "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_field": {
+                "title": "Organization match field",
+                "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_value",
+          "type": "string",
+          "label": "Organization match value",
+          "description": "Value to find existing organization by. Required unless person_match_value present",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_value": {
+                "title": "Organization match value",
+                "description": "Value to find existing organization by. Required unless person_match_value present",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "Title",
+          "description": "The name of the Lead",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.title"
+              },
+              "then": {
+                "@path": "$.traits.title"
+              },
+              "else": {
+                "@path": "$.properties.title"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "Title",
+                "description": "The name of the Lead",
+                "type": "string"
+              }
+            },
+            "required": ["title"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "amount",
+          "type": "number",
+          "label": "Amount",
+          "description": "Potential value of the lead",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.amount"
+              },
+              "then": {
+                "@path": "$.traits.amount"
+              },
+              "else": {
+                "@path": "$.properties.amount"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "title": "Amount",
+                "description": "Potential value of the lead",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "Three-letter code of the currency, e.g. USD",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.currency"
+              },
+              "then": {
+                "@path": "$.traits.currency"
+              },
+              "else": {
+                "@path": "$.properties.currency"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "Three-letter code of the currency, e.g. USD",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "expected_close_date",
+          "type": "string",
+          "label": "Expected Close Date",
+          "description": "The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.expected_close_date"
+              },
+              "then": {
+                "@path": "$.traits.expected_close_date"
+              },
+              "else": {
+                "@path": "$.properties.expected_close_date"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "expected_close_date": {
+                "title": "Expected Close Date",
+                "description": "The date of when the Deal which will be created from the Lead is expected to be closed. In ISO 8601 format: YYYY-MM-DD.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "visible_to",
+          "type": "string",
+          "label": "Visible To",
+          "description": "Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Owner & followers (private)",
+              "value": "1"
+            },
+            {
+              "label": "Entire company (shared)",
+              "value": "3"
+            },
+            {
+              "label": "Owner's visibility group and sub-groups",
+              "value": "5"
+            },
+            {
+              "label": "Entire company",
+              "value": "7"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "visible_to": {
+                "title": "Visible To",
+                "description": "Visibility of the Lead. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+                "type": "string",
+                "enum": ["1", "3", "5", "7"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdateDeal",
+      "name": "Create or update a Deal",
+      "description": "Update a Deal in Pipedrive or create it if it doesn't exist yet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Deal Upserted\"",
+      "fields": [
+        {
+          "fieldKey": "deal_match_field",
+          "type": "string",
+          "label": "Deal match field",
+          "description": "If present, used instead of field in settings to find existing deal in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deal_match_field": {
+                "title": "Deal match field",
+                "description": "If present, used instead of field in settings to find existing deal in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deal_match_value",
+          "type": "string",
+          "label": "Deal match value",
+          "description": "Value to find existing deal by",
+          "defaultValue": {
+            "@path": "$.properties.deal_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deal_match_value": {
+                "title": "Deal match value",
+                "description": "Value to find existing deal by",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_field",
+          "type": "string",
+          "label": "Person match field",
+          "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_field": {
+                "title": "Person match field",
+                "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_value",
+          "type": "string",
+          "label": "Person match value",
+          "description": "Value to find existing person by. Required unless organization_match_value present",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_value": {
+                "title": "Person match value",
+                "description": "Value to find existing person by. Required unless organization_match_value present",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_field",
+          "type": "string",
+          "label": "Organization match field",
+          "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_field": {
+                "title": "Organization match field",
+                "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_value",
+          "type": "string",
+          "label": "Organization match value",
+          "description": "Value to find existing organization by. Required unless person_match_value present",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_value": {
+                "title": "Organization match value",
+                "description": "Value to find existing organization by. Required unless person_match_value present",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "Title",
+          "description": "Deal title  (required for new Leads)",
+          "defaultValue": {
+            "@path": "$.properties.title"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "Title",
+                "description": "Deal title  (required for new Leads)",
+                "type": "string"
+              }
+            },
+            "required": ["title"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "value",
+          "type": "string",
+          "label": "Value",
+          "description": "Value of the deal. If omitted, value will be set to 0.",
+          "defaultValue": {
+            "@path": "$.properties.value"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "title": "Value",
+                "description": "Value of the deal. If omitted, value will be set to 0.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "Currency of the deal. Accepts a 3-character currency code. If omitted, currency will be set to the default currency of the authorized user.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "Currency of the deal. Accepts a 3-character currency code. If omitted, currency will be set to the default currency of the authorized user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stage_id",
+          "type": "number",
+          "label": "Stage ID",
+          "description": "The ID of a stage this Deal will be placed in a pipeline (note that you can't supply the ID of the pipeline as this will be assigned automatically based on stage_id). If omitted, the deal will be placed in the first stage of the default pipeline.",
+          "defaultValue": {
+            "@path": "$.properties.stage_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stage_id": {
+                "title": "Stage ID",
+                "description": "The ID of a stage this Deal will be placed in a pipeline (note that you can't supply the ID of the pipeline as this will be assigned automatically based on stage_id). If omitted, the deal will be placed in the first stage of the default pipeline.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "status",
+          "type": "string",
+          "label": "Status",
+          "description": "Deal status - open, won, lost or deleted. If omitted, status will be set to open.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Open",
+              "value": "open"
+            },
+            {
+              "label": "Won",
+              "value": "won"
+            },
+            {
+              "label": "Lost",
+              "value": "lost"
+            },
+            {
+              "label": "Deleted",
+              "value": "deleted"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "title": "Status",
+                "description": "Deal status - open, won, lost or deleted. If omitted, status will be set to open.",
+                "type": "string",
+                "enum": ["open", "won", "lost", "deleted"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "expected_close_date",
+          "type": "string",
+          "label": "Expected Close Date",
+          "description": "The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.",
+          "defaultValue": {
+            "@path": "$.properties.expected_close_date"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "expected_close_date": {
+                "title": "Expected Close Date",
+                "description": "The expected close date of the Deal. In ISO 8601 format: YYYY-MM-DD.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "probability",
+          "type": "number",
+          "label": "Success Probability",
+          "description": "Deal success probability percentage. Used/shown only when deal_probability for the pipeline of the deal is enabled.",
+          "defaultValue": {
+            "@path": "$.properties.success_probability"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "probability": {
+                "title": "Success Probability",
+                "description": "Deal success probability percentage. Used/shown only when deal_probability for the pipeline of the deal is enabled.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lost_reason",
+          "type": "string",
+          "label": "Lost Reason",
+          "description": "Optional message about why the deal was lost (to be used when status=lost)",
+          "defaultValue": {
+            "@path": "$.properties.lost_reason"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lost_reason": {
+                "title": "Lost Reason",
+                "description": "Optional message about why the deal was lost (to be used when status=lost)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "visible_to",
+          "type": "string",
+          "label": "Visible To",
+          "description": "Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Owner & followers (private)",
+              "value": "1"
+            },
+            {
+              "label": "Entire company (shared)",
+              "value": "3"
+            },
+            {
+              "label": "Owner's visibility group and sub-groups",
+              "value": "5"
+            },
+            {
+              "label": "Entire company",
+              "value": "7"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "visible_to": {
+                "title": "Visible To",
+                "description": "Visibility of the deal. If omitted, visibility will be set to the default visibility setting of this item type for the authorized user. 'Owner's visibility group and sub-groups' and 'Entire company' options only available with Professional or Enterprise plans",
+                "type": "string",
+                "enum": ["1", "3", "5", "7"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "add_time",
+          "type": "datetime",
+          "label": "Created At",
+          "description": "If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "add_time": {
+                "title": "Created At",
+                "description": "If the deal is created, use this timestamp as the creation timestamp. Format: YYY-MM-DD HH:MM:SS",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom fields",
+          "description": "New values for custom fields.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom fields",
+                "description": "New values for custom fields.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdateNote",
+      "name": "Create or update a Note",
+      "description": "Update a Note in Pipedrive or create it if it doesn't exist yet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Note Upserted\"",
+      "fields": [
+        {
+          "fieldKey": "note_id",
+          "type": "integer",
+          "label": "Note ID",
+          "description": "ID of Note in Pipedrive to Update. If left empty, a new one will be created",
+          "defaultValue": {
+            "@path": "$.properties.note_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "note_id": {
+                "title": "Note ID",
+                "description": "ID of Note in Pipedrive to Update. If left empty, a new one will be created",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lead_id",
+          "type": "string",
+          "label": "Lead ID",
+          "description": "ID of Lead in Pipedrive to link to. One of Lead, Person, Organization or Deal must be linked!",
+          "defaultValue": {
+            "@path": "$.properties.lead_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lead_id": {
+                "title": "Lead ID",
+                "description": "ID of Lead in Pipedrive to link to. One of Lead, Person, Organization or Deal must be linked!",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_field",
+          "type": "string",
+          "label": "Person match field",
+          "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_field": {
+                "title": "Person match field",
+                "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_value",
+          "type": "string",
+          "label": "Person match value",
+          "description": "Value to find existing person by. One of Lead, Person, Organization or Deal must be linked!",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_value": {
+                "title": "Person match value",
+                "description": "Value to find existing person by. One of Lead, Person, Organization or Deal must be linked!",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_field",
+          "type": "string",
+          "label": "Organization match field",
+          "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_field": {
+                "title": "Organization match field",
+                "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_value",
+          "type": "string",
+          "label": "Organization match value",
+          "description": "Value to find existing organization by. One of Lead, Person, Organization or Deal must be linked!",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_value": {
+                "title": "Organization match value",
+                "description": "Value to find existing organization by. One of Lead, Person, Organization or Deal must be linked!",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deal_match_field",
+          "type": "string",
+          "label": "Deal match field",
+          "description": "If present, used instead of field in settings to find existing deal in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deal_match_field": {
+                "title": "Deal match field",
+                "description": "If present, used instead of field in settings to find existing deal in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deal_match_value",
+          "type": "string",
+          "label": "Deal match value",
+          "description": "Value to find existing deal by. One of Lead, Person, Organization or Deal must be linked!",
+          "defaultValue": {
+            "@path": "$.properties.deal_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deal_match_value": {
+                "title": "Deal match value",
+                "description": "Value to find existing deal by. One of Lead, Person, Organization or Deal must be linked!",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "content",
+          "type": "string",
+          "label": "Note Content",
+          "description": "Content of the note in text or HTML format. Subject to sanitization on the back-end.",
+          "defaultValue": {
+            "@path": "$.properties.content"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "title": "Note Content",
+                "description": "Content of the note in text or HTML format. Subject to sanitization on the back-end.",
+                "type": "string"
+              }
+            },
+            "required": ["content"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdateActivity",
+      "name": "Create or update an Activity",
+      "description": "Update an Activity in Pipedrive or create one if it doesn't exist.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Activity Upserted\"",
+      "fields": [
+        {
+          "fieldKey": "activity_id",
+          "type": "integer",
+          "label": "Activity ID",
+          "description": "ID of Activity in Pipedrive to Update. If left empty, a new one will be created",
+          "defaultValue": {
+            "@path": "$.properties.activity_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "activity_id": {
+                "title": "Activity ID",
+                "description": "ID of Activity in Pipedrive to Update. If left empty, a new one will be created",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_field",
+          "type": "string",
+          "label": "Person match field",
+          "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_field": {
+                "title": "Person match field",
+                "description": "If present, used instead of field in settings to find existing person in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_match_value",
+          "type": "string",
+          "label": "Person match value",
+          "description": "Value to find existing person by",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_match_value": {
+                "title": "Person match value",
+                "description": "Value to find existing person by",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_field",
+          "type": "string",
+          "label": "Organization match field",
+          "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_field": {
+                "title": "Organization match field",
+                "description": "If present, used instead of field in settings to find existing organization in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "organization_match_value",
+          "type": "string",
+          "label": "Organization match value",
+          "description": "Value to find existing organization by",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "organization_match_value": {
+                "title": "Organization match value",
+                "description": "Value to find existing organization by",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deal_match_field",
+          "type": "string",
+          "label": "Deal match field",
+          "description": "If present, used instead of field in settings to find existing deal in Pipedrive.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deal_match_field": {
+                "title": "Deal match field",
+                "description": "If present, used instead of field in settings to find existing deal in Pipedrive.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deal_match_value",
+          "type": "string",
+          "label": "Deal match value",
+          "description": "Value to find existing deal by",
+          "defaultValue": {
+            "@path": "$.properties.deal_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deal_match_value": {
+                "title": "Deal match value",
+                "description": "Value to find existing deal by",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subject",
+          "type": "string",
+          "label": "Activity Subject",
+          "description": "Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.",
+          "defaultValue": {
+            "@path": "$.properties.subject"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subject": {
+                "title": "Activity Subject",
+                "description": "Subject of the Activity. When value for subject is not set, it will be given a default value `Call`.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`",
+          "defaultValue": {
+            "@path": "$.properties.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "Type of the Activity. This is in correlation with the key_string parameter of ActivityTypes. When value for type is not set, it will be given a default value `Call`",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "Additional details about the Activity that is synced to your external calendar. Unlike the note added to the Activity, the description is publicly visible to any guests added to the Activity.",
+          "defaultValue": {
+            "@path": "$.properties.description"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "Additional details about the Activity that is synced to your external calendar. Unlike the note added to the Activity, the description is publicly visible to any guests added to the Activity.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "note",
+          "type": "string",
+          "label": "Note",
+          "description": "Note of the Activity (Accepts plain text and HTML)",
+          "defaultValue": {
+            "@path": "$.properties.note"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "note": {
+                "title": "Note",
+                "description": "Note of the Activity (Accepts plain text and HTML)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "due_date",
+          "type": "string",
+          "label": "Due Date",
+          "description": "Due date of the Activity. Format: YYYY-MM-DD",
+          "defaultValue": {
+            "@path": "$.properties.due_date"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "due_date": {
+                "title": "Due Date",
+                "description": "Due date of the Activity. Format: YYYY-MM-DD",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "due_time",
+          "type": "string",
+          "label": "Due Time",
+          "description": "Due time of the Activity. Format: HH:MM",
+          "defaultValue": {
+            "@path": "$.properties.due_time"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "due_time": {
+                "title": "Due Time",
+                "description": "Due time of the Activity. Format: HH:MM",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "duration",
+          "type": "string",
+          "label": "Duration",
+          "description": "Duration of the Activity. Format: HH:MM",
+          "defaultValue": {
+            "@path": "$.properties.duration"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "duration": {
+                "title": "Duration",
+                "description": "Duration of the Activity. Format: HH:MM",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "done",
+          "type": "boolean",
+          "label": "Done",
+          "description": "Whether the Activity is done or not.",
+          "defaultValue": {
+            "@path": "$.properties.done"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "done": {
+                "title": "Done",
+                "description": "Whether the Activity is done or not.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "createUpdatePerson",
+      "name": "Create or Update a Person",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "match_value": {
+          "@path": "$.userId"
+        },
+        "name": {
+          "@path": "$.traits.name"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "phone": {
+          "@path": "$.traits.phone"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "createUpdateActivity",
+      "name": "Create or Update an Activity",
+      "subscribe": "type = \"track\" and event = \"Activity Upserted\"",
+      "mapping": {
+        "activity_id": {
+          "@path": "$.properties.activity_id"
+        },
+        "person_match_value": {
+          "@path": "$.userId"
+        },
+        "organization_match_value": {
+          "@path": "$.context.groupId"
+        },
+        "deal_match_value": {
+          "@path": "$.properties.deal_id"
+        },
+        "subject": {
+          "@path": "$.properties.subject"
+        },
+        "type": {
+          "@path": "$.properties.type"
+        },
+        "description": {
+          "@path": "$.properties.description"
+        },
+        "note": {
+          "@path": "$.properties.note"
+        },
+        "due_date": {
+          "@path": "$.properties.due_date"
+        },
+        "due_time": {
+          "@path": "$.properties.due_time"
+        },
+        "duration": {
+          "@path": "$.properties.duration"
+        },
+        "done": {
+          "@path": "$.properties.done"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "createUpdateOrganization",
+      "name": "Create or Update an Organization",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "match_value": {
+          "@path": "$.groupId"
+        },
+        "name": {
+          "@path": "$.traits.name"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

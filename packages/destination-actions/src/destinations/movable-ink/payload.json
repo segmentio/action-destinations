@@ -1,0 +1,145 @@
+{
+  "name": "Movable Ink",
+  "description": "Send Segment analytics events to Movable Ink",
+  "basicOptions": ["username", "password", "movable_ink_url"],
+  "options": {
+    "username": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Movable Ink username",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The username property is required."]],
+      "uIMetadata": null
+    },
+    "password": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Movable Ink Access Secret.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Access Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The password property is required."]],
+      "uIMetadata": null
+    },
+    "movable_ink_url": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Movable Ink URL to send data to.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Movable Ink URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The movable_ink_url property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEntireEvent",
+      "name": "Send Entire Event",
+      "description": "Send an entire Segment event to Movable Ink",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Headers",
+          "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "title": "Headers",
+                "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "Payload to deliver to webhook URL (JSON-encoded).",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "Payload to deliver to webhook URL (JSON-encoded).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sendEntireEvent",
+      "name": "Send Entire Event",
+      "subscribe": "type = \"identify\" or type = \"track\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "mapping": {
+        "data": {
+          "@path": "$."
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

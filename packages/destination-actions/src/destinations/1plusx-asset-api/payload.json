@@ -1,0 +1,241 @@
+{
+  "name": "1Plusx Asset Api",
+  "basicOptions": ["client_id", "key_id", "client_secret"],
+  "options": {
+    "client_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your 1plusX Client ID. Please refer to your 1PlusX representative to obtain it.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The client_id property is required."]],
+      "uIMetadata": null
+    },
+    "key_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your 1plusX Key ID. Available in 1plusX UI in the \"API Keys\" section.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Key ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The key_id property is required."]],
+      "uIMetadata": null
+    },
+    "client_secret": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your 1plusX Secret. Available in 1plusX UI in the \"API Keys\" section.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The client_secret property is required."]],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendAssetData",
+      "name": "Send Asset Data",
+      "description": "Send Asset data into 1PlusX",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "asset_uri",
+          "type": "string",
+          "label": "Asset ID",
+          "description": "The asset's unique identifier. Please make sure to map only the fields where values don't include space character",
+          "defaultValue": {
+            "@template": "NAMESPACE:asset_uri"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "asset_uri": {
+                "title": "Asset ID",
+                "description": "The asset's unique identifier. Please make sure to map only the fields where values don't include space character",
+                "type": "string"
+              }
+            },
+            "required": ["asset_uri"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_title",
+          "type": "string",
+          "label": "Asset Title",
+          "description": "User friendly description of the asset in the UI",
+          "defaultValue": {
+            "@path": "$.properties.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_title": {
+                "title": "Asset Title",
+                "description": "User friendly description of the asset in the UI",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_content",
+          "type": "string",
+          "label": "Asset Content",
+          "description": "Textual content of the asset processing using NLP alogrithms",
+          "defaultValue": {
+            "@path": "$.properties.content"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_content": {
+                "title": "Asset Content",
+                "description": "Textual content of the asset processing using NLP alogrithms",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom Fields",
+          "description": "Custom fields to include with the event",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom Fields",
+                "description": "Custom fields to include with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

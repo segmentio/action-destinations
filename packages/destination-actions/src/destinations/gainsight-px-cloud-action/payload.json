@@ -1,0 +1,151 @@
+{
+  "name": "Gainsight Px Cloud (Actions)",
+  "basicOptions": ["apiKey", "dataCenter"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Gainsight PX API key. You can find this key in the \"Administration/Products\" screen.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "dataCenter": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The PX data center where your PX subscription is hosted.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Data center",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "north_america",
+          "label": "North America",
+          "text": "North America"
+        },
+        {
+          "value": "europe",
+          "label": "Europe",
+          "text": "Europe"
+        },
+        {
+          "value": "us2",
+          "label": "US2",
+          "text": "US2"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The dataCenter property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEvent",
+      "name": "Send Event",
+      "description": "Send entire event payload to Gainsight PX",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "segmentEvent",
+          "type": "object",
+          "label": "Segment Event",
+          "description": "The raw Segment event",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentEvent": {
+                "title": "Segment Event",
+                "description": "The raw Segment event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sendEvent",
+      "name": "Group User",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Track Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

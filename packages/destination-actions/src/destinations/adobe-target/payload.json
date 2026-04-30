@@ -1,0 +1,127 @@
+{
+  "name": "Adobe Target Cloud Mode",
+  "basicOptions": ["client_code", "bearer_token"],
+  "options": {
+    "client_code": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Client Code",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The client_code property is required."]],
+      "uIMetadata": null
+    },
+    "bearer_token": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "If you choose to require authentication for Adobe Target's Profile API, you will need to generate an authentication token. Tokens can be generated in your Adobe Target account under the Implementation Settings tab or via the [Adobe.IO Authentication Token API](https://developers.adobetarget.com/api/#authentication-tokens). Input the authentication token here. Note: Authentication tokens expire so a new token will need to be generated and updated here prior to expiration.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Authentication Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "updateProfile",
+      "name": "Update Profile",
+      "description": "Update an existing user profile in Adobe Target.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "Mbox 3rd Party ID",
+          "description": "A user's unique visitor ID. This field is used to fetch a matching profile in Adobe Target to make an update on. For more information, please see our Adobe Target Destination documentation.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "Mbox 3rd Party ID",
+                "description": "A user's unique visitor ID. This field is used to fetch a matching profile in Adobe Target to make an update on. For more information, please see our Adobe Target Destination documentation.",
+                "type": "string"
+              }
+            },
+            "required": ["user_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Profile Attributes",
+          "description": "Profile parameters specific to a user. Please note, Adobe recommends that PII is hashed prior to sending to Adobe.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Profile Attributes",
+                "description": "Profile parameters specific to a user. Please note, Adobe recommends that PII is hashed prior to sending to Adobe.",
+                "type": "object"
+              }
+            },
+            "required": ["traits"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

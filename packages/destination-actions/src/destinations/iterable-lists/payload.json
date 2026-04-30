@@ -1,0 +1,508 @@
+{
+  "name": "Iterable Lists",
+  "description": "Sync users to Iterable Lists",
+  "basicOptions": [
+    "apiKey",
+    "updateExistingUsersOnly",
+    "globalUnsubscribe",
+    "campaignId",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "updateExistingUsersOnly": {
+      "tags": [],
+      "default": false,
+      "description": "When true, Iterable ignores requests for unknown userIds and email addresses. This field is only relevant for non-email based Iterable projects: For email-based projects users will continue to be created in Iterable if a user is added or removed from a List.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Update existing users only",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "globalUnsubscribe": {
+      "tags": [],
+      "default": false,
+      "description": "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Global Unsubscribe",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "campaignId": {
+      "tags": [],
+      "default": 0,
+      "description": "The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Campaign ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "syncAudience",
+      "name": "Sync To Iterable Lists",
+      "description": "Sync Segment Audience to Iterable Lists",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email address of the user",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email address of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "User ID",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "User ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataFields",
+          "type": "object",
+          "label": "Additional traits or identifiers",
+          "description": "Additional traits or identifiers to sync to Iterable. You will need to ensure these traits or objects are included via Event Settings > Customized Setup.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataFields": {
+                "title": "Additional traits or identifiers",
+                "description": "Additional traits or identifiers to sync to Iterable. You will need to ensure these traits or objects are included via Event Settings > Customized Setup.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traitsOrProperties",
+          "type": "object",
+          "label": "Traits or Properties",
+          "description": "Traits or Properties object from the identify() or track() call emitted by Engage",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traitsOrProperties": {
+                "title": "Traits or Properties",
+                "description": "Traits or Properties object from the identify() or track() call emitted by Engage",
+                "type": "object"
+              }
+            },
+            "required": ["traitsOrProperties"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segmentAudienceKey",
+          "type": "string",
+          "label": "Segment Audience Key",
+          "description": "Segment Audience Key. Maps to the Iterable List \"Name\" when the list is created in Iterable.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentAudienceKey": {
+                "title": "Segment Audience Key",
+                "description": "Segment Audience Key. Maps to the Iterable List \"Name\" when the list is created in Iterable.",
+                "type": "string"
+              }
+            },
+            "required": ["segmentAudienceKey"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segmentAudienceId",
+          "type": "string",
+          "label": "Segment External Audience ID",
+          "description": "Segment External Audience ID. Maps to the List ID when the list is created in Iterable.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentAudienceId": {
+                "title": "Segment External Audience ID",
+                "description": "Segment External Audience ID. Maps to the List ID when the list is created in Iterable.",
+                "type": "string"
+              }
+            },
+            "required": ["segmentAudienceId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "syncAudience",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

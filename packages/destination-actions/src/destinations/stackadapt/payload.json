@@ -1,0 +1,802 @@
+{
+  "name": "StackAdapt Events & Conversions",
+  "description": "Forward Segment events to StackAdapt for tracking ad conversions, and generating lookalike and retargeting Audiences",
+  "basicOptions": ["pixelId"],
+  "options": {
+    "pixelId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your StackAdapt Universal Pixel ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Universal Pixel ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The pixelId property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "forwardEvent",
+      "name": "Forward Event",
+      "description": "Forward Segment events to StackAdapt for conversion tracking",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "The ID of the user in Segment",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "Segment User ID",
+                "description": "The ID of the user in Segment",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The Segment event type (page, track, etc.)",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "Event Type",
+                "description": "The Segment event type (page, track, etc.)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The event name (e.g. Order Completed)",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "title": "Event Name",
+                "description": "The event name (e.g. Order Completed)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_fwd",
+          "type": "string",
+          "label": "IP Address",
+          "description": "IP address of the user",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_fwd": {
+                "title": "IP Address",
+                "description": "IP address of the user",
+                "type": "string"
+              }
+            },
+            "required": ["ip_fwd"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "Page Title",
+                "description": "The title of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The URL of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The URL of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Referrer",
+          "description": "The referrer of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Referrer",
+                "description": "The referrer of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_source",
+          "type": "string",
+          "label": "UTM Source",
+          "description": "UTM source parameter associated with event",
+          "defaultValue": {
+            "@path": "$.context.campaign.source"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_source": {
+                "title": "UTM Source",
+                "description": "UTM source parameter associated with event",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User-Agent of the user",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User-Agent of the user",
+                "type": "string"
+              }
+            },
+            "required": ["user_agent"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email address of the individual who triggered the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email address of the individual who triggered the event.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "Phone number of the individual who triggered the event",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone Number",
+                "description": "Phone number of the individual who triggered the event",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "First name of the individual who triggered the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "First name of the individual who triggered the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "Last name of the individual who triggered the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "Last name of the individual who triggered the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ecommerce_data",
+          "type": "object",
+          "label": "Ecommerce Data",
+          "description": "Additional ecommerce fields that are included in the pixel payload.",
+          "defaultValue": {
+            "revenue": {
+              "@path": "$.properties.revenue"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "product_price": {
+              "@path": "$.properties.price"
+            },
+            "product_quantity": {
+              "@path": "$.properties.quantity"
+            },
+            "product_id": {
+              "@path": "$.properties.product_id"
+            },
+            "product_category": {
+              "@path": "$.properties.category"
+            },
+            "product_name": {
+              "@path": "$.properties.name"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "ecommerce_data": {
+                "title": "Ecommerce Data",
+                "description": "Additional ecommerce fields that are included in the pixel payload.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "revenue": {
+                    "title": "Revenue",
+                    "description": "The revenue generated from the event.",
+                    "type": "number"
+                  },
+                  "order_id": {
+                    "title": "Order ID",
+                    "description": "The ID of the order.",
+                    "type": "string"
+                  },
+                  "product_price": {
+                    "title": "Price",
+                    "description": "The price of the product.",
+                    "type": "number"
+                  },
+                  "product_quantity": {
+                    "title": "Quantity",
+                    "description": "The quantity of the product.",
+                    "type": "integer"
+                  },
+                  "product_id": {
+                    "title": "Product ID",
+                    "description": "An identifier for the product.",
+                    "type": "string"
+                  },
+                  "product_category": {
+                    "title": "Product Category",
+                    "description": "A category for the product.",
+                    "type": "string"
+                  },
+                  "product_name": {
+                    "title": "Product Name",
+                    "description": "The name of the product.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ecommerce_products",
+          "type": "object",
+          "label": "Products",
+          "description": "The list of products associated with the event (for events with multiple products, such as Order Completed)",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_price": {
+                  "@path": "price"
+                },
+                "product_quantity": {
+                  "@path": "quantity"
+                },
+                "product_id": {
+                  "@path": "product_id"
+                },
+                "product_category": {
+                  "@path": "category"
+                },
+                "product_name": {
+                  "@path": "name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "ecommerce_products": {
+                "title": "Products",
+                "description": "The list of products associated with the event (for events with multiple products, such as Order Completed)",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "product_price": {
+                      "title": "Price",
+                      "description": "The price of the product.",
+                      "type": "number"
+                    },
+                    "product_quantity": {
+                      "title": "Quantity",
+                      "description": "The quantity of the product.",
+                      "type": "integer"
+                    },
+                    "product_id": {
+                      "title": "Product ID",
+                      "description": "An identifier for the product.",
+                      "type": "string"
+                    },
+                    "product_category": {
+                      "title": "Product Category",
+                      "description": "A category for the product.",
+                      "type": "string"
+                    },
+                    "product_name": {
+                      "title": "Product Name",
+                      "description": "The name of the product.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "forwardEvent",
+      "name": "Forward Event",
+      "subscribe": "type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"track\"",
+      "mapping": {
+        "user_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "event_type": {
+          "@path": "$.type"
+        },
+        "action": {
+          "@path": "$.event"
+        },
+        "ip_fwd": {
+          "@path": "$.context.ip"
+        },
+        "title": {
+          "@path": "$.context.page.title"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "utm_source": {
+          "@path": "$.context.campaign.source"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.first_name"
+            },
+            "then": {
+              "@path": "$.traits.first_name"
+            },
+            "else": {
+              "@path": "$.properties.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.last_name"
+            },
+            "then": {
+              "@path": "$.traits.last_name"
+            },
+            "else": {
+              "@path": "$.properties.last_name"
+            }
+          }
+        },
+        "ecommerce_data": {
+          "revenue": {
+            "@path": "$.properties.revenue"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "product_price": {
+            "@path": "$.properties.price"
+          },
+          "product_quantity": {
+            "@path": "$.properties.quantity"
+          },
+          "product_id": {
+            "@path": "$.properties.product_id"
+          },
+          "product_category": {
+            "@path": "$.properties.category"
+          },
+          "product_name": {
+            "@path": "$.properties.name"
+          }
+        },
+        "ecommerce_products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_price": {
+                "@path": "price"
+              },
+              "product_quantity": {
+                "@path": "quantity"
+              },
+              "product_id": {
+                "@path": "product_id"
+              },
+              "product_category": {
+                "@path": "category"
+              },
+              "product_name": {
+                "@path": "name"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

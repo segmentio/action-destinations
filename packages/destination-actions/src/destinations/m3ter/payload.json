@@ -1,0 +1,539 @@
+{
+  "name": "m3ter",
+  "basicOptions": ["access_key_id", "api_secret", "org_id"],
+  "options": {
+    "access_key_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your service user Access Key Id. You can generate the service user and its Access Key Id in your m3ter console under \"Settings\" -> \"Access\" -> \"Service Users\" -> \"Create Service User\". Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)",
+      "encrypt": true,
+      "hidden": false,
+      "label": "m3ter Access Key Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The access_key_id property is required."]],
+      "uIMetadata": null
+    },
+    "api_secret": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your service user Api Secret. You can generate the service user and its Api Secret in your m3ter console under \"Settings\" -> \"Access\" -> \"Service Users\" -> \"Create Service User\". Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)",
+      "encrypt": true,
+      "hidden": false,
+      "label": "m3ter Api Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The api_secret property is required."]],
+      "uIMetadata": null
+    },
+    "org_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "ID of your organization where your data will be submitted to",
+      "encrypt": false,
+      "hidden": false,
+      "label": "m3ter Organization Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The org_id property is required."]],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "submitMeasurements",
+      "name": "Submit Measurements",
+      "description": "Submits your measurements data to m3ter",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "uid",
+          "type": "string",
+          "label": "m3ter UUID",
+          "description": "Unique ID for this measurement",
+          "defaultValue": {
+            "@path": "$.properties.uid"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "uid": {
+                "title": "m3ter UUID",
+                "description": "Unique ID for this measurement",
+                "type": "string"
+              }
+            },
+            "required": ["uid"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "meter",
+          "type": "string",
+          "label": "Meter",
+          "description": "Short code identifying the Meter the measurement is for",
+          "defaultValue": {
+            "@path": "$.properties.meter"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "meter": {
+                "title": "Meter",
+                "description": "Short code identifying the Meter the measurement is for",
+                "type": "string"
+              }
+            },
+            "required": ["meter"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "account",
+          "type": "string",
+          "label": "Account",
+          "description": "Code of the Account the measurement is for",
+          "defaultValue": {
+            "@path": "$.properties.account"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "account": {
+                "title": "Account",
+                "description": "Code of the Account the measurement is for",
+                "type": "string"
+              }
+            },
+            "required": ["account"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ts",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Timestamp for the measurement",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ts": {
+                "title": "Timestamp",
+                "description": "Timestamp for the measurement",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["ts"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ets",
+          "type": "datetime",
+          "label": "End timestamp",
+          "description": "End timestamp for the measurement. Can be used in the case a usage event needs to have an explicit start and end rather than being instantaneous",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ets": {
+                "title": "End timestamp",
+                "description": "End timestamp for the measurement. Can be used in the case a usage event needs to have an explicit start and end rather than being instantaneous",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "who",
+          "type": "object",
+          "label": "Who",
+          "description": "Non-numeric who values for data measurements, such as: who logged-in to the service; who was contacted by the service",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "who": {
+                "title": "Who",
+                "description": "Non-numeric who values for data measurements, such as: who logged-in to the service; who was contacted by the service",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "where",
+          "type": "object",
+          "label": "Where",
+          "description": "Non-numeric where values for data measurements such as: where someone logged into your service from",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "where": {
+                "title": "Where",
+                "description": "Non-numeric where values for data measurements such as: where someone logged into your service from",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "what",
+          "type": "object",
+          "label": "What",
+          "description": "Non-numeric what values for data measurements such as: what level of user logged into the service",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "what": {
+                "title": "What",
+                "description": "Non-numeric what values for data measurements such as: what level of user logged into the service",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "other",
+          "type": "object",
+          "label": "Other",
+          "description": "Non-numeric other values for measurements such as textual data which is not applicable to Who, What, or Where events",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "other": {
+                "title": "Other",
+                "description": "Non-numeric other values for measurements such as textual data which is not applicable to Who, What, or Where events",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Metadata",
+          "description": "Non-numeric metadata values for measurements using high-cardinality fields that you don't intend to segment when you aggregate the data",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "description": "Non-numeric metadata values for measurements using high-cardinality fields that you don't intend to segment when you aggregate the data",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "measure",
+          "type": "object",
+          "label": "Measure",
+          "description": "Numeric measure values for general quantitative measurements.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "measure": {
+                "title": "Measure",
+                "description": "Numeric measure values for general quantitative measurements.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cost",
+          "type": "object",
+          "label": "Cost",
+          "description": "Numeric cost values for measurements associated with costs",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cost": {
+                "title": "Cost",
+                "description": "Numeric cost values for measurements associated with costs",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "income",
+          "type": "object",
+          "label": "Income",
+          "description": "Numeric income values for measurements associated with income",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "income": {
+                "title": "Income",
+                "description": "Numeric income values for measurements associated with income",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Send data to m3ter in batches",
+          "description": "When enabled the action will send multiple events in a single API request, improving efficiency. This is m3ter’s recommended mode.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Send data to m3ter in batches",
+                "description": "When enabled the action will send multiple events in a single API request, improving efficiency. This is m3ter’s recommended mode.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "submitMeasurements",
+      "name": "Submit usage data to m3ter",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "uid": {
+          "@path": "$.properties.uid"
+        },
+        "meter": {
+          "@path": "$.properties.meter"
+        },
+        "account": {
+          "@path": "$.properties.account"
+        },
+        "ts": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true
+      },
+      "type": "automatic"
+    }
+  ]
+}

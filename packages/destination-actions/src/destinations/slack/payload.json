@@ -1,0 +1,176 @@
+{
+  "name": "Slack",
+  "basicOptions": ["required_hidden_token"],
+  "options": {
+    "required_hidden_token": {
+      "label": "Required Hidden Token",
+      "type": "string",
+      "description": "This token is hidden because it is unused and destinations must have one setting.",
+      "default": "",
+      "private": true,
+      "hidden": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "postToChannel",
+      "name": "Post Message",
+      "description": "Post a message to the specified Slack workspace and channel when the associated trigger criteria are met.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "Webhook URL",
+          "description": "The webhook provided by Slack to connect with the desired Slack workspace.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "Webhook URL",
+                "description": "The webhook provided by Slack to connect with the desired Slack workspace.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": ["url"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "text",
+          "type": "text",
+          "label": "Message",
+          "description": "The text message to post to Slack. You can use [Slack's formatting syntax.](https://api.slack.com/reference/surfaces/formatting)",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "title": "Message",
+                "description": "The text message to post to Slack. You can use [Slack's formatting syntax.](https://api.slack.com/reference/surfaces/formatting)",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["text"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "channel",
+          "type": "string",
+          "label": "Channel",
+          "description": "The channel within the Slack workspace. Do not include the `#` character. For example, use `general`, not `#general`.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channel": {
+                "title": "Channel",
+                "description": "The channel within the Slack workspace. Do not include the `#` character. For example, use `general`, not `#general`.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "username",
+          "type": "string",
+          "label": "User",
+          "description": "The sender of the posted message.",
+          "defaultValue": "Segment",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "username": {
+                "title": "User",
+                "description": "The sender of the posted message.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "icon_url",
+          "type": "string",
+          "label": "Icon URL",
+          "description": "The URL of the image that appears next to the User.",
+          "defaultValue": "https://logo.clearbit.com/segment.com",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "icon_url": {
+                "title": "Icon URL",
+                "description": "The URL of the image that appears next to the User.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

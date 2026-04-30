@@ -1,0 +1,624 @@
+{
+  "name": "Google Sheets",
+  "basicOptions": [],
+  "options": {
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "postSheet",
+      "name": "Post Sheet",
+      "description": "Write values to a Google Sheets spreadsheet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"updated\" or event = \"new\"",
+      "fields": [
+        {
+          "fieldKey": "record_identifier",
+          "type": "string",
+          "label": "Record Identifier",
+          "description": "Property which uniquely identifies each row in the spreadsheet.",
+          "defaultValue": {
+            "@path": "$.__segment_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "record_identifier": {
+                "title": "Record Identifier",
+                "description": "Property which uniquely identifies each row in the spreadsheet.",
+                "type": "string"
+              }
+            },
+            "required": ["record_identifier"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operation_type",
+          "type": "string",
+          "label": "Operation Type",
+          "description": "Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation_type": {
+                "title": "Operation Type",
+                "description": "Describes the nature of the operation being performed. Only supported values are 'new' and 'updated'.",
+                "type": "string"
+              }
+            },
+            "required": ["operation_type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "spreadsheet_id",
+          "type": "string",
+          "label": "Spreadsheet ID",
+          "description": "The identifier of the spreadsheet. You can find this value in the URL of the spreadsheet. e.g. https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit",
+          "defaultValue": "",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "spreadsheet_id": {
+                "title": "Spreadsheet ID",
+                "description": "The identifier of the spreadsheet. You can find this value in the URL of the spreadsheet. e.g. https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit",
+                "type": "string"
+              }
+            },
+            "required": ["spreadsheet_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "spreadsheet_name",
+          "type": "string",
+          "label": "Spreadsheet Name",
+          "description": "The name of the spreadsheet. You can find this value on the tab at the bottom of the spreadsheet. Please provide a valid name of a sheet that already exists.",
+          "defaultValue": "Sheet1",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "spreadsheet_name": {
+                "title": "Spreadsheet Name",
+                "description": "The name of the spreadsheet. You can find this value on the tab at the bottom of the spreadsheet. Please provide a valid name of a sheet that already exists.",
+                "type": "string"
+              }
+            },
+            "required": ["spreadsheet_name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_format",
+          "type": "string",
+          "label": "Data Format",
+          "description": "The way Google will interpret values. If you select raw, values will not be parsed and will be stored as-is. If you select user entered, values will be parsed as if you typed them into the UI. Numbers will stay as numbers, but strings may be converted to numbers, dates, etc. following the same rules that are applied when entering text into a cell via the Google Sheets UI.",
+          "defaultValue": "RAW",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Raw",
+              "value": "RAW"
+            },
+            {
+              "label": "User Entered",
+              "value": "USER_ENTERED"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_format": {
+                "title": "Data Format",
+                "description": "The way Google will interpret values. If you select raw, values will not be parsed and will be stored as-is. If you select user entered, values will be parsed as if you typed them into the UI. Numbers will stay as numbers, but strings may be converted to numbers, dates, etc. following the same rules that are applied when entering text into a cell via the Google Sheets UI.",
+                "type": "string",
+                "enum": ["RAW", "USER_ENTERED"]
+              }
+            },
+            "required": ["data_format"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fields",
+          "type": "object",
+          "label": "Fields",
+          "description": "\n  The fields to write to the spreadsheet. \n\n  On the left-hand side, input the name of the field as it will appear in the Google Sheet. \n  \n  On the right-hand side, select the field from your data model that maps to the given field in your sheet.\n     \n  ---\n      \n  ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fields": {
+                "title": "Fields",
+                "description": "\n  The fields to write to the spreadsheet. \n\n  On the left-hand side, input the name of the field as it will appear in the Google Sheet. \n  \n  On the right-hand side, select the field from your data model that maps to the given field in your sheet.\n     \n  ---\n      \n  ",
+                "type": "object"
+              }
+            },
+            "required": ["fields"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Google Sheets",
+          "description": "Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Google Sheets",
+                "description": "Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.",
+          "defaultValue": 1001,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.",
+                "type": "number"
+              }
+            },
+            "required": ["batch_size"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.",
+          "defaultValue": 2000000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.",
+                "type": "number"
+              }
+            },
+            "required": ["batch_bytes"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "postSheet2",
+      "name": "Post Sheet V2",
+      "description": "Write values to a Google Sheets spreadsheet.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"updated\" or event = \"new\"",
+      "fields": [
+        {
+          "fieldKey": "record_identifier",
+          "type": "string",
+          "label": "Record Identifier",
+          "description": "Property which uniquely identifies each row in the spreadsheet.",
+          "defaultValue": {
+            "@path": "$.__segment_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "record_identifier": {
+                "title": "Record Identifier",
+                "description": "Property which uniquely identifies each row in the spreadsheet.",
+                "type": "string"
+              }
+            },
+            "required": ["record_identifier"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "spreadsheet_id",
+          "type": "string",
+          "label": "Spreadsheet ID",
+          "description": "The identifier of the spreadsheet. You can find this value in the URL of the spreadsheet. e.g. https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit",
+          "defaultValue": "",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "spreadsheet_id": {
+                "title": "Spreadsheet ID",
+                "description": "The identifier of the spreadsheet. You can find this value in the URL of the spreadsheet. e.g. https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit",
+                "type": "string"
+              }
+            },
+            "required": ["spreadsheet_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "spreadsheet_name",
+          "type": "string",
+          "label": "Spreadsheet Name",
+          "description": "The name of the spreadsheet. You can find this value on the tab at the bottom of the spreadsheet. Please provide a valid name of a sheet that already exists.",
+          "defaultValue": "Sheet1",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "spreadsheet_name": {
+                "title": "Spreadsheet Name",
+                "description": "The name of the spreadsheet. You can find this value on the tab at the bottom of the spreadsheet. Please provide a valid name of a sheet that already exists.",
+                "type": "string"
+              }
+            },
+            "required": ["spreadsheet_name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_format",
+          "type": "string",
+          "label": "Data Format",
+          "description": "The way Google will interpret values. If you select raw, values will not be parsed and will be stored as-is. If you select user entered, values will be parsed as if you typed them into the UI. Numbers will stay as numbers, but strings may be converted to numbers, dates, etc. following the same rules that are applied when entering text into a cell via the Google Sheets UI.",
+          "defaultValue": "RAW",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Raw",
+              "value": "RAW"
+            },
+            {
+              "label": "User Entered",
+              "value": "USER_ENTERED"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_format": {
+                "title": "Data Format",
+                "description": "The way Google will interpret values. If you select raw, values will not be parsed and will be stored as-is. If you select user entered, values will be parsed as if you typed them into the UI. Numbers will stay as numbers, but strings may be converted to numbers, dates, etc. following the same rules that are applied when entering text into a cell via the Google Sheets UI.",
+                "type": "string",
+                "enum": ["RAW", "USER_ENTERED"]
+              }
+            },
+            "required": ["data_format"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "fields",
+          "type": "object",
+          "label": "Fields",
+          "description": "\n  The fields to write to the spreadsheet.\n\n  On the left-hand side, input the name of the field as it will appear in the Google Sheet.\n\n  On the right-hand side, select the field from your data model that maps to the given field in your sheet.\n\n  ---\n\n  ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fields": {
+                "title": "Fields",
+                "description": "\n  The fields to write to the spreadsheet.\n\n  On the left-hand side, input the name of the field as it will appear in the Google Sheet.\n\n  On the right-hand side, select the field from your data model that maps to the given field in your sheet.\n\n  ---\n\n  ",
+                "type": "object"
+              }
+            },
+            "required": ["fields"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Google Sheets",
+          "description": "Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Google Sheets",
+                "description": "Set as true to ensure Segment sends data to Google Sheets in batches. Please do not set to false.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.",
+          "defaultValue": 1001,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "The number of rows to write to the spreadsheet in a single batch. The value is determined by number of rows * columns that Segment can upload within 30s.",
+                "type": "number"
+              }
+            },
+            "required": ["batch_size"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.",
+          "defaultValue": 2000000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "The number of bytes to write to the spreadsheet in a single batch. Limit is 2MB.",
+                "type": "number"
+              }
+            },
+            "required": ["batch_bytes"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "__segment_internal_sync_mode",
+          "type": "string",
+          "label": "How to sync records",
+          "description": "Define how the records from your destination will be synced.",
+          "defaultValue": "upsert",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "If a record with the specified identifier is found, it will be updated. If not, a new row will be created.",
+              "value": "upsert"
+            },
+            {
+              "label": "Add a new record when the specified identifier doesn't exist. If it does, it will be skipped.",
+              "value": "add"
+            },
+            {
+              "label": "Update a record if a match with the specified identifier is found. Do nothing if the row doesn't exist.",
+              "value": "update"
+            }
+          ],
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": false,
+          "dependsOn": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

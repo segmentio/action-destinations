@@ -1,0 +1,337 @@
+{
+  "name": "Antavo (Actions)",
+  "basicOptions": ["stack", "api_key"],
+  "options": {
+    "stack": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Antavo Loyalty Engine stack where your brand resides",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Stack",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The stack property is required."]],
+      "uIMetadata": null
+    },
+    "api_key": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Antavo brand API key supplied to your brand in Antavo Loyalty Engine",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The api_key property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "event",
+      "name": "Loyalty events",
+      "description": "Sync loyalty events into Antavo",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "customer",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "User ID, selected in Antavo as customer identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer": {
+                "title": "Customer ID",
+                "description": "User ID, selected in Antavo as customer identifier",
+                "type": "string"
+              }
+            },
+            "required": ["customer"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action",
+          "type": "string",
+          "label": "Action",
+          "description": "Loyalty event name in Antavo",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "title": "Action",
+                "description": "Loyalty event name in Antavo",
+                "type": "string"
+              }
+            },
+            "required": ["action"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "account",
+          "type": "string",
+          "label": "Account",
+          "description": "Antavo Account ID — if the Multi Accounts extension is enabled",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "account": {
+                "title": "Account",
+                "description": "Antavo Account ID — if the Multi Accounts extension is enabled",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event data",
+          "description": "Event data",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event data",
+                "description": "Event data",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "profile",
+      "name": "Profile updates",
+      "description": "Sync profile updates into Antavo",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "customer",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "User ID, selected in Antavo as customer identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer": {
+                "title": "Customer ID",
+                "description": "User ID, selected in Antavo as customer identifier",
+                "type": "string"
+              }
+            },
+            "required": ["customer"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "account",
+          "type": "string",
+          "label": "Account",
+          "description": "Antavo Account ID — if the Multi Accounts extension is enabled",
+          "defaultValue": "",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "account": {
+                "title": "Account",
+                "description": "Antavo Account ID — if the Multi Accounts extension is enabled",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "Customer properties",
+          "defaultValue": {
+            "first_name": {
+              "@path": "$.traits.first_name"
+            },
+            "last_name": {
+              "@path": "$.traits.last_name"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "birth_date": {
+              "@path": "$.traits.birthday"
+            },
+            "gender": {
+              "@path": "$.traits.gender"
+            },
+            "language": {
+              "@path": "$.traits.language"
+            },
+            "phone": {
+              "@path": "$.traits.phone"
+            },
+            "mobile_phone": {
+              "@path": "$.traits.mobile_phone"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "Customer properties",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "first_name": {
+                    "title": "First name",
+                    "description": "Customer's first name",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last name",
+                    "description": "Customer's last name",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Customer's email address",
+                    "type": "string"
+                  },
+                  "birth_date": {
+                    "title": "Birthdate",
+                    "description": "Customer's birth date",
+                    "type": "string"
+                  },
+                  "gender": {
+                    "title": "Gender",
+                    "description": "Customer's gender",
+                    "type": "string"
+                  },
+                  "language": {
+                    "title": "Language",
+                    "description": "Customer's language",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone",
+                    "description": "Customer's phone number",
+                    "type": "string"
+                  },
+                  "mobile_phone": {
+                    "title": "Mobile phone",
+                    "description": "Customer's mobile phone number",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["data"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

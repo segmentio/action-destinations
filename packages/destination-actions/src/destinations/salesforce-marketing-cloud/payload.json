@@ -1,0 +1,4435 @@
+{
+  "name": "Salesforce Marketing Cloud (Actions)",
+  "basicOptions": ["subdomain", "account_id", "client_id", "client_secret"],
+  "options": {
+    "subdomain": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The unique subdomain Salesforce Marketing Cloud assigned to your account. Subdomains are tenant specific and should be a 28-character string starting with the letters \"mc\". Do not include the .rest.marketingcloudapis.com part of your subdomain URL. See more information on how to find your subdomain [here](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/your-subdomain-tenant-specific-endpoints.html).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Subdomain",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The subdomain property is required."]],
+      "uIMetadata": null
+    },
+    "account_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Salesforce Marketing Cloud account identifier (or MID). See more information on how to find your MID [here](https://help.salesforce.com/s/articleView?id=sf.mc_overview_determine_your_marketing_cloud_instance.htm&type=5).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The account_id property is required."]],
+      "uIMetadata": null
+    },
+    "client_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Salesforce Marketing Cloud client ID. The client ID is issued when you create an API integration in [Installed Packages](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/install-packages.html).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The client_id property is required."]],
+      "uIMetadata": null
+    },
+    "client_secret": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Client Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The client_secret property is required."]],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "contact",
+      "name": "Create Contact",
+      "description": "Create contacts in Salesforce Marketing Cloud.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "contactKey",
+          "type": "string",
+          "label": "Contact Key",
+          "description": "The unique identifier that you assign to a contact. This will be used to create a contact if one does not already exist with this Contact Key.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactKey": {
+                "title": "Contact Key",
+                "description": "The unique identifier that you assign to a contact. This will be used to create a contact if one does not already exist with this Contact Key.",
+                "type": "string"
+              }
+            },
+            "required": ["contactKey"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "apiEvent",
+      "name": "Send API Event",
+      "description": "Send events into an existing Event Definition in Salesforce Marketing Cloud.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "eventDefinitionKey",
+          "type": "string",
+          "label": "Event Definition Key",
+          "description": "The unique key for an event definition in Salesforce Marketing Cloud. The event defintion must be predefined in SFMC. ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventDefinitionKey": {
+                "title": "Event Definition Key",
+                "description": "The unique key for an event definition in Salesforce Marketing Cloud. The event defintion must be predefined in SFMC. ",
+                "type": "string"
+              }
+            },
+            "required": ["eventDefinitionKey"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contactKey",
+          "type": "string",
+          "label": "Contact Key",
+          "description": "The unique identifier that identifies a subscriber or a contact.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactKey": {
+                "title": "Contact Key",
+                "description": "The unique identifier that identifies a subscriber or a contact.",
+                "type": "string"
+              }
+            },
+            "required": ["contactKey"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Data",
+          "description": "The properties of the event. Fields must be created in the event definition schema before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Data",
+                "description": "The properties of the event. Fields must be created in the event definition schema before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the event definition schema. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "contactDataExtension",
+      "name": "Send Contact to Data Extension",
+      "description": "Upsert contact data as rows into an existing data extension in Salesforce Marketing Cloud.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "key",
+          "type": "string",
+          "label": "Data Extension Key",
+          "description": "The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "title": "Data Extension Key",
+                "description": "The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Data Extension ID",
+                "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "keys",
+          "type": "object",
+          "label": "Data Extension Primary Key",
+          "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+          "defaultValue": {
+            "contactKey": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "keys": {
+                "title": "Data Extension Primary Key",
+                "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "contactKey": {
+                    "title": "Contact Key",
+                    "description": "The unique identifier that you assign to a contact. Contact Key must be a Primary Key in the data extension that contains contact information.",
+                    "type": "string"
+                  }
+                },
+                "required": ["contactKey"]
+              }
+            },
+            "required": ["keys"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Contact Fields",
+          "description": "The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Contact Fields",
+                "description": "The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object"
+              }
+            },
+            "required": ["values"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data to SFMC",
+          "description": "If true, data is batched before sending to the SFMC Data Extension.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data to SFMC",
+                "description": "If true, data is batched before sending to the SFMC Data Extension.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 10,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "contactDataExtensionV2",
+      "name": "Send Contact to Data Extension (V2)",
+      "description": "Upsert contact data as rows into a data extension in Salesforce Marketing Cloud.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "keys",
+          "type": "object",
+          "label": "Data Extension Primary Key",
+          "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+          "defaultValue": {
+            "contactKey": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "keys": {
+                "title": "Data Extension Primary Key",
+                "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "contactKey": {
+                    "title": "Contact Key",
+                    "description": "The unique identifier that you assign to a contact. Contact Key must be a Primary Key in the data extension that contains contact information.",
+                    "type": "string"
+                  }
+                },
+                "required": ["contactKey"]
+              }
+            },
+            "required": ["keys"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Contact Fields",
+          "description": "The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Contact Fields",
+                "description": "The fields in the data extension that contain data about a contact, such as Email, Last Name, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object"
+              }
+            },
+            "required": ["values"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data to SFMC",
+          "description": "If true, data is batched before sending to the SFMC Data Extension.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data to SFMC",
+                "description": "If true, data is batched before sending to the SFMC Data Extension.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 10,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Operation",
+          "description": "Whether to create a new data extension or select an existing one for data delivery.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create a new Data Extension",
+              "value": "create"
+            },
+            {
+              "label": "Select an existing Data Extension",
+              "value": "select"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Operation",
+                "description": "Whether to create a new data extension or select an existing one for data delivery.",
+                "type": "string",
+                "enum": ["create", "select"]
+              }
+            },
+            "required": ["operation"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataExtensionId",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The identifier for the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataExtensionId": {
+                "title": "Data Extension ID",
+                "description": "The identifier for the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "select"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categoryId",
+          "type": "string",
+          "label": "Category ID (Folder ID)",
+          "description": "The identifier for the folder that contains the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categoryId": {
+                "title": "Category ID (Folder ID)",
+                "description": "The identifier for the folder that contains the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["categoryId"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Data Extension Name",
+          "description": "The name of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Data Extension Name",
+                "description": "The name of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["name"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Data Extension Description",
+          "description": "The description of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Data Extension Description",
+                "description": "The description of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isSendable",
+          "type": "boolean",
+          "label": "Is Sendable",
+          "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isSendable": {
+                "title": "Is Sendable",
+                "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendableCustomObjectField",
+          "type": "string",
+          "label": "Sendable Custom Object Field",
+          "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableCustomObjectField": {
+                "title": "Sendable Custom Object Field",
+                "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableCustomObjectField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "sendableSubscriberField",
+          "type": "string",
+          "label": "Sendable Subscriber Field",
+          "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscriber Key",
+              "value": "_SubscriberKey"
+            },
+            {
+              "label": "Subscriber ID",
+              "value": "_SubscriberID"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableSubscriberField": {
+                "title": "Sendable Subscriber Field",
+                "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+                "type": "string",
+                "enum": ["_SubscriberKey", "_SubscriberID"]
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableSubscriberField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "A list of fields to create in the data extension.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Data Extension Fields",
+                "description": "A list of fields to create in the data extension.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "title": "Field Name",
+                      "description": "The name of the field.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Field Type",
+                      "description": "The data type of the field.",
+                      "type": "string",
+                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                    },
+                    "isNullable": {
+                      "title": "Is Nullable",
+                      "description": "Whether the field can be null.",
+                      "type": "boolean"
+                    },
+                    "isPrimaryKey": {
+                      "title": "Is Primary Key",
+                      "description": "Whether the field is a primary key.",
+                      "type": "boolean"
+                    },
+                    "length": {
+                      "title": "Field Length",
+                      "description": "The length of the field. Required for non-boolean fields",
+                      "type": "integer"
+                    },
+                    "scale": {
+                      "title": "Decimal Scale",
+                      "description": "The scale of the field. Required for Decimal fields",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "title": "Field Description",
+                      "description": "The description of the field.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["columns"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "retlOnMappingSave",
+          "type": "object",
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retlOnMappingSave": {
+                "title": "Create or Select Data Extension",
+                "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Data Extension ID",
+                    "description": "The identifier for the data extension.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Data Extension Name",
+                    "description": "The name of the data extension.",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "retlOnMappingSave"
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Operation",
+          "description": "Whether to create a new data extension or select an existing one for data delivery.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create a new Data Extension",
+              "value": "create"
+            },
+            {
+              "label": "Select an existing Data Extension",
+              "value": "select"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Operation",
+                "description": "Whether to create a new data extension or select an existing one for data delivery.",
+                "type": "string",
+                "enum": ["create", "select"]
+              }
+            },
+            "required": ["operation"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataExtensionId",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The identifier for the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataExtensionId": {
+                "title": "Data Extension ID",
+                "description": "The identifier for the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "select"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categoryId",
+          "type": "string",
+          "label": "Category ID (Folder ID)",
+          "description": "The identifier for the folder that contains the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categoryId": {
+                "title": "Category ID (Folder ID)",
+                "description": "The identifier for the folder that contains the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["categoryId"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Data Extension Name",
+          "description": "The name of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Data Extension Name",
+                "description": "The name of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["name"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Data Extension Description",
+          "description": "The description of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Data Extension Description",
+                "description": "The description of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isSendable",
+          "type": "boolean",
+          "label": "Is Sendable",
+          "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isSendable": {
+                "title": "Is Sendable",
+                "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendableCustomObjectField",
+          "type": "string",
+          "label": "Sendable Custom Object Field",
+          "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableCustomObjectField": {
+                "title": "Sendable Custom Object Field",
+                "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableCustomObjectField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "sendableSubscriberField",
+          "type": "string",
+          "label": "Sendable Subscriber Field",
+          "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscriber Key",
+              "value": "_SubscriberKey"
+            },
+            {
+              "label": "Subscriber ID",
+              "value": "_SubscriberID"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableSubscriberField": {
+                "title": "Sendable Subscriber Field",
+                "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+                "type": "string",
+                "enum": ["_SubscriberKey", "_SubscriberID"]
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableSubscriberField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "A list of fields to create in the data extension.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Data Extension Fields",
+                "description": "A list of fields to create in the data extension.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "title": "Field Name",
+                      "description": "The name of the field.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Field Type",
+                      "description": "The data type of the field.",
+                      "type": "string",
+                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                    },
+                    "isNullable": {
+                      "title": "Is Nullable",
+                      "description": "Whether the field can be null.",
+                      "type": "boolean"
+                    },
+                    "isPrimaryKey": {
+                      "title": "Is Primary Key",
+                      "description": "Whether the field is a primary key.",
+                      "type": "boolean"
+                    },
+                    "length": {
+                      "title": "Field Length",
+                      "description": "The length of the field. Required for non-boolean fields",
+                      "type": "integer"
+                    },
+                    "scale": {
+                      "title": "Decimal Scale",
+                      "description": "The scale of the field. Required for Decimal fields",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "title": "Field Description",
+                      "description": "The description of the field.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["columns"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "onMappingSave",
+          "type": "object",
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "onMappingSave": {
+                "title": "Create or Select Data Extension",
+                "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Data Extension ID",
+                    "description": "The identifier for the data extension.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Data Extension Name",
+                    "description": "The name of the data extension.",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "onMappingSave"
+        }
+      ]
+    },
+    {
+      "slug": "asyncDataExtension",
+      "name": "Send Event asynchronously to Data Extension",
+      "description": "Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.\n  \n    Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "keys",
+          "type": "object",
+          "label": "Data Extension Primary Key",
+          "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "keys": {
+                "title": "Data Extension Primary Key",
+                "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+                "type": "object"
+              }
+            },
+            "required": ["keys"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Data Extension Fields",
+                "description": "The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object"
+              }
+            },
+            "required": ["values"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data to SFMC",
+          "description": "If true, data is batched before sending to the SFMC Data Extension.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data to SFMC",
+                "description": "If true, data is batched before sending to the SFMC Data Extension.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "The maximum size of a batch in bytes.",
+          "defaultValue": 5000000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "The maximum size of a batch in bytes.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 28000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1000,
+                "maximum": 30000
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 1000,
+          "maximum": 30000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Operation",
+          "description": "Whether to create a new data extension or select an existing one for data delivery.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create a new Data Extension",
+              "value": "create"
+            },
+            {
+              "label": "Select an existing Data Extension",
+              "value": "select"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Operation",
+                "description": "Whether to create a new data extension or select an existing one for data delivery.",
+                "type": "string",
+                "enum": ["create", "select"]
+              }
+            },
+            "required": ["operation"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataExtensionId",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The identifier for the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataExtensionId": {
+                "title": "Data Extension ID",
+                "description": "The identifier for the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "select"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categoryId",
+          "type": "string",
+          "label": "Category ID (Folder ID)",
+          "description": "The identifier for the folder that contains the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categoryId": {
+                "title": "Category ID (Folder ID)",
+                "description": "The identifier for the folder that contains the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["categoryId"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Data Extension Name",
+          "description": "The name of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Data Extension Name",
+                "description": "The name of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["name"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Data Extension Description",
+          "description": "The description of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Data Extension Description",
+                "description": "The description of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isSendable",
+          "type": "boolean",
+          "label": "Is Sendable",
+          "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isSendable": {
+                "title": "Is Sendable",
+                "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendableCustomObjectField",
+          "type": "string",
+          "label": "Sendable Custom Object Field",
+          "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableCustomObjectField": {
+                "title": "Sendable Custom Object Field",
+                "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableCustomObjectField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "sendableSubscriberField",
+          "type": "string",
+          "label": "Sendable Subscriber Field",
+          "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscriber Key",
+              "value": "_SubscriberKey"
+            },
+            {
+              "label": "Subscriber ID",
+              "value": "_SubscriberID"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableSubscriberField": {
+                "title": "Sendable Subscriber Field",
+                "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+                "type": "string",
+                "enum": ["_SubscriberKey", "_SubscriberID"]
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableSubscriberField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "A list of fields to create in the data extension.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Data Extension Fields",
+                "description": "A list of fields to create in the data extension.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "title": "Field Name",
+                      "description": "The name of the field.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Field Type",
+                      "description": "The data type of the field.",
+                      "type": "string",
+                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                    },
+                    "isNullable": {
+                      "title": "Is Nullable",
+                      "description": "Whether the field can be null.",
+                      "type": "boolean"
+                    },
+                    "isPrimaryKey": {
+                      "title": "Is Primary Key",
+                      "description": "Whether the field is a primary key.",
+                      "type": "boolean"
+                    },
+                    "length": {
+                      "title": "Field Length",
+                      "description": "The length of the field. Required for non-boolean fields",
+                      "type": "integer"
+                    },
+                    "scale": {
+                      "title": "Decimal Scale",
+                      "description": "The scale of the field. Required for Decimal fields",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "title": "Field Description",
+                      "description": "The description of the field.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["columns"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "retlOnMappingSave",
+          "type": "object",
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retlOnMappingSave": {
+                "title": "Create or Select Data Extension",
+                "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Data Extension ID",
+                    "description": "The identifier for the data extension.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Data Extension Name",
+                    "description": "The name of the data extension.",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "retlOnMappingSave"
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Operation",
+          "description": "Whether to create a new data extension or select an existing one for data delivery.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create a new Data Extension",
+              "value": "create"
+            },
+            {
+              "label": "Select an existing Data Extension",
+              "value": "select"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Operation",
+                "description": "Whether to create a new data extension or select an existing one for data delivery.",
+                "type": "string",
+                "enum": ["create", "select"]
+              }
+            },
+            "required": ["operation"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataExtensionId",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The identifier for the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataExtensionId": {
+                "title": "Data Extension ID",
+                "description": "The identifier for the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "select"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categoryId",
+          "type": "string",
+          "label": "Category ID (Folder ID)",
+          "description": "The identifier for the folder that contains the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categoryId": {
+                "title": "Category ID (Folder ID)",
+                "description": "The identifier for the folder that contains the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["categoryId"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Data Extension Name",
+          "description": "The name of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Data Extension Name",
+                "description": "The name of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["name"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Data Extension Description",
+          "description": "The description of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Data Extension Description",
+                "description": "The description of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isSendable",
+          "type": "boolean",
+          "label": "Is Sendable",
+          "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isSendable": {
+                "title": "Is Sendable",
+                "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendableCustomObjectField",
+          "type": "string",
+          "label": "Sendable Custom Object Field",
+          "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableCustomObjectField": {
+                "title": "Sendable Custom Object Field",
+                "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableCustomObjectField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "sendableSubscriberField",
+          "type": "string",
+          "label": "Sendable Subscriber Field",
+          "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscriber Key",
+              "value": "_SubscriberKey"
+            },
+            {
+              "label": "Subscriber ID",
+              "value": "_SubscriberID"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableSubscriberField": {
+                "title": "Sendable Subscriber Field",
+                "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+                "type": "string",
+                "enum": ["_SubscriberKey", "_SubscriberID"]
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableSubscriberField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "A list of fields to create in the data extension.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Data Extension Fields",
+                "description": "A list of fields to create in the data extension.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "title": "Field Name",
+                      "description": "The name of the field.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Field Type",
+                      "description": "The data type of the field.",
+                      "type": "string",
+                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                    },
+                    "isNullable": {
+                      "title": "Is Nullable",
+                      "description": "Whether the field can be null.",
+                      "type": "boolean"
+                    },
+                    "isPrimaryKey": {
+                      "title": "Is Primary Key",
+                      "description": "Whether the field is a primary key.",
+                      "type": "boolean"
+                    },
+                    "length": {
+                      "title": "Field Length",
+                      "description": "The length of the field. Required for non-boolean fields",
+                      "type": "integer"
+                    },
+                    "scale": {
+                      "title": "Decimal Scale",
+                      "description": "The scale of the field. Required for Decimal fields",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "title": "Field Description",
+                      "description": "The description of the field.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["columns"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "onMappingSave",
+          "type": "object",
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "onMappingSave": {
+                "title": "Create or Select Data Extension",
+                "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Data Extension ID",
+                    "description": "The identifier for the data extension.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Data Extension Name",
+                    "description": "The name of the data extension.",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "onMappingSave"
+        }
+      ]
+    },
+    {
+      "slug": "dataExtension",
+      "name": "Send Event to Data Extension",
+      "description": "Upsert events as rows into an existing data extension in Salesforce Marketing Cloud.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "key",
+          "type": "string",
+          "label": "Data Extension Key",
+          "description": "The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "title": "Data Extension Key",
+                "description": "The external key of the data extension that you want to store information in. The data extension must be predefined in SFMC. The external key is required if a Data Extension ID is not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Data Extension ID",
+                "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "keys",
+          "type": "object",
+          "label": "Data Extension Primary Key",
+          "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "keys": {
+                "title": "Data Extension Primary Key",
+                "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+                "type": "object"
+              }
+            },
+            "required": ["keys"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Data Extension Fields",
+                "description": "The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object"
+              }
+            },
+            "required": ["values"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data to SFMC",
+          "description": "If true, data is batched before sending to the SFMC Data Extension.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data to SFMC",
+                "description": "If true, data is batched before sending to the SFMC Data Extension.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 10,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "dataExtensionV2",
+      "name": "Send Event to Data Extension (V2)",
+      "description": "Upsert events as rows into a data extension in Salesforce Marketing Cloud.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "keys",
+          "type": "object",
+          "label": "Data Extension Primary Key",
+          "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "keys": {
+                "title": "Data Extension Primary Key",
+                "description": "The Primary Key is a unique identifier for each row in the Data Extension. In the mapping configuration, enter the SFMC Key Name on the left and map the corresponding Segment Field on the right. Each Data Extension supports only one Primary Key. When data is sent to SFMC, the system will update an existing row if the Primary Key matches; otherwise, it will create a new record.",
+                "type": "object"
+              }
+            },
+            "required": ["keys"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Data Extension Fields",
+                "description": "The fields in the data extension that contain data about an event, such as Product Name, Revenue, Event Time, etc. Fields must be created in the data extension before sending data for it. On the left-hand side, input the SFMC field name exactly how it appears in the data extension. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object"
+              }
+            },
+            "required": ["values"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data to SFMC",
+          "description": "If true, data is batched before sending to the SFMC Data Extension.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data to SFMC",
+                "description": "If true, data is batched before sending to the SFMC Data Extension.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 10,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Operation",
+          "description": "Whether to create a new data extension or select an existing one for data delivery.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create a new Data Extension",
+              "value": "create"
+            },
+            {
+              "label": "Select an existing Data Extension",
+              "value": "select"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Operation",
+                "description": "Whether to create a new data extension or select an existing one for data delivery.",
+                "type": "string",
+                "enum": ["create", "select"]
+              }
+            },
+            "required": ["operation"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataExtensionId",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The identifier for the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataExtensionId": {
+                "title": "Data Extension ID",
+                "description": "The identifier for the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "select"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categoryId",
+          "type": "string",
+          "label": "Category ID (Folder ID)",
+          "description": "The identifier for the folder that contains the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categoryId": {
+                "title": "Category ID (Folder ID)",
+                "description": "The identifier for the folder that contains the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["categoryId"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Data Extension Name",
+          "description": "The name of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Data Extension Name",
+                "description": "The name of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["name"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Data Extension Description",
+          "description": "The description of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Data Extension Description",
+                "description": "The description of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isSendable",
+          "type": "boolean",
+          "label": "Is Sendable",
+          "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isSendable": {
+                "title": "Is Sendable",
+                "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendableCustomObjectField",
+          "type": "string",
+          "label": "Sendable Custom Object Field",
+          "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableCustomObjectField": {
+                "title": "Sendable Custom Object Field",
+                "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableCustomObjectField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "sendableSubscriberField",
+          "type": "string",
+          "label": "Sendable Subscriber Field",
+          "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscriber Key",
+              "value": "_SubscriberKey"
+            },
+            {
+              "label": "Subscriber ID",
+              "value": "_SubscriberID"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableSubscriberField": {
+                "title": "Sendable Subscriber Field",
+                "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+                "type": "string",
+                "enum": ["_SubscriberKey", "_SubscriberID"]
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableSubscriberField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "A list of fields to create in the data extension.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Data Extension Fields",
+                "description": "A list of fields to create in the data extension.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "title": "Field Name",
+                      "description": "The name of the field.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Field Type",
+                      "description": "The data type of the field.",
+                      "type": "string",
+                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                    },
+                    "isNullable": {
+                      "title": "Is Nullable",
+                      "description": "Whether the field can be null.",
+                      "type": "boolean"
+                    },
+                    "isPrimaryKey": {
+                      "title": "Is Primary Key",
+                      "description": "Whether the field is a primary key.",
+                      "type": "boolean"
+                    },
+                    "length": {
+                      "title": "Field Length",
+                      "description": "The length of the field. Required for non-boolean fields",
+                      "type": "integer"
+                    },
+                    "scale": {
+                      "title": "Decimal Scale",
+                      "description": "The scale of the field. Required for Decimal fields",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "title": "Field Description",
+                      "description": "The description of the field.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["columns"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "retlOnMappingSave",
+          "type": "object",
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retlOnMappingSave": {
+                "title": "Create or Select Data Extension",
+                "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Data Extension ID",
+                    "description": "The identifier for the data extension.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Data Extension Name",
+                    "description": "The name of the data extension.",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "retlOnMappingSave"
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Operation",
+          "description": "Whether to create a new data extension or select an existing one for data delivery.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create a new Data Extension",
+              "value": "create"
+            },
+            {
+              "label": "Select an existing Data Extension",
+              "value": "select"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Operation",
+                "description": "Whether to create a new data extension or select an existing one for data delivery.",
+                "type": "string",
+                "enum": ["create", "select"]
+              }
+            },
+            "required": ["operation"]
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataExtensionId",
+          "type": "string",
+          "label": "Data Extension ID",
+          "description": "The identifier for the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataExtensionId": {
+                "title": "Data Extension ID",
+                "description": "The identifier for the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "select"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categoryId",
+          "type": "string",
+          "label": "Category ID (Folder ID)",
+          "description": "The identifier for the folder that contains the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categoryId": {
+                "title": "Category ID (Folder ID)",
+                "description": "The identifier for the folder that contains the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["categoryId"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Data Extension Name",
+          "description": "The name of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Data Extension Name",
+                "description": "The name of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["name"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Data Extension Description",
+          "description": "The description of the data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Data Extension Description",
+                "description": "The description of the data extension.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "isSendable",
+          "type": "boolean",
+          "label": "Is Sendable",
+          "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "isSendable": {
+                "title": "Is Sendable",
+                "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendableCustomObjectField",
+          "type": "string",
+          "label": "Sendable Custom Object Field",
+          "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableCustomObjectField": {
+                "title": "Sendable Custom Object Field",
+                "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableCustomObjectField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "sendableSubscriberField",
+          "type": "string",
+          "label": "Sendable Subscriber Field",
+          "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscriber Key",
+              "value": "_SubscriberKey"
+            },
+            {
+              "label": "Subscriber ID",
+              "value": "_SubscriberID"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendableSubscriberField": {
+                "title": "Sendable Subscriber Field",
+                "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+                "type": "string",
+                "enum": ["_SubscriberKey", "_SubscriberID"]
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["isSendable"],
+                  "properties": {
+                    "isSendable": {
+                      "const": true
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["sendableSubscriberField"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "isSendable",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "isSendable",
+                  "operator": "is",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Data Extension Fields",
+          "description": "A list of fields to create in the data extension.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Data Extension Fields",
+                "description": "A list of fields to create in the data extension.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "title": "Field Name",
+                      "description": "The name of the field.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Field Type",
+                      "description": "The data type of the field.",
+                      "type": "string",
+                      "enum": ["Text", "Number", "Date", "Boolean", "EmailAddress", "Phone", "Decimal", "Locale"]
+                    },
+                    "isNullable": {
+                      "title": "Is Nullable",
+                      "description": "Whether the field can be null.",
+                      "type": "boolean"
+                    },
+                    "isPrimaryKey": {
+                      "title": "Is Primary Key",
+                      "description": "Whether the field is a primary key.",
+                      "type": "boolean"
+                    },
+                    "length": {
+                      "title": "Field Length",
+                      "description": "The length of the field. Required for non-boolean fields",
+                      "type": "integer"
+                    },
+                    "scale": {
+                      "title": "Decimal Scale",
+                      "description": "The scale of the field. Required for Decimal fields",
+                      "type": "integer"
+                    },
+                    "description": {
+                      "title": "Field Description",
+                      "description": "The description of the field.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type", "isNullable", "isPrimaryKey"]
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["operation"],
+                  "properties": {
+                    "operation": {
+                      "const": "create"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["columns"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "match": "all",
+              "conditions": [
+                {
+                  "fieldKey": "operation",
+                  "operator": "is",
+                  "value": "create"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "onMappingSave",
+          "type": "object",
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "onMappingSave": {
+                "title": "Create or Select Data Extension",
+                "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Data Extension ID",
+                    "description": "The identifier for the data extension.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Data Extension Name",
+                    "description": "The name of the data extension.",
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "onMappingSave"
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

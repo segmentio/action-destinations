@@ -1,0 +1,1908 @@
+{
+  "name": "Dotdigital",
+  "description": "Send Segment events and user profile data to Dotdigital.",
+  "basicOptions": ["api_host", "username", "password"],
+  "options": {
+    "api_host": {
+      "tags": ["authentication:test"],
+      "default": "https://r1-api.dotdigital.com",
+      "description": "The region your account is in",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://r1-api.dotdigital.com",
+          "label": "r1",
+          "text": "r1"
+        },
+        {
+          "value": "https://r2-api.dotdigital.com",
+          "label": "r2",
+          "text": "r2"
+        },
+        {
+          "value": "https://r3-api.dotdigital.com",
+          "label": "r3",
+          "text": "r3"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The api_host property is required."]],
+      "uIMetadata": null
+    },
+    "username": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Dotdigital username",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The username property is required."]],
+      "uIMetadata": null
+    },
+    "password": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Dotdigital password.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Password",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The password property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "addContactToList",
+      "name": "Add or Update Contact",
+      "description": "Adds or updates a contact.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Add or Update Contact\"",
+      "fields": [
+        {
+          "fieldKey": "channelIdentifier",
+          "type": "string",
+          "label": "Contact Identifier type",
+          "description": "Select the field to identify contacts.",
+          "defaultValue": "email",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email address",
+              "value": "email"
+            },
+            {
+              "label": "Mobile number",
+              "value": "mobileNumber"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channelIdentifier": {
+                "title": "Contact Identifier type",
+                "description": "Select the field to identify contacts.",
+                "type": "string",
+                "enum": ["email", "mobileNumber"]
+              }
+            },
+            "required": ["channelIdentifier"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailIdentifier",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The Contact's email address.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailIdentifier": {
+                "title": "Email Address",
+                "description": "The Contact's email address.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["channelIdentifier"],
+                  "properties": {
+                    "channelIdentifier": {
+                      "const": "email"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["emailIdentifier"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "channelIdentifier",
+                  "operator": "is",
+                  "value": "email"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "mobileNumberIdentifier",
+          "type": "string",
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileNumberIdentifier": {
+                "title": "Mobile Number",
+                "description": "The Contact's mobile number.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["channelIdentifier"],
+                  "properties": {
+                    "channelIdentifier": {
+                      "const": "mobileNumber"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["mobileNumberIdentifier"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "channelIdentifier",
+                  "operator": "is",
+                  "value": "mobileNumber"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "emailType",
+          "type": "string",
+          "label": "Email Type",
+          "description": "The type of email the contact prefers to receive.",
+          "defaultValue": "html",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "HTML",
+              "value": "html"
+            },
+            {
+              "label": "Plain Text",
+              "value": "plainText"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailType": {
+                "title": "Email Type",
+                "description": "The type of email the contact prefers to receive.",
+                "type": "string",
+                "enum": ["html", "plainText"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "optInType",
+          "type": "string",
+          "label": "Opt-in Type",
+          "description": "The type of opt-in used for this contact. [Learn more](https://support.dotdigital.com/en/articles/8198810-email-opt-in-types)",
+          "defaultValue": "single",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Unknown",
+              "value": "unknown"
+            },
+            {
+              "label": "Single",
+              "value": "single"
+            },
+            {
+              "label": "Double",
+              "value": "double"
+            },
+            {
+              "label": "Verified Double",
+              "value": "verifiedDouble"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "optInType": {
+                "title": "Opt-in Type",
+                "description": "The type of opt-in used for this contact. [Learn more](https://support.dotdigital.com/en/articles/8198810-email-opt-in-types)",
+                "type": "string",
+                "enum": ["unknown", "single", "double", "verifiedDouble"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "updateEmailSubscription",
+          "type": "boolean",
+          "label": "Update Email Subscription Status",
+          "description": "Choose whether to update the email subscription status.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "updateEmailSubscription": {
+                "title": "Update Email Subscription Status",
+                "description": "Choose whether to update the email subscription status.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailSubscriptionStatus",
+          "type": "string",
+          "label": "Email Subscription Status",
+          "description": "The subscription status for the email channel.",
+          "defaultValue": "subscribed",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscribed",
+              "value": "subscribed"
+            },
+            {
+              "label": "Unsubscribed",
+              "value": "unsubscribed"
+            },
+            {
+              "label": "Suppressed",
+              "value": "suppressed"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailSubscriptionStatus": {
+                "title": "Email Subscription Status",
+                "description": "The subscription status for the email channel.",
+                "type": "string",
+                "enum": ["subscribed", "unsubscribed", "suppressed"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "updateEmailSubscription",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailResubscribe",
+          "type": "boolean",
+          "label": "Resubscribe if Previously Unsubscribed",
+          "description": "When Yes, the action will send a \"subscribed\" status in the API call for email.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailResubscribe": {
+                "title": "Resubscribe if Previously Unsubscribed",
+                "description": "When Yes, the action will send a \"subscribed\" status in the API call for email.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "updateEmailSubscription",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "emailSubscriptionStatus",
+                "operator": "is",
+                "value": "subscribed"
+              }
+            ],
+            "match": "all"
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "resubscribeWithoutChallengeEmail",
+          "type": "boolean",
+          "label": "Resubscribe Without Challenge Email",
+          "description": "If Yes, no resubscription confirmation email will be sent.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "resubscribeWithoutChallengeEmail": {
+                "title": "Resubscribe Without Challenge Email",
+                "description": "If Yes, no resubscription confirmation email will be sent.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "emailResubscribe",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "preferredLocale",
+          "type": "string",
+          "label": "Preferred Language",
+          "description": "Choose the language that you would like the resubscribe request email to be sent in.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "cs-CS",
+              "value": "cs-CS"
+            },
+            {
+              "label": "da-DA",
+              "value": "da-DA"
+            },
+            {
+              "label": "de-DE",
+              "value": "de-DE"
+            },
+            {
+              "label": "el-EL",
+              "value": "el-EL"
+            },
+            {
+              "label": "en-EN",
+              "value": "en-EN"
+            },
+            {
+              "label": "es-ES",
+              "value": "es-ES"
+            },
+            {
+              "label": "es",
+              "value": "es"
+            },
+            {
+              "label": "fi-FI",
+              "value": "fi-FI"
+            },
+            {
+              "label": "fr-FR",
+              "value": "fr-FR"
+            },
+            {
+              "label": "hu-HU",
+              "value": "hu-HU"
+            },
+            {
+              "label": "it-IT",
+              "value": "it-IT"
+            },
+            {
+              "label": "nl-NL",
+              "value": "nl-NL"
+            },
+            {
+              "label": "nb-NO",
+              "value": "nb-NO"
+            },
+            {
+              "label": "pl-PL",
+              "value": "pl-PL"
+            },
+            {
+              "label": "pt-PT",
+              "value": "pt-PT"
+            },
+            {
+              "label": "ru-RU",
+              "value": "ru-RU"
+            },
+            {
+              "label": "se-SE",
+              "value": "se-SE"
+            },
+            {
+              "label": "sk-SK",
+              "value": "sk-SK"
+            },
+            {
+              "label": "tr-TR",
+              "value": "tr-TR"
+            },
+            {
+              "label": "zh-CN",
+              "value": "zh-CN"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "preferredLocale": {
+                "title": "Preferred Language",
+                "description": "Choose the language that you would like the resubscribe request email to be sent in.",
+                "type": "string",
+                "enum": [
+                  "cs-CS",
+                  "da-DA",
+                  "de-DE",
+                  "el-EL",
+                  "en-EN",
+                  "es-ES",
+                  "es",
+                  "fi-FI",
+                  "fr-FR",
+                  "hu-HU",
+                  "it-IT",
+                  "nl-NL",
+                  "nb-NO",
+                  "pl-PL",
+                  "pt-PT",
+                  "ru-RU",
+                  "se-SE",
+                  "sk-SK",
+                  "tr-TR",
+                  "zh-CN"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "emailResubscribe",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "resubscribeWithoutChallengeEmail",
+                "operator": "is",
+                "value": false
+              }
+            ],
+            "match": "all"
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "redirectUrlAfterChallenge",
+          "type": "string",
+          "label": "Redirect URL",
+          "description": "The URL you would like to redirect challenged contacts to after they have completed their resubscription.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "redirectUrlAfterChallenge": {
+                "title": "Redirect URL",
+                "description": "The URL you would like to redirect challenged contacts to after they have completed their resubscription.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "emailResubscribe",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "resubscribeWithoutChallengeEmail",
+                "operator": "is",
+                "value": false
+              }
+            ],
+            "match": "all"
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "updateSmsSubscription",
+          "type": "boolean",
+          "label": "Update SMS Subscription Status",
+          "description": "Choose whether to update the SMS subscription status.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "updateSmsSubscription": {
+                "title": "Update SMS Subscription Status",
+                "description": "Choose whether to update the SMS subscription status.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "smsSubscriptionStatus",
+          "type": "string",
+          "label": "SMS Subscription Status",
+          "description": "The subscription status for the SMS channel.",
+          "defaultValue": "subscribed",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Subscribed",
+              "value": "subscribed"
+            },
+            {
+              "label": "Unsubscribed",
+              "value": "unsubscribed"
+            },
+            {
+              "label": "Suppressed",
+              "value": "suppressed"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "smsSubscriptionStatus": {
+                "title": "SMS Subscription Status",
+                "description": "The subscription status for the SMS channel.",
+                "type": "string",
+                "enum": ["subscribed", "unsubscribed", "suppressed"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "updateSmsSubscription",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "listId",
+          "type": "number",
+          "label": "List",
+          "description": "The list to add the contact to.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "title": "List",
+                "description": "The list to add the contact to.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        },
+        {
+          "fieldKey": "dataFields",
+          "type": "object",
+          "label": "Data Fields",
+          "description": "An object containing key/value pairs for data fields assigned to this Contact. Custom Data Fields must already be defined in Dotdigital.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataFields": {
+                "title": "Data Fields",
+                "description": "An object containing key/value pairs for data fields assigned to this Contact. Custom Data Fields must already be defined in Dotdigital.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"],
+            "dynamicProperties": ["__keys__"]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "enrolContact",
+      "name": "Enrol Contact to Program",
+      "description": "Creates a program enrolment.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Enrol Contact to Program\"",
+      "fields": [
+        {
+          "fieldKey": "channelIdentifier",
+          "type": "string",
+          "label": "Contact Identifier type",
+          "description": "Select the field to identify contacts.",
+          "defaultValue": "email",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email address",
+              "value": "email"
+            },
+            {
+              "label": "Mobile number",
+              "value": "mobileNumber"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channelIdentifier": {
+                "title": "Contact Identifier type",
+                "description": "Select the field to identify contacts.",
+                "type": "string",
+                "enum": ["email", "mobileNumber"]
+              }
+            },
+            "required": ["channelIdentifier"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailIdentifier",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The Contact's email address.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailIdentifier": {
+                "title": "Email Address",
+                "description": "The Contact's email address.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["channelIdentifier"],
+                  "properties": {
+                    "channelIdentifier": {
+                      "const": "email"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["emailIdentifier"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "channelIdentifier",
+                  "operator": "is",
+                  "value": "email"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "mobileNumberIdentifier",
+          "type": "string",
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileNumberIdentifier": {
+                "title": "Mobile Number",
+                "description": "The Contact's mobile number.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["channelIdentifier"],
+                  "properties": {
+                    "channelIdentifier": {
+                      "const": "mobileNumber"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["mobileNumberIdentifier"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "channelIdentifier",
+                  "operator": "is",
+                  "value": "mobileNumber"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "programId",
+          "type": "string",
+          "label": "Program",
+          "description": "List of active programs",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "programId": {
+                "title": "Program",
+                "description": "List of active programs",
+                "type": "string"
+              }
+            },
+            "required": ["programId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "removeContactFromList",
+      "name": "Remove Contact from List",
+      "description": "Removes a Contact from a List.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Remove Contact from List\"",
+      "fields": [
+        {
+          "fieldKey": "channelIdentifier",
+          "type": "string",
+          "label": "Contact Identifier type",
+          "description": "Select the field to identify contacts.",
+          "defaultValue": "email",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email address",
+              "value": "email"
+            },
+            {
+              "label": "Mobile number",
+              "value": "mobileNumber"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channelIdentifier": {
+                "title": "Contact Identifier type",
+                "description": "Select the field to identify contacts.",
+                "type": "string",
+                "enum": ["email", "mobileNumber"]
+              }
+            },
+            "required": ["channelIdentifier"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailIdentifier",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The Contact's email address.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailIdentifier": {
+                "title": "Email Address",
+                "description": "The Contact's email address.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["channelIdentifier"],
+                  "properties": {
+                    "channelIdentifier": {
+                      "const": "email"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["emailIdentifier"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "channelIdentifier",
+                  "operator": "is",
+                  "value": "email"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "mobileNumberIdentifier",
+          "type": "string",
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileNumberIdentifier": {
+                "title": "Mobile Number",
+                "description": "The Contact's mobile number.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": ["channelIdentifier"],
+                  "properties": {
+                    "channelIdentifier": {
+                      "const": "mobileNumber"
+                    }
+                  }
+                },
+                "then": {
+                  "required": ["mobileNumberIdentifier"]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "channelIdentifier",
+                  "operator": "is",
+                  "value": "mobileNumber"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "listId",
+          "type": "number",
+          "label": "List",
+          "description": "The List to remove the Contact from.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "title": "List",
+                "description": "The List to remove the Contact from.",
+                "type": "number"
+              }
+            },
+            "required": ["listId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "sendEmailCampaign",
+      "name": "Send Email Campaign",
+      "description": "Sends a marketing email to a contact.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Send Email Campaign\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "A single email address to send the campaign to. If the contact does not exist in your Dotdigital account, the campaign won't be sent.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "A single email address to send the campaign to. If the contact does not exist in your Dotdigital account, the campaign won't be sent.",
+                "type": "string"
+              }
+            },
+            "required": ["email"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaignId",
+          "type": "number",
+          "label": "Campaign",
+          "description": "The campaign to email to a contact.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaignId": {
+                "title": "Campaign",
+                "description": "The campaign to email to a contact.",
+                "type": "number"
+              }
+            },
+            "required": ["campaignId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        },
+        {
+          "fieldKey": "sendDate",
+          "type": "datetime",
+          "label": "Send Date",
+          "description": "The campaign will be sent immediately if the send date is left blank.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendDate": {
+                "title": "Send Date",
+                "description": "The campaign will be sent immediately if the send date is left blank.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendTimeOptimised",
+          "type": "boolean",
+          "label": "Send Time Optimised",
+          "description": "Send the campaign at the most appropriate time based upon their previous opens.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendTimeOptimised": {
+                "title": "Send Time Optimised",
+                "description": "Send the campaign at the most appropriate time based upon their previous opens.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendSms",
+      "name": "Send SMS",
+      "description": "Sends a marketing SMS to a contact.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Send SMS\"",
+      "fields": [
+        {
+          "fieldKey": "to",
+          "type": "string",
+          "label": "To",
+          "description": "The mobile number of the contact in E.164 format (e.g. 14155552671).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "to": {
+                "title": "To",
+                "description": "The mobile number of the contact in E.164 format (e.g. 14155552671).",
+                "type": "string"
+              }
+            },
+            "required": ["to"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message",
+          "type": "text",
+          "label": "Message",
+          "description": "The message to send in the SMS.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message": {
+                "title": "Message",
+                "description": "The message to send in the SMS.",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["message"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendTransactionalEmail",
+      "name": "Send Transactional Email",
+      "description": "Sends a transactional email.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Send Transactional Email\"",
+      "fields": [
+        {
+          "fieldKey": "fromAddress",
+          "type": "string",
+          "label": "From Address",
+          "description": "Use either your default transactional email from address, or another custom from address you have added to your account. If you set a from address that is not listed in your available from addresses, Dotdigital will replace it with your default from address. You may set a from name as well as an email address, for example \"My Company <`Dotmailer123@r1.dotdigital-email.com`>\". [Read more about using transactional email](https://support.dotdigital.com/en/articles/8199068-use-transactional-email).",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fromAddress": {
+                "title": "From Address",
+                "description": "Use either your default transactional email from address, or another custom from address you have added to your account. If you set a from address that is not listed in your available from addresses, Dotdigital will replace it with your default from address. You may set a from name as well as an email address, for example \"My Company <`Dotmailer123@r1.dotdigital-email.com`>\". [Read more about using transactional email](https://support.dotdigital.com/en/articles/8199068-use-transactional-email).",
+                "type": "string"
+              }
+            },
+            "required": ["fromAddress"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "toAddresses",
+          "type": "string",
+          "label": "To Address",
+          "description": "The email address(es) to send to.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "toAddresses": {
+                "title": "To Address",
+                "description": "The email address(es) to send to.",
+                "type": "string"
+              }
+            },
+            "required": ["toAddresses"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subject",
+          "type": "string",
+          "label": "Subject",
+          "description": "The subject line for your email.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subject": {
+                "title": "Subject",
+                "description": "The subject line for your email.",
+                "type": "string"
+              }
+            },
+            "required": ["subject"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "htmlContent",
+          "type": "text",
+          "label": "HTML Content",
+          "description": "The HTML content for your email.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "htmlContent": {
+                "title": "HTML Content",
+                "description": "The HTML content for your email.",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["htmlContent"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "plainTextContent",
+          "type": "text",
+          "label": "Plain Text Content",
+          "description": "The plain text content for your email.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "plainTextContent": {
+                "title": "Plain Text Content",
+                "description": "The plain text content for your email.",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ccAddresses",
+          "type": "string",
+          "label": "CC Addresses",
+          "description": "The CC email address(es) to send to. Separate email addresses with a comma. Maximum: 100.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ccAddresses": {
+                "title": "CC Addresses",
+                "description": "The CC email address(es) to send to. Separate email addresses with a comma. Maximum: 100.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bccAddresses",
+          "type": "string",
+          "label": "BCC Addresses",
+          "description": "The BCC email address(es) to send to. Separate email addresses with a comma. Maximum: 100.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bccAddresses": {
+                "title": "BCC Addresses",
+                "description": "The BCC email address(es) to send to. Separate email addresses with a comma. Maximum: 100.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendTransactionalSms",
+      "name": "Send Transactional SMS",
+      "description": "Sends a transactional SMS.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Send Transactional SMS\"",
+      "fields": [
+        {
+          "fieldKey": "to",
+          "type": "string",
+          "label": "To",
+          "description": "Only valid mobile numbers with an international dialling prefix will be accepted (e.g. 447777123123).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "to": {
+                "title": "To",
+                "description": "Only valid mobile numbers with an international dialling prefix will be accepted (e.g. 447777123123).",
+                "type": "string"
+              }
+            },
+            "required": ["to"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "from",
+          "type": "string",
+          "label": "From",
+          "description": "Enter a custom From name, or leave blank to use a random number. From name format varies by region. [Learn more](https://support.dotdigital.com/en/articles/8199187-sender-ids-and-originators)",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "description": "Enter a custom From name, or leave blank to use a random number. From name format varies by region. [Learn more](https://support.dotdigital.com/en/articles/8199187-sender-ids-and-originators)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message",
+          "type": "text",
+          "label": "Message",
+          "description": "The content of the SMS, up to 160 non-encoded characters per message.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message": {
+                "title": "Message",
+                "description": "The content of the SMS, up to 160 non-encoded characters per message.",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["message"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "link_shortening",
+          "type": "boolean",
+          "label": "Link Shortening",
+          "description": "[Link shortening](https://developer.dotdigital.com/v2/reference/additional-options#link-shortening) will automatically shorten your links to save character count and track who clicked on them for better reporting. Defaults to No.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "link_shortening": {
+                "title": "Link Shortening",
+                "description": "[Link shortening](https://developer.dotdigital.com/v2/reference/additional-options#link-shortening) will automatically shorten your links to save character count and track who clicked on them for better reporting. Defaults to No.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "allow_unicode",
+          "type": "boolean",
+          "label": "Allow Unicode Characters",
+          "description": "If Yes, Unicode characters will be allowed in the message body. If No, any messages containing Unicode will not be sent. Please [read why Unicode](https://developer.dotdigital.com/reference/channel-sms#section-why-is-unicode-important-with-sms) is important before switching this on. Defaults to No.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "allow_unicode": {
+                "title": "Allow Unicode Characters",
+                "description": "If Yes, Unicode characters will be allowed in the message body. If No, any messages containing Unicode will not be sent. Please [read why Unicode](https://developer.dotdigital.com/reference/channel-sms#section-why-is-unicode-important-with-sms) is important before switching this on. Defaults to No.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

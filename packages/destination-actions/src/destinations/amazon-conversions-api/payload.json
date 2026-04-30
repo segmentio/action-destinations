@@ -1,0 +1,4013 @@
+{
+  "name": "Amazon Conversions Api",
+  "description": "Amazon conversion API destination to send conversion event data to Amazon.",
+  "basicOptions": ["region", "advertiserId", "dataSetName"],
+  "options": {
+    "region": {
+      "tags": ["authentication:test"],
+      "default": "https://advertising-api.amazon.com",
+      "description": "Region for API Endpoint, either NA, EU, FE.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://advertising-api.amazon.com",
+          "label": "North America (NA)",
+          "text": "North America (NA)"
+        },
+        {
+          "value": "https://advertising-api-eu.amazon.com",
+          "label": "Europe (EU)",
+          "text": "Europe (EU)"
+        },
+        {
+          "value": "https://advertising-api-fe.amazon.com",
+          "label": "Far East (FE)",
+          "text": "Far East (FE)"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The region property is required."]],
+      "uIMetadata": null
+    },
+    "advertiserId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Amazon Advertiser Account ID. This must be a numeric value. Use Amazon DSP CFID and not Entity ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Amazon Advertiser ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The advertiserId property is required."]],
+      "uIMetadata": null
+    },
+    "dataSetName": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Amazon Ads organizes uploaded data into datasets, which are logical groupings used to separate and categorize events from your sources. The default dataset name (if not provided) is Default_Events. All events within a dataset will appear in Amazon Ads Data Manager under the name you provide here. New destination? We recommend providing a dataset name during initial setup. Existing destination? We strongly recommend reading the [FAQ](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-amazon-conversions-api#what-is-a-dataset-and-how-does-amazon-use-the-dataset-name) before updating your dataset name, as changes may impact your existing events.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Dataset Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackConversion",
+      "name": "Track Conversion",
+      "description": "Send conversion event data to Amazon Events API",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the imported event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Name",
+                "description": "The name of the imported event.",
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The standard Amazon event type.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Add to Shopping Cart",
+              "value": "ADD_TO_SHOPPING_CART"
+            },
+            {
+              "label": "Application",
+              "value": "APPLICATION"
+            },
+            {
+              "label": "Checkout",
+              "value": "CHECKOUT"
+            },
+            {
+              "label": "Contact",
+              "value": "CONTACT"
+            },
+            {
+              "label": "Lead",
+              "value": "LEAD"
+            },
+            {
+              "label": "Off Amazon Purchases",
+              "value": "OFF_AMAZON_PURCHASES"
+            },
+            {
+              "label": "Mobile App First Start",
+              "value": "MOBILE_APP_FIRST_START"
+            },
+            {
+              "label": "Page View",
+              "value": "PAGE_VIEW"
+            },
+            {
+              "label": "Search",
+              "value": "SEARCH"
+            },
+            {
+              "label": "Sign Up",
+              "value": "SIGN_UP"
+            },
+            {
+              "label": "Subscribe",
+              "value": "SUBSCRIBE"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The standard Amazon event type.",
+                "type": "string",
+                "enum": [
+                  "ADD_TO_SHOPPING_CART",
+                  "APPLICATION",
+                  "CHECKOUT",
+                  "CONTACT",
+                  "LEAD",
+                  "OFF_AMAZON_PURCHASES",
+                  "MOBILE_APP_FIRST_START",
+                  "PAGE_VIEW",
+                  "SEARCH",
+                  "SIGN_UP",
+                  "SUBSCRIBE",
+                  "OTHER"
+                ]
+              }
+            },
+            "required": ["eventType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventActionSource",
+          "type": "string",
+          "label": "Event Action Source",
+          "description": "The platform from which the event was sourced. If no value is provided, then website is used as default.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.device.type"
+              },
+              "then": {
+                "@path": "$.context.device.type"
+              },
+              "else": "website"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Android",
+              "value": "android"
+            },
+            {
+              "label": "Fire TV",
+              "value": "fire_tv"
+            },
+            {
+              "label": "iOS",
+              "value": "ios"
+            },
+            {
+              "label": "Offline",
+              "value": "offline"
+            },
+            {
+              "label": "Website",
+              "value": "website"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventActionSource": {
+                "title": "Event Action Source",
+                "description": "The platform from which the event was sourced. If no value is provided, then website is used as default.",
+                "type": "string",
+                "enum": ["android", "fire_tv", "ios", "offline", "website"]
+              }
+            },
+            "required": ["eventActionSource"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "countryCode",
+          "type": "string",
+          "label": "Country Code",
+          "description": "ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countryCode": {
+                "title": "Country Code",
+                "description": "ISO 3166-1 alpha-2 country code. e.g., US, GB. Also accepts locale codes. e.g en-US, en-GB.",
+                "type": "string"
+              }
+            },
+            "required": ["countryCode"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "The reported timestamp of when the event occurred in ISO format (YYYY-MM-DDThh:mm:ssTZD).",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "The reported timestamp of when the event occurred in ISO format (YYYY-MM-DDThh:mm:ssTZD).",
+                "type": "string"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "value",
+          "type": "number",
+          "label": "Value",
+          "description": "The value of the event.",
+          "defaultValue": {
+            "@path": "$.properties.value"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "title": "Value",
+                "description": "The value of the event.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currencyCode",
+          "type": "string",
+          "label": "Currency Code",
+          "description": "The currencyCode associated with the 'value' of the event in ISO-4217 format. Only applicable for OFF_AMAZON_PURCHASES event type.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "AED - UAE Dirham",
+              "value": "AED"
+            },
+            {
+              "label": "AUD - Australian Dollar",
+              "value": "AUD"
+            },
+            {
+              "label": "BRL - Brazilian Real",
+              "value": "BRL"
+            },
+            {
+              "label": "CAD - Canadian Dollar",
+              "value": "CAD"
+            },
+            {
+              "label": "CNY - Chinese Yuan",
+              "value": "CNY"
+            },
+            {
+              "label": "EUR - Euro",
+              "value": "EUR"
+            },
+            {
+              "label": "GBP - British Pound",
+              "value": "GBP"
+            },
+            {
+              "label": "INR - Indian Rupee",
+              "value": "INR"
+            },
+            {
+              "label": "JPY - Japanese Yen",
+              "value": "JPY"
+            },
+            {
+              "label": "MXN - Mexican Peso",
+              "value": "MXN"
+            },
+            {
+              "label": "SAR - Saudi Riyal",
+              "value": "SAR"
+            },
+            {
+              "label": "SEK - Swedish Krona",
+              "value": "SEK"
+            },
+            {
+              "label": "SGD - Singapore Dollar",
+              "value": "SGD"
+            },
+            {
+              "label": "TRY - Turkish Lira",
+              "value": "TRY"
+            },
+            {
+              "label": "USD - US Dollar",
+              "value": "USD"
+            },
+            {
+              "label": "DKK - Danish Krone",
+              "value": "DKK"
+            },
+            {
+              "label": "NOK - Norwegian Krone",
+              "value": "NOK"
+            },
+            {
+              "label": "NZD - New Zealand Dollar",
+              "value": "NZD"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currencyCode": {
+                "title": "Currency Code",
+                "description": "The currencyCode associated with the 'value' of the event in ISO-4217 format. Only applicable for OFF_AMAZON_PURCHASES event type.",
+                "type": "string",
+                "enum": [
+                  "AED",
+                  "AUD",
+                  "BRL",
+                  "CAD",
+                  "CNY",
+                  "EUR",
+                  "GBP",
+                  "INR",
+                  "JPY",
+                  "MXN",
+                  "SAR",
+                  "SEK",
+                  "SGD",
+                  "TRY",
+                  "USD",
+                  "DKK",
+                  "NOK",
+                  "NZD"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "eventType",
+                "operator": "is",
+                "value": "OFF_AMAZON_PURCHASES"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unitsSold",
+          "type": "integer",
+          "label": "Units Sold",
+          "description": "The number of items purchased. Only applicable for OFF_AMAZON_PURCHASES event type. If not provided on the event, a default of 1 will be applied.",
+          "defaultValue": {
+            "@path": "$.properties.quantity"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unitsSold": {
+                "title": "Units Sold",
+                "description": "The number of items purchased. Only applicable for OFF_AMAZON_PURCHASES event type. If not provided on the event, a default of 1 will be applied.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "eventType",
+                "operator": "is",
+                "value": "OFF_AMAZON_PURCHASES"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "clientDedupeId",
+          "type": "string",
+          "label": "Client Dedupe ID",
+          "description": "Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "clientDedupeId": {
+                "title": "Client Dedupe ID",
+                "description": "Amazon Conversions API uses the `clientDedupeId` field to prevent duplicate events. By default, Segment maps the messageId to this field. For events with the same clientDedupeId, only the latest event will be processed. Please be advised that deduplication occurs across all event types, rather than being limited to individual event types.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "matchKeys",
+          "type": "object",
+          "label": "Match Keys",
+          "description": "Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.",
+          "defaultValue": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "firstName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.firstName"
+                },
+                "then": {
+                  "@path": "$.context.traits.firstName"
+                },
+                "else": {
+                  "@path": "$.properties.firstName"
+                }
+              }
+            },
+            "lastName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.lastName"
+                },
+                "then": {
+                  "@path": "$.context.traits.lastName"
+                },
+                "else": {
+                  "@path": "$.properties.lastName"
+                }
+              }
+            },
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.street"
+                },
+                "then": {
+                  "@path": "$.context.traits.street"
+                },
+                "else": {
+                  "@path": "$.properties.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.city"
+                },
+                "then": {
+                  "@path": "$.context.traits.city"
+                },
+                "else": {
+                  "@path": "$.properties.city"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.state"
+                },
+                "then": {
+                  "@path": "$.context.traits.state"
+                },
+                "else": {
+                  "@path": "$.properties.state"
+                }
+              }
+            },
+            "postalCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.postalCode"
+                },
+                "then": {
+                  "@path": "$.context.traits.postalCode"
+                },
+                "else": {
+                  "@path": "$.properties.postalCode"
+                }
+              }
+            },
+            "maid": {
+              "@path": "context.device.advertisingId"
+            },
+            "rampId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.rampId"
+                },
+                "then": {
+                  "@path": "$.context.traits.rampId"
+                },
+                "else": {
+                  "@path": "$.properties.rampId"
+                }
+              }
+            },
+            "matchId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.matchId"
+                },
+                "then": {
+                  "@path": "$.context.traits.matchId"
+                },
+                "else": {
+                  "@path": "$.properties.matchId"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "matchKeys": {
+                "title": "Match Keys",
+                "description": "Match keys are used to identify the customer associated with the event for attribution. At least one match key must be provided.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email",
+                    "description": "Customer email address associated with the event.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone Number",
+                    "description": "Customer phone number associated with the event.",
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "title": "First Name",
+                    "description": "Customer first name associated with the event.",
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "title": "Last Name",
+                    "description": "Customer last name associated with the event.",
+                    "type": "string"
+                  },
+                  "address": {
+                    "title": "Address",
+                    "description": "Customer address associated with the event.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "Customer city associated with the event.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "Customer state associated with the event.",
+                    "type": "string"
+                  },
+                  "postalCode": {
+                    "title": "Postal Code",
+                    "description": "Customer postal code associated with the event.",
+                    "type": "string"
+                  },
+                  "maid": {
+                    "title": "Mobile Ad ID",
+                    "description": "Mobile advertising ID (MAID). ADID, IDFA, or FIREADID can be passed into this field.",
+                    "type": "string"
+                  },
+                  "rampId": {
+                    "title": "RAMP ID",
+                    "description": "RAMP ID for the customer. Used for attribution to traffic events.",
+                    "type": "string"
+                  },
+                  "matchId": {
+                    "title": "Match ID",
+                    "description": "Match ID serves as an anonymous, opaque unique identifier that corresponds to individual users within an advertiser system, such as loyalty membership identifications and order references. This functionality enables advertisers to precisely monitor campaign effectiveness while maintaining customer data privacy, eliminating the need to share sensitive information like hashed email addresses or phone numbers with Amazon, particularly when analyzing complex customer journeys across multiple channels and devices. The advertisers who implement the Amazon Advertising Tag (AAT) on their websites can transmit match_id as a parameter in conjunction with online event tracking. The Amazon system subsequently correlates these identifiers with users through cookies or hashed Personally Identifiable Information (PII). In instances where users complete offline conversions, advertisers can report these activities through the Conversions API (CAPI) utilizing the corresponding match_id, ensuring seamless cross-channel attribution.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["matchKeys"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataProcessingOptions",
+          "type": "string",
+          "label": "Data Processing Options",
+          "description": "A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.",
+          "defaultValue": {
+            "@path": "$.properties.dataProcessingOptions"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": [
+            {
+              "label": "Limited Data Use",
+              "value": "LIMITED_DATA_USE"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataProcessingOptions": {
+                "title": "Data Processing Options",
+                "description": "A list of flags for signaling how an event shall be processed. Events marked for limited data use will not be processed.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["LIMITED_DATA_USE"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.",
+          "defaultValue": {
+            "ipAddress": {
+              "@path": "$.context.ip"
+            },
+            "amznAdStorage": {
+              "@path": "$.properties.amznAdStorage"
+            },
+            "amznUserData": {
+              "@path": "$.properties.amznUserData"
+            },
+            "tcf": {
+              "@path": "$.properties.tcf"
+            },
+            "gpp": {
+              "@path": "$.properties.gpp"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ipAddress": {
+                    "title": "Geographic Consent: IP Address",
+                    "description": "Captures the user's geographic information (IP address) for consent checking.",
+                    "type": "string"
+                  },
+                  "amznAdStorage": {
+                    "title": "Ad Storage Consent",
+                    "description": "Amazon Consent Format: Captures whether the user has consented to cookie based tracking.",
+                    "type": "string",
+                    "enum": ["GRANTED", "DENIED"]
+                  },
+                  "amznUserData": {
+                    "title": "User Data Consent",
+                    "description": "Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.",
+                    "type": "string",
+                    "enum": ["GRANTED", "DENIED"]
+                  },
+                  "tcf": {
+                    "title": "TCF String",
+                    "description": "An encoded Transparency and Consent Framework (TCF) string describing user consent choices.",
+                    "type": "string"
+                  },
+                  "gpp": {
+                    "title": "GPP String",
+                    "description": "An encoded Global Privacy Platform (GPP) string describing user privacy preferences.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customAttributes",
+          "type": "object",
+          "label": "Custom Attributes",
+          "description": "Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.",
+          "defaultValue": {
+            "brand": {
+              "@path": "$.properties.brand"
+            },
+            "category": {
+              "@path": "$.properties.category"
+            },
+            "productId": {
+              "@path": "$.properties.productId"
+            },
+            "attr1": {
+              "@path": "$.properties.attr1"
+            },
+            "attr2": {
+              "@path": "$.properties.attr2"
+            },
+            "attr3": {
+              "@path": "$.properties.attr3"
+            },
+            "attr4": {
+              "@path": "$.properties.attr4"
+            },
+            "attr5": {
+              "@path": "$.properties.attr5"
+            },
+            "attr6": {
+              "@path": "$.properties.attr6"
+            },
+            "attr7": {
+              "@path": "$.properties.attr7"
+            },
+            "attr8": {
+              "@path": "$.properties.attr8"
+            },
+            "attr9": {
+              "@path": "$.properties.attr9"
+            },
+            "attr10": {
+              "@path": "$.properties.attr10"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customAttributes": {
+                "title": "Custom Attributes",
+                "description": "Custom attributes associated with the event to provide additional context. Note that only brand, category, productId and attr1 - attr10 custom attributes are used for reporting.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "brand": {
+                    "title": "Brand",
+                    "description": "The brand associated with the event.",
+                    "type": "string"
+                  },
+                  "category": {
+                    "title": "Category",
+                    "description": "The category associated with the event.",
+                    "type": "string"
+                  },
+                  "productId": {
+                    "title": "Product ID",
+                    "description": "The product ID associated with the event.",
+                    "type": "string"
+                  },
+                  "attr1": {
+                    "title": "Attribute 1",
+                    "description": "Custom attribute 1 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr2": {
+                    "title": "Attribute 2",
+                    "description": "Custom attribute 2 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr3": {
+                    "title": "Attribute 3",
+                    "description": "Custom attribute 3 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr4": {
+                    "title": "Attribute 4",
+                    "description": "Custom attribute 4 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr5": {
+                    "title": "Attribute 5",
+                    "description": "Custom attribute 5 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr6": {
+                    "title": "Attribute 6",
+                    "description": "Custom attribute 6 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr7": {
+                    "title": "Attribute 7",
+                    "description": "Custom attribute 7 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr8": {
+                    "title": "Attribute 8",
+                    "description": "Custom attribute 8 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr9": {
+                    "title": "Attribute 9",
+                    "description": "Custom attribute 9 associated with the event.",
+                    "type": "string"
+                  },
+                  "attr10": {
+                    "title": "Attribute 10",
+                    "description": "Custom attribute 10 associated with the event.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, Segment will send data in batching.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, Segment will send data in batching.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 500,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "trackConversion",
+      "name": "Add to Shopping Cart",
+      "subscribe": "type = \"track\" AND event = \"Product Added\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "ADD_TO_SHOPPING_CART"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Application",
+      "subscribe": "type = \"track\" AND event = \"Application Submitted\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "APPLICATION"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Checkout",
+      "subscribe": "type = \"track\" AND event = \"Checkout Started\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "CHECKOUT"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Contact",
+      "subscribe": "type = \"track\" AND event = \"Callback Started\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "CONTACT"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Lead",
+      "subscribe": "type = \"track\" AND event = \"Lead Generated\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "LEAD"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Mobile App First Start",
+      "subscribe": "type = \"track\" AND event = \"Application Opened\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "MOBILE_APP_FIRST_START"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Off Amazon Purchases",
+      "subscribe": "type = \"track\" AND event = \"Order Completed\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "OFF_AMAZON_PURCHASES"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Other",
+      "subscribe": "type = \"track\" AND event = \"Other\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "OTHER"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "PAGE_VIEW"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Search",
+      "subscribe": "type = \"track\" AND event = \"Products Searched\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "SEARCH"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Sign Up",
+      "subscribe": "type = \"track\" AND event = \"Signed Up\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "SIGN_UP"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackConversion",
+      "name": "Subscribe",
+      "subscribe": "type = \"track\" AND event = \"Subscription Created\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "eventActionSource": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.type"
+            },
+            "then": {
+              "@path": "$.context.device.type"
+            },
+            "else": "website"
+          }
+        },
+        "countryCode": {
+          "@path": "$.context.locale"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currencyCode": {
+          "@path": "$.properties.currency"
+        },
+        "unitsSold": {
+          "@path": "$.properties.quantity"
+        },
+        "clientDedupeId": {
+          "@path": "$.messageId"
+        },
+        "matchKeys": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.firstName"
+              },
+              "then": {
+                "@path": "$.context.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.lastName"
+              },
+              "then": {
+                "@path": "$.context.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.street"
+              },
+              "then": {
+                "@path": "$.context.traits.street"
+              },
+              "else": {
+                "@path": "$.properties.street"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.city"
+              },
+              "then": {
+                "@path": "$.context.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.state"
+              },
+              "then": {
+                "@path": "$.context.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "postalCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.postalCode"
+              }
+            }
+          },
+          "maid": {
+            "@path": "context.device.advertisingId"
+          },
+          "rampId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.rampId"
+              },
+              "then": {
+                "@path": "$.context.traits.rampId"
+              },
+              "else": {
+                "@path": "$.properties.rampId"
+              }
+            }
+          },
+          "matchId": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.matchId"
+              },
+              "then": {
+                "@path": "$.context.traits.matchId"
+              },
+              "else": {
+                "@path": "$.properties.matchId"
+              }
+            }
+          }
+        },
+        "dataProcessingOptions": {
+          "@path": "$.properties.dataProcessingOptions"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.context.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "customAttributes": {
+          "brand": {
+            "@path": "$.properties.brand"
+          },
+          "category": {
+            "@path": "$.properties.category"
+          },
+          "productId": {
+            "@path": "$.properties.productId"
+          },
+          "attr1": {
+            "@path": "$.properties.attr1"
+          },
+          "attr2": {
+            "@path": "$.properties.attr2"
+          },
+          "attr3": {
+            "@path": "$.properties.attr3"
+          },
+          "attr4": {
+            "@path": "$.properties.attr4"
+          },
+          "attr5": {
+            "@path": "$.properties.attr5"
+          },
+          "attr6": {
+            "@path": "$.properties.attr6"
+          },
+          "attr7": {
+            "@path": "$.properties.attr7"
+          },
+          "attr8": {
+            "@path": "$.properties.attr8"
+          },
+          "attr9": {
+            "@path": "$.properties.attr9"
+          },
+          "attr10": {
+            "@path": "$.properties.attr10"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "eventType": "SUBSCRIBE"
+      },
+      "type": "automatic"
+    }
+  ]
+}

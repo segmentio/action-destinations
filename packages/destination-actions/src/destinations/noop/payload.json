@@ -1,0 +1,73 @@
+{
+  "name": "NOOP",
+  "description": "A NOOP destination used for private internal services.",
+  "basicOptions": ["required_hidden_token"],
+  "options": {
+    "required_hidden_token": {
+      "label": "Required Hidden Token",
+      "type": "string",
+      "description": "This token is hidden because it is unused and destinations must have one setting.",
+      "default": "",
+      "private": true,
+      "hidden": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "noop",
+      "name": "Noop",
+      "description": "A NOOP Action used for private internal services",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "noop",
+          "type": "string",
+          "label": "NOOP",
+          "description": "A single NOOP field",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "noop": {
+                "title": "NOOP",
+                "description": "A single NOOP field",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "noop",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {},
+      "type": "automatic"
+    }
+  ]
+}

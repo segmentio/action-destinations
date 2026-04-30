@@ -1,0 +1,192 @@
+{
+  "name": "Kevel Audience (Actions)",
+  "description": "Sync Segment user profile traits and Engage Audiences to Kevel Audiences. Only users with a Segment userId will be synced.",
+  "basicOptions": ["audienceDomain", "userIdType", "clientId", "siteId", "apiKey", "eventType"],
+  "options": {
+    "audienceDomain": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Kevel Audience root subdomain. For example: \"cdp.yourdomain.com\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Kevel Audience Domain",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The audienceDomain property is required."]],
+      "uIMetadata": null
+    },
+    "userIdType": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Kevel Audience User ID Type to map your Segment User ID to. For example: \"crm\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Kevel Audience User ID Type",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The userIdType property is required."]],
+      "uIMetadata": null
+    },
+    "clientId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Kevel Audience client ID to identify the event. For example: \"brand-name\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Kevel Audience client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The clientId property is required."]],
+      "uIMetadata": null
+    },
+    "siteId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Kevel Audience site ID to identify the event. For example: \"segment-app\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Kevel Audience site ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The siteId property is required."]],
+      "uIMetadata": null
+    },
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Kevel Audience API Key to authorize the requests. Get yours from your Kevel Customer Success representative.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Kevel Audience API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "eventType": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The type of event to send to Kevel Audience. For example: \"segmentSync\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Event Type",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The eventType property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "syncKevelAudience",
+      "name": "Sync Kevel Audience",
+      "description": "Sync Segment user profile traits and Engage Audiences to Kevel Audiences. Only users with a Segment userId will be synced.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "segment_user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's unique ID",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_user_id": {
+                "title": "User ID",
+                "description": "The user's unique ID",
+                "type": "string"
+              }
+            },
+            "required": ["segment_user_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or properties object",
+          "description": "A computed object for track and identify events. This field should not need to be edited.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or properties object",
+                "description": "A computed object for track and identify events. This field should not need to be edited.",
+                "type": "object"
+              }
+            },
+            "required": ["traits_or_props"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

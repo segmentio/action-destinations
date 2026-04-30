@@ -1,0 +1,372 @@
+{
+  "name": "Canny (Actions)",
+  "basicOptions": ["apiKey"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "You can find your API Key in the Segment Integration page in your admin settings.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "group",
+      "name": "Group",
+      "description": "Updates or adds properties to a company. Company is created if it does not exist.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group.",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group.",
+                "type": "string"
+              }
+            },
+            "required": ["groupId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Group Properties",
+          "description": "Properties to set on the group profile",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Group Properties",
+                "description": "Properties to set on the group profile",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": ["type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique identifier of the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The unique identifier of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Create or update a user profile in Canny.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A distinct ID of an identified (logged in) user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A distinct ID of an identified (logged in) user.",
+                "type": "string"
+              }
+            },
+            "required": ["userId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User Properties",
+          "description": "Properties to set on the user profile",
+          "defaultValue": {
+            "avatar": {
+              "@path": "$.traits.avatar"
+            },
+            "company": {
+              "@path": "$.traits.company"
+            },
+            "createdAt": {
+              "@path": "$.traits.createdAt"
+            },
+            "id": {
+              "@path": "$.traits.id"
+            },
+            "name": {
+              "@path": "$.traits.name"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "traits": {
+                "title": "User Properties",
+                "description": "Properties to set on the user profile",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "avatar": {
+                    "title": "Avatar",
+                    "description": "URL to an avatar image for the user",
+                    "type": "string"
+                  },
+                  "company": {
+                    "title": "Company",
+                    "description": "Company the user represents. Should contain: name (String), id (String or Number)",
+                    "type": "object"
+                  },
+                  "createdAt": {
+                    "title": "Create At Date",
+                    "description": "Date the user's account was first created. Segment recommends using ISO-8601 date strings",
+                    "type": "string"
+                  },
+                  "id": {
+                    "title": "User ID",
+                    "description": "A distinct identifier of the user in your application.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The user's name",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The user's email",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": ["type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "group",
+      "name": "Create or update a Company",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "userId": {
+          "@path": "$.userId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identify",
+      "name": "Create or update a User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "avatar": {
+            "@path": "$.traits.avatar"
+          },
+          "company": {
+            "@path": "$.traits.company"
+          },
+          "createdAt": {
+            "@path": "$.traits.createdAt"
+          },
+          "id": {
+            "@path": "$.traits.id"
+          },
+          "name": {
+            "@path": "$.traits.name"
+          },
+          "email": {
+            "@path": "$.traits.email"
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

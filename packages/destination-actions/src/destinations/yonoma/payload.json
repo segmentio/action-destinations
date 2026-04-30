@@ -1,0 +1,1549 @@
+{
+  "name": "Yonoma",
+  "basicOptions": ["apiKey"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Yonoma API key.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Capture behavioral events for both known and anonymous users to build a complete activity timeline in Yonoma.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to track.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the event to track.",
+                "type": "string"
+              }
+            },
+            "required": ["event"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "identifiers",
+          "type": "object",
+          "label": "Identifiers",
+          "description": "Unique identifiers for the contact. User ID and email are required. Anonymous ID is optional.",
+          "defaultValue": {
+            "userId": {
+              "@path": "$.userId"
+            },
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifiers": {
+                "title": "Identifiers",
+                "description": "Unique identifiers for the contact. User ID and email are required. Anonymous ID is optional.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "userId": {
+                    "title": "User ID",
+                    "description": "Unique user identifier from your app.",
+                    "type": "string"
+                  },
+                  "anonymousId": {
+                    "title": "Anonymous ID",
+                    "description": "Anonymous identifier from Segment for tracking pre-identified activity.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Contact's email address.",
+                    "type": "string"
+                  }
+                },
+                "required": ["userId", "email"]
+              }
+            },
+            "required": ["identifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "listId",
+          "type": "string",
+          "label": "List ID",
+          "description": "The Yonoma list to add the contact to.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.list_id"
+              },
+              "then": {
+                "@path": "$.context.traits.list_id"
+              },
+              "else": {
+                "@path": "$.properties.list_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "title": "List ID",
+                "description": "The Yonoma list to add the contact to.",
+                "type": "string"
+              }
+            },
+            "required": ["listId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Defaults to the current time if not provided.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event. Defaults to the current time if not provided.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. Defaults to the current user IP if not provided.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. Defaults to the current user IP if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the user.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The user agent of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "The details of the page being viewed.",
+          "defaultValue": {
+            "title": {
+              "@path": "$.context.page.title"
+            },
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            },
+            "path": {
+              "@path": "$.context.page.path"
+            },
+            "search": {
+              "@path": "$.context.page.search"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "The details of the page being viewed.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "title": "Page URL",
+                    "description": "Full URL of the page visited.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Page Title",
+                    "description": "Title of the page.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer URL",
+                    "description": "URL of the referring page.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "title": "Page Path",
+                    "description": "Path of the page being viewed.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search Query",
+                    "description": "Search query used to find the page.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign",
+          "type": "object",
+          "label": "Campaign",
+          "description": "The marketing campaign that referred the user to the site.",
+          "defaultValue": {
+            "name": {
+              "@path": "$.context.campaign.name"
+            },
+            "source": {
+              "@path": "$.context.campaign.source"
+            },
+            "medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "term": {
+              "@path": "$.context.campaign.term"
+            },
+            "content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign": {
+                "title": "Campaign",
+                "description": "The marketing campaign that referred the user to the site.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "UTM Campaign Name",
+                    "description": "Name of the campaign.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "UTM Campaign Source",
+                    "description": "Source of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "UTM Campaign Medium",
+                    "description": "Medium of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "UTM Campaign Term",
+                    "description": "Term or keyword of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "UTM Campaign Content",
+                    "description": "Content of the campaign UTM parameter.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "The geographic location of the user.",
+          "defaultValue": {
+            "country": {
+              "@path": "$.context.location.country"
+            },
+            "region": {
+              "@path": "$.context.location.region"
+            },
+            "city": {
+              "@path": "$.context.location.city"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "The geographic location of the user.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country of the user.",
+                    "type": "string"
+                  },
+                  "region": {
+                    "title": "Region/State",
+                    "description": "Region or state of the user.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "City of the user.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Properties associated with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Properties associated with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPageView",
+      "name": "Track Page View",
+      "description": "Log page visits to build behavioral profiles and trigger view-based automations in Yonoma.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "identifiers",
+          "type": "object",
+          "label": "Identifiers",
+          "description": "Unique identifiers for the contact.",
+          "defaultValue": {
+            "userId": {
+              "@path": "$.userId"
+            },
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifiers": {
+                "title": "Identifiers",
+                "description": "Unique identifiers for the contact.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "userId": {
+                    "title": "User ID",
+                    "description": "Unique user identifier from your app.",
+                    "type": "string"
+                  },
+                  "anonymousId": {
+                    "title": "Anonymous ID",
+                    "description": "Anonymous identifier from Segment for tracking pre-identified activity.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Contact's email address.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "listId",
+          "type": "string",
+          "label": "List ID",
+          "description": "The Yonoma list to add the contact to.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.list_id"
+              },
+              "then": {
+                "@path": "$.context.traits.list_id"
+              },
+              "else": {
+                "@path": "$.properties.list_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "title": "List ID",
+                "description": "The Yonoma list to add the contact to.",
+                "type": "string"
+              }
+            },
+            "required": ["listId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Defaults to the current time if not provided.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event. Defaults to the current time if not provided.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. Defaults to the current user IP if not provided.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. Defaults to the current user IP if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the user.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The user agent of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "The details of the page being viewed.",
+          "defaultValue": {
+            "title": {
+              "@path": "$.context.page.title"
+            },
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            },
+            "path": {
+              "@path": "$.context.page.path"
+            },
+            "search": {
+              "@path": "$.context.page.search"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "The details of the page being viewed.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "title": "Page URL",
+                    "description": "Full URL of the page visited.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Page Title",
+                    "description": "Title of the page.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer URL",
+                    "description": "URL of the referring page.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "title": "Page Path",
+                    "description": "Path of the page being viewed.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search Query",
+                    "description": "Search query used to find the page.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign",
+          "type": "object",
+          "label": "Campaign",
+          "description": "The marketing campaign that referred the user to the site.",
+          "defaultValue": {
+            "name": {
+              "@path": "$.context.campaign.name"
+            },
+            "source": {
+              "@path": "$.context.campaign.source"
+            },
+            "medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "term": {
+              "@path": "$.context.campaign.term"
+            },
+            "content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign": {
+                "title": "Campaign",
+                "description": "The marketing campaign that referred the user to the site.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "UTM Campaign Name",
+                    "description": "Name of the campaign.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "UTM Campaign Source",
+                    "description": "Source of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "UTM Campaign Medium",
+                    "description": "Medium of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "UTM Campaign Term",
+                    "description": "Term or keyword of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "UTM Campaign Content",
+                    "description": "Content of the campaign UTM parameter.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "The geographic location of the user.",
+          "defaultValue": {
+            "country": {
+              "@path": "$.context.location.country"
+            },
+            "region": {
+              "@path": "$.context.location.region"
+            },
+            "city": {
+              "@path": "$.context.location.city"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "The geographic location of the user.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country of the user.",
+                    "type": "string"
+                  },
+                  "region": {
+                    "title": "Region/State",
+                    "description": "Region or state of the user.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "City of the user.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Additional Page Properties",
+          "description": "Additional properties associated with the event.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Additional Page Properties",
+                "description": "Additional properties associated with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContact",
+      "name": "Upsert Contact",
+      "description": "Sync Segment user profile details to Yonoma Contacts.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "identifiers",
+          "type": "object",
+          "label": "Identifiers",
+          "description": "Unique identifiers for the contact. User ID and email are required. Anonymous ID is optional.",
+          "defaultValue": {
+            "userId": {
+              "@path": "$.userId"
+            },
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifiers": {
+                "title": "Identifiers",
+                "description": "Unique identifiers for the contact. User ID and email are required. Anonymous ID is optional.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "userId": {
+                    "title": "User ID",
+                    "description": "Unique user identifier from your app.",
+                    "type": "string"
+                  },
+                  "anonymousId": {
+                    "title": "Anonymous ID",
+                    "description": "Anonymous identifier from Segment for tracking pre-identified activity.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Contact's email address.",
+                    "type": "string"
+                  }
+                },
+                "required": ["userId", "email"]
+              }
+            },
+            "required": ["identifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "listId",
+          "type": "string",
+          "label": "List ID",
+          "description": "The Yonoma list to add the contact to.",
+          "defaultValue": {
+            "@path": "$.traits.list_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listId": {
+                "title": "List ID",
+                "description": "The Yonoma list to add the contact to.",
+                "type": "string"
+              }
+            },
+            "required": ["listId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "status",
+          "type": "boolean",
+          "label": "Email subscription status",
+          "description": "Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "title": "Email subscription status",
+                "description": "Indicates if the Contact is subscribed or unsubscribed from marketing emails. Set to true to subscribe, false to unsubscribe.",
+                "type": "boolean"
+              }
+            },
+            "required": ["status"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Defaults to the current time if not provided.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event. Defaults to the current time if not provided.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. Defaults to the current user IP if not provided.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. Defaults to the current user IP if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the user.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The user agent of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "The details of the page being viewed.",
+          "defaultValue": {
+            "title": {
+              "@path": "$.context.page.title"
+            },
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            },
+            "path": {
+              "@path": "$.context.page.path"
+            },
+            "search": {
+              "@path": "$.context.page.search"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "The details of the page being viewed.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "title": "Page URL",
+                    "description": "Full URL of the page visited.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Page Title",
+                    "description": "Title of the page.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer URL",
+                    "description": "URL of the referring page.",
+                    "type": "string"
+                  },
+                  "path": {
+                    "title": "Page Path",
+                    "description": "Path of the page being viewed.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search Query",
+                    "description": "Search query used to find the page.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign",
+          "type": "object",
+          "label": "Campaign",
+          "description": "The marketing campaign that referred the user to the site.",
+          "defaultValue": {
+            "name": {
+              "@path": "$.context.campaign.name"
+            },
+            "source": {
+              "@path": "$.context.campaign.source"
+            },
+            "medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "term": {
+              "@path": "$.context.campaign.term"
+            },
+            "content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign": {
+                "title": "Campaign",
+                "description": "The marketing campaign that referred the user to the site.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "UTM Campaign Name",
+                    "description": "Name of the campaign.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "UTM Campaign Source",
+                    "description": "Source of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "UTM Campaign Medium",
+                    "description": "Medium of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "UTM Campaign Term",
+                    "description": "Term or keyword of the campaign UTM parameter.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "UTM Campaign Content",
+                    "description": "Content of the campaign UTM parameter.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "The geographic location of the user.",
+          "defaultValue": {
+            "country": {
+              "@path": "$.context.location.country"
+            },
+            "region": {
+              "@path": "$.context.location.region"
+            },
+            "city": {
+              "@path": "$.context.location.city"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "The geographic location of the user.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country of the user.",
+                    "type": "string"
+                  },
+                  "region": {
+                    "title": "Region/State",
+                    "description": "Region or state of the user.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "City of the user.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Contact Properties",
+          "description": "Additional Contact metadata.",
+          "defaultValue": {
+            "firstName": {
+              "@path": "$.traits.first_name"
+            },
+            "lastName": {
+              "@path": "$.traits.last_name"
+            },
+            "phone": {
+              "@path": "$.traits.phone"
+            },
+            "dateOfBirth": {
+              "@path": "$.traits.birthday"
+            },
+            "address": {
+              "@path": "$.traits.address.street"
+            },
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "state": {
+              "@path": "$.traits.address.state"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            },
+            "zipcode": {
+              "@path": "$.traits.address.postal_code"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Contact Properties",
+                "description": "Additional Contact metadata.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "firstName": {
+                    "title": "First Name",
+                    "description": "Contact's first name.",
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "title": "Last Name",
+                    "description": "Contact's last name.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone Number",
+                    "description": "Contact's phone number.",
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "title": "Date of Birth",
+                    "description": "Contact's date of birth in YYYY-MM-DD or ISO8601 format.",
+                    "type": "string"
+                  },
+                  "address": {
+                    "title": "Address",
+                    "description": "Contact's address.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "Contact's city.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "Contact's state or province.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "Contact's country.",
+                    "type": "string"
+                  },
+                  "zipcode": {
+                    "title": "Zip Code",
+                    "description": "Contact's postal code.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "tags_to_add",
+          "type": "string",
+          "label": "Tags to Add",
+          "description": "List of tags to add to the Contact. Can be a single string or array of tags. Tags must already exist in Yonoma.",
+          "defaultValue": {
+            "@path": "$.traits.tags_to_add"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tags_to_add": {
+                "title": "Tags to Add",
+                "description": "List of tags to add to the Contact. Can be a single string or array of tags. Tags must already exist in Yonoma.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "tags_to_remove",
+          "type": "string",
+          "label": "Tags to Remove",
+          "description": "List of tags to remove from the Contact. Can be a single string or array of strings. Tags must already exist in Yonoma.",
+          "defaultValue": {
+            "@path": "$.traits.tags_to_remove"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tags_to_remove": {
+                "title": "Tags to Remove",
+                "description": "List of tags to remove from the Contact. Can be a single string or array of strings. Tags must already exist in Yonoma.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

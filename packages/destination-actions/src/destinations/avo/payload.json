@@ -1,0 +1,343 @@
+{
+  "name": "Avo",
+  "basicOptions": ["apiKey", "env", "appVersionPropertyName"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Avo Inspector API Key can be found in the Inspector setup page on your source in Avo.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Avo Inspector API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "env": {
+      "tags": ["authentication:test"],
+      "default": "prod",
+      "description": "Avo Inspector Environment",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "dev",
+          "label": "dev",
+          "text": "dev"
+        },
+        {
+          "value": "staging",
+          "label": "staging",
+          "text": "staging"
+        },
+        {
+          "value": "prod",
+          "label": "prod",
+          "text": "prod"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The env property is required."]],
+      "uIMetadata": null
+    },
+    "appVersionPropertyName": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "App Version Property",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendSchemaToInspector",
+      "name": "Track Schema From Event",
+      "description": "Sends event schema to the Avo Inspector API",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "Name of the event being sent",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "Name of the event being sent",
+                "type": "string"
+              }
+            },
+            "required": ["event"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Properties of the event being sent",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Properties of the event being sent",
+                "type": "object"
+              }
+            },
+            "required": ["properties"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "Message ID",
+          "description": "Message ID of the event being sent",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "Message ID",
+                "description": "Message ID of the event being sent",
+                "type": "string"
+              }
+            },
+            "required": ["messageId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "createdAt",
+          "type": "string",
+          "label": "Created At",
+          "description": "Timestamp of when the event was sent",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "createdAt": {
+                "title": "Created At",
+                "description": "Timestamp of when the event was sent",
+                "type": "string"
+              }
+            },
+            "required": ["createdAt"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "appVersion",
+          "type": "string",
+          "label": "App Version",
+          "description": "Version of the app that sent the event",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "appVersion": {
+                "title": "App Version",
+                "description": "Version of the app that sent the event",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "appName",
+          "type": "string",
+          "label": "App Name",
+          "description": "Name of the app that sent the event",
+          "defaultValue": {
+            "@path": "$.context.app.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "appName": {
+                "title": "App Name",
+                "description": "Name of the app that sent the event",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageUrl",
+          "type": "string",
+          "label": "Page URL",
+          "description": "URL of the page that sent the event",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageUrl": {
+                "title": "Page URL",
+                "description": "URL of the page that sent the event",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sendSchemaToInspector",
+      "name": "Track Schema From Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "appVersion": {
+          "@path": "$.context.app.version"
+        },
+        "appName": {
+          "@path": "$.context.app.name"
+        },
+        "pageUrl": {
+          "@path": "$.context.page.url"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

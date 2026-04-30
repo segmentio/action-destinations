@@ -1,0 +1,2223 @@
+{
+  "name": "Talon.One (Actions)",
+  "basicOptions": ["apiKey", "deployment"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Created under Developer Settings in the Talon.One Campaign Manager.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "deployment": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The base URL of your Talon.One deployment.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Deployment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The deployment property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "createAudience",
+      "name": "Create Audience",
+      "description": "This creates a new audience entity in Talon.One.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "audienceId",
+          "type": "string",
+          "label": "Segment Audience ID",
+          "description": "You should get this audience ID from Segment.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceId": {
+                "title": "Segment Audience ID",
+                "description": "You should get this audience ID from Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["audienceId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audienceName",
+          "type": "string",
+          "label": "Audience Name",
+          "description": "You should get this audience name from Segment.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceName": {
+                "title": "Audience Name",
+                "description": "You should get this audience name from Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["audienceName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "deleteAudience",
+      "name": "Delete Audience",
+      "description": "This deletes the audience entity in Talon.One.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "audienceId",
+          "type": "string",
+          "label": "Segment Audience ID",
+          "description": "You should get this audience ID from Segment.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceId": {
+                "title": "Segment Audience ID",
+                "description": "You should get this audience ID from Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["audienceId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEventV2",
+      "name": "Track event",
+      "description": "This records a custom event in Talon.One. Create the event and all the required attributes before using this Action.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "skipNonExistingAttributes",
+          "type": "boolean",
+          "label": "Skip Non-existing Attributes Flag",
+          "description": "Indicates whether to skip non-existing attributes. If `Yes`, the non-existing attributes are skipped and a 400 error is not returned. If `No`, a 400 error is returned in case of non-existing attributes.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "skipNonExistingAttributes": {
+                "title": "Skip Non-existing Attributes Flag",
+                "description": "Indicates whether to skip non-existing attributes. If `Yes`, the non-existing attributes are skipped and a 400 error is not returned. If `No`, a 400 error is returned in case of non-existing attributes.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerProfileId",
+          "type": "string",
+          "label": "Customer Profile ID",
+          "description": "The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerProfileId": {
+                "title": "Customer Profile ID",
+                "description": "The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.",
+                "type": "string"
+              }
+            },
+            "required": ["customerProfileId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The name of the event sent to Talon.One.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The name of the event sent to Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["eventType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attribute-Value pairs",
+          "description": "Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+          "defaultValue": {
+            "@path": "$.properties.attributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attribute-Value pairs",
+                "description": "Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateAudience",
+      "name": "Update Audience Name",
+      "description": "This updates the audience name if there is an existing audience entity.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "audienceId",
+          "type": "string",
+          "label": "Segment Audience ID",
+          "description": "You should get this audience ID from Segment.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceId": {
+                "title": "Segment Audience ID",
+                "description": "You should get this audience ID from Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["audienceId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audienceName",
+          "type": "string",
+          "label": "Audience Name",
+          "description": "You should get this audience name from Segment.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceName": {
+                "title": "Audience Name",
+                "description": "You should get this audience name from Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["audienceName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateCustomerProfilesAudiences",
+      "name": "Update Multiple Customer Profiles’ Audiences",
+      "description": "This updates audiences for multiple customer profiles.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data item to change customer profile audiences",
+          "description": "An array of JSON objects that contains customer profile identifier and list of audiences to associate and dissociate with the indicated customer profile. Customer profile ID and at least one audience ID are required.",
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data item to change customer profile audiences",
+                "description": "An array of JSON objects that contains customer profile identifier and list of audiences to associate and dissociate with the indicated customer profile. Customer profile ID and at least one audience ID are required.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "customerProfileId": {
+                      "title": "Customer Profile ID",
+                      "description": "The customer profile integration identifier to use in Talon.One.",
+                      "type": "string",
+                      "default": {
+                        "@path": "$.userId"
+                      }
+                    },
+                    "adds": {
+                      "title": "List of audience ID to associate with the customer profile.",
+                      "description": "You should get these audience IDs from Talon.One.",
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "deletes": {
+                      "title": "List of audience ID to dissociate with the customer profile.",
+                      "description": "You should get these audience IDs from Talon.One.",
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    }
+                  },
+                  "required": ["customerProfileId"]
+                }
+              }
+            },
+            "required": ["data"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateCustomerProfileV3",
+      "name": "Update customer profile",
+      "description": "This updates attributes and audiences for a single customer profile. Create all the required attributes and audiences before using this Action.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerProfileId",
+          "type": "string",
+          "label": "Customer Profile ID",
+          "description": "The customer profile integration identifier to use in Talon.One.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerProfileId": {
+                "title": "Customer Profile ID",
+                "description": "The customer profile integration identifier to use in Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["customerProfileId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "skipNonExistingAttributes",
+          "type": "boolean",
+          "label": "Skip Non-existing Attributes Flag",
+          "description": "Indicates whether to skip non-existing attributes. If `Yes`, the non-existing attributes are skipped and a 400 error is not returned. If `No`, a 400 error is returned in case of non-existing attributes.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "skipNonExistingAttributes": {
+                "title": "Skip Non-existing Attributes Flag",
+                "description": "Indicates whether to skip non-existing attributes. If `Yes`, the non-existing attributes are skipped and a 400 error is not returned. If `No`, a 400 error is returned in case of non-existing attributes.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deleteAudienceIds",
+          "type": "integer",
+          "label": "List of audience ID to dissociate with the customer profile.",
+          "description": "You should get these audience IDs from Talon.One.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deleteAudienceIds": {
+                "title": "List of audience ID to dissociate with the customer profile.",
+                "description": "You should get these audience IDs from Talon.One.",
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "addAudienceIds",
+          "type": "integer",
+          "label": "List of audience ID to associate with the customer profile.",
+          "description": "You should get these audience IDs from Talon.One.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "addAudienceIds": {
+                "title": "List of audience ID to associate with the customer profile.",
+                "description": "You should get these audience IDs from Talon.One.",
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "runRuleEngine",
+          "type": "boolean",
+          "label": "Run rule engine",
+          "description": "This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "runRuleEngine": {
+                "title": "Run rule engine",
+                "description": "This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attribute-Value pairs",
+          "description": "Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attribute-Value pairs",
+                "description": "Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateCustomerSessionV2",
+      "name": "Update customer session",
+      "description": "This updates a customer session. Create all the required attributes before using this Action.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerSessionId",
+          "type": "string",
+          "label": "Customer Session ID",
+          "description": "The customer session integration identifier to use in Talon.One.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerSessionId": {
+                "title": "Customer Session ID",
+                "description": "The customer session integration identifier to use in Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["customerSessionId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "callbackDestination",
+          "type": "string",
+          "label": "Callback Destination URI",
+          "description": "This specifies the address of the service and its endpoint to do callback request.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "http://mydomain.com/api/callback_here",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "callbackDestination": {
+                "title": "Callback Destination URI",
+                "description": "This specifies the address of the service and its endpoint to do callback request.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "callbackAPIKey",
+          "type": "string",
+          "label": "Callback API Key",
+          "description": "This specifies API key and relative header. The header is specified optionally",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "X-API-Key 123456789123456789123456789123456789",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "callbackAPIKey": {
+                "title": "Callback API Key",
+                "description": "This specifies API key and relative header. The header is specified optionally",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contentFields",
+          "type": "string",
+          "label": "Content Fields",
+          "description": "This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response to the callback destination.",
+          "defaultValue": "effects",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "effects,customerProfile",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contentFields": {
+                "title": "Content Fields",
+                "description": "This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response to the callback destination.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "callbackCorrelationId",
+          "type": "string",
+          "label": "Correlation ID",
+          "description": "This specifies ID of the request that will be forwarded to the destination URI with the callback request with the same header name. If omitted, the X-Correlation-ID will not be in the callback request.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "callbackCorrelationId": {
+                "title": "Correlation ID",
+                "description": "This specifies ID of the request that will be forwarded to the destination URI with the callback request with the same header name. If omitted, the X-Correlation-ID will not be in the callback request.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "skipNonExistingAttributes",
+          "type": "boolean",
+          "label": "Skip Non-existing Attributes Flag",
+          "description": "Indicates whether to skip non-existing attributes. If `Yes`, the non-existing attributes are skipped and a 400 error is not returned. If `No`, a 400 error is returned in case of non-existing attributes.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "skipNonExistingAttributes": {
+                "title": "Skip Non-existing Attributes Flag",
+                "description": "Indicates whether to skip non-existing attributes. If `Yes`, the non-existing attributes are skipped and a 400 error is not returned. If `No`, a 400 error is returned in case of non-existing attributes.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "profileId",
+          "type": "string",
+          "label": "Customer Profile ID",
+          "description": "The customer profile integration identifier to use in Talon.One.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "profileId": {
+                "title": "Customer Profile ID",
+                "description": "The customer profile integration identifier to use in Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "couponCodes",
+          "type": "string",
+          "label": "Coupon Codes",
+          "description": "Any coupon codes entered. Up to 100 coupons.`",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "couponCodes": {
+                "title": "Coupon Codes",
+                "description": "Any coupon codes entered. Up to 100 coupons.`",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referralCode",
+          "type": "string",
+          "label": "Referral Codes",
+          "description": "Any referral code entered.`",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referralCode": {
+                "title": "Referral Codes",
+                "description": "Any referral code entered.`",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "loyaltyCards",
+          "type": "string",
+          "label": "Loyalty Cards",
+          "description": "Any loyalty cards used. Up to 1 loyalty cards.`",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loyaltyCards": {
+                "title": "Loyalty Cards",
+                "description": "Any loyalty cards used. Up to 1 loyalty cards.`",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "Indicates the current state of the session. `",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Open",
+              "value": "open"
+            },
+            {
+              "label": "Closed",
+              "value": "closed"
+            },
+            {
+              "label": "Partially returned",
+              "value": "partially_returned"
+            },
+            {
+              "label": "Cancelled",
+              "value": "cancelled"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "Indicates the current state of the session. `",
+                "type": "string",
+                "enum": ["open", "closed", "partially_returned", "cancelled"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cartItems",
+          "type": "object",
+          "label": "Card Items",
+          "description": "The items to add to this sessions.\n\nIf cart item flattening is disabled: Do not exceed 1000 items (regardless of their quantity) per request.\nIf cart item flattening is enabled: Do not exceed 1000 items and ensure the sum of all cart item's quantity does not exceed 10.000 per request.`",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cartItems": {
+                "title": "Card Items",
+                "description": "The items to add to this sessions.\n\nIf cart item flattening is disabled: Do not exceed 1000 items (regardless of their quantity) per request.\nIf cart item flattening is enabled: Do not exceed 1000 items and ensure the sum of all cart item's quantity does not exceed 10.000 per request.`",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "Name of item",
+                      "type": "string"
+                    },
+                    "sku": {
+                      "title": "SKU",
+                      "description": "Stock keeping unit of item.",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "Quantity of item. Important: If you enabled cart item flattening, the quantity is always one and the same cart item might receive multiple per-item discounts. Ensure you can process multiple discounts on one cart item correctly.",
+                      "type": "number"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "description": "Price of item.",
+                      "type": "number"
+                    },
+                    "returnedQuantity": {
+                      "title": "Returned quantity",
+                      "description": "Number of returned items, calculated internally based on returns of this item.",
+                      "type": "string"
+                    },
+                    "remainingQuantity": {
+                      "title": "Remaining quantity",
+                      "description": "Remaining quantity of the item, calculated internally based on returns of this item.",
+                      "type": "string"
+                    },
+                    "category": {
+                      "title": "Category",
+                      "description": "Type, group or model of the item.",
+                      "type": "string"
+                    },
+                    "weight": {
+                      "title": "Weight",
+                      "description": "Weight of item in grams.",
+                      "type": "string"
+                    },
+                    "height": {
+                      "title": "Height",
+                      "description": "Height of item in mm.",
+                      "type": "string"
+                    },
+                    "length": {
+                      "title": "Length",
+                      "description": "Length of item in mm.",
+                      "type": "string"
+                    },
+                    "position": {
+                      "title": "Position",
+                      "description": "Position of the Cart Item in the Cart (calculated internally).",
+                      "type": "string"
+                    },
+                    "attributes": {
+                      "title": "Attribute-Value pairs",
+                      "description": "Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to this cart item.\n\nCustom cart item attributes must be created in the Campaign Manager before you set them with this property.\n\n[See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                      "type": "object",
+                      "default": {
+                        "@path": "$.properties.attributes"
+                      }
+                    },
+                    "additionalCosts": {
+                      "title": "Additional Costs",
+                      "description": "Use this property to set a value for the additional costs of this session, such as a shipping cost.`",
+                      "type": "object"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalCosts",
+          "type": "object",
+          "label": "Additional Costs",
+          "description": "Use this property to set a value for the additional costs of this session, such as a shipping cost.`",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalCosts": {
+                "title": "Additional Costs",
+                "description": "Use this property to set a value for the additional costs of this session, such as a shipping cost.`",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "identifiers",
+          "type": "string",
+          "label": "Identifiers",
+          "description": "Session custom identifier that you can set limits on or use inside your rules. For example, you can use IP addresses as identifiers to potentially identify devices and limit discounts abuse in case of customers creating multiple accounts.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifiers": {
+                "title": "Identifiers",
+                "description": "Session custom identifier that you can set limits on or use inside your rules. For example, you can use IP addresses as identifiers to potentially identify devices and limit discounts abuse in case of customers creating multiple accounts.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attribute-Value pairs",
+          "description": "Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session, like the shipping city. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+          "defaultValue": {
+            "@path": "$.properties.attributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attribute-Value pairs",
+                "description": "Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session, like the shipping city. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "[Deprecated] Track event",
+      "description": "This records a custom event in Talon.One. **Important:** This Action is deprecated. Use the **Track event** Action instead.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerProfileId",
+          "type": "string",
+          "label": "Customer Profile ID",
+          "description": "The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerProfileId": {
+                "title": "Customer Profile ID",
+                "description": "The customer profile integration ID to use in Talon.One. It is the identifier of the customer profile associated to the event.",
+                "type": "string"
+              }
+            },
+            "required": ["customerProfileId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The name of the event sent to Talon.One.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The name of the event sent to Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["eventType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "Type of event. Can be only `string`, `time`, `number`, `boolean`, `location`",
+          "defaultValue": "string",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "Type of event. Can be only `string`, `time`, `number`, `boolean`, `location`",
+                "type": "string"
+              }
+            },
+            "required": ["type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attribute-Value pairs",
+          "description": "Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+          "defaultValue": {
+            "@path": "$.properties.attributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attribute-Value pairs",
+                "description": "Extra attributes associated with the event. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributesInfo",
+          "type": "object",
+          "label": "Attributes info",
+          "description": "Use this field if you want to identify an attribute with a specific type",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.attributesInfo",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "type": {
+                  "@path": "$.type"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributesInfo": {
+                "title": "Attributes info",
+                "description": "Use this field if you want to identify an attribute with a specific type",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "Attribute name",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Type",
+                      "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateCustomerSession",
+      "name": "[Deprecated] Update customer session",
+      "description": "This updates a customer session. **Important:** This Action is deprecated. Use the **Update customer session** Action instead.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerSessionId",
+          "type": "string",
+          "label": "Customer Session ID",
+          "description": "The customer session integration identifier to use in Talon.One.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerSessionId": {
+                "title": "Customer Session ID",
+                "description": "The customer session integration identifier to use in Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["customerSessionId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "callbackDestination",
+          "type": "string",
+          "label": "Callback Destination URI",
+          "description": "This specifies the address of the service and its endpoint to do callback request.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "http://mydomain.com/api/callback_here",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "callbackDestination": {
+                "title": "Callback Destination URI",
+                "description": "This specifies the address of the service and its endpoint to do callback request.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "callbackAPIKey",
+          "type": "string",
+          "label": "Callback API Key",
+          "description": "This specifies API key and relative header. The header is specified optionally",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "X-API-Key 123456789123456789123456789123456789",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "callbackAPIKey": {
+                "title": "Callback API Key",
+                "description": "This specifies API key and relative header. The header is specified optionally",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contentFields",
+          "type": "string",
+          "label": "Content Fields",
+          "description": "This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response to the callback destination.",
+          "defaultValue": "effects",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "effects,customerProfile",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contentFields": {
+                "title": "Content Fields",
+                "description": "This specifies a list of the fields from the response you need to receive. Comma character is separator. If omitted, all the fields will be forwarded from the response to the callback destination.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "callbackCorrelationId",
+          "type": "string",
+          "label": "Correlation ID",
+          "description": "This specifies ID of the request that will be forwarded to the destination URI with the callback request with the same header name. If omitted, the X-Correlation-ID will not be in the callback request.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "callbackCorrelationId": {
+                "title": "Correlation ID",
+                "description": "This specifies ID of the request that will be forwarded to the destination URI with the callback request with the same header name. If omitted, the X-Correlation-ID will not be in the callback request.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerSession",
+          "type": "object",
+          "label": "Customer Session Data",
+          "description": "This contains all the data related to customer session.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerSession": {
+                "title": "Customer Session Data",
+                "description": "This contains all the data related to customer session.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "profileId": {
+                    "title": "Customer Profile ID",
+                    "description": "The customer profile integration identifier to use in Talon.One.",
+                    "type": "string",
+                    "default": {
+                      "@path": "$.userId"
+                    }
+                  },
+                  "couponCodes": {
+                    "title": "Coupon Codes",
+                    "description": "Any coupon codes entered. Up to 100 coupons.`",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "referralCode": {
+                    "title": "Referral Codes",
+                    "description": "Any referral code entered.`",
+                    "type": "string"
+                  },
+                  "loyaltyCards": {
+                    "title": "Loyalty Cards",
+                    "description": "Any loyalty cards used. Up to 1 loyalty cards.`",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "Indicates the current state of the session. `",
+                    "type": "string",
+                    "enum": ["open", "closed", "partially_returned", "cancelled"]
+                  },
+                  "cartItems": {
+                    "title": "Card Items",
+                    "description": "The items to add to this sessions.\n\nIf cart item flattening is disabled: Do not exceed 1000 items (regardless of their quantity) per request.\nIf cart item flattening is enabled: Do not exceed 1000 items and ensure the sum of all cart item's quantity does not exceed 10.000 per request.`",
+                    "type": "array",
+                    "items": {
+                      "$schema": "http://json-schema.org/schema#",
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "title": "Name",
+                          "description": "Name of item",
+                          "type": "string"
+                        },
+                        "sku": {
+                          "title": "SKU",
+                          "description": "Stock keeping unit of item.",
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "title": "Quantity",
+                          "description": "Quantity of item. Important: If you enabled cart item flattening, the quantity is always one and the same cart item might receive multiple per-item discounts. Ensure you can process multiple discounts on one cart item correctly.",
+                          "type": "number"
+                        },
+                        "price": {
+                          "title": "Price",
+                          "description": "Price of item.",
+                          "type": "number"
+                        },
+                        "returnedQuantity": {
+                          "title": "Returned quantity",
+                          "description": "Number of returned items, calculated internally based on returns of this item.",
+                          "type": "string"
+                        },
+                        "remainingQuantity": {
+                          "title": "Remaining quantity",
+                          "description": "Remaining quantity of the item, calculated internally based on returns of this item.",
+                          "type": "string"
+                        },
+                        "category": {
+                          "title": "Category",
+                          "description": "Type, group or model of the item.",
+                          "type": "string"
+                        },
+                        "weight": {
+                          "title": "Weight",
+                          "description": "Weight of item in grams.",
+                          "type": "string"
+                        },
+                        "height": {
+                          "title": "Height",
+                          "description": "Height of item in mm.",
+                          "type": "string"
+                        },
+                        "length": {
+                          "title": "Length",
+                          "description": "Length of item in mm.",
+                          "type": "string"
+                        },
+                        "position": {
+                          "title": "Position",
+                          "description": "Position of the Cart Item in the Cart (calculated internally).",
+                          "type": "string"
+                        },
+                        "attributes": {
+                          "title": "Attribute-Value pairs",
+                          "description": "Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to this cart item.\n\nCustom cart item attributes must be created in the Campaign Manager before you set them with this property.\n\n[See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                          "type": "object",
+                          "default": {
+                            "@path": "$.properties.attributes"
+                          }
+                        },
+                        "additionalCosts": {
+                          "title": "Additional Costs",
+                          "description": "Use this property to set a value for the additional costs of this session, such as a shipping cost.`",
+                          "type": "object"
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  "additionalCosts": {
+                    "title": "Additional Costs",
+                    "description": "Use this property to set a value for the additional costs of this session, such as a shipping cost.`",
+                    "type": "object"
+                  },
+                  "attributes": {
+                    "title": "Attribute-Value pairs",
+                    "description": "Use this property to set a value for the attributes of your choice. Attributes represent any information to attach to your session, like the shipping city. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                    "type": "object",
+                    "default": {
+                      "@path": "$.properties.attributes"
+                    }
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["customerSession"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sessionAttributesInfo",
+          "type": "object",
+          "label": "Session Attributes info",
+          "description": "Use this field if you want to identify a session attribute with a specific type",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.attributesInfo",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "type": {
+                  "@path": "$.type"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionAttributesInfo": {
+                "title": "Session Attributes info",
+                "description": "Use this field if you want to identify a session attribute with a specific type",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "Attribute name",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Type",
+                      "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
+                      "type": "string",
+                      "enum": ["string", "time", "number", "boolean", "location"]
+                    }
+                  },
+                  "required": ["name", "type"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cartItemsAttributesInfo",
+          "type": "object",
+          "label": "Cart Items Attributes info",
+          "description": "Use this field if you want to identify a cart item attribute with a specific type",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.attributesInfo",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "type": {
+                  "@path": "$.type"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cartItemsAttributesInfo": {
+                "title": "Cart Items Attributes info",
+                "description": "Use this field if you want to identify a cart item attribute with a specific type",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "Attribute name",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Type",
+                      "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
+                      "type": "string",
+                      "enum": ["string", "time", "number", "boolean", "location"]
+                    }
+                  },
+                  "required": ["name", "type"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateCustomerProfile",
+      "name": "[Deprecated] Upsert customer profile",
+      "description": "This updates attributes and audiences for a single customer profile. **Important:** This Action is deprecated. Use the **Update customer profile** Action instead.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attribute-Value pairs",
+          "description": "Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attribute-Value pairs",
+                "description": "Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerProfileId",
+          "type": "string",
+          "label": "Customer Profile ID",
+          "description": "The customer profile integration identifier to use in Talon.One.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerProfileId": {
+                "title": "Customer Profile ID",
+                "description": "The customer profile integration identifier to use in Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["customerProfileId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "deleteAudienceIds",
+          "type": "integer",
+          "label": "List of audience ID to dissociate with the customer profile.",
+          "description": "You should get these audience IDs from Talon.One.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deleteAudienceIds": {
+                "title": "List of audience ID to dissociate with the customer profile.",
+                "description": "You should get these audience IDs from Talon.One.",
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "addAudienceIds",
+          "type": "integer",
+          "label": "List of audience ID to associate with the customer profile.",
+          "description": "You should get these audience IDs from Talon.One.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "addAudienceIds": {
+                "title": "List of audience ID to associate with the customer profile.",
+                "description": "You should get these audience IDs from Talon.One.",
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "runRuleEngine",
+          "type": "boolean",
+          "label": "Run rule engine",
+          "description": "This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules. Setting this property to false improves response times. For audiences changes the runRuleEngine should be true. Default value is false.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "runRuleEngine": {
+                "title": "Run rule engine",
+                "description": "This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules. Setting this property to false improves response times. For audiences changes the runRuleEngine should be true. Default value is false.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributesInfo",
+          "type": "object",
+          "label": "Attributes with types",
+          "description": "Use this field if you want to identify an attribute with a specific type",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.traits.attributesInfo",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "type": {
+                  "@path": "$.type"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributesInfo": {
+                "title": "Attributes with types",
+                "description": "Use this field if you want to identify an attribute with a specific type",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "Attribute name",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Type",
+                      "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "type"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateCustomerProfileV2",
+      "name": "[Deprecated] Upsert customer profile V2",
+      "description": "You do not have to create attributes or audiences before using this Action. **Important:** This Action is deprecated. Use the **Update customer profile** Action instead.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customerProfileId",
+          "type": "string",
+          "label": "Customer Profile ID",
+          "description": "The customer profile integration identifier to use in Talon.One.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerProfileId": {
+                "title": "Customer Profile ID",
+                "description": "The customer profile integration identifier to use in Talon.One.",
+                "type": "string"
+              }
+            },
+            "required": ["customerProfileId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audiencesToAdd",
+          "type": "object",
+          "label": "The audiences for the customer to join.",
+          "description": "Audience name and integration ID",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.audiencesToAdd",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "integrationId": {
+                  "@path": "$.integrationId"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audiencesToAdd": {
+                "title": "The audiences for the customer to join.",
+                "description": "Audience name and integration ID",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "The audience name.",
+                      "type": "string"
+                    },
+                    "integrationId": {
+                      "title": "integrationID",
+                      "description": "The audience integration ID.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audiencesToDelete",
+          "type": "object",
+          "label": "The audiences for the customer to leave.",
+          "description": "Audience name and integration ID",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.audiencesToDelete",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "integrationId": {
+                  "@path": "$.integrationId"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audiencesToDelete": {
+                "title": "The audiences for the customer to leave.",
+                "description": "Audience name and integration ID",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "The audience name.",
+                      "type": "string"
+                    },
+                    "integrationId": {
+                      "title": "integrationID",
+                      "description": "The audience integration ID.",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "runRuleEngine",
+          "type": "boolean",
+          "label": "Run rule engine",
+          "description": "This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "runRuleEngine": {
+                "title": "Run rule engine",
+                "description": "This runs rule engine in Talon.One upon updating customer profile. Set to true to trigger rules.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attribute-Value pairs",
+          "description": "Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attribute-Value pairs",
+                "description": "Extra attributes associated with the customer profile. [See more info](https://docs.talon.one/docs/product/account/dev-tools/managing-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributesInfo",
+          "type": "object",
+          "label": "Attributes info",
+          "description": "Use this field if you want to identify an attribute with a specific type",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.attributesInfo",
+              {
+                "name": {
+                  "@path": "$.name"
+                },
+                "type": {
+                  "@path": "$.type"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributesInfo": {
+                "title": "Attributes info",
+                "description": "Use this field if you want to identify an attribute with a specific type",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "title": "Name",
+                      "description": "Attribute name",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "Type",
+                      "description": "Attribute type. Can be only `string`, `time`, `number`, `boolean`, `location`",
+                      "type": "string",
+                      "enum": ["string", "time", "number", "boolean", "location"]
+                    }
+                  },
+                  "required": ["name", "type"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

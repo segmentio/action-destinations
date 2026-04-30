@@ -1,0 +1,352 @@
+{
+  "name": "Adjust (Actions)",
+  "description": "Send events to Adjust.",
+  "basicOptions": ["environment", "default_app_token", "default_event_token"],
+  "options": {
+    "environment": {
+      "tags": ["authentication:test"],
+      "default": "production",
+      "description": "The environment for your Adjust account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "production",
+          "label": "Production",
+          "text": "Production"
+        },
+        {
+          "value": "sandbox",
+          "label": "Sandbox",
+          "text": "Sandbox"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The environment property is required."]],
+      "uIMetadata": null
+    },
+    "default_app_token": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The app token for your Adjust account. This can be overridden in the event mapping.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Default App Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "default_event_token": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The default event token. This can be overridden in the event mapping.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Default Event Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEvent",
+      "name": "Send Event",
+      "description": "Sends an Event to Adjust.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Conversion Completed\"",
+      "fields": [
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Timestamp for when the event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp for when the event happened.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_token",
+          "type": "string",
+          "label": "App Token",
+          "description": "The app token for your Adjust account. Overrides the Default App Token from Settings.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_token": {
+                "title": "App Token",
+                "description": "The app token for your Adjust account. Overrides the Default App Token from Settings.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_token",
+          "type": "string",
+          "label": "Event Token",
+          "description": "The event token. Overrides the Default Event Token from Settings.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_token": {
+                "title": "Event Token",
+                "description": "The event token. Overrides the Default Event Token from Settings.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "The unique device identifier",
+          "defaultValue": {
+            "@path": "$.context.device.id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "The unique device identifier",
+                "type": "string"
+              }
+            },
+            "required": ["device_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "Advertising ID",
+          "description": "The advertising identifier (\"idfa\" for iOS, \"gps_adid\" for Android).",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "Advertising ID",
+                "description": "The advertising identifier (\"idfa\" for iOS, \"gps_adid\" for Android).",
+                "type": "string"
+              }
+            },
+            "required": ["advertising_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_type",
+          "type": "string",
+          "label": "Device Type",
+          "description": "The device type. Options: \"ios\" or \"android\".",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_type": {
+                "title": "Device Type",
+                "description": "The device type. Options: \"ios\" or \"android\".",
+                "type": "string"
+              }
+            },
+            "required": ["device_type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library_name",
+          "type": "string",
+          "label": "Library Name",
+          "description": "The name of the Segment library used to trigger the event. E.g. \"analytics-ios\" or \"analytics-android\".",
+          "defaultValue": {
+            "@path": "$.context.library.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library_name": {
+                "title": "Library Name",
+                "description": "The name of the Segment library used to trigger the event. E.g. \"analytics-ios\" or \"analytics-android\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "revenue",
+          "type": "number",
+          "label": "Revenue",
+          "description": "The revenue amount of the event. E.g. 75.5 for $75.50. Currency can be set with the \"Currency field\".",
+          "defaultValue": {
+            "@path": "$.properties.revenue"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "revenue": {
+                "title": "Revenue",
+                "description": "The revenue amount of the event. E.g. 75.5 for $75.50. Currency can be set with the \"Currency field\".",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "The revenue currency. Only set if revenue is also set. E.g. \"USD\" or \"EUR\".",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "The revenue currency. Only set if revenue is also set. E.g. \"USD\" or \"EUR\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,397 @@
+{
+  "name": "Twilio Messaging Omnichannel",
+  "basicOptions": ["username", "password"],
+  "options": {
+    "username": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Twilio Account SID. This can be found in the [Twilio Console](https://www.twilio.com/docs/usage/api#authenticate-with-http:~:text=token%20in%20the-,Twilio%20Console,-after%20signing%20up).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Twilio Account SID.",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The username property is required."]],
+      "uIMetadata": null
+    },
+    "password": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "AUTH Token. This can be found in the [Twilio Console](https://www.twilio.com/docs/usage/api#authenticate-with-http:~:text=token%20in%20the-,Twilio%20Console,-after%20signing%20up).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "AUTH Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The password property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendMessage",
+      "name": "Send Message",
+      "description": "This operation creates and sends out messages to the specified recipients.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "fromObject",
+          "type": "object",
+          "label": "From",
+          "description": "Defines the fields applicable based on the selected sender type.",
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fromObject": {
+                "title": "From",
+                "description": "Defines the fields applicable based on the selected sender type.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "from": {
+                      "title": "From",
+                      "description": "The type of sender.",
+                      "type": "string",
+                      "enum": ["MessageAddressSender", "AgentIdSender", "AgentPoolIdSender"]
+                    },
+                    "address": {
+                      "title": "Address",
+                      "description": "The identifier within a channel address space for an actor.",
+                      "type": "string"
+                    },
+                    "channel": {
+                      "title": "Channel",
+                      "description": "The channels available for the Message entity.",
+                      "type": "string",
+                      "enum": ["phone", "rcs", "whatsapp", "fbm"]
+                    },
+                    "agent_id": {
+                      "title": "Agent ID",
+                      "description": "A reference to an Agent.",
+                      "type": "string"
+                    },
+                    "agent_pool_id": {
+                      "title": "Agent Pool ID",
+                      "description": "A reference to an Agent Pool.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": ["fromObject"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "to",
+          "type": "object",
+          "label": "To",
+          "description": "An array of recipient objects to send the message(s) to.",
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "to": {
+                "title": "To",
+                "description": "An array of recipient objects to send the message(s) to.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "address": {
+                      "title": "Address",
+                      "description": "The identifier within a channel address space for an actor (e.g. phone number).",
+                      "type": "string"
+                    },
+                    "channel": {
+                      "title": "Channel",
+                      "description": "The channels available for the Message entity.",
+                      "type": "string",
+                      "enum": ["phone", "whatsapp", "fbm"]
+                    },
+                    "variables": {
+                      "title": "Variables",
+                      "description": "To personalize content for each recipient, supply variables here with values to substitute into any Liquid templated content string or pre-stored Content template.",
+                      "type": "object"
+                    }
+                  },
+                  "required": ["address", "channel"]
+                }
+              }
+            },
+            "required": ["to"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "content",
+          "type": "object",
+          "label": "Content",
+          "description": "Defines the fields applicable based on the selected content type.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "title": "Content",
+                "description": "Defines the fields applicable based on the selected content type.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "content_type": {
+                    "title": "Content Type",
+                    "description": "The type of message content.",
+                    "type": "string",
+                    "enum": ["MessageContentText", "MessageContentTemplate"]
+                  },
+                  "text": {
+                    "title": "Text",
+                    "description": "A simple string or templated content.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "description": "Optional title prepended to the message.",
+                    "type": "string"
+                  },
+                  "default_variables": {
+                    "title": "Default Variables",
+                    "description": "Default values for use within the templated content field text and title.",
+                    "type": "object"
+                  },
+                  "content_id": {
+                    "title": "Content ID",
+                    "description": "A reference to a Content template.",
+                    "type": "string"
+                  }
+                },
+                "required": ["text", "content_id"]
+              }
+            },
+            "required": ["content"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "channels",
+          "type": "string",
+          "label": "Channels",
+          "description": "A list of eligible channels to constrain Messages to; leave undefined to send across all available channels.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channels": {
+                "title": "Channels",
+                "description": "A list of eligible channels to constrain Messages to; leave undefined to send across all available channels.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "schedule",
+          "type": "object",
+          "label": "Schedule",
+          "description": "A schedule defines when a communication will be sent to a recipient.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "schedule": {
+                "title": "Schedule",
+                "description": "A schedule defines when a communication will be sent to a recipient.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "send_at": {
+                    "title": "Send At",
+                    "description": "List of expressions defining when the message may be sent.",
+                    "type": "string"
+                  },
+                  "quiet_hours": {
+                    "title": "Quiet Hours",
+                    "description": "List of expressions defining when the message may NOT be sent.",
+                    "type": "string"
+                  },
+                  "ignore_compliances": {
+                    "title": "Ignore Compliances",
+                    "description": "List of compliance rules to ignore.",
+                    "type": "string",
+                    "enum": ["all", "france_marketing", "eu_all"]
+                  },
+                  "frequency_cap": {
+                    "title": "Frequency Cap",
+                    "description": "Optimize the send time to prevent exceeding the count of communications sent to the recipient(s) for any time window of length period.",
+                    "type": "object",
+                    "$schema": "http://json-schema.org/schema#",
+                    "additionalProperties": false,
+                    "properties": {
+                      "count": {
+                        "title": "Count",
+                        "description": "The number of communications.",
+                        "type": "string"
+                      },
+                      "period": {
+                        "title": "Period",
+                        "description": "The duration for calculating the frequency count.",
+                        "type": "string",
+                        "default": "P1D"
+                      }
+                    },
+                    "required": []
+                  },
+                  "ttl": {
+                    "title": "TTL",
+                    "description": "Time-to-live for the communication.",
+                    "type": "string",
+                    "default": "P1D"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "use_domain",
+          "type": "object",
+          "label": "Use Domain",
+          "description": "The Domain to use for wrapping links for click-tracked links and shortened links.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "use_domain": {
+                "title": "Use Domain",
+                "description": "The Domain to use for wrapping links for click-tracked links and shortened links.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "domain_name": {
+                    "title": "Domain Name",
+                    "description": "A fully qualified domain name (FQDN) that you have registered with your DNS provider.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "tags",
+          "type": "object",
+          "label": "Tags",
+          "description": "Custom metadata in the form of key-value pairs. Maximum size of a tag key is 128 characters. Maximum size of a tag value is 256 characters. There can be a maximum of 10 key-value pairs.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tags": {
+                "title": "Tags",
+                "description": "Custom metadata in the form of key-value pairs. Maximum size of a tag key is 128 characters. Maximum size of a tag value is 256 characters. There can be a maximum of 10 key-value pairs.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,72 @@
+{
+  "name": "Yotpo",
+  "description": "Send data to Yotpo",
+  "basicOptions": ["store_id"],
+  "options": {
+    "store_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The store ID for your Yotpo account",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Store ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The store_id property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth-managed",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendData",
+      "name": "Send Data",
+      "description": "Send data to Yotpo",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "The data to send to Yotpo",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "The data to send to Yotpo",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

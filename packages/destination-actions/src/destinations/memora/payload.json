@@ -1,0 +1,221 @@
+{
+  "name": "Memora",
+  "basicOptions": ["username", "password", "twilioAccount"],
+  "options": {
+    "username": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio API Key. You can find this in your [Twilio Console](https://console.twilio.com/) under Account > API Keys & Tokens.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The username property is required."]],
+      "uIMetadata": null
+    },
+    "password": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio API Secret. This is provided when you create an API Key in your [Twilio Console](https://console.twilio.com/) under Account > API Keys & Tokens.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The password property is required."]],
+      "uIMetadata": null
+    },
+    "twilioAccount": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio Account ID. This can be found at the top of your [Twilio Console Dashboard](https://console.twilio.com/).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Twilio Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The twilioAccount property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "upsertProfile",
+      "name": "Upsert Profile",
+      "description": "Create or update Memora profiles. If a profile already exists, its traits are merged (new keys added, existing keys overwritten). Supports batching up to 1000 profiles.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to Memora. Batches can contain up to 1000 profiles.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to Memora. Batches can contain up to 1000 profiles.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of profiles to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of profiles to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "memora_store",
+          "type": "string",
+          "label": "Memora Store",
+          "description": "The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "memora_store": {
+                "title": "Memora Store",
+                "description": "The Memora Store ID to use for this profile. This should be a valid Memora Store associated with your Twilio account.",
+                "type": "string"
+              }
+            },
+            "required": ["memora_store"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "enrichment", "freeform"]
+          }
+        },
+        {
+          "fieldKey": "profile_identifiers",
+          "type": "object",
+          "label": "Profile Identifiers",
+          "description": "Profile identifiers from all trait groups. At runtime, each event must contain at least one identifier with a non-null value, and at least two total non-null fields across identifiers and traits combined. Events with sparse data (e.g., only one identifier present) will be rejected. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format \"TraitGroupName.$.traitName\" (e.g., \"Contact.$.email\", \"Contact.$.phone\").",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "profile_identifiers": {
+                "title": "Profile Identifiers",
+                "description": "Profile identifiers from all trait groups. At runtime, each event must contain at least one identifier with a non-null value, and at least two total non-null fields across identifiers and traits combined. Events with sparse data (e.g., only one identifier present) will be rejected. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format \"TraitGroupName.$.traitName\" (e.g., \"Contact.$.email\", \"Contact.$.phone\").",
+                "type": "object"
+              }
+            },
+            "required": ["profile_identifiers"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "profile_traits",
+          "type": "object",
+          "label": "Profile Traits",
+          "description": "Traits for the profile from all trait groups. While this field is optional in the mapping configuration, at runtime each event must have at least two total non-null fields across identifiers and traits combined. If you map only one identifier, you must also map at least one trait that will have a value for your events. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format \"TraitGroupName.$.traitName\" (e.g., \"Contact.$.firstName\", \"PurchaseHistory.$.lastPurchaseDate\").",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "profile_traits": {
+                "title": "Profile Traits",
+                "description": "Traits for the profile from all trait groups. While this field is optional in the mapping configuration, at runtime each event must have at least two total non-null fields across identifiers and traits combined. If you map only one identifier, you must also map at least one trait that will have a value for your events. These fields are dynamically loaded from the selected Memora Store. When manually entering keys, use the format \"TraitGroupName.$.traitName\" (e.g., \"Contact.$.firstName\", \"PurchaseHistory.$.lastPurchaseDate\").",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

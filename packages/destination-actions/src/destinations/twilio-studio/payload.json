@@ -1,0 +1,264 @@
+{
+  "name": "Twilio Studio",
+  "basicOptions": ["accountSid", "authToken", "spaceId", "profileApiAccessToken"],
+  "options": {
+    "accountSid": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio Account SID, starting with AC. You can find this in the Account Info section of your dashboard in the [Twilio Console](https://www.twilio.com/console).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Account SID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The accountSid property is required."]],
+      "uIMetadata": null
+    },
+    "authToken": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio Auth Token. You can find this in the Account Info section of your dashboard in the [Twilio Console](https://www.twilio.com/console).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Auth Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The authToken property is required."]],
+      "uIMetadata": null
+    },
+    "spaceId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Segment Space ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Space ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The spaceId property is required."]],
+      "uIMetadata": null
+    },
+    "profileApiAccessToken": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Segment Profile API Access Token.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Profile API Access Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The profileApiAccessToken property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "triggerStudioFlow",
+      "name": "Trigger Studio Flow",
+      "description": "Trigger a Flow in Twilio Studio to initiate an outbound call or message. The Flow will execute via the REST API trigger.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "flowSid",
+          "type": "string",
+          "label": "Flow SID",
+          "description": "The Flow SID, starting with FW, for the Studio Flow to trigger.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "flowSid": {
+                "title": "Flow SID",
+                "description": "The Flow SID, starting with FW, for the Studio Flow to trigger.",
+                "type": "string"
+              }
+            },
+            "required": ["flowSid"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "from",
+          "type": "string",
+          "label": "From Phone Number",
+          "description": "The Twilio phone number to initiate calls or messages from during the Flow Execution. Use [E.164](https://www.twilio.com/docs/glossary/what-e164) format (+1xxxxxxxxxx).",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From Phone Number",
+                "description": "The Twilio phone number to initiate calls or messages from during the Flow Execution. Use [E.164](https://www.twilio.com/docs/glossary/what-e164) format (+1xxxxxxxxxx).",
+                "type": "string"
+              }
+            },
+            "required": ["from"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "coolingOffPeriod",
+          "type": "number",
+          "label": "Cooling-off Period (in seconds)",
+          "description": "The amount of time during which the Flow can only be triggered once per Flow SID - User ID combination. Default is 60 seconds.",
+          "defaultValue": 60,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coolingOffPeriod": {
+                "title": "Cooling-off Period (in seconds)",
+                "description": "The amount of time during which the Flow can only be triggered once per Flow SID - User ID combination. Default is 60 seconds.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A Distinct User ID",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A Distinct User ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A Distinct External ID",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "A Distinct External ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event type",
+          "description": "The type of the event being performed.",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event type",
+                "description": "The type of the event being performed.",
+                "type": "string"
+              }
+            },
+            "required": ["eventType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

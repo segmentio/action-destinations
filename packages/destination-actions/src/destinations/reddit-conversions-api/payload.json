@@ -1,0 +1,3011 @@
+{
+  "name": "Reddit Conversions API",
+  "description": "Send Segment events to Reddit Conversions API.",
+  "basicOptions": ["ad_account_id", "conversion_token", "test_mode"],
+  "options": {
+    "ad_account_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Unique identifier of an ad account. This can be found in the Reddit UI.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pixel ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The ad_account_id property is required."]],
+      "uIMetadata": null
+    },
+    "conversion_token": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The conversion token for your Reddit account. This can be found by following the steps mentioned [here](https://business.reddithelp.com/helpcenter/s/article/conversion-access-token).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Conversion Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The conversion_token property is required."]],
+      "uIMetadata": null
+    },
+    "test_mode": {
+      "tags": ["authentication:test"],
+      "default": false,
+      "description": "Indicates if events should be treated as test events by Reddit.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Test Mode",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "redditPlugin",
+      "name": "Reddit Browser Plugin",
+      "description": "Enriches Segment payloads with data from the Reddit Pixel",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "fields": []
+    },
+    {
+      "slug": "customEvent",
+      "name": "Send Custom Event",
+      "description": "Send a Custom Conversion Event to Reddit",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "event_at",
+          "type": "datetime",
+          "label": "Event At",
+          "description": "The RFC3339 timestamp when the conversion event occurred",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_at": {
+                "title": "Event At",
+                "description": "The RFC3339 timestamp when the conversion event occurred",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["event_at"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_event_name",
+          "type": "string",
+          "label": "Custom Event Name",
+          "description": "A custom event name that can be passed when tracking_type is set to \"Custom\". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_event_name": {
+                "title": "Custom Event Name",
+                "description": "A custom event name that can be passed when tracking_type is set to \"Custom\". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.",
+                "type": "string"
+              }
+            },
+            "required": ["custom_event_name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "click_id",
+          "type": "string",
+          "label": "Click ID",
+          "description": "The Reddit-generated id associated with a single ad click.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.click_id"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.click_id"
+              },
+              "else": {
+                "@path": "$.properties.click_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "click_id": {
+                "title": "Click ID",
+                "description": "The Reddit-generated id associated with a single ad click.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "The products associated with the conversion event.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "category": {
+                  "@path": "$.category"
+                },
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "name": {
+                  "@path": "$.name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "The products associated with the conversion event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "category": {
+                      "title": "Category",
+                      "description": "The category the product is in; for example, a label from Google's product taxonomy. Required.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "title": "Product ID",
+                      "description": "The ID representing the product in a catalog. Required.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "The name of the product. Optional.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user",
+          "type": "object",
+          "label": "User",
+          "description": "The identifying user parameters associated with the conversion event.",
+          "defaultValue": {
+            "advertising_id": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "device_type": {
+              "@path": "$.context.device.type"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "external_id": {
+              "@if": {
+                "exists": {
+                  "@path": "$.userId"
+                },
+                "then": {
+                  "@path": "$.userId"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            },
+            "ip_address": {
+              "@path": "$.context.ip"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "uuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Reddit Conversions Api.uuid"
+                },
+                "then": {
+                  "@path": "$.integrations.Reddit Conversions Api.uuid"
+                },
+                "else": {
+                  "@path": "$.properties.uuid"
+                }
+              }
+            },
+            "phone_number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user": {
+                "title": "User",
+                "description": "The identifying user parameters associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.",
+                    "type": "string"
+                  },
+                  "device_type": {
+                    "title": "Device Type",
+                    "description": "The type of mobile device. e.g. iOS or Android.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the user.",
+                    "type": "string"
+                  },
+                  "external_id": {
+                    "title": "External ID",
+                    "description": "An advertiser-assigned persistent identifier for the user.",
+                    "type": "string"
+                  },
+                  "ip_address": {
+                    "title": "IP Address",
+                    "description": "The IP address of the user.",
+                    "type": "string"
+                  },
+                  "user_agent": {
+                    "title": "User Agent",
+                    "description": "The user agent of the user's browser.",
+                    "type": "string"
+                  },
+                  "uuid": {
+                    "title": "UUID",
+                    "description": "The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.",
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "title": "Phone Number",
+                    "description": "The phone number of the user in E.164 standard format.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options",
+          "type": "object",
+          "label": "Data Processing Options",
+          "description": "A structure of data processing options to specify the processing type for the event.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options": {
+                "title": "Data Processing Options",
+                "description": "A structure of data processing options to specify the processing type for the event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country Code of the user. We support ISO 3166-1 alpha-2 country code.",
+                    "type": "string",
+                    "enum": [
+                      "AD",
+                      "AE",
+                      "AF",
+                      "AG",
+                      "AI",
+                      "AL",
+                      "AM",
+                      "AO",
+                      "AQ",
+                      "AR",
+                      "AS",
+                      "AT",
+                      "AU",
+                      "AW",
+                      "AX",
+                      "AZ",
+                      "BA",
+                      "BB",
+                      "BD",
+                      "BE",
+                      "BF",
+                      "BG",
+                      "BH",
+                      "BI",
+                      "BJ",
+                      "BL",
+                      "BM",
+                      "BN",
+                      "BO",
+                      "BQ",
+                      "BR",
+                      "BS",
+                      "BT",
+                      "BV",
+                      "BW",
+                      "BY",
+                      "BZ",
+                      "CA",
+                      "CC",
+                      "CD",
+                      "CF",
+                      "CG",
+                      "CH",
+                      "CI",
+                      "CK",
+                      "CL",
+                      "CM",
+                      "CN",
+                      "CO",
+                      "CR",
+                      "CU",
+                      "CV",
+                      "CW",
+                      "CX",
+                      "CY",
+                      "CZ",
+                      "DE",
+                      "DJ",
+                      "DK",
+                      "DM",
+                      "DO",
+                      "DZ",
+                      "EC",
+                      "EE",
+                      "EG",
+                      "EH",
+                      "ER",
+                      "ES",
+                      "ET",
+                      "FI",
+                      "FJ",
+                      "FK",
+                      "FM",
+                      "FO",
+                      "FR",
+                      "GA",
+                      "GB",
+                      "GD",
+                      "GE",
+                      "GF",
+                      "GG",
+                      "GH",
+                      "GI",
+                      "GL",
+                      "GM",
+                      "GN",
+                      "GP",
+                      "GQ",
+                      "GR",
+                      "GT",
+                      "GU",
+                      "GW",
+                      "GY",
+                      "HK",
+                      "HM",
+                      "HN",
+                      "HR",
+                      "HT",
+                      "HU",
+                      "ID",
+                      "IE",
+                      "IL",
+                      "IM",
+                      "IN",
+                      "IO",
+                      "IQ",
+                      "IR",
+                      "IS",
+                      "IT",
+                      "JE",
+                      "JM",
+                      "JO",
+                      "JP",
+                      "KE",
+                      "KG",
+                      "KH",
+                      "KI",
+                      "KM",
+                      "KN",
+                      "KP",
+                      "KR",
+                      "KW",
+                      "KY",
+                      "KZ",
+                      "LA",
+                      "LB",
+                      "LC",
+                      "LI",
+                      "LK",
+                      "LR",
+                      "LS",
+                      "LT",
+                      "LU",
+                      "LV",
+                      "LY",
+                      "MA",
+                      "MC",
+                      "MD",
+                      "ME",
+                      "MF",
+                      "MG",
+                      "MH",
+                      "MK",
+                      "ML",
+                      "MM",
+                      "MN",
+                      "MO",
+                      "MP",
+                      "MQ",
+                      "MR",
+                      "MS",
+                      "MT",
+                      "MU",
+                      "MV",
+                      "MW",
+                      "MX",
+                      "MY",
+                      "MZ",
+                      "NA",
+                      "NC",
+                      "NE",
+                      "NF",
+                      "NG",
+                      "NI",
+                      "NL",
+                      "NO",
+                      "NP",
+                      "NR",
+                      "NU",
+                      "NZ",
+                      "OM",
+                      "PA",
+                      "PE",
+                      "PF",
+                      "PG",
+                      "PH",
+                      "PK",
+                      "PL",
+                      "PM",
+                      "PN",
+                      "PR",
+                      "PT",
+                      "PW",
+                      "PY",
+                      "QA",
+                      "RE",
+                      "RO",
+                      "RS",
+                      "RU",
+                      "RW",
+                      "SA",
+                      "SB",
+                      "SC",
+                      "SD",
+                      "SE",
+                      "SG",
+                      "SH",
+                      "SI",
+                      "SJ",
+                      "SK",
+                      "SL",
+                      "SM",
+                      "SN",
+                      "SO",
+                      "SR",
+                      "SS",
+                      "ST",
+                      "SV",
+                      "SX",
+                      "SY",
+                      "SZ",
+                      "TC",
+                      "TD",
+                      "TF",
+                      "TG",
+                      "TH",
+                      "TJ",
+                      "TK",
+                      "TL",
+                      "TM",
+                      "TN",
+                      "TO",
+                      "TR",
+                      "TT",
+                      "TV",
+                      "TZ",
+                      "UA",
+                      "UG",
+                      "UM",
+                      "UN",
+                      "US",
+                      "UY",
+                      "UZ",
+                      "VA",
+                      "VC",
+                      "VE",
+                      "VG",
+                      "VI",
+                      "VN",
+                      "VU",
+                      "WF",
+                      "WS",
+                      "YE",
+                      "YT",
+                      "ZA",
+                      "ZM",
+                      "ZW"
+                    ]
+                  },
+                  "modes": {
+                    "title": "Modes",
+                    "description": "Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.",
+                    "type": "string",
+                    "enum": ["LDU"]
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "Region Code of the user. We support ISO 3166-2 region code, ex: \"US-CA, US-NY, etc.\" or just the region code without country prefix, e.g. \"CA, NY, etc.\".",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_dimensions",
+          "type": "object",
+          "label": "Screen Dimensions",
+          "description": "The dimensions of the user's screen.",
+          "defaultValue": {
+            "height": {
+              "@path": "$.context.screen.height"
+            },
+            "width": {
+              "@path": "$.context.screen.width"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_dimensions": {
+                "title": "Screen Dimensions",
+                "description": "The dimensions of the user's screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "height": {
+                    "title": "Height",
+                    "description": "The height of the user's screen in pixels. This must be positive and less than 32768.",
+                    "type": "integer"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The width of the user's screen in pixels. This must be positive and less than 32768.",
+                    "type": "integer"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_metadata",
+          "type": "object",
+          "label": "Event Metadata",
+          "description": "The metadata associated with the conversion event.",
+          "defaultValue": {
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "item_count": {
+              "@path": "$.properties.quantity"
+            },
+            "value_decimal": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.revenue"
+                },
+                "then": {
+                  "@path": "$.properties.revenue"
+                },
+                "else": {
+                  "@path": "$.properties.total"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_metadata": {
+                "title": "Event Metadata",
+                "description": "The metadata associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "currency": {
+                    "title": "Currency",
+                    "description": "The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.",
+                    "type": "string",
+                    "enum": [
+                      "AED",
+                      "AFN",
+                      "ALL",
+                      "AMD",
+                      "ANG",
+                      "AOA",
+                      "ARS",
+                      "AUD",
+                      "AWG",
+                      "AZN",
+                      "BAM",
+                      "BBD",
+                      "BDT",
+                      "BGN",
+                      "BHD",
+                      "BIF",
+                      "BMD",
+                      "BND",
+                      "BOB",
+                      "BRL",
+                      "BSD",
+                      "BTN",
+                      "BWP",
+                      "BYN",
+                      "BZD",
+                      "CAD",
+                      "CDF",
+                      "CHF",
+                      "CLP",
+                      "CNY",
+                      "COP",
+                      "CRC",
+                      "CUC",
+                      "CUP",
+                      "CVE",
+                      "CZK",
+                      "DJF",
+                      "DKK",
+                      "DOP",
+                      "DZD",
+                      "EGP",
+                      "ERN",
+                      "ETB",
+                      "EUR",
+                      "FJD",
+                      "FKP",
+                      "GBP",
+                      "GEL",
+                      "GGP",
+                      "GHS",
+                      "GIP",
+                      "GMD",
+                      "GNF",
+                      "GTQ",
+                      "GYD",
+                      "HKD",
+                      "HNL",
+                      "HRK",
+                      "HTG",
+                      "HUF",
+                      "IDR",
+                      "ILS",
+                      "IMP",
+                      "INR",
+                      "IQD",
+                      "IRR",
+                      "ISK",
+                      "JEP",
+                      "JMD",
+                      "JOD",
+                      "JPY",
+                      "KES",
+                      "KGS",
+                      "KHR",
+                      "KMF",
+                      "KPW",
+                      "KRW",
+                      "KWD",
+                      "KYD",
+                      "KZT",
+                      "LAK",
+                      "LBP",
+                      "LKR",
+                      "LRD",
+                      "LSL",
+                      "LYD",
+                      "MAD",
+                      "MDL",
+                      "MGA",
+                      "MKD",
+                      "MMK",
+                      "MNT",
+                      "MOP",
+                      "MRU",
+                      "MUR",
+                      "MVR",
+                      "MWK",
+                      "MXN",
+                      "MYR",
+                      "MZN",
+                      "NAD",
+                      "NGN",
+                      "NIO",
+                      "NOK",
+                      "NPR",
+                      "NZD",
+                      "OMR",
+                      "PAB",
+                      "PEN",
+                      "PGK",
+                      "PHP",
+                      "PKR",
+                      "PLN",
+                      "PYG",
+                      "QAR",
+                      "RON",
+                      "RSD",
+                      "RUB",
+                      "RWF",
+                      "SAR",
+                      "SBD",
+                      "SCR",
+                      "SDG",
+                      "SEK",
+                      "SGD",
+                      "SHP",
+                      "SLE",
+                      "SLL",
+                      "SOS",
+                      "SRD",
+                      "STD",
+                      "STN",
+                      "SVC",
+                      "SYP",
+                      "SZL",
+                      "THB",
+                      "TJS",
+                      "TMT",
+                      "TND",
+                      "TOP",
+                      "TRY",
+                      "TTD",
+                      "TVD",
+                      "TWD",
+                      "TZS",
+                      "UAH",
+                      "UGX",
+                      "USD",
+                      "UYU",
+                      "UYW",
+                      "UZS",
+                      "VED",
+                      "VES",
+                      "VND",
+                      "VUV",
+                      "WST",
+                      "XAF",
+                      "XCD",
+                      "XDR",
+                      "XOF",
+                      "XPF",
+                      "YER",
+                      "ZAR",
+                      "ZMW",
+                      "ZWL"
+                    ]
+                  },
+                  "item_count": {
+                    "title": "Item Count",
+                    "description": "The number of items in the event. This should only be set for revenue-related events.",
+                    "type": "integer"
+                  },
+                  "value_decimal": {
+                    "title": "Value Decimal",
+                    "description": "The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "conversion_id",
+          "type": "string",
+          "label": "Conversion ID",
+          "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversion_id": {
+                "title": "Conversion ID",
+                "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "standardEvent",
+      "name": "Send Standard Event",
+      "description": "Send a Standard Conversion Event to Reddit",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "event_at",
+          "type": "datetime",
+          "label": "Event At",
+          "description": "The RFC3339 timestamp when the conversion event occurred",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_at": {
+                "title": "Event At",
+                "description": "The RFC3339 timestamp when the conversion event occurred",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["event_at"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "tracking_type",
+          "type": "string",
+          "label": "Tracking Type",
+          "description": "One of Reddit CAPI's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Page Visit",
+              "value": "PageVisit"
+            },
+            {
+              "label": "View Content",
+              "value": "ViewContent"
+            },
+            {
+              "label": "Search",
+              "value": "Search"
+            },
+            {
+              "label": "Add to Cart",
+              "value": "AddToCart"
+            },
+            {
+              "label": "Add to Wishlist",
+              "value": "AddToWishlist"
+            },
+            {
+              "label": "Purchase",
+              "value": "Purchase"
+            },
+            {
+              "label": "Lead",
+              "value": "Lead"
+            },
+            {
+              "label": "Sign Up",
+              "value": "SignUp"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tracking_type": {
+                "title": "Tracking Type",
+                "description": "One of Reddit CAPI's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.",
+                "type": "string",
+                "enum": [
+                  "PageVisit",
+                  "ViewContent",
+                  "Search",
+                  "AddToCart",
+                  "AddToWishlist",
+                  "Purchase",
+                  "Lead",
+                  "SignUp"
+                ]
+              }
+            },
+            "required": ["tracking_type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "click_id",
+          "type": "string",
+          "label": "Click ID",
+          "description": "The Reddit-generated id associated with a single ad click.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.click_id"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.click_id"
+              },
+              "else": {
+                "@path": "$.properties.click_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "click_id": {
+                "title": "Click ID",
+                "description": "The Reddit-generated id associated with a single ad click.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "The products associated with the conversion event.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "category": {
+                  "@path": "$.category"
+                },
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "name": {
+                  "@path": "$.name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "The products associated with the conversion event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "category": {
+                      "title": "Category",
+                      "description": "The category the product is in; for example, a label from Google's product taxonomy. Required.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "title": "Product ID",
+                      "description": "The ID representing the product in a catalog. Required.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "The name of the product. Optional.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user",
+          "type": "object",
+          "label": "User",
+          "description": "The identifying user parameters associated with the conversion event.",
+          "defaultValue": {
+            "advertising_id": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "device_type": {
+              "@path": "$.context.device.type"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "external_id": {
+              "@if": {
+                "exists": {
+                  "@path": "$.userId"
+                },
+                "then": {
+                  "@path": "$.userId"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            },
+            "ip_address": {
+              "@path": "$.context.ip"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "uuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Reddit Conversions Api.uuid"
+                },
+                "then": {
+                  "@path": "$.integrations.Reddit Conversions Api.uuid"
+                },
+                "else": {
+                  "@path": "$.properties.uuid"
+                }
+              }
+            },
+            "phone_number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user": {
+                "title": "User",
+                "description": "The identifying user parameters associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.",
+                    "type": "string"
+                  },
+                  "device_type": {
+                    "title": "Device Type",
+                    "description": "The type of mobile device. e.g. iOS or Android.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the user.",
+                    "type": "string"
+                  },
+                  "external_id": {
+                    "title": "External ID",
+                    "description": "An advertiser-assigned persistent identifier for the user.",
+                    "type": "string"
+                  },
+                  "ip_address": {
+                    "title": "IP Address",
+                    "description": "The IP address of the user.",
+                    "type": "string"
+                  },
+                  "user_agent": {
+                    "title": "User Agent",
+                    "description": "The user agent of the user's browser.",
+                    "type": "string"
+                  },
+                  "uuid": {
+                    "title": "UUID",
+                    "description": "The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.",
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "title": "Phone Number",
+                    "description": "The phone number of the user in E.164 standard format.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options",
+          "type": "object",
+          "label": "Data Processing Options",
+          "description": "A structure of data processing options to specify the processing type for the event.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options": {
+                "title": "Data Processing Options",
+                "description": "A structure of data processing options to specify the processing type for the event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country Code of the user. We support ISO 3166-1 alpha-2 country code.",
+                    "type": "string",
+                    "enum": [
+                      "AD",
+                      "AE",
+                      "AF",
+                      "AG",
+                      "AI",
+                      "AL",
+                      "AM",
+                      "AO",
+                      "AQ",
+                      "AR",
+                      "AS",
+                      "AT",
+                      "AU",
+                      "AW",
+                      "AX",
+                      "AZ",
+                      "BA",
+                      "BB",
+                      "BD",
+                      "BE",
+                      "BF",
+                      "BG",
+                      "BH",
+                      "BI",
+                      "BJ",
+                      "BL",
+                      "BM",
+                      "BN",
+                      "BO",
+                      "BQ",
+                      "BR",
+                      "BS",
+                      "BT",
+                      "BV",
+                      "BW",
+                      "BY",
+                      "BZ",
+                      "CA",
+                      "CC",
+                      "CD",
+                      "CF",
+                      "CG",
+                      "CH",
+                      "CI",
+                      "CK",
+                      "CL",
+                      "CM",
+                      "CN",
+                      "CO",
+                      "CR",
+                      "CU",
+                      "CV",
+                      "CW",
+                      "CX",
+                      "CY",
+                      "CZ",
+                      "DE",
+                      "DJ",
+                      "DK",
+                      "DM",
+                      "DO",
+                      "DZ",
+                      "EC",
+                      "EE",
+                      "EG",
+                      "EH",
+                      "ER",
+                      "ES",
+                      "ET",
+                      "FI",
+                      "FJ",
+                      "FK",
+                      "FM",
+                      "FO",
+                      "FR",
+                      "GA",
+                      "GB",
+                      "GD",
+                      "GE",
+                      "GF",
+                      "GG",
+                      "GH",
+                      "GI",
+                      "GL",
+                      "GM",
+                      "GN",
+                      "GP",
+                      "GQ",
+                      "GR",
+                      "GT",
+                      "GU",
+                      "GW",
+                      "GY",
+                      "HK",
+                      "HM",
+                      "HN",
+                      "HR",
+                      "HT",
+                      "HU",
+                      "ID",
+                      "IE",
+                      "IL",
+                      "IM",
+                      "IN",
+                      "IO",
+                      "IQ",
+                      "IR",
+                      "IS",
+                      "IT",
+                      "JE",
+                      "JM",
+                      "JO",
+                      "JP",
+                      "KE",
+                      "KG",
+                      "KH",
+                      "KI",
+                      "KM",
+                      "KN",
+                      "KP",
+                      "KR",
+                      "KW",
+                      "KY",
+                      "KZ",
+                      "LA",
+                      "LB",
+                      "LC",
+                      "LI",
+                      "LK",
+                      "LR",
+                      "LS",
+                      "LT",
+                      "LU",
+                      "LV",
+                      "LY",
+                      "MA",
+                      "MC",
+                      "MD",
+                      "ME",
+                      "MF",
+                      "MG",
+                      "MH",
+                      "MK",
+                      "ML",
+                      "MM",
+                      "MN",
+                      "MO",
+                      "MP",
+                      "MQ",
+                      "MR",
+                      "MS",
+                      "MT",
+                      "MU",
+                      "MV",
+                      "MW",
+                      "MX",
+                      "MY",
+                      "MZ",
+                      "NA",
+                      "NC",
+                      "NE",
+                      "NF",
+                      "NG",
+                      "NI",
+                      "NL",
+                      "NO",
+                      "NP",
+                      "NR",
+                      "NU",
+                      "NZ",
+                      "OM",
+                      "PA",
+                      "PE",
+                      "PF",
+                      "PG",
+                      "PH",
+                      "PK",
+                      "PL",
+                      "PM",
+                      "PN",
+                      "PR",
+                      "PT",
+                      "PW",
+                      "PY",
+                      "QA",
+                      "RE",
+                      "RO",
+                      "RS",
+                      "RU",
+                      "RW",
+                      "SA",
+                      "SB",
+                      "SC",
+                      "SD",
+                      "SE",
+                      "SG",
+                      "SH",
+                      "SI",
+                      "SJ",
+                      "SK",
+                      "SL",
+                      "SM",
+                      "SN",
+                      "SO",
+                      "SR",
+                      "SS",
+                      "ST",
+                      "SV",
+                      "SX",
+                      "SY",
+                      "SZ",
+                      "TC",
+                      "TD",
+                      "TF",
+                      "TG",
+                      "TH",
+                      "TJ",
+                      "TK",
+                      "TL",
+                      "TM",
+                      "TN",
+                      "TO",
+                      "TR",
+                      "TT",
+                      "TV",
+                      "TZ",
+                      "UA",
+                      "UG",
+                      "UM",
+                      "UN",
+                      "US",
+                      "UY",
+                      "UZ",
+                      "VA",
+                      "VC",
+                      "VE",
+                      "VG",
+                      "VI",
+                      "VN",
+                      "VU",
+                      "WF",
+                      "WS",
+                      "YE",
+                      "YT",
+                      "ZA",
+                      "ZM",
+                      "ZW"
+                    ]
+                  },
+                  "modes": {
+                    "title": "Modes",
+                    "description": "Comma delimited list of Data Processing Modes for this conversion event. Currently only LDU (Limited Data Use) is supported.",
+                    "type": "string",
+                    "enum": ["LDU"]
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "Region Code of the user. We support ISO 3166-2 region code, ex: \"US-CA, US-NY, etc.\" or just the region code without country prefix, e.g. \"CA, NY, etc.\".",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_dimensions",
+          "type": "object",
+          "label": "Screen Dimensions",
+          "description": "The dimensions of the user's screen.",
+          "defaultValue": {
+            "height": {
+              "@path": "$.context.screen.height"
+            },
+            "width": {
+              "@path": "$.context.screen.width"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_dimensions": {
+                "title": "Screen Dimensions",
+                "description": "The dimensions of the user's screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "height": {
+                    "title": "Height",
+                    "description": "The height of the user's screen in pixels. This must be positive and less than 32768.",
+                    "type": "integer"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The width of the user's screen in pixels. This must be positive and less than 32768.",
+                    "type": "integer"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_metadata",
+          "type": "object",
+          "label": "Event Metadata",
+          "description": "The metadata associated with the conversion event.",
+          "defaultValue": {
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "item_count": {
+              "@path": "$.properties.quantity"
+            },
+            "value_decimal": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.revenue"
+                },
+                "then": {
+                  "@path": "$.properties.revenue"
+                },
+                "else": {
+                  "@path": "$.properties.total"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_metadata": {
+                "title": "Event Metadata",
+                "description": "The metadata associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "currency": {
+                    "title": "Currency",
+                    "description": "The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.",
+                    "type": "string",
+                    "enum": [
+                      "AED",
+                      "AFN",
+                      "ALL",
+                      "AMD",
+                      "ANG",
+                      "AOA",
+                      "ARS",
+                      "AUD",
+                      "AWG",
+                      "AZN",
+                      "BAM",
+                      "BBD",
+                      "BDT",
+                      "BGN",
+                      "BHD",
+                      "BIF",
+                      "BMD",
+                      "BND",
+                      "BOB",
+                      "BRL",
+                      "BSD",
+                      "BTN",
+                      "BWP",
+                      "BYN",
+                      "BZD",
+                      "CAD",
+                      "CDF",
+                      "CHF",
+                      "CLP",
+                      "CNY",
+                      "COP",
+                      "CRC",
+                      "CUC",
+                      "CUP",
+                      "CVE",
+                      "CZK",
+                      "DJF",
+                      "DKK",
+                      "DOP",
+                      "DZD",
+                      "EGP",
+                      "ERN",
+                      "ETB",
+                      "EUR",
+                      "FJD",
+                      "FKP",
+                      "GBP",
+                      "GEL",
+                      "GGP",
+                      "GHS",
+                      "GIP",
+                      "GMD",
+                      "GNF",
+                      "GTQ",
+                      "GYD",
+                      "HKD",
+                      "HNL",
+                      "HRK",
+                      "HTG",
+                      "HUF",
+                      "IDR",
+                      "ILS",
+                      "IMP",
+                      "INR",
+                      "IQD",
+                      "IRR",
+                      "ISK",
+                      "JEP",
+                      "JMD",
+                      "JOD",
+                      "JPY",
+                      "KES",
+                      "KGS",
+                      "KHR",
+                      "KMF",
+                      "KPW",
+                      "KRW",
+                      "KWD",
+                      "KYD",
+                      "KZT",
+                      "LAK",
+                      "LBP",
+                      "LKR",
+                      "LRD",
+                      "LSL",
+                      "LYD",
+                      "MAD",
+                      "MDL",
+                      "MGA",
+                      "MKD",
+                      "MMK",
+                      "MNT",
+                      "MOP",
+                      "MRU",
+                      "MUR",
+                      "MVR",
+                      "MWK",
+                      "MXN",
+                      "MYR",
+                      "MZN",
+                      "NAD",
+                      "NGN",
+                      "NIO",
+                      "NOK",
+                      "NPR",
+                      "NZD",
+                      "OMR",
+                      "PAB",
+                      "PEN",
+                      "PGK",
+                      "PHP",
+                      "PKR",
+                      "PLN",
+                      "PYG",
+                      "QAR",
+                      "RON",
+                      "RSD",
+                      "RUB",
+                      "RWF",
+                      "SAR",
+                      "SBD",
+                      "SCR",
+                      "SDG",
+                      "SEK",
+                      "SGD",
+                      "SHP",
+                      "SLE",
+                      "SLL",
+                      "SOS",
+                      "SRD",
+                      "STD",
+                      "STN",
+                      "SVC",
+                      "SYP",
+                      "SZL",
+                      "THB",
+                      "TJS",
+                      "TMT",
+                      "TND",
+                      "TOP",
+                      "TRY",
+                      "TTD",
+                      "TVD",
+                      "TWD",
+                      "TZS",
+                      "UAH",
+                      "UGX",
+                      "USD",
+                      "UYU",
+                      "UYW",
+                      "UZS",
+                      "VED",
+                      "VES",
+                      "VND",
+                      "VUV",
+                      "WST",
+                      "XAF",
+                      "XCD",
+                      "XDR",
+                      "XOF",
+                      "XPF",
+                      "YER",
+                      "ZAR",
+                      "ZMW",
+                      "ZWL"
+                    ]
+                  },
+                  "item_count": {
+                    "title": "Item Count",
+                    "description": "The number of items in the event. This should only be set for revenue-related events.",
+                    "type": "integer"
+                  },
+                  "value_decimal": {
+                    "title": "Value Decimal",
+                    "description": "The value of the transaction in the base unit of the currency. For example, dollars, euros, pesos, rupees, and bitcoin for USD, EUR, MXN, INR, and BTC respectively. This should only be set for revenue-related events.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "conversion_id",
+          "type": "string",
+          "label": "Conversion ID",
+          "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversion_id": {
+                "title": "Conversion ID",
+                "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "standardEvent",
+      "name": "Add to Cart",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@path": "$.properties.price"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "AddToCart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "Add to Wishlist",
+      "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@path": "$.properties.price"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "AddToWishlist"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "Lead",
+      "subscribe": "type = \"track\" and event = \"Lead Generated\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value_decimal": {
+            "@path": "$.properties.price"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Lead"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "Page Visit",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {},
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "PageVisit"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "Purchase",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "item_count": {
+            "@path": "$.properties.quantity"
+          },
+          "value_decimal": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Purchase"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "redditPlugin",
+      "name": "Reddit Browser Plugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "Search",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {},
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Search"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "Sign Up",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value_decimal": {
+            "@path": "$.properties.price"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "SignUp"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "standardEvent",
+      "name": "View Content",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "event_at": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "then": {
+              "@path": "$.integrations.Reddit Conversions Api.click_id"
+            },
+            "else": {
+              "@path": "$.properties.click_id"
+            }
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "external_id": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "ip_address": {
+            "@path": "$.context.ip"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "uuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "then": {
+                "@path": "$.integrations.Reddit Conversions Api.uuid"
+              },
+              "else": {
+                "@path": "$.properties.uuid"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "screen_dimensions": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "event_metadata": {},
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "ViewContent"
+      },
+      "type": "automatic"
+    }
+  ]
+}

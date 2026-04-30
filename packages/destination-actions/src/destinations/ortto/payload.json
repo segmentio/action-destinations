@@ -1,0 +1,1404 @@
+{
+  "name": "Ortto (Actions)",
+  "description": "Send customer data from Segment to Ortto in real time to power campaigns, trigger journeys, and manage audiences with greater flexibility and control.",
+  "basicOptions": ["api_key"],
+  "options": {
+    "api_key": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Ortto API key",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The api_key property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackActivity",
+      "name": "Track Activity",
+      "description": "Track user activity",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Event timestamp in ISO 8601 format. Used with the Message ID to uniquely identify an activity in Ortto. If not provided, duplicate activities may occur.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Event timestamp in ISO 8601 format. Used with the Message ID to uniquely identify an activity in Ortto. If not provided, duplicate activities may occur.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "Message ID",
+          "description": "Message ID. Combined with the event timestamp to uniquely identify an activity in Ortto. If omitted, duplicate activities may occur.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "Message ID",
+                "description": "Message ID. Combined with the event timestamp to uniquely identify an activity in Ortto. If omitted, duplicate activities may occur.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique user identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The unique user identifier",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "anyOf": [
+                    {
+                      "not": {
+                        "required": ["anonymous_id"]
+                      }
+                    },
+                    {
+                      "properties": {
+                        "anonymous_id": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "then": {
+                  "required": ["user_id"]
+                }
+              }
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "anonymous_id",
+                  "operator": "is"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous user identifier",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "Anonymous user identifier",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "anyOf": [
+                    {
+                      "not": {
+                        "required": ["user_id"]
+                      }
+                    },
+                    {
+                      "properties": {
+                        "user_id": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "then": {
+                  "required": ["anonymous_id"]
+                }
+              }
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "user_id",
+                  "operator": "is"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data",
+          "description": "When enabled, events will be sent to Ortto in batches for improved efficiency.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data",
+                "description": "When enabled, events will be sent to Ortto in batches for improved efficiency.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the location where the activity occurred.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "180.1.12.125",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the location where the activity occurred.",
+                "type": ["string", "null"],
+                "format": "ipv4"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "The location where the activity occurred. Takes priority over the IP address.",
+          "defaultValue": {
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "post_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "The location where the activity occurred. Takes priority over the IP address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "type": ["string", "null"]
+                  },
+                  "state": {
+                    "title": "State",
+                    "type": ["string", "null"]
+                  },
+                  "city": {
+                    "title": "City",
+                    "type": ["string", "null"]
+                  },
+                  "post_code": {
+                    "title": "Postcode",
+                    "type": ["string", "null"]
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Custom Contact traits",
+          "description": "key-value custom property pairs to be assigned to the Contact's profile",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Custom Contact traits",
+                "description": "key-value custom property pairs to be assigned to the Contact's profile",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_update_mode",
+          "type": "string",
+          "label": "Audience update mode",
+          "description": "Indicates whether the Contact should be added to or removed from the Audience.",
+          "defaultValue": "add",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Add",
+              "value": "add"
+            },
+            {
+              "label": "Remove",
+              "value": "remove"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_update_mode": {
+                "title": "Audience update mode",
+                "description": "Indicates whether the Contact should be added to or removed from the Audience.",
+                "type": "string",
+                "enum": ["add", "remove"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch.",
+          "defaultValue": 500,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event name",
+          "description": "Event name",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event name",
+                "description": "Event name",
+                "type": "string"
+              }
+            },
+            "required": ["event"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "namespace",
+          "type": "string",
+          "label": "Namespace",
+          "description": "Event namespace",
+          "defaultValue": {
+            "@path": "$.context.app.namespace"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "namespace": {
+                "title": "Namespace",
+                "description": "Event namespace",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Activity properties",
+          "description": "An object containing key-value pairs representing activity attributes",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Activity properties",
+                "description": "An object containing key-value pairs representing activity attributes",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_name",
+          "type": "string",
+          "label": "Audience Name",
+          "description": "The name of the Ortto Audience to link the Contact to.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_name": {
+                "title": "Audience Name",
+                "description": "The name of the Ortto Audience to link the Contact to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "onMappingSave",
+          "type": "object",
+          "label": "Associate Audience",
+          "description": "Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "onMappingSave": {
+                "title": "Associate Audience",
+                "description": "Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "audience_id": {
+                    "title": "ID",
+                    "description": "The ID of the Ortto Audience Contacts will be linked to.",
+                    "type": "string"
+                  },
+                  "audience_name": {
+                    "title": "Name",
+                    "description": "The name of the Ortto Audience contacts will be linkted to.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "onMappingSave"
+        }
+      ]
+    },
+    {
+      "slug": "upsertContactProfile",
+      "name": "Upsert Contact",
+      "description": "Create or update a Contact in Ortto",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Event timestamp (ISO 8601)",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Event timestamp (ISO 8601)",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "Message ID",
+          "description": "Message ID",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "Message ID",
+                "description": "Message ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique user identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The unique user identifier",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "anyOf": [
+                    {
+                      "not": {
+                        "required": ["anonymous_id"]
+                      }
+                    },
+                    {
+                      "properties": {
+                        "anonymous_id": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "then": {
+                  "required": ["user_id"]
+                }
+              }
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "anonymous_id",
+                  "operator": "is"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous user identifier",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "Anonymous user identifier",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "anyOf": [
+                    {
+                      "not": {
+                        "required": ["user_id"]
+                      }
+                    },
+                    {
+                      "properties": {
+                        "user_id": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "then": {
+                  "required": ["anonymous_id"]
+                }
+              }
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "user_id",
+                  "operator": "is"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data",
+          "description": "When enabled, events will be sent to Ortto in batches for improved efficiency.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data",
+                "description": "When enabled, events will be sent to Ortto in batches for improved efficiency.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The Contact's IP address",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "180.1.12.125",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The Contact's IP address",
+                "type": ["string", "null"],
+                "format": "ipv4"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "The Contact's location. Takes priority over the IP address.",
+          "defaultValue": {
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "post_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "The Contact's location. Takes priority over the IP address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "type": ["string", "null"]
+                  },
+                  "state": {
+                    "title": "State",
+                    "type": ["string", "null"]
+                  },
+                  "city": {
+                    "title": "City",
+                    "type": ["string", "null"]
+                  },
+                  "post_code": {
+                    "title": "Postcode",
+                    "type": ["string", "null"]
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Custom Contact traits",
+          "description": "An object containing key-value pairs representing custom properties assigned to Contact profile",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Custom Contact traits",
+                "description": "An object containing key-value pairs representing custom properties assigned to Contact profile",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_update_mode",
+          "type": "string",
+          "label": "Audience update mode",
+          "description": "Indicates whether the Contact should be added to or removed from the Audience.",
+          "defaultValue": "add",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Add",
+              "value": "add"
+            },
+            {
+              "label": "Remove",
+              "value": "remove"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_update_mode": {
+                "title": "Audience update mode",
+                "description": "Indicates whether the Contact should be added to or removed from the Audience.",
+                "type": "string",
+                "enum": ["add", "remove"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch.",
+          "defaultValue": 500,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_name",
+          "type": "string",
+          "label": "Audience Name",
+          "description": "The name of the Ortto Audience to link the Contact to.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_name": {
+                "title": "Audience Name",
+                "description": "The name of the Ortto Audience to link the Contact to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "onMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "onMappingSave",
+          "type": "object",
+          "label": "Associate Audience",
+          "description": "Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "onMappingSave": {
+                "title": "Associate Audience",
+                "description": "Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "audience_id": {
+                    "title": "ID",
+                    "description": "The ID of the Ortto Audience Contacts will be linked to.",
+                    "type": "string"
+                  },
+                  "audience_name": {
+                    "title": "Name",
+                    "description": "The name of the Ortto Audience contacts will be linkted to.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "onMappingSave"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "trackActivity",
+      "name": "Track Activity",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "enable_batching": true,
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "location": {
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.country"
+              },
+              "then": {
+                "@path": "$.traits.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.state"
+              },
+              "then": {
+                "@path": "$.traits.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.city"
+              },
+              "then": {
+                "@path": "$.traits.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "post_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          }
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "audience_update_mode": "add",
+        "batch_size": 500,
+        "event": {
+          "@path": "$.event"
+        },
+        "namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "upsertContactProfile",
+      "name": "Upsert Contact",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "enable_batching": true,
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "location": {
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.country"
+              },
+              "then": {
+                "@path": "$.traits.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.state"
+              },
+              "then": {
+                "@path": "$.traits.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.city"
+              },
+              "then": {
+                "@path": "$.traits.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "post_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          }
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "audience_update_mode": "add",
+        "batch_size": 500
+      },
+      "type": "automatic"
+    }
+  ]
+}

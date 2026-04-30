@@ -1,0 +1,525 @@
+{
+  "name": "Mantle (Actions)",
+  "description": "Track important revenue metrics for your Shopify apps. Manage plans and pricing. Improve customer relationships. Focus on growing your business.",
+  "basicOptions": ["appId", "apiKey"],
+  "options": {
+    "appId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The unique identifier for the app in Mantle. Get this from the API Keys section for your app in Mantle.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "App ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The appId property is required."]],
+      "uIMetadata": null
+    },
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The API key for the app in Mantle. Get this from the API Keys section for your app in Mantle.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Identify (create or update) a customer for your app in Mantle, including any additional information about the customer",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "platformId",
+          "type": "string",
+          "label": "Shopify Shop ID",
+          "description": "The unique identifier for the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "platformId": {
+                "title": "Shopify Shop ID",
+                "description": "The unique identifier for the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle",
+                "type": "string"
+              }
+            },
+            "required": ["platformId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "myshopifyDomain",
+          "type": "string",
+          "label": "Shopify Shop Domain",
+          "description": "The unique .myshopify.com domain of the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "myshopifyDomain": {
+                "title": "Shopify Shop Domain",
+                "description": "The unique .myshopify.com domain of the Shopify shop. This is used to associate the customer with a Shopify shop in Mantle",
+                "type": "string"
+              }
+            },
+            "required": ["myshopifyDomain"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The name of the customer / shop",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The name of the customer / shop",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The email of the customer",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The email of the customer",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "platformPlanName",
+          "type": "string",
+          "label": "Platform Plan Name",
+          "description": "The name of the plan the customer is on on the platform (Shopify)",
+          "defaultValue": {
+            "@path": "$.traits.platformPlanName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "platformPlanName": {
+                "title": "Platform Plan Name",
+                "description": "The name of the plan the customer is on on the platform (Shopify)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customFields",
+          "type": "object",
+          "label": "Custom Fields",
+          "description": "The custom fields of the customer / shop",
+          "defaultValue": {
+            "@path": "$.traits.custom_fields"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customFields": {
+                "title": "Custom Fields",
+                "description": "The custom fields of the customer / shop",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contactName",
+          "type": "string",
+          "label": "Contact Name",
+          "description": "The name of the contact / user",
+          "defaultValue": {
+            "@path": "$.traits.contact_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactName": {
+                "title": "Contact Name",
+                "description": "The name of the contact / user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contactEmail",
+          "type": "string",
+          "label": "Contact Email",
+          "description": "The email of the contact / user",
+          "defaultValue": {
+            "@path": "$.traits.contact_email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactEmail": {
+                "title": "Contact Email",
+                "description": "The email of the contact / user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contactPhone",
+          "type": "string",
+          "label": "Contact Phone",
+          "description": "The phone number of the contact / user",
+          "defaultValue": {
+            "@path": "$.traits.contact_phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactPhone": {
+                "title": "Contact Phone",
+                "description": "The phone number of the contact / user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contactRole",
+          "type": "string",
+          "label": "Contact Role",
+          "description": "The role of the contact / user. For example primary, secondary, user, etc",
+          "defaultValue": {
+            "@path": "$.traits.contact_role"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactRole": {
+                "title": "Contact Role",
+                "description": "The role of the contact / user. For example primary, secondary, user, etc",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "pushEvent",
+      "name": "Push Event",
+      "description": "Push event to your app in Mantle",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event you want to push to Mantle",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event you want to push to Mantle",
+                "type": "string"
+              }
+            },
+            "required": ["eventName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventId",
+          "type": "string",
+          "label": "Event ID",
+          "description": "The unique identifier for the event. This is used to deduplicate events in Mantle",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventId": {
+                "title": "Event ID",
+                "description": "The unique identifier for the event. This is used to deduplicate events in Mantle",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerId",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The unique identifier for the customer. This is used to associate the event with a customer in Mantle. It can be the internal customer ID, API token, Shopify shop ID, or Shopify shop domain",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerId": {
+                "title": "Customer ID",
+                "description": "The unique identifier for the customer. This is used to associate the event with a customer in Mantle. It can be the internal customer ID, API token, Shopify shop ID, or Shopify shop domain",
+                "type": "string"
+              }
+            },
+            "required": ["customerId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "The properties of the event. This is the extra data you want to attach to the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "The properties of the event. This is the extra data you want to attach to the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event timestamp",
+          "description": "The timestamp of the event, defaults to the current time",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event timestamp",
+                "description": "The timestamp of the event, defaults to the current time",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

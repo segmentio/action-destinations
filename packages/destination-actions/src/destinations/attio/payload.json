@@ -1,0 +1,793 @@
+{
+  "name": "Attio (Actions)",
+  "description": "The Attio destination allows you to assert Records in your Attio workspace based on Segment events",
+  "basicOptions": ["required_hidden_token"],
+  "options": {
+    "required_hidden_token": {
+      "label": "Required Hidden Token",
+      "type": "string",
+      "description": "This token is hidden because it is unused and destinations must have one setting.",
+      "default": "",
+      "private": true,
+      "hidden": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth-managed",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "assertRecord",
+      "name": "Assert Record",
+      "description": "Create or update a Record in Attio.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "object",
+          "type": "string",
+          "label": "Attio Object",
+          "description": "The type of Attio Object you'd like to create or update ('assert')",
+          "defaultValue": "person",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object": {
+                "title": "Attio Object",
+                "description": "The type of Attio Object you'd like to create or update ('assert')",
+                "type": "string"
+              }
+            },
+            "required": ["object"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "matching_attribute",
+          "type": "string",
+          "label": "Matching Attribute",
+          "description": "The Attribute (ID or slug) on the Attio Object above, that uniquely identifies a Record (and is marked as unique in Attio). Events containing the same value for this attribute will update the original Record, rather than creating a new one. For example, to create or update a Person you might use the Attio attribute `email_addresses` here.",
+          "defaultValue": "email_addresses",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "matching_attribute": {
+                "title": "Matching Attribute",
+                "description": "The Attribute (ID or slug) on the Attio Object above, that uniquely identifies a Record (and is marked as unique in Attio). Events containing the same value for this attribute will update the original Record, rather than creating a new one. For example, to create or update a Person you might use the Attio attribute `email_addresses` here.",
+                "type": "string"
+              }
+            },
+            "required": ["matching_attribute"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attributes",
+          "description": "Attributes to either set or update on the Attio Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs, for example: traits.name → name. The Matching Attribute must be included for assertion to work.",
+          "defaultValue": {},
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "attributes": {
+                "title": "Attributes",
+                "description": "Attributes to either set or update on the Attio Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs, for example: traits.name → name. The Matching Attribute must be included for assertion to work.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {},
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch events",
+          "description": "Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch events",
+                "description": "Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Max batch size to send to Attio (limit is 10,000)",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Max batch size to send to Attio (limit is 10,000)",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "received_at",
+          "type": "datetime",
+          "label": "Received at",
+          "description": "When the event was received.",
+          "defaultValue": {
+            "@path": "$.receivedAt"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "received_at": {
+                "title": "Received at",
+                "description": "When the event was received.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "groupWorkspace",
+      "name": "Group Workspace",
+      "description": "Create or update an Attio Workspace and link it to a Company based on a domain attribute.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "domain",
+          "type": "string",
+          "label": "Domain",
+          "description": "The domain of the Company (used to link the Workspace)",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.website"
+              },
+              "then": {
+                "@path": "$.traits.website"
+              },
+              "else": {
+                "@path": "$.website"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "domain": {
+                "title": "Domain",
+                "description": "The domain of the Company (used to link the Workspace)",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["domain"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "workspace_id",
+          "type": "string",
+          "label": "ID",
+          "description": "The ID of the Workspace",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.groupId"
+              },
+              "then": {
+                "@path": "$.groupId"
+              },
+              "else": {
+                "@path": "$.context.group_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "workspace_id": {
+                "title": "ID",
+                "description": "The ID of the Workspace",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["workspace_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "ID",
+          "description": "The ID of the User, if you'd like to link them to this Workspace (leave blank to skip). This assumes you will have already called the Attio identifyUser action: unrecognised Users will fail this action otherwise.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "ID",
+                "description": "The ID of the User, if you'd like to link them to this Workspace (leave blank to skip). This assumes you will have already called the Attio identifyUser action: unrecognised Users will fail this action otherwise.",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company_attributes",
+          "type": "object",
+          "label": "Additional Company attributes",
+          "description": "Additional attributes to either set or update on the Attio Company Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+          "defaultValue": {},
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company_attributes": {
+                "title": "Additional Company attributes",
+                "description": "Additional attributes to either set or update on the Attio Company Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "workspace_attributes",
+          "type": "object",
+          "label": "Additional Workspace attributes",
+          "description": "Additional attributes to either set or update on the Attio Workspace Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+          "defaultValue": {},
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "workspace_attributes": {
+                "title": "Additional Workspace attributes",
+                "description": "Additional attributes to either set or update on the Attio Workspace Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch events",
+          "description": "Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch events",
+                "description": "Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Max batch size to send to Attio (limit is 10,000)",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Max batch size to send to Attio (limit is 10,000)",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "received_at",
+          "type": "datetime",
+          "label": "Received at",
+          "description": "When the event was received.",
+          "defaultValue": {
+            "@path": "$.receivedAt"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "received_at": {
+                "title": "Received at",
+                "description": "When the event was received.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Create or update an Attio User and link it to a Person based on a shared email address.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "email_address",
+          "type": "string",
+          "label": "Email address",
+          "description": "The email address of the person to link the user to",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email_address": {
+                "title": "Email address",
+                "description": "The email address of the person to link the user to",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": ["email_address"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "ID",
+          "description": "The ID of the User",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "ID",
+                "description": "The ID of the User",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["user_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_attributes",
+          "type": "object",
+          "label": "Additional User attributes",
+          "description": "Additional attributes to either set or update on the Attio User Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+          "defaultValue": {},
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "user_attributes": {
+                "title": "Additional User attributes",
+                "description": "Additional attributes to either set or update on the Attio User Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {},
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "person_attributes",
+          "type": "object",
+          "label": "Additional Person attributes",
+          "description": "Additional attributes to either set or update on the Attio Person Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+          "defaultValue": {},
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_attributes": {
+                "title": "Additional Person attributes",
+                "description": "Additional attributes to either set or update on the Attio Person Record. The values on the left should be Segment attributes or custom text, and the values on the right are Attio Attribute IDs or Slugs. For example: traits.name → name",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch events",
+          "description": "Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch events",
+                "description": "Events will be sent Attio in batches. When batching is enabled any invalid events will be silently dropped.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Max batch size to send to Attio (limit is 10,000)",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Max batch size to send to Attio (limit is 10,000)",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "received_at",
+          "type": "datetime",
+          "label": "Received at",
+          "description": "When the event was received.",
+          "defaultValue": {
+            "@path": "$.receivedAt"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "received_at": {
+                "title": "Received at",
+                "description": "When the event was received.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "groupWorkspace",
+      "name": "Group Workspace",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "domain": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.website"
+            },
+            "then": {
+              "@path": "$.traits.website"
+            },
+            "else": {
+              "@path": "$.website"
+            }
+          }
+        },
+        "workspace_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.groupId"
+            },
+            "then": {
+              "@path": "$.groupId"
+            },
+            "else": {
+              "@path": "$.context.group_id"
+            }
+          }
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "company_attributes": {},
+        "workspace_attributes": {},
+        "enable_batching": false,
+        "batch_size": 1000,
+        "received_at": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email_address": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.email"
+            }
+          }
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "user_attributes": {},
+        "person_attributes": {},
+        "enable_batching": false,
+        "batch_size": 1000,
+        "received_at": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

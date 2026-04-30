@@ -1,0 +1,156 @@
+{
+  "name": "Twilio",
+  "basicOptions": ["accountId", "token", "phoneNumber"],
+  "options": {
+    "accountId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio Account Id",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Account Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The accountId property is required."]],
+      "uIMetadata": null
+    },
+    "token": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio Token.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The token property is required."]],
+      "uIMetadata": null
+    },
+    "phoneNumber": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Twilio Phone Number with Country Code.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Phone Number",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The phoneNumber property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendSMS",
+      "name": "Send SMS",
+      "description": "Sends an SMS message",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "To",
+          "type": "string",
+          "label": "To",
+          "description": "The Phone Number to send a SMS to",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "To": {
+                "title": "To",
+                "description": "The Phone Number to send a SMS to",
+                "type": "string"
+              }
+            },
+            "required": ["To"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "Body",
+          "type": "text",
+          "label": "Body",
+          "description": "The message body",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Body": {
+                "title": "Body",
+                "description": "The message body",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": ["Body"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "MediaUrl",
+          "type": "string",
+          "label": "Media URL",
+          "description": "The URL of the media to send with the message.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "MediaUrl": {
+                "title": "Media URL",
+                "description": "The URL of the media to send with the message.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,531 @@
+{
+  "name": "Acoustic Campaign (Actions)",
+  "basicOptions": [
+    "pod",
+    "region",
+    "tableName",
+    "tableListId",
+    "a_clientId",
+    "a_clientSecret",
+    "a_refreshToken",
+    "attributesMax",
+    "version"
+  ],
+  "options": {
+    "pod": {
+      "tags": ["authentication:test"],
+      "default": "2",
+      "description": "Pod Number for API Endpoint",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pod",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The pod property is required."]],
+      "uIMetadata": null
+    },
+    "region": {
+      "tags": ["authentication:test"],
+      "default": "US",
+      "description": "Region for API Endpoint, either US, EU, AP, or CA",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US",
+          "label": "US",
+          "text": "US"
+        },
+        {
+          "value": "EU",
+          "label": "EU",
+          "text": "EU"
+        },
+        {
+          "value": "AP",
+          "label": "AP",
+          "text": "AP"
+        },
+        {
+          "value": "CA",
+          "label": "CA",
+          "text": "CA"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The region property is required."]],
+      "uIMetadata": null
+    },
+    "tableName": {
+      "tags": ["authentication:test"],
+      "default": "Segment Events Table Name",
+      "description": "The Segment Table Name in Acoustic Campaign Data dialog.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Acoustic Segment Table Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The tableName property is required."]],
+      "uIMetadata": null
+    },
+    "tableListId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Acoustic Segment Table List Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The tableListId property is required."]],
+      "uIMetadata": null
+    },
+    "a_clientId": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Client Id from the App definition dialog in Acoustic Campaign",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Acoustic App Definition ClientId",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The a_clientId property is required."]],
+      "uIMetadata": null
+    },
+    "a_clientSecret": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Client Secret from the App definition dialog in Acoustic Campaign",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Acoustic App Definition ClientSecret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The a_clientSecret property is required."]],
+      "uIMetadata": null
+    },
+    "a_refreshToken": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The RefreshToken provided when defining access for the App in Acoustic Campaign",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Acoustic App Access Definition RefreshToken",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The a_refreshToken property is required."]],
+      "uIMetadata": null
+    },
+    "attributesMax": {
+      "tags": ["authentication:test"],
+      "default": 15,
+      "description": "A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Properties Max",
+      "private": true,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "version": {
+      "tags": ["authentication:test"],
+      "default": "Version 3.1   (nodeJS: v22.13.1)",
+      "description": "\nLast-Modified: 06.28.2023 16.15.37\n",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Version:",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "receiveEvents",
+      "name": "Receive Track and Identify Events",
+      "description": "Provide Segment Track and Identify Event Data to Acoustic Campaign",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "At a minimum Email is required, see mapping presets for more info.",
+          "defaultValue": {
+            "@path": "$.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "At a minimum Email is required, see mapping presets for more info.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": ["email"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The Event Type, will be either Track or Identify",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The Event Type, will be either Track or Identify",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The Timestamp of the Event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The Timestamp of the Event",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_value_pairs",
+          "type": "object",
+          "label": "Key-Value pairs",
+          "description": "Map simple Key-Value pairs of Event data here.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_value_pairs": {
+                "title": "Key-Value pairs",
+                "description": "Map simple Key-Value pairs of Event data here.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "array_data",
+          "type": "object",
+          "label": "Arrays",
+          "description": "Map Arrays of data into flattened data attributes here.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "array_data": {
+                "title": "Arrays",
+                "description": "Map Arrays of data into flattened data attributes here.",
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context",
+          "description": "All properties provided via a Context Section ",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context",
+                "description": "All properties provided via a Context Section ",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "All properties provided via a Properties Section",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "All properties provided via a Properties Section",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "All properties provided via a Traits Section",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "All properties provided via a Traits Section",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "receiveEvents",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "receiveEvents",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

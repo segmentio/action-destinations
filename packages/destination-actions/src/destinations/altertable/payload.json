@@ -1,0 +1,1654 @@
+{
+  "name": "Altertable",
+  "description": "Send events server-side to the [Altertable REST API](https://altertable.ai/docs/product-analytics/reference/api).",
+  "basicOptions": ["apiKey", "environment", "endpoint"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your Altertable API key",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "environment": {
+      "tags": ["authentication:test"],
+      "default": "production",
+      "description": "The environment to send events to",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The environment property is required."]],
+      "uIMetadata": null
+    },
+    "endpoint": {
+      "tags": ["authentication:test"],
+      "default": "https://api.altertable.ai",
+      "description": "The endpoint to send events to",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The endpoint property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "alias",
+      "name": "Alias",
+      "description": "Link a previous anonymous or temporary ID to a user ID in Altertable.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"alias\"",
+      "fields": [
+        {
+          "fieldKey": "previousId",
+          "type": "string",
+          "label": "Previous ID",
+          "description": "The previous user identifier (maps to distinct_id in the Altertable API).",
+          "defaultValue": {
+            "@path": "$.previousId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "previousId": {
+                "title": "Previous ID",
+                "description": "The previous user identifier (maps to distinct_id in the Altertable API).",
+                "type": "string"
+              }
+            },
+            "required": ["previousId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user",
+                "type": "string"
+              }
+            },
+            "required": ["userId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context",
+          "description": "The context properties to send with the event",
+          "defaultValue": {
+            "ip": {
+              "@path": "$.context.ip"
+            },
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            },
+            "os": {
+              "@path": "$.context.os.name"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            },
+            "screen_width": {
+              "@path": "$.context.screen.width"
+            },
+            "screen_height": {
+              "@path": "$.context.screen.height"
+            },
+            "library_name": {
+              "@path": "$.context.library.name"
+            },
+            "library_version": {
+              "@path": "$.context.library.version"
+            },
+            "device_id": {
+              "@path": "$.context.device.id"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context",
+                "description": "The context properties to send with the event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ip": {
+                    "title": "IP Address",
+                    "description": "The IP address of the user",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Page URL",
+                    "description": "The URL of the page",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The referrer URL",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "os": {
+                    "title": "Operating System",
+                    "description": "The name of the operating system",
+                    "type": "string"
+                  },
+                  "user_agent": {
+                    "title": "User Agent",
+                    "description": "The user agent string",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign / Name",
+                    "description": "The UTM campaign name",
+                    "type": "string"
+                  },
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "description": "The UTM source",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "description": "The UTM medium",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "description": "The UTM term",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "description": "The UTM content",
+                    "type": "string"
+                  },
+                  "screen_width": {
+                    "title": "Screen Width",
+                    "description": "The width of the screen",
+                    "type": "number"
+                  },
+                  "screen_height": {
+                    "title": "Screen Height",
+                    "description": "The height of the screen",
+                    "type": "number"
+                  },
+                  "library_name": {
+                    "title": "Library Name",
+                    "description": "The name of the library sending the event",
+                    "type": "string"
+                  },
+                  "library_version": {
+                    "title": "Library Version",
+                    "description": "The version of the library sending the event",
+                    "type": "string"
+                  },
+                  "device_id": {
+                    "title": "Device ID",
+                    "description": "The device ID of the user",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "channel",
+          "type": "string",
+          "label": "Channel",
+          "description": "Segment channel (e.g. client, server). When set to \"server\" and no IP is present, $ip is set to 0 so the backend does not use the request IP.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channel": {
+                "title": "Channel",
+                "description": "Segment channel (e.g. client, server). When set to \"server\" and no IP is present, $ip is set to 0 so the backend does not use the request IP.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, events are sent in batches to Altertable.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, events are sent in batches to Altertable.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events per batch request.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events per batch request.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "Maximum batch payload size in bytes.",
+          "defaultValue": 4000000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "Maximum batch payload size in bytes.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Identify a user in Altertable.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "The traits of the user",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "The traits of the user",
+                "type": "object"
+              }
+            },
+            "required": ["traits"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user",
+                "type": "string"
+              }
+            },
+            "required": ["userId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context",
+          "description": "The context properties to send with the event",
+          "defaultValue": {
+            "ip": {
+              "@path": "$.context.ip"
+            },
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            },
+            "os": {
+              "@path": "$.context.os.name"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            },
+            "screen_width": {
+              "@path": "$.context.screen.width"
+            },
+            "screen_height": {
+              "@path": "$.context.screen.height"
+            },
+            "library_name": {
+              "@path": "$.context.library.name"
+            },
+            "library_version": {
+              "@path": "$.context.library.version"
+            },
+            "device_id": {
+              "@path": "$.context.device.id"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context",
+                "description": "The context properties to send with the event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ip": {
+                    "title": "IP Address",
+                    "description": "The IP address of the user",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Page URL",
+                    "description": "The URL of the page",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The referrer URL",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "os": {
+                    "title": "Operating System",
+                    "description": "The name of the operating system",
+                    "type": "string"
+                  },
+                  "user_agent": {
+                    "title": "User Agent",
+                    "description": "The user agent string",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign / Name",
+                    "description": "The UTM campaign name",
+                    "type": "string"
+                  },
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "description": "The UTM source",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "description": "The UTM medium",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "description": "The UTM term",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "description": "The UTM content",
+                    "type": "string"
+                  },
+                  "screen_width": {
+                    "title": "Screen Width",
+                    "description": "The width of the screen",
+                    "type": "number"
+                  },
+                  "screen_height": {
+                    "title": "Screen Height",
+                    "description": "The height of the screen",
+                    "type": "number"
+                  },
+                  "library_name": {
+                    "title": "Library Name",
+                    "description": "The name of the library sending the event",
+                    "type": "string"
+                  },
+                  "library_version": {
+                    "title": "Library Version",
+                    "description": "The version of the library sending the event",
+                    "type": "string"
+                  },
+                  "device_id": {
+                    "title": "Device ID",
+                    "description": "The device ID of the user",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "channel",
+          "type": "string",
+          "label": "Channel",
+          "description": "Segment channel (e.g. client, server). When set to \"server\" and no IP is present, $ip is set to 0 so the backend does not use the request IP.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channel": {
+                "title": "Channel",
+                "description": "Segment channel (e.g. client, server). When set to \"server\" and no IP is present, $ip is set to 0 so the backend does not use the request IP.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, events are sent in batches to Altertable.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, events are sent in batches to Altertable.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events per batch request.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events per batch request.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "Maximum batch payload size in bytes.",
+          "defaultValue": 4000000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "Maximum batch payload size in bytes.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "event",
+      "name": "Track Event",
+      "description": "Track a single event in Altertable.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to track.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the event to track.",
+                "type": "string"
+              }
+            },
+            "required": ["event"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "The properties of the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "The properties of the event",
+                "type": "object"
+              }
+            },
+            "required": ["properties"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user",
+                "type": "string"
+              }
+            },
+            "required": ["userId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context",
+          "description": "The context properties to send with the event",
+          "defaultValue": {
+            "ip": {
+              "@path": "$.context.ip"
+            },
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            },
+            "os": {
+              "@path": "$.context.os.name"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            },
+            "screen_width": {
+              "@path": "$.context.screen.width"
+            },
+            "screen_height": {
+              "@path": "$.context.screen.height"
+            },
+            "library_name": {
+              "@path": "$.context.library.name"
+            },
+            "library_version": {
+              "@path": "$.context.library.version"
+            },
+            "device_id": {
+              "@path": "$.context.device.id"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context",
+                "description": "The context properties to send with the event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ip": {
+                    "title": "IP Address",
+                    "description": "The IP address of the user",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Page URL",
+                    "description": "The URL of the page",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The referrer URL",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "os": {
+                    "title": "Operating System",
+                    "description": "The name of the operating system",
+                    "type": "string"
+                  },
+                  "user_agent": {
+                    "title": "User Agent",
+                    "description": "The user agent string",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign / Name",
+                    "description": "The UTM campaign name",
+                    "type": "string"
+                  },
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "description": "The UTM source",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "description": "The UTM medium",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "description": "The UTM term",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "description": "The UTM content",
+                    "type": "string"
+                  },
+                  "screen_width": {
+                    "title": "Screen Width",
+                    "description": "The width of the screen",
+                    "type": "number"
+                  },
+                  "screen_height": {
+                    "title": "Screen Height",
+                    "description": "The height of the screen",
+                    "type": "number"
+                  },
+                  "library_name": {
+                    "title": "Library Name",
+                    "description": "The name of the library sending the event",
+                    "type": "string"
+                  },
+                  "library_version": {
+                    "title": "Library Version",
+                    "description": "The version of the library sending the event",
+                    "type": "string"
+                  },
+                  "device_id": {
+                    "title": "Device ID",
+                    "description": "The device ID of the user",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "channel",
+          "type": "string",
+          "label": "Channel",
+          "description": "Segment channel (e.g. client, server). When set to \"server\" and no IP is present, $ip is set to 0 so the backend does not use the request IP.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channel": {
+                "title": "Channel",
+                "description": "Segment channel (e.g. client, server). When set to \"server\" and no IP is present, $ip is set to 0 so the backend does not use the request IP.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled, events are sent in batches to Altertable.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled, events are sent in batches to Altertable.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events per batch request.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events per batch request.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "Maximum batch payload size in bytes.",
+          "defaultValue": 4000000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "Maximum batch payload size in bytes.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "alias",
+      "name": "Alias",
+      "subscribe": "type = \"alias\"",
+      "mapping": {
+        "previousId": {
+          "@path": "$.previousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "context": {
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "url": {
+            "@path": "$.context.page.url"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "library_name": {
+            "@path": "$.context.library.name"
+          },
+          "library_version": {
+            "@path": "$.context.library.version"
+          },
+          "device_id": {
+            "@path": "$.context.device.id"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_bytes": 4000000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identify",
+      "name": "Identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "traits": {
+          "@path": "$.traits"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "context": {
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "url": {
+            "@path": "$.context.page.url"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "library_name": {
+            "@path": "$.context.library.name"
+          },
+          "library_version": {
+            "@path": "$.context.library.version"
+          },
+          "device_id": {
+            "@path": "$.context.device.id"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_bytes": 4000000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "event",
+      "name": "Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event": "$pageview",
+        "properties": {
+          "@path": "$.properties"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "context": {
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "url": {
+            "@path": "$.context.page.url"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "library_name": {
+            "@path": "$.context.library.name"
+          },
+          "library_version": {
+            "@path": "$.context.library.version"
+          },
+          "device_id": {
+            "@path": "$.context.device.id"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_bytes": 4000000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "event",
+      "name": "Screen View",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "event": "$screen",
+        "properties": {
+          "@path": "$.properties"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "context": {
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "url": {
+            "@path": "$.context.page.url"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "library_name": {
+            "@path": "$.context.library.name"
+          },
+          "library_version": {
+            "@path": "$.context.library.version"
+          },
+          "device_id": {
+            "@path": "$.context.device.id"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_bytes": 4000000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "event",
+      "name": "Track",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "context": {
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "url": {
+            "@path": "$.context.page.url"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "library_name": {
+            "@path": "$.context.library.name"
+          },
+          "library_version": {
+            "@path": "$.context.library.version"
+          },
+          "device_id": {
+            "@path": "$.context.device.id"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_bytes": 4000000
+      },
+      "type": "automatic"
+    }
+  ]
+}

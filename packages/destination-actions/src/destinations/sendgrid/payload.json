@@ -1,0 +1,1302 @@
+{
+  "name": "SendGrid",
+  "description": "Trigger emails from SendGrid and sync Contacts to SendGrid Markeitng Campaigns.",
+  "basicOptions": ["sendGridApiKey", "endpoint"],
+  "options": {
+    "sendGridApiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Api key for your SendGrid account.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The sendGridApiKey property is required."]],
+      "uIMetadata": null
+    },
+    "endpoint": {
+      "tags": ["authentication:test"],
+      "default": "https://api.sendgrid.com",
+      "description": "The regional processing endpoint for your SendGrid account. [See more details](https://www.twilio.com/en-us/blog/send-emails-in-eu?_gl=1*7hyri9*_gcl_au*MTg0MTQwMjAzNi4xNzQzMDAyNzc4*_ga*MTk4OTI2MDk1LjE3NDMwMDI3Nzg.*_ga_8W5LR442LD*MTc0MzY3NTc2NC41LjAuMTc0MzY3NTc2NC4wLjAuMA..)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Regional Processing Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://api.sendgrid.com",
+          "label": "Global (https://api.sendgrid.com)",
+          "text": "Global (https://api.sendgrid.com)"
+        },
+        {
+          "value": "https://api.eu.sendgrid.com",
+          "label": "EU (https://api.eu.sendgrid.com)",
+          "text": "EU (https://api.eu.sendgrid.com)"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEmail",
+      "name": "Send Email with Dynamic Template",
+      "description": "Send email to recipient(s) using a Dynamic Template in Sendgrid",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "domain",
+          "type": "string",
+          "label": "Validated Domain",
+          "description": "The domain to use for the email. This field is optional but recommended. If you do not provide a domain, Sendgrid will attempt to send the email based on the from address, and may fail if the domain in the from address is not validated.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "domain": {
+                "title": "Validated Domain",
+                "description": "The domain to use for the email. This field is optional but recommended. If you do not provide a domain, Sendgrid will attempt to send the email based on the from address, and may fail if the domain in the from address is not validated.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        },
+        {
+          "fieldKey": "from",
+          "type": "object",
+          "label": "From",
+          "description": "From details.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "description": "From details.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the sender.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "From name of the sender, displayed to the recipient.",
+                    "type": "string"
+                  }
+                },
+                "required": ["email"]
+              }
+            },
+            "required": ["from"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "to",
+          "type": "object",
+          "label": "To",
+          "description": "Recipient details.",
+          "defaultValue": {
+            "email": {
+              "@path": "$.properties.email"
+            },
+            "name": {
+              "@path": "$.properties.name"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "to": {
+                "title": "To",
+                "description": "Recipient details.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the recipient.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the recipient.",
+                    "type": "string"
+                  }
+                },
+                "required": ["email"]
+              }
+            },
+            "required": ["to"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cc",
+          "type": "object",
+          "label": "CC",
+          "description": "CC recipient details",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cc": {
+                "title": "CC",
+                "description": "CC recipient details",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "title": "Email",
+                      "description": "The email address of the CC recipient.",
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "description": "The name of the CC recipient.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bcc",
+          "type": "object",
+          "label": "BCC",
+          "description": "BCC recipient details",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bcc": {
+                "title": "BCC",
+                "description": "BCC recipient details",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "email": {
+                      "title": "Email",
+                      "description": "The email address of the BCC recipient.",
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "description": "The name of the BCC recipient.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Headers",
+          "description": "Headers for the email.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "headers": {
+                "title": "Headers",
+                "description": "Headers for the email.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dynamic_template_data",
+          "type": "object",
+          "label": "Dynamic Template Data",
+          "description": "A collection of property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "dynamic_template_data": {
+                "title": "Dynamic Template Data",
+                "description": "A collection of property names that will be substituted by their corresponding property values in the subject, reply-to and content portions of a SendGrid Dynamic Template.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": ["__keys__"]
+          }
+        },
+        {
+          "fieldKey": "template_id",
+          "type": "string",
+          "label": "Dynamic Template",
+          "description": "The Dynamic Template to use for the email.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "template_id": {
+                "title": "Dynamic Template",
+                "description": "The Dynamic Template to use for the email.",
+                "type": "string"
+              }
+            },
+            "required": ["template_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        },
+        {
+          "fieldKey": "custom_args",
+          "type": "object",
+          "label": "Custom Args",
+          "description": "Custom arguments for the email.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "custom_args": {
+                "title": "Custom Args",
+                "description": "Custom arguments for the email.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_at",
+          "type": "string",
+          "label": "Send At",
+          "description": "The time to send the email. ISO 8601 format. E.g. 2024-09-23T12:00:00Z. A send cannot be scheduled more than 72 hours in advance.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_at": {
+                "title": "Send At",
+                "description": "The time to send the email. ISO 8601 format. E.g. 2024-09-23T12:00:00Z. A send cannot be scheduled more than 72 hours in advance.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "reply_to",
+          "type": "object",
+          "label": "Reply To",
+          "description": "Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "reply_to": {
+                "title": "Reply To",
+                "description": "Reply to details. If left empty 'Reply To' settings will be taken from the 'From' field values.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "title": "Email",
+                    "description": "The email to reply to.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The name to reply to.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "categories",
+          "type": "string",
+          "label": "Categories",
+          "description": "Categories for the email. Accepts a single string or array of strings.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "categories": {
+                "title": "Categories",
+                "description": "Categories for the email. Accepts a single string or array of strings.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_pool_name",
+          "type": "string",
+          "label": "IP Pool",
+          "description": "Send email with an ip pool.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_pool_name": {
+                "title": "IP Pool",
+                "description": "Send email with an ip pool.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "Specify a Group ID",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "Specify a Group ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "updateUserProfile",
+      "name": "Upsert Contact",
+      "description": "Add or update a Contact in SendGrid.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to SendGrid Contacts PUT API",
+          "description": "When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 30k records in a request.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to SendGrid Contacts PUT API",
+                "description": "When enabled, the action will use the SendGrid Contacts PUT API to perform the batch operation. Batches can contain up to 30k records in a request.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "The contact's first name.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "The contact's first name.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The contact's last name.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "The contact's last name.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The contact's country.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.country"
+              },
+              "then": {
+                "@path": "$.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The contact's country.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "postal_code",
+          "type": "string",
+          "label": "Postal Code",
+          "description": "The contact's postal code.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.properties.address.postal_code"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "postal_code": {
+                "title": "Postal Code",
+                "description": "The contact's postal code.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "The contact's city.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.city"
+              },
+              "then": {
+                "@path": "$.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "The contact's city.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "The contact's state.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.state"
+              },
+              "then": {
+                "@path": "$.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "The contact's state.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address_line_1",
+          "type": "string",
+          "label": "Address Line 1",
+          "description": "The contact's address line 1.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.line1"
+              },
+              "then": {
+                "@path": "$.traits.address.line1"
+              },
+              "else": {
+                "@path": "$.properties.address.line1"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address_line_1": {
+                "title": "Address Line 1",
+                "description": "The contact's address line 1.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address_line_2",
+          "type": "string",
+          "label": "Address Line 2",
+          "description": "The contact's address line 2.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.line2"
+              },
+              "then": {
+                "@path": "$.traits.address.line2"
+              },
+              "else": {
+                "@path": "$.properties.address.line2"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address_line_2": {
+                "title": "Address Line 2",
+                "description": "The contact's address line 2.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone_number",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone_number": {
+                "title": "Phone Number",
+                "description": "The contact's phone number. Note: This is different from the Phone Number ID field, but the same value can be stored in both fields.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "whatsapp",
+          "type": "string",
+          "label": "WhatsApp",
+          "description": "The contact's WhatsApp.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.whatsapp"
+              },
+              "then": {
+                "@path": "$.traits.whatsapp"
+              },
+              "else": {
+                "@path": "$.properties.whatsapp"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "whatsapp": {
+                "title": "WhatsApp",
+                "description": "The contact's WhatsApp.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "line",
+          "type": "string",
+          "label": "Line",
+          "description": "The contact's landline.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.line"
+              },
+              "then": {
+                "@path": "$.traits.line"
+              },
+              "else": {
+                "@path": "$.properties.line"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "line": {
+                "title": "Line",
+                "description": "The contact's landline.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "facebook",
+          "type": "string",
+          "label": "Facebook",
+          "description": "The contact's Facebook identifier.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.facebook"
+              },
+              "then": {
+                "@path": "$.traits.facebook"
+              },
+              "else": {
+                "@path": "$.properties.facebook"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "facebook": {
+                "title": "Facebook",
+                "description": "The contact's Facebook identifier.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unique_name",
+          "type": "string",
+          "label": "Unique Name",
+          "description": "The contact's unique name.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.unique_name"
+              },
+              "then": {
+                "@path": "$.traits.unique_name"
+              },
+              "else": {
+                "@path": "$.properties.unique_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unique_name": {
+                "title": "Unique Name",
+                "description": "The contact's unique name.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "primary_email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The contact's email address.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "primary_email": {
+                "title": "Email Address",
+                "description": "The contact's email address.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone_number_id",
+          "type": "string",
+          "label": "Phone Number ID",
+          "description": "Primary Phone Number used to identify a Contact. This must be a valid phone number.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone_number_id": {
+                "title": "Phone Number ID",
+                "description": "Primary Phone Number used to identify a Contact. This must be a valid phone number.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The contact's External ID.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.external_id"
+              },
+              "then": {
+                "@path": "$.traits.external_id"
+              },
+              "else": {
+                "@path": "$.properties.external_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The contact's External ID.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID ",
+          "description": "The contact's Anonymous ID.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID ",
+                "description": "The contact's Anonymous ID.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customFields",
+          "type": "object",
+          "label": "Other Fields",
+          "description": "\n  Additional fields to send to SendGrid. On the left-hand side, input the SendGrid Custom Fields Id. On the right-hand side, map the Segment field that contains the value.\n\n  Custom Fields must be predefined in your SendGrid account and you can retrieve corresponding Id using get all field definitions endpoint.\n\n  Reference: [Get All field definitions](https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions)\n  ---\n\n  ",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customFields": {
+                "title": "Other Fields",
+                "description": "\n  Additional fields to send to SendGrid. On the left-hand side, input the SendGrid Custom Fields Id. On the right-hand side, map the Segment field that contains the value.\n\n  Custom Fields must be predefined in your SendGrid account and you can retrieve corresponding Id using get all field definitions endpoint.\n\n  Reference: [Get All field definitions](https://docs.sendgrid.com/api-reference/custom-fields/get-all-field-definitions)\n  ---\n\n  ",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

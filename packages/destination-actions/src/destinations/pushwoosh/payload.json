@@ -1,0 +1,853 @@
+{
+  "name": "Pushwoosh",
+  "description": "Pushwoosh(https://www.pushwoosh.com) provides a customer engagement platform for mobile apps and websites and brings together all essential communication tools within one platform.Through the integration with Segment, Pushwoosh can leverage the comprehensive customer data collected, ensuring highly personalized and effective communication strategies.",
+  "basicOptions": ["pushwooshAPIKey", "pushwooshAppCode"],
+  "options": {
+    "pushwooshAPIKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Pushwoosh API Key from Pushwoosh Control Panel",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Pushwoosh API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The pushwooshAPIKey property is required."]],
+      "uIMetadata": null
+    },
+    "pushwooshAppCode": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Pushwoosh Application Code from Pushwoosh Control Panel",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pushwoosh Application Code",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The pushwooshAppCode property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "updateUserProfile",
+      "name": "Create or Update User Profiles",
+      "description": "Create or Update a user's profile attributes in Pushwoosh.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External User ID",
+          "description": "The unique user identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External User ID",
+                "description": "The unique user identifier",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_version",
+          "type": "string",
+          "label": "App Version",
+          "description": "Version of the app",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_version": {
+                "title": "App Version",
+                "description": "Version of the app",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "Device ID",
+          "defaultValue": {
+            "@path": "$.context.device.id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "Device ID",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_model",
+          "type": "string",
+          "label": "Device Model",
+          "description": "Device Model",
+          "defaultValue": {
+            "@path": "$.context.device.model"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_model": {
+                "title": "Device Model",
+                "description": "Device Model",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_platform",
+          "type": "string",
+          "label": "Device Platform",
+          "description": "Device Platform",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_platform": {
+                "title": "Device Platform",
+                "description": "Device Platform",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_token",
+          "type": "string",
+          "label": "Device Token",
+          "description": "Device Token. This is not automatically collected by Segment Mobile SDKs. Add it into the Segment payload if needed",
+          "defaultValue": {
+            "@path": "$.context.device.token"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_token": {
+                "title": "Device Token",
+                "description": "Device Token. This is not automatically collected by Segment Mobile SDKs. Add it into the Segment payload if needed",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "Language",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "Language",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The country code of the user",
+          "defaultValue": {
+            "@path": "$.context.location.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The country code of the user",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "The city of the user",
+          "defaultValue": {
+            "@path": "$.context.location.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "The city of the user",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "current_location",
+          "type": "object",
+          "label": "Current Location",
+          "description": "The user's current longitude/latitude.",
+          "defaultValue": {
+            "latitude": {
+              "@path": "$.context.location.latitude"
+            },
+            "longitude": {
+              "@path": "$.context.location.longitude"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "current_location": {
+                "title": "Current Location",
+                "description": "The user's current longitude/latitude.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "latitude": {
+                    "title": "Latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_os_version",
+          "type": "string",
+          "label": "Device OS Version",
+          "description": "The version of the device OS",
+          "defaultValue": {
+            "@path": "$.context.os.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_os_version": {
+                "title": "Device OS Version",
+                "description": "The version of the device OS",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The timezone of the user",
+          "defaultValue": {
+            "@path": "$.context.timezone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The timezone of the user",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent of the device",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent of the device",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_attributes",
+          "type": "object",
+          "label": "Custom Attributes",
+          "description": "Custom attributes to send to Pushwoosh",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_attributes": {
+                "title": "Custom Attributes",
+                "description": "Custom attributes to send to Pushwoosh",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Record custom events in Pushwoosh",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External User ID",
+          "description": "The unique user identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External User ID",
+                "description": "The unique user identifier",
+                "type": "string"
+              }
+            },
+            "required": ["external_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "Device ID",
+          "defaultValue": {
+            "@path": "$.context.device.id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "Device ID",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_platform",
+          "type": "string",
+          "label": "Device Platform",
+          "description": "Device Platform",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_platform": {
+                "title": "Device Platform",
+                "description": "Device Platform",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "Event Name",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "Event Name",
+                "type": "string"
+              }
+            },
+            "required": ["name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "When the event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "When the event occurred.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Properties of the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Properties of the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Pushwoosh",
+          "description": "If true, Segment will batch events before sending to Pushwoosh. 100 events per request max.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Pushwoosh",
+                "description": "If true, Segment will batch events before sending to Pushwoosh. 100 events per request max.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "updateUserProfile",
+      "name": "Create or Update User Profile",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_platform": {
+          "@path": "$.context.device.type"
+        },
+        "device_token": {
+          "@path": "$.context.device.token"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "city": {
+          "@path": "$.context.location.city"
+        },
+        "current_location": {
+          "latitude": {
+            "@path": "$.context.location.latitude"
+          },
+          "longitude": {
+            "@path": "$.context.location.longitude"
+          }
+        },
+        "device_os_version": {
+          "@path": "$.context.os.version"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "custom_attributes": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Events",
+      "subscribe": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "mapping": {
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_platform": {
+          "@path": "$.context.device.type"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "enable_batching": false
+      },
+      "type": "automatic"
+    }
+  ]
+}

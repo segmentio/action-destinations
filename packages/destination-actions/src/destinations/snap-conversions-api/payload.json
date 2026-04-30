@@ -1,0 +1,5529 @@
+{
+  "name": "Snap Conversions Api",
+  "basicOptions": ["pixel_id", "snap_app_id", "app_id"],
+  "options": {
+    "pixel_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Pixel ID for your Snapchat Ad Account. **Required for web and offline events**.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pixel ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "snap_app_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The Snap App ID associated with your app. This is a unique code generated in Snapchat Ads Manager and included in your MMP dashboard. **Required for app events**.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Snap App ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "app_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The unique ID assigned for a given application. It should be numeric for iOS, and the human interpretable string for Android. **Required for app events**.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "App ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "reportConversionEvent",
+      "name": "Report Conversion Event",
+      "description": "Report events directly to Snapchat. Data shared can power Snap solutions such as custom audience targeting, campaign optimization, Dynamic Ads, and more.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The conversion event type. For custom events, you must use one of the predefined event types (i.e. CUSTOM_EVENT_1). Please refer to the possible event types in [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same event_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "If you are reporting events via more than one method (Snap Pixel, App Ads Kit, Conversions API) you should use the same event_id across all methods. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Adds Kit events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_time",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 7 days in the past.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_time": {
+                "title": "Event Timestamp",
+                "description": "The Epoch timestamp for when the conversion happened. The timestamp cannot be more than 7 days in the past.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action_source",
+          "type": "string",
+          "label": "Action Source",
+          "description": "This field allows you to specify where your conversions occurred.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "EMAIL",
+              "value": "email"
+            },
+            {
+              "label": "WEBSITE",
+              "value": "website"
+            },
+            {
+              "label": "APP",
+              "value": "app"
+            },
+            {
+              "label": "PHONE CALL",
+              "value": "phone_call"
+            },
+            {
+              "label": "CHAT",
+              "value": "chat"
+            },
+            {
+              "label": "PHYSICAL STORE",
+              "value": "physical_store"
+            },
+            {
+              "label": "SYSTEM GENERATED",
+              "value": "system_generated"
+            },
+            {
+              "label": "OTHER",
+              "value": "other"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action_source": {
+                "title": "Action Source",
+                "description": "This field allows you to specify where your conversions occurred.",
+                "type": "string",
+                "enum": ["email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", "other"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_data",
+          "type": "object",
+          "label": "User Data",
+          "description": "These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.",
+          "defaultValue": {
+            "externalId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.userId"
+                },
+                "then": {
+                  "@path": "$.userId"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.phone"
+                },
+                "then": {
+                  "@path": "$.properties.phone"
+                },
+                "else": {
+                  "@path": "$.traits.phone"
+                }
+              }
+            },
+            "gender": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.gender"
+                },
+                "then": {
+                  "@path": "$.context.traits.gender"
+                },
+                "else": {
+                  "@path": "$.properties.gender"
+                }
+              }
+            },
+            "dateOfBirth": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.birthday"
+                },
+                "then": {
+                  "@path": "$.context.traits.birthday"
+                },
+                "else": {
+                  "@path": "$.properties.birthday"
+                }
+              }
+            },
+            "lastName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.context.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "firstName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.context.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.properties.address.city"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.properties.address.state"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.properties.address.country"
+                }
+              }
+            },
+            "zip": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.postalCode"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.postalCode"
+                },
+                "else": {
+                  "@path": "$.properties.address.postalCode"
+                }
+              }
+            },
+            "client_ip_address": {
+              "@path": "$.context.ip"
+            },
+            "client_user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "idfv": {
+              "@path": "$.context.device.id"
+            },
+            "madid": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "sc_click_id": {
+              "@path": "$.integrations.Snap Conversions Api.click_id"
+            },
+            "sc_cookie1": {
+              "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_data": {
+                "title": "User Data",
+                "description": "These parameters are a set of identifiers Snapchat can use for targeted attribution. You must provide at least one of the following parameters in your request.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "externalId": {
+                    "title": "External ID",
+                    "description": "Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "An email address in lowercase.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone",
+                    "description": "A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.",
+                    "type": "string"
+                  },
+                  "gender": {
+                    "title": "Gender",
+                    "description": "Gender in lowercase. Either f or m.",
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "title": "Date of Birth",
+                    "description": "A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.",
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "title": "Last Name",
+                    "description": "A last name in lowercase.",
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "title": "First Name",
+                    "description": "A first name in lowercase.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "A city in lowercase without spaces or punctuation. Example: menlopark.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "A two-letter state code in lowercase. Example: ca.",
+                    "type": "string"
+                  },
+                  "zip": {
+                    "title": "Zip Code",
+                    "description": "A five-digit zip code for United States. For other locations, follow each country`s standards.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "A two-letter country code in lowercase.",
+                    "type": "string"
+                  },
+                  "client_ip_address": {
+                    "title": "Client IP Address",
+                    "description": "The IP address of the browser corresponding to the event.",
+                    "type": "string"
+                  },
+                  "client_user_agent": {
+                    "title": "Client User Agent",
+                    "description": "The user agent for the browser corresponding to the event. This is required if action source is “website”.",
+                    "type": "string"
+                  },
+                  "subscriptionID": {
+                    "title": "Subscription ID",
+                    "description": "The subscription ID for the user in this transaction.",
+                    "type": "string"
+                  },
+                  "leadID": {
+                    "title": "Lead ID",
+                    "description": "This is the identifier associated with your Snapchat Lead Ad.",
+                    "type": "integer"
+                  },
+                  "madid": {
+                    "title": "Mobile Ad Identifier",
+                    "description": "Mobile ad identifier (IDFA or AAID) of the user who triggered the conversion event. Segment will normalize and hash this value before sending to Snapchat. [Snapchat requires](https://marketingapi.snapchat.com/docs/conversion.html#conversion-parameters) that every payload contain values for Email or Phone Number or Mobile Ad Identifier or both IP Address and User Agent fields. Also see [Segment documentation](https://segment.com/docs/connections/destinations/catalog/actions-snap-conversions/#required-parameters-and-hashing).",
+                    "type": "string"
+                  },
+                  "sc_click_id": {
+                    "title": "Click ID",
+                    "description": "The ID value stored in the landing page URL's `&ScCid=` query parameter. Using this ID improves ad measurement performance. We also encourage advertisers who are using `click_id` to pass the full url in the `page_url` field. For more details, please refer to [Sending a Click ID](#sending-a-click-id)",
+                    "type": "string"
+                  },
+                  "sc_cookie1": {
+                    "title": "uuid_c1 Cookie",
+                    "description": "Unique user ID cookie. If you are using the Pixel SDK, you can access a cookie1 by looking at the _scid value.",
+                    "type": "string"
+                  },
+                  "idfv": {
+                    "title": "Identifier for Vendor",
+                    "description": "IDFV of the user’s device. Segment will normalize and hash this value before sending to Snapchat.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_data",
+          "type": "object",
+          "label": "App Data",
+          "description": "These fields support sending app events to Snapchat through the Conversions API.",
+          "defaultValue": {
+            "application_tracking_enabled": {
+              "@path": "$.context.device.adTrackingEnabled"
+            },
+            "packageName": {
+              "@path": "$.context.app.namespace"
+            },
+            "longVersion": {
+              "@path": "$.context.app.version"
+            },
+            "osVersion": {
+              "@path": "$.context.os.version"
+            },
+            "deviceName": {
+              "@path": "$.context.device.model"
+            },
+            "locale": {
+              "@path": "$.context.locale"
+            },
+            "carrier": {
+              "@path": "$.context.network.carrier"
+            },
+            "width": {
+              "@path": "$.context.screen.width"
+            },
+            "height": {
+              "@path": "$.context.screen.height"
+            },
+            "density": {
+              "@path": "$.context.screen.density"
+            },
+            "deviceTimezone": {
+              "@path": "$.context.timezone"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_data": {
+                "title": "App Data",
+                "description": "These fields support sending app events to Snapchat through the Conversions API.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "advertiser_tracking_enabled": {
+                    "title": "Advertiser Tracking Enabled",
+                    "description": "*Required for app events*\n              Use this field to specify ATT permission on an iOS 14.5+ device. Set to 0 for disabled or 1 for enabled.",
+                    "type": "boolean"
+                  },
+                  "application_tracking_enabled": {
+                    "title": "Application Tracking Enabled",
+                    "description": "*Required for app events*\n              A person can choose to enable ad tracking on an app level. Your SDK should allow an app developer to put an opt-out setting into their app. Use this field to specify the person's choice. Use 0 for disabled, 1 for enabled.",
+                    "type": "boolean"
+                  },
+                  "version": {
+                    "title": "ExtInfo Version",
+                    "description": "*Required for app events* Example: 'i2'.",
+                    "type": "string",
+                    "enum": ["i2", "a2"]
+                  },
+                  "packageName": {
+                    "title": "Package Name",
+                    "description": "Example: 'com.snapchat.sdk.samples.hello'.",
+                    "type": "string"
+                  },
+                  "shortVersion": {
+                    "title": "Short Version",
+                    "description": "Example: '1.0'.",
+                    "type": "string"
+                  },
+                  "longVersion": {
+                    "title": "Long Version",
+                    "description": "Example: '1.0 long'.",
+                    "type": "string"
+                  },
+                  "osVersion": {
+                    "title": "*Required for app events* OS Version",
+                    "description": "Example: '13.4.1'.",
+                    "type": "string"
+                  },
+                  "deviceName": {
+                    "title": "Device Model Name",
+                    "description": "Example: 'iPhone5,1'.",
+                    "type": "string"
+                  },
+                  "locale": {
+                    "title": "Locale",
+                    "description": "Example: 'En_US'.",
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "title": "Timezone Abbreviation",
+                    "description": "Example: 'PST'.",
+                    "type": "string"
+                  },
+                  "carrier": {
+                    "title": "Carrier Name",
+                    "description": "Example: 'AT&T'.",
+                    "type": "string"
+                  },
+                  "width": {
+                    "title": "Screen Width",
+                    "description": "Example: '1080'.",
+                    "type": "string"
+                  },
+                  "height": {
+                    "title": "Screen Height",
+                    "description": "Example: '1920'.",
+                    "type": "string"
+                  },
+                  "density": {
+                    "title": "Screen Density",
+                    "description": "Example: '2.0'.",
+                    "type": "string"
+                  },
+                  "cpuCores": {
+                    "title": "CPU Cores",
+                    "description": "Example: '8'.",
+                    "type": "string"
+                  },
+                  "storageSize": {
+                    "title": "Storage Size in GBs",
+                    "description": "Example: '64'.",
+                    "type": "string"
+                  },
+                  "freeStorage": {
+                    "title": "Free Storage in GBs",
+                    "description": "Example: '32'.",
+                    "type": "string"
+                  },
+                  "deviceTimezone": {
+                    "title": "Device Timezone",
+                    "description": "Example: 'USA/New York'.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_data",
+          "type": "object",
+          "label": "Custom Data",
+          "description": "The custom data object can be used to pass custom properties.",
+          "defaultValue": {
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "num_items": {
+              "@path": "$.properties.quantity"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "search_string": {
+              "@path": "$.properties.query"
+            },
+            "value": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.revenue"
+                },
+                "then": {
+                  "@path": "$.properties.revenue"
+                },
+                "else": {
+                  "@path": "$.properties.total"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_data": {
+                "title": "Custom Data",
+                "description": "The custom data object can be used to pass custom properties.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "currency": {
+                    "title": "Currency",
+                    "description": "Currency for the value specified as ISO 4217 code.",
+                    "type": "string"
+                  },
+                  "num_items": {
+                    "title": "Number of Items",
+                    "description": "The number of items when checkout was initiated.",
+                    "type": "integer"
+                  },
+                  "order_id": {
+                    "title": "Order ID",
+                    "description": "Order ID tied to the conversion event. Please refer to the [Snapchat Marketing API docs](https://marketingapi.snapchat.com/docs/conversion.html#deduplication) for information on how this field is used for deduplication against Snap Pixel SDK and App Ads Kit events.",
+                    "type": "string"
+                  },
+                  "search_string": {
+                    "title": "Search String",
+                    "description": "The text string that was searched for.",
+                    "type": "string"
+                  },
+                  "sign_up_method": {
+                    "title": "Sign Up Method",
+                    "description": "A string indicating the sign up method.",
+                    "type": "string"
+                  },
+                  "value": {
+                    "title": "Value",
+                    "description": "Total value of the purchase. This should be a single number. Can be overriden using the 'Track Purchase Value Per Product' field.",
+                    "type": "number"
+                  },
+                  "checkin_date": {
+                    "title": "Check-In Date",
+                    "description": "The desired hotel check-in date in the hotel's time-zone. Accepted formats are YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD and YYYY-MM-DDThh:mm:ssTZD",
+                    "type": "string"
+                  },
+                  "travel_end": {
+                    "title": "Travel End",
+                    "description": "End date of travel",
+                    "type": "string"
+                  },
+                  "travel_start": {
+                    "title": "Travel Start",
+                    "description": "Start date of travel",
+                    "type": "string"
+                  },
+                  "suggested_destinations": {
+                    "title": "Suggests Destinations",
+                    "description": "The suggested destinations",
+                    "type": "string"
+                  },
+                  "destination_airport": {
+                    "title": "Destination Airport",
+                    "description": "The destination airport. Make sure to use the IATA code of the airport",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The country based on the location the user intends to visit",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "The city based on the location the user intends to visit",
+                    "type": "string"
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "This could be the state, district, or region of interest to the user",
+                    "type": "string"
+                  },
+                  "neighborhood": {
+                    "title": "Neighborhood",
+                    "description": "The neighborhood the user is interested in",
+                    "type": "string"
+                  },
+                  "departing_departure_date": {
+                    "title": "Departing Departure Date",
+                    "description": "The starting date and time for travel",
+                    "type": "string"
+                  },
+                  "departing_arrival_date": {
+                    "title": "Departing Arrival Date",
+                    "description": "The arrival date and time at the destination for the travel",
+                    "type": "string"
+                  },
+                  "num_adults": {
+                    "title": "Num Adults",
+                    "description": "The number of adults staying",
+                    "type": "integer"
+                  },
+                  "origin_airport": {
+                    "title": "Origin Airport",
+                    "description": "The official IATA code of origin airport",
+                    "type": "string"
+                  },
+                  "returning_departure_date": {
+                    "title": "Returning Departure Date",
+                    "description": "The starting date and time of the return journey",
+                    "type": "string"
+                  },
+                  "returning_arrival_date": {
+                    "title": "Returning Arrival Date",
+                    "description": "The date and time when the return journey is complete",
+                    "type": "string"
+                  },
+                  "num_children": {
+                    "title": "Num Children",
+                    "description": "The number of children staying",
+                    "type": "integer"
+                  },
+                  "hotel_score": {
+                    "title": "Hotel Score",
+                    "description": "This represents the hotels score relative to other hotels to an advertiser",
+                    "type": "string"
+                  },
+                  "postal_code": {
+                    "title": "Postal Code",
+                    "description": "The postal /zip code",
+                    "type": "string"
+                  },
+                  "num_infants": {
+                    "title": "Num Infants",
+                    "description": "The number of infants staying",
+                    "type": "integer"
+                  },
+                  "preferred_neighborhoods": {
+                    "title": "Preferred Neighborhoods",
+                    "description": "Any preferred neighborhoods for the stay",
+                    "type": "string"
+                  },
+                  "preferred_star_ratings": {
+                    "title": "Preferred Star Ratings",
+                    "description": "The minimum and maximum hotel star rating supplied as a tuple. This is what the user would use for filtering hotels",
+                    "type": "string"
+                  },
+                  "suggested_hotels": {
+                    "title": "Suggested Hotels",
+                    "description": "The suggested hotels",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options",
+          "type": "boolean",
+          "label": "Data Processing Options",
+          "description": "The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options": {
+                "title": "Data Processing Options",
+                "description": "The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options_country",
+          "type": "number",
+          "label": "Data Processing Country",
+          "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Use Snapchat's Geolocation Logic",
+              "value": 0
+            },
+            {
+              "label": "United States of America",
+              "value": 1
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options_country": {
+                "title": "Data Processing Country",
+                "description": "A country that you want to associate to the Data Processing Options. Accepted values are 1, for the United States of America, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
+                "type": "number",
+                "enum": [0, 1]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options_state",
+          "type": "number",
+          "label": "Data Processing State",
+          "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Use Snapchat's Geolocation Logic",
+              "value": 0
+            },
+            {
+              "label": "California",
+              "value": 1000
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options_state": {
+                "title": "Data Processing State",
+                "description": "A state that you want to associate to the Data Processing Options. Accepted values are 1000, for California, or 0, to request that Snapchat geolocates the event using IP address. This is required if Data Processing Options is set to true. If nothing is provided, Segment will send 0.",
+                "type": "number",
+                "enum": [0, 1000]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_source_url",
+          "type": "string",
+          "label": "Event Source URL",
+          "description": "The URL of the web page where the event took place.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_source_url": {
+                "title": "Event Source URL",
+                "description": "The URL of the web page where the event took place.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "item_id": {
+                  "@path": "product_id"
+                },
+                "item_category": {
+                  "@path": "category"
+                },
+                "brand": {
+                  "@path": "brand"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "Use this field to send details of mulitple products / items. This field overrides individual 'Item ID', 'Item Category' and 'Brand' fields. Note: total purchase value is tracked using the 'Price' field",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "item_id": {
+                      "title": "Item ID",
+                      "description": "Identfier for the item. International Article Number (EAN) when applicable, or other product or category identifier.",
+                      "type": "string"
+                    },
+                    "item_category": {
+                      "title": "Category",
+                      "description": "Category of the item. This field accepts a string.",
+                      "type": "string"
+                    },
+                    "brand": {
+                      "title": "Brand",
+                      "description": "Brand associated with the item. This field accepts a string.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "brands",
+          "type": "string",
+          "label": "[Deprecated] Brand",
+          "description": "[Deprecated] Use Products field.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "brands": {
+                "title": "[Deprecated] Brand",
+                "description": "[Deprecated] Use Products field.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "click_id",
+          "type": "string",
+          "label": "[Deprecated] Click ID",
+          "description": "Deprecated. Use User Data sc_click_id field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "click_id": {
+                "title": "[Deprecated] Click ID",
+                "description": "Deprecated. Use User Data sc_click_id field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "client_dedup_id",
+          "type": "string",
+          "label": "[Deprecated] Client Deduplication ID",
+          "description": "Deprecated. Use Event ID field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "client_dedup_id": {
+                "title": "[Deprecated] Client Deduplication ID",
+                "description": "Deprecated. Use Event ID field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "[Deprecated] Currency",
+          "description": "Deprecated. Use Custom Data currency field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "[Deprecated] Currency",
+                "description": "Deprecated. Use Custom Data currency field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "[Deprecated] Description",
+          "description": "Deprecated. No longer supported.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "[Deprecated] Description",
+                "description": "Deprecated. No longer supported.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_model",
+          "type": "string",
+          "label": "[Deprecated] Device Model",
+          "description": "Deprecated. Use App Data deviceName field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_model": {
+                "title": "[Deprecated] Device Model",
+                "description": "Deprecated. Use App Data deviceName field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "[Deprecated] Email",
+          "description": "Deprecated. Use User Data email field. If not hashed, Segment will hash this value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "[Deprecated] Email",
+                "description": "Deprecated. Use User Data email field. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "event_conversion_type",
+          "type": "string",
+          "label": "[Deprecated] Event Conversion Type",
+          "description": "Deprecated. Use Action Source field.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Offline",
+              "value": "OFFLINE"
+            },
+            {
+              "label": "Web",
+              "value": "WEB"
+            },
+            {
+              "label": "Mobile App",
+              "value": "MOBILE_APP"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_conversion_type": {
+                "title": "[Deprecated] Event Conversion Type",
+                "description": "Deprecated. Use Action Source field.",
+                "type": "string",
+                "enum": ["OFFLINE", "WEB", "MOBILE_APP"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_tag",
+          "type": "string",
+          "label": "[Deprecated] Event Tag",
+          "description": "Deprecated. No longer supported.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_tag": {
+                "title": "[Deprecated] Event Tag",
+                "description": "Deprecated. No longer supported.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "[Deprecated] Event Type",
+          "description": "Deprecated. Use Event Name field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "[Deprecated] Event Type",
+                "description": "Deprecated. Use Event Name field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "idfv",
+          "type": "string",
+          "label": "[Deprecated] Identifier for Vendor",
+          "description": "Deprecated. Use User Data idfv field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "idfv": {
+                "title": "[Deprecated] Identifier for Vendor",
+                "description": "Deprecated. Use User Data idfv field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "[Deprecated] IP Address",
+          "description": "Deprecated. Use User Data client_ip_address field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "[Deprecated] IP Address",
+                "description": "Deprecated. Use User Data client_ip_address field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "item_category",
+          "type": "string",
+          "label": "[Deprecated] Item Category",
+          "description": "Deprecated. Use products field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "item_category": {
+                "title": "[Deprecated] Item Category",
+                "description": "Deprecated. Use products field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "item_ids",
+          "type": "string",
+          "label": "[Deprecated] Item ID",
+          "description": "Deprecated. Use products field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "item_ids": {
+                "title": "[Deprecated] Item ID",
+                "description": "Deprecated. Use products field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "level",
+          "type": "string",
+          "label": "[Deprecated] Level",
+          "description": "Deprecated. No longer supported.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "level": {
+                "title": "[Deprecated] Level",
+                "description": "Deprecated. No longer supported.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mobile_ad_id",
+          "type": "string",
+          "label": "[Deprecated] Mobile Ad Identifier",
+          "description": "Deprecated. Use User Data madid field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobile_ad_id": {
+                "title": "[Deprecated] Mobile Ad Identifier",
+                "description": "Deprecated. Use User Data madid field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "number_items",
+          "type": "string",
+          "label": "[Deprecated] Number of Items",
+          "description": "Deprecated. Use Custom Data num_items field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "number_items": {
+                "title": "[Deprecated] Number of Items",
+                "description": "Deprecated. Use Custom Data num_items field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "os_version",
+          "type": "string",
+          "label": "[Deprecated] OS Version",
+          "description": "Deprecated. Use App Data version field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "os_version": {
+                "title": "[Deprecated] OS Version",
+                "description": "Deprecated. Use App Data version field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page_url",
+          "type": "string",
+          "label": "[Deprecated] Page URL",
+          "description": "Deprecated. Use Event Source URL field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page_url": {
+                "title": "[Deprecated] Page URL",
+                "description": "Deprecated. Use Event Source URL field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone_number",
+          "type": "string",
+          "label": "[Deprecated] Phone Number",
+          "description": "Deprecated. Use User Data phone field. If not hashed, Segment will hash this value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone_number": {
+                "title": "[Deprecated] Phone Number",
+                "description": "Deprecated. Use User Data phone field. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "price",
+          "type": "number",
+          "label": "[Deprecated] Price",
+          "description": "Deprecated. Use Custom Data value field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "price": {
+                "title": "[Deprecated] Price",
+                "description": "Deprecated. Use Custom Data value field.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "search_string",
+          "type": "string",
+          "label": "[Deprecated] Search String",
+          "description": "Deprecated. Use Custom Data search_string field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "search_string": {
+                "title": "[Deprecated] Search String",
+                "description": "Deprecated. Use Custom Data search_string field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sign_up_method",
+          "type": "string",
+          "label": "[Deprecated] Sign Up Method",
+          "description": "Deprecated. Use Custom Data sign_up_method field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sign_up_method": {
+                "title": "[Deprecated] Sign Up Method",
+                "description": "Deprecated. Use Custom Data sign_up_method field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "[Deprecated] Event Timestamp",
+          "description": "Deprecated. Use Event Timestamp field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "[Deprecated] Event Timestamp",
+                "description": "Deprecated. Use Event Timestamp field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "transaction_id",
+          "type": "string",
+          "label": "[Deprecated] Transaction ID",
+          "description": "Deprecated. Use Custom Data order_id field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "transaction_id": {
+                "title": "[Deprecated] Transaction ID",
+                "description": "Deprecated. Use Custom Data order_id field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "[Deprecated] User Agent",
+          "description": "Deprecated. Use User Data client_user_agent field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "[Deprecated] User Agent",
+                "description": "Deprecated. Use User Data client_user_agent field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "uuid_c1",
+          "type": "string",
+          "label": "[Deprecated] uuid_c1 Cookie",
+          "description": "Deprecated. Use User Data sc_cookie1 field.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "uuid_c1": {
+                "title": "[Deprecated] uuid_c1 Cookie",
+                "description": "Deprecated. Use User Data sc_cookie1 field.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "snapPlugin",
+      "name": "Snap Browser Plugin",
+      "description": "Enriches all Segment payloads with Snap click_id Querystring and _scid Cookie values",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "fields": []
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Add Billing",
+      "subscribe": "event = \"Payment Info Entered\"",
+      "mapping": {
+        "event_name": "ADD_BILLING",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Add to Cart",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "event_name": "ADD_CART",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Add to Wishlist",
+      "subscribe": "event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "event_name": "ADD_TO_WISHLIST",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "App Install",
+      "subscribe": "event = \"Application Installed\"",
+      "mapping": {
+        "event_name": "APP_INSTALL",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "App Open",
+      "subscribe": "event = \"Application Opened\"",
+      "mapping": {
+        "event_name": "APP_OPEN",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "List View",
+      "subscribe": "event = \"Product List Viewed\"",
+      "mapping": {
+        "event_name": "LIST_VIEW",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Login",
+      "subscribe": "event = \"Signed In\"",
+      "mapping": {
+        "event_name": "LOGIN",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event_name": "PAGE_VIEW",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Purchase",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "event_name": "PURCHASE",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Search",
+      "subscribe": "event = \"Products Searched\"",
+      "mapping": {
+        "event_name": "SEARCH",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Share",
+      "subscribe": "event = \"Product Shared\"",
+      "mapping": {
+        "event_name": "SHARE",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Sign Up",
+      "subscribe": "event = \"Signed Up\"",
+      "mapping": {
+        "event_name": "SIGN_UP",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "snapPlugin",
+      "name": "Snap Browser Plugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "Start Checkout",
+      "subscribe": "event = \"Checkout Started\"",
+      "mapping": {
+        "event_name": "START_CHECKOUT",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportConversionEvent",
+      "name": "View Content",
+      "subscribe": "event = \"Product Viewed\"",
+      "mapping": {
+        "event_name": "VIEW_CONTENT",
+        "action_source": "website",
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "user_data": {
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.gender"
+              },
+              "then": {
+                "@path": "$.context.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "dateOfBirth": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.birthday"
+              },
+              "then": {
+                "@path": "$.context.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.last_name"
+              },
+              "then": {
+                "@path": "$.context.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.first_name"
+              },
+              "then": {
+                "@path": "$.context.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
+          },
+          "zip": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "madid": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "sc_click_id": {
+            "@path": "$.integrations.Snap Conversions Api.click_id"
+          },
+          "sc_cookie1": {
+            "@path": "$.integrations.Snap Conversions Api.uuid_c1"
+          }
+        },
+        "app_data": {
+          "application_tracking_enabled": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "packageName": {
+            "@path": "$.context.app.namespace"
+          },
+          "longVersion": {
+            "@path": "$.context.app.version"
+          },
+          "osVersion": {
+            "@path": "$.context.os.version"
+          },
+          "deviceName": {
+            "@path": "$.context.device.model"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          },
+          "deviceTimezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "custom_data": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "num_items": {
+            "@path": "$.properties.quantity"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "product_id"
+              },
+              "item_category": {
+                "@path": "category"
+              },
+              "brand": {
+                "@path": "brand"
+              }
+            }
+          ]
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

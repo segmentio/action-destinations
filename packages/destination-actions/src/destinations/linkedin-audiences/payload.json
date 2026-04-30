@@ -1,0 +1,557 @@
+{
+  "name": "Linkedin Audiences",
+  "basicOptions": ["ad_account_id", "send_email", "send_google_advertising_id"],
+  "options": {
+    "ad_account_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The id of the LinkedIn Ad Account where batches should be synced. You can find your Ad Account id in your [LinkedIn Campaign Manager](https://www.linkedin.com/campaignmanager/login).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "LinkedIn Ad Account Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The ad_account_id property is required."]],
+      "uIMetadata": null
+    },
+    "send_email": {
+      "tags": ["authentication:test"],
+      "default": true,
+      "description": "Whether to send `email` to LinkedIn. This setting applies to all mappings you create in this destination instance.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Send Email",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The send_email property is required."]],
+      "uIMetadata": null
+    },
+    "send_google_advertising_id": {
+      "tags": ["authentication:test"],
+      "default": true,
+      "description": "Whether to send Google Advertising ID to LinkedIn. This setting applies to all mappings you create in this destination instance.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Send Google Advertising ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The send_google_advertising_id property is required."]],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "updateAudience",
+      "name": "Sync To LinkedIn DMP Segment",
+      "description": "Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\" or event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "dmp_segment_name",
+          "type": "string",
+          "label": "DMP Segment Display Name",
+          "description": "The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.audience_key"
+              },
+              "then": {
+                "@path": "$.properties.audience_key"
+              },
+              "else": {
+                "@path": "$.context.personas.computation_key"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dmp_segment_name": {
+                "title": "DMP Segment Display Name",
+                "description": "The display name of the LinkedIn DMP Segment. This field is set only when Segment creates a new audience. Updating this field after Segment has created an audience will not update the audience name in LinkedIn.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the LinkedIn DMP Segment.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the LinkedIn DMP Segment.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "The user's email address to send to LinkedIn. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "The user's email address to send to LinkedIn. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "User First Name",
+          "description": "The user's first name to send to LinkedIn.",
+          "defaultValue": {
+            "@path": "$.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "User First Name",
+                "description": "The user's first name to send to LinkedIn.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "User Last Name",
+          "description": "The user's last name to send to LinkedIn.",
+          "defaultValue": {
+            "@path": "$.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "User Last Name",
+                "description": "The user's last name to send to LinkedIn.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "User Title",
+          "description": "The user's title to send to LinkedIn.",
+          "defaultValue": {
+            "@path": "$.traits.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "User Title",
+                "description": "The user's title to send to LinkedIn.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company",
+          "type": "string",
+          "label": "User Company",
+          "description": "The user's company to send to LinkedIn.",
+          "defaultValue": {
+            "@path": "$.traits.company"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company": {
+                "title": "User Company",
+                "description": "The user's company to send to LinkedIn.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "User Country",
+          "description": "The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.",
+          "defaultValue": {
+            "@path": "$.traits.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "User Country",
+                "description": "The user's country to send to LinkedIn. This field accepts an ISO standardized two letter country code e.g. US.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "google_advertising_id",
+          "type": "string",
+          "label": "User Google Advertising ID",
+          "description": "The user's Google Advertising ID to send to LinkedIn.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "google_advertising_id": {
+                "title": "User Google Advertising ID",
+                "description": "The user's Google Advertising ID to send to LinkedIn.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "source_segment_id",
+          "type": "string",
+          "label": "LinkedIn Source Segment ID",
+          "description": "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.audience_key"
+              },
+              "then": {
+                "@path": "$.properties.audience_key"
+              },
+              "else": {
+                "@path": "$.context.personas.computation_key"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_segment_id": {
+                "title": "LinkedIn Source Segment ID",
+                "description": "A Segment-specific key associated with the LinkedIn DMP Segment. This is the lookup key Segment uses to fetch the DMP Segment from LinkedIn's API.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "personas_audience_key",
+          "type": "string",
+          "label": "Segment Engage Audience Key",
+          "description": "The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "personas_audience_key": {
+                "title": "Segment Engage Audience Key",
+                "description": "The `audience_key` of the Engage audience you want to sync to LinkedIn. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.",
+                "type": "string"
+              }
+            },
+            "required": ["personas_audience_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dmp_user_action",
+          "type": "string",
+          "label": "DMP User Action",
+          "description": "A Segment specific key used to define action type.",
+          "defaultValue": "AUTO",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Auto Detect",
+              "value": "AUTO"
+            },
+            {
+              "label": "Add",
+              "value": "ADD"
+            },
+            {
+              "label": "Remove",
+              "value": "REMOVE"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dmp_user_action": {
+                "title": "DMP User Action",
+                "description": "A Segment specific key used to define action type.",
+                "type": "string",
+                "enum": ["AUTO", "ADD", "REMOVE"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

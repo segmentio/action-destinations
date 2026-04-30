@@ -1,0 +1,1964 @@
+{
+  "name": "Responsys (Actions)",
+  "description": "Send Profile List Member and Profile Extension Table data to Responsys.",
+  "basicOptions": [
+    "segmentWriteKey",
+    "segmentWriteKeyRegion",
+    "username",
+    "userPassword",
+    "baseUrl",
+    "defaultFolderName",
+    "profileListName",
+    "profileExtensionTable",
+    "insertOnNoMatch",
+    "matchColumnName1",
+    "matchColumnName2",
+    "updateOnMatch",
+    "textValue",
+    "matchOperator",
+    "optoutValue",
+    "rejectRecordIfChannelEmpty",
+    "defaultPermissionStatus",
+    "htmlValue",
+    "optinValue"
+  ],
+  "options": {
+    "segmentWriteKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Optionally forward Responses from Segment's requests to Responsys to a Segment Source.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Segment Source WriteKey",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "segmentWriteKeyRegion": {
+      "tags": ["authentication:test"],
+      "default": "US",
+      "description": "Segment Region to forward responses from Responsys to. Segment Source WriteKey must also be populated",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Segment WriteKey Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US",
+          "label": "US",
+          "text": "US"
+        },
+        {
+          "value": "EU",
+          "label": "EU",
+          "text": "EU"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "username": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Responsys username",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The username property is required."]],
+      "uIMetadata": null
+    },
+    "userPassword": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Responsys password",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Password",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The userPassword property is required."]],
+      "uIMetadata": null
+    },
+    "baseUrl": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Responsys endpoint URL. Refer to Responsys documentation for more details. Must start with 'HTTPS://'. See [Responsys docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Responsys endpoint URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The baseUrl property is required."]],
+      "uIMetadata": null
+    },
+    "defaultFolderName": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Name of the folder where the Profile Extension Table is located.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Default Folder Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "profileListName": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Name of the Profile Extension Table's Contact List.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Default Profile List Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "profileExtensionTable": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Default Profile Extension Table (PET) Name. Required if using the \"Send Custom Traits\" Action. Can be overridden in the mapping.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Default PET Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "insertOnNoMatch": {
+      "tags": ["authentication:test"],
+      "default": true,
+      "description": "Indicates what should be done for records where a match is not found.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Insert On No Match",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The insertOnNoMatch property is required."]],
+      "uIMetadata": null
+    },
+    "matchColumnName1": {
+      "tags": ["authentication:test"],
+      "default": "EMAIL_ADDRESS",
+      "description": "First match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "First Column Match",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "RIID",
+          "label": "RIID",
+          "text": "RIID"
+        },
+        {
+          "value": "CUSTOMER_ID",
+          "label": "CUSTOMER_ID",
+          "text": "CUSTOMER_ID"
+        },
+        {
+          "value": "EMAIL_ADDRESS",
+          "label": "EMAIL_ADDRESS",
+          "text": "EMAIL_ADDRESS"
+        },
+        {
+          "value": "MOBILE_NUMBER",
+          "label": "MOBILE_NUMBER",
+          "text": "MOBILE_NUMBER"
+        },
+        {
+          "value": "EMAIL_MD5_HASH",
+          "label": "EMAIL_MD5_HASH",
+          "text": "EMAIL_MD5_HASH"
+        },
+        {
+          "value": "EMAIL_SHA256_HASH",
+          "label": "EMAIL_SHA256_HASH",
+          "text": "EMAIL_SHA256_HASH"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The matchColumnName1 property is required."]],
+      "uIMetadata": null
+    },
+    "matchColumnName2": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Second match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Second Column Match",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "RIID",
+          "label": "RIID",
+          "text": "RIID"
+        },
+        {
+          "value": "CUSTOMER_ID",
+          "label": "CUSTOMER_ID",
+          "text": "CUSTOMER_ID"
+        },
+        {
+          "value": "EMAIL_ADDRESS",
+          "label": "EMAIL_ADDRESS",
+          "text": "EMAIL_ADDRESS"
+        },
+        {
+          "value": "MOBILE_NUMBER",
+          "label": "MOBILE_NUMBER",
+          "text": "MOBILE_NUMBER"
+        },
+        {
+          "value": "EMAIL_MD5_HASH",
+          "label": "EMAIL_MD5_HASH",
+          "text": "EMAIL_MD5_HASH"
+        },
+        {
+          "value": "EMAIL_SHA256_HASH",
+          "label": "EMAIL_SHA256_HASH",
+          "text": "EMAIL_SHA256_HASH"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "updateOnMatch": {
+      "tags": ["authentication:test"],
+      "default": "REPLACE_ALL",
+      "description": "Controls how the existing record should be updated. Defaults to Replace All.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Update On Match",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "REPLACE_ALL",
+          "label": "Replace All",
+          "text": "Replace All"
+        },
+        {
+          "value": "NO_UPDATE",
+          "label": "No Update",
+          "text": "No Update"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The updateOnMatch property is required."]],
+      "uIMetadata": null
+    },
+    "textValue": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Text Value",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "matchOperator": {
+      "tags": ["authentication:test"],
+      "default": "AND",
+      "description": "Operator to join match column names.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Match Operator",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "NONE",
+          "label": "None",
+          "text": "None"
+        },
+        {
+          "value": "AND",
+          "label": "And",
+          "text": "And"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "optoutValue": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Value of incoming opt-out status data that represents an optout status. For example, 'O' may represent an opt-out status.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Optout Value",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "rejectRecordIfChannelEmpty": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. See [Responsys API docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-members-post.html)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Reject Record If Channel Empty",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "defaultPermissionStatus": {
+      "tags": ["authentication:test"],
+      "default": "OPTOUT",
+      "description": "This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Default Permission Status",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "OPTIN",
+          "label": "Opt In",
+          "text": "Opt In"
+        },
+        {
+          "value": "OPTOUT",
+          "label": "Opt Out",
+          "text": "Opt Out"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The defaultPermissionStatus property is required."]],
+      "uIMetadata": null
+    },
+    "htmlValue": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Preferred Email Format",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "optinValue": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Optin Value",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendAudience",
+      "name": "Send Audience",
+      "description": "Send Engage Audience to a Profile Extension Table in Responsys",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "userData",
+          "type": "object",
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "defaultValue": {
+            "EMAIL_ADDRESS_": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userData": {
+                "title": "Recipient Data",
+                "description": "Record data that represents field names and corresponding values for each profile.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "EMAIL_ADDRESS_": {
+                    "title": "Email address",
+                    "description": "The user's email address",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "CUSTOMER_ID_": {
+                    "title": "Customer ID",
+                    "description": "Responsys Customer ID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userData"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_key",
+          "type": "string",
+          "label": "Segment Audience Key",
+          "description": "A unique identifier assigned to a specific audience in Segment.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_key": {
+                "title": "Segment Audience Key",
+                "description": "A unique identifier assigned to a specific audience in Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["computation_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or Properties",
+          "description": "Hidden field used to access traits or properties objects from Engage payloads.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or Properties",
+                "description": "Hidden field used to access traits or properties objects from Engage payloads.",
+                "type": "object"
+              }
+            },
+            "required": ["traits_or_props"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_class",
+          "type": "string",
+          "label": "Segment Audience Computation Class",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_class": {
+                "title": "Segment Audience Computation Class",
+                "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+                "type": "string",
+                "enum": ["audience", "journey_step"]
+              }
+            },
+            "required": ["computation_class"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Use Responsys Async API",
+                "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 200,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stringify",
+          "type": "boolean",
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "defaultValue": false,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stringify": {
+                "title": "Stringify Recipient Data",
+                "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": ["stringify"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of when the event occurred.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "retry",
+          "type": "number",
+          "label": "Delay (seconds)",
+          "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+          "defaultValue": 0,
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "0 secs",
+              "value": 0
+            },
+            {
+              "label": "30 secs",
+              "value": 30
+            },
+            {
+              "label": "120 secs",
+              "value": 120
+            },
+            {
+              "label": "300 secs",
+              "value": 300
+            },
+            {
+              "label": "480 secs",
+              "value": 480
+            },
+            {
+              "label": "600 secs",
+              "value": 600
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retry": {
+                "title": "Delay (seconds)",
+                "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+                "type": "number",
+                "enum": [0, 30, 120, 300, 480, 600]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendAudienceAsPet",
+      "name": "Send Audience as PET (Profile Extension Table)",
+      "description": "Send Engage Audience to a separate, newly created Profile Extension Table in Responsys",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "userData",
+          "type": "object",
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "defaultValue": {
+            "EMAIL_ADDRESS_": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userData": {
+                "title": "Recipient Data",
+                "description": "Record data that represents field names and corresponding values for each profile.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "EMAIL_ADDRESS_": {
+                    "title": "Email address",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "CUSTOMER_ID_": {
+                    "title": "Customer ID",
+                    "description": "Responsys Customer ID.",
+                    "type": "string"
+                  },
+                  "RIID_": {
+                    "title": "Recipient ID",
+                    "description": "Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userData"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "folder_name",
+          "type": "string",
+          "label": "Folder Name",
+          "description": "The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.",
+          "defaultValue": "Segment",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "folder_name": {
+                "title": "Folder Name",
+                "description": "The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pet_name",
+          "type": "string",
+          "label": "Profile Extension Table Name",
+          "description": "The PET (Profile Extension Table) name. The default value is the audience key in Segment.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pet_name": {
+                "title": "Profile Extension Table Name",
+                "description": "The PET (Profile Extension Table) name. The default value is the audience key in Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["pet_name"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_key",
+          "type": "string",
+          "label": "Segment Audience Key",
+          "description": "A unique identifier assigned to a specific audience in Segment.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_key": {
+                "title": "Segment Audience Key",
+                "description": "A unique identifier assigned to a specific audience in Segment.",
+                "type": "string"
+              }
+            },
+            "required": ["computation_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or Properties",
+          "description": "Hidden field used to access traits or properties objects from Engage payloads.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or Properties",
+                "description": "Hidden field used to access traits or properties objects from Engage payloads.",
+                "type": "object"
+              }
+            },
+            "required": ["traits_or_props"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of when the event occurred.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "retry",
+          "type": "number",
+          "label": "Delay (seconds)",
+          "description": "A delay of the selected seconds will be added before retrying a failed request.\n                Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+          "defaultValue": 0,
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "0 secs",
+              "value": 0
+            },
+            {
+              "label": "30 secs",
+              "value": 30
+            },
+            {
+              "label": "120 secs",
+              "value": 120
+            },
+            {
+              "label": "300 secs",
+              "value": 300
+            },
+            {
+              "label": "480 secs",
+              "value": 480
+            },
+            {
+              "label": "600 secs",
+              "value": 600
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retry": {
+                "title": "Delay (seconds)",
+                "description": "A delay of the selected seconds will be added before retrying a failed request.\n                Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+                "type": "number",
+                "enum": [0, 30, 120, 300, 480, 600]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "default_permission_status",
+          "type": "string",
+          "label": "Default Permission Status",
+          "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Opt In",
+              "value": "OPTIN"
+            },
+            {
+              "label": "Opt Out",
+              "value": "OPTOUT"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "default_permission_status": {
+                "title": "Default Permission Status",
+                "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+                "type": "string",
+                "enum": ["OPTIN", "OPTOUT"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "sendCustomTraits",
+      "name": "Send Custom Traits",
+      "description": "Send Custom Traits to a Profile Extension Table in Responsys",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "userData",
+          "type": "object",
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "defaultValue": {
+            "EMAIL_ADDRESS_": {
+              "@path": "$.traits.email"
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userData": {
+                "title": "Recipient Data",
+                "description": "Record data that represents field names and corresponding values for each profile.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "EMAIL_ADDRESS_": {
+                    "title": "Email address",
+                    "description": "The user's email address",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "CUSTOMER_ID_": {
+                    "title": "Customer ID",
+                    "description": "Responsys Customer ID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userData"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pet_name",
+          "type": "string",
+          "label": "Profile Extension Table Name",
+          "description": "The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pet_name": {
+                "title": "Profile Extension Table Name",
+                "description": "The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Use Responsys Async API",
+                "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 200,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stringify",
+          "type": "boolean",
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "defaultValue": false,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stringify": {
+                "title": "Stringify Recipient Data",
+                "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": ["stringify"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of when the event occurred.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": ["timestamp"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "retry",
+          "type": "number",
+          "label": "Delay (seconds)",
+          "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+          "defaultValue": 0,
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "0 secs",
+              "value": 0
+            },
+            {
+              "label": "30 secs",
+              "value": 30
+            },
+            {
+              "label": "120 secs",
+              "value": 120
+            },
+            {
+              "label": "300 secs",
+              "value": 300
+            },
+            {
+              "label": "480 secs",
+              "value": 480
+            },
+            {
+              "label": "600 secs",
+              "value": 600
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retry": {
+                "title": "Delay (seconds)",
+                "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+                "type": "number",
+                "enum": [0, 30, 120, 300, 480, 600]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendToPet",
+      "name": "Send to PET (Profile Extension Table)",
+      "description": "Send values to a Profile Extension Table in Responsys.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userData",
+          "type": "object",
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "defaultValue": {
+            "EMAIL_ADDRESS_": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userData": {
+                "title": "Recipient Data",
+                "description": "Record data that represents field names and corresponding values for each profile.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "EMAIL_ADDRESS_": {
+                    "title": "Email address",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "CUSTOMER_ID_": {
+                    "title": "Customer ID",
+                    "description": "Responsys Customer ID.",
+                    "type": "string"
+                  },
+                  "RIID_": {
+                    "title": "Recipient ID",
+                    "description": "Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userData"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "folder_name",
+          "type": "string",
+          "label": "Folder Name",
+          "description": "The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.",
+          "defaultValue": "Segment",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "folder_name": {
+                "title": "Folder Name",
+                "description": "The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pet_name",
+          "type": "string",
+          "label": "Profile Extension Table Name",
+          "description": "The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pet_name": {
+                "title": "Profile Extension Table Name",
+                "description": "The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of when the event occurred.",
+                "type": ["string", "number"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "use_responsys_async_api",
+          "type": "boolean",
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "use_responsys_async_api": {
+                "title": "Use Responsys Async API",
+                "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 200,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stringify",
+          "type": "boolean",
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stringify": {
+                "title": "Stringify Recipient Data",
+                "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "default_permission_status",
+          "type": "string",
+          "label": "Default Permission Status",
+          "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Opt In",
+              "value": "OPTIN"
+            },
+            {
+              "label": "Opt Out",
+              "value": "OPTOUT"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "default_permission_status": {
+                "title": "Default Permission Status",
+                "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+                "type": "string",
+                "enum": ["OPTIN", "OPTOUT"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertListMember",
+      "name": "Upsert Profile List Member",
+      "description": "Create or update a Profile List Member in Responsys",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "userData",
+          "type": "object",
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "defaultValue": {
+            "EMAIL_ADDRESS_": {
+              "@path": "$.traits.email"
+            },
+            "EMAIL_MD5_HASH_": {
+              "@path": "$.traits.email_md5_hash_"
+            },
+            "EMAIL_SHA256_HASH_": {
+              "@path": "$.traits.email_sha256_hash"
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            },
+            "MOBILE_NUMBER_": {
+              "@path": "$.traits.phone"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "userData": {
+                "title": "Recipient Data",
+                "description": "Record data that represents field names and corresponding values for each profile.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "EMAIL_ADDRESS_": {
+                    "title": "Email Address",
+                    "description": "The user's email address.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "EMAIL_MD5_HASH_": {
+                    "title": "Email Address MD5 Hash",
+                    "description": "An MD5 Hash of the user's email address.",
+                    "type": "string"
+                  },
+                  "EMAIL_SHA256_HASH_": {
+                    "title": "Email Address SHA256 Hash",
+                    "description": "A SHA256 Hash of the user's email address.",
+                    "type": "string"
+                  },
+                  "RIID_": {
+                    "title": "Recipient ID",
+                    "description": "Recipient ID (RIID). RIID is required if Email Address is empty.",
+                    "type": "string"
+                  },
+                  "CUSTOMER_ID_": {
+                    "title": "Customer ID",
+                    "description": "Responsys Customer ID.",
+                    "type": "string"
+                  },
+                  "MOBILE_NUMBER_": {
+                    "title": "Mobile Number",
+                    "description": "The user's Mobile Phone Number.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": ["userData"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stringify",
+          "type": "boolean",
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stringify": {
+                "title": "Stringify Recipient Data",
+                "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Use Responsys Async API",
+                "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 200,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "default_permission_status",
+          "type": "string",
+          "label": "Default Permission Status",
+          "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Opt In",
+              "value": "OPTIN"
+            },
+            {
+              "label": "Opt Out",
+              "value": "OPTOUT"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "default_permission_status": {
+                "title": "Default Permission Status",
+                "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+                "type": "string",
+                "enum": ["OPTIN", "OPTOUT"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

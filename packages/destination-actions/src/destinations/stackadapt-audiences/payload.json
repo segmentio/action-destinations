@@ -1,0 +1,627 @@
+{
+  "name": "StackAdapt Audiences",
+  "description": "Sync Segment Engage Audiences as well as user profile details to StackAdapt",
+  "basicOptions": ["apiKey", "advertiser_id"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "Your StackAdapt GQL API Token",
+      "encrypt": true,
+      "hidden": false,
+      "label": "GraphQL Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    },
+    "advertiser_id": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The StackAdapt advertiser ID to add the profile to.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The advertiser_id property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "forwardAudienceEvent",
+      "name": "Sync Audience",
+      "description": "Sync Segment Engage audience and user profile details to StackAdapt",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "standard_traits",
+          "type": "object",
+          "label": "Standard User Properties",
+          "description": "Standard properties for the user.",
+          "defaultValue": {
+            "first_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.street"
+                },
+                "then": {
+                  "@path": "$.traits.street"
+                },
+                "else": {
+                  "@path": "$.properties.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.city"
+                },
+                "then": {
+                  "@path": "$.traits.city"
+                },
+                "else": {
+                  "@path": "$.properties.city"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.country"
+                },
+                "then": {
+                  "@path": "$.traits.country"
+                },
+                "else": {
+                  "@path": "$.properties.country"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.state"
+                },
+                "then": {
+                  "@path": "$.traits.state"
+                },
+                "else": {
+                  "@path": "$.properties.state"
+                }
+              }
+            },
+            "postal_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.postal_code"
+                },
+                "else": {
+                  "@path": "$.properties.postal_code"
+                }
+              }
+            },
+            "timezone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.timezone"
+                },
+                "then": {
+                  "@path": "$.traits.timezone"
+                },
+                "else": {
+                  "@path": "$.properties.timezone"
+                }
+              }
+            },
+            "birth_date": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.birthday"
+                },
+                "then": {
+                  "@path": "$.traits.birthday"
+                },
+                "else": {
+                  "@path": "$.properties.birthday"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "standard_traits": {
+                "title": "Standard User Properties",
+                "description": "Standard properties for the user.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "The user's first name.",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "The user's last name.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The phone number of the user.",
+                    "type": "string"
+                  },
+                  "address": {
+                    "title": "Address",
+                    "description": "The address of the user.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "The city of the user.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The country of the user.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "The state of the user.",
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "title": "Time Zone",
+                    "description": "The timezone of the user.",
+                    "type": "string"
+                  },
+                  "postal_code": {
+                    "title": "Postal Code",
+                    "description": "The postal code of the user.",
+                    "type": "string"
+                  },
+                  "birth_date": {
+                    "title": "Birth Date",
+                    "description": "The birthday of the user in YYYY-MM-DD format.",
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_traits",
+          "type": "object",
+          "label": "Custom User Properties",
+          "description": "Custom properties for the user.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_traits": {
+                "title": "Custom User Properties",
+                "description": "Custom properties for the user.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "The ID of the user in Segment",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "Segment User ID",
+                "description": "The ID of the user in Segment",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The Segment event type - track or identify",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "Event Type",
+                "description": "The Segment event type - track or identify",
+                "type": "string"
+              }
+            },
+            "required": ["event_type"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "marketing_status",
+          "type": "string",
+          "label": "Marketing Status",
+          "description": "In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Opted-in (Profiles can receive email marketing)",
+              "value": "Opted-in"
+            },
+            {
+              "label": "Indeterminate (Profiles that have not opted-out, but are excluded from email marketing)",
+              "value": "Indeterminate"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "marketing_status": {
+                "title": "Marketing Status",
+                "description": "In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.",
+                "type": "string",
+                "enum": ["Opted-in", "Indeterminate"]
+              }
+            },
+            "required": ["marketing_status"]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": ["literal", "variable", "function", "freeform", "enrichment"]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Profiles",
+          "description": "When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Profiles",
+                "description": "When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.",
+                "type": "boolean"
+              }
+            },
+            "required": ["enable_batching"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "The properties of the user or event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Event Properties",
+                "description": "The properties of the user or event.",
+                "type": "object"
+              }
+            },
+            "required": ["traits_or_props"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_computation_class",
+          "type": "string",
+          "label": "Segment Computation Class",
+          "description": "Segment computation class used to determine if input event is from an Engage Audience'.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_class": {
+                "title": "Segment Computation Class",
+                "description": "Segment computation class used to determine if input event is from an Engage Audience'.",
+                "type": "string",
+                "enum": ["audience", "journey_step"]
+              }
+            },
+            "required": ["segment_computation_class"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_computation_id",
+          "type": "string",
+          "label": "Segment Computation ID",
+          "description": "For audience enter/exit events, this will be the audience ID.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_id": {
+                "title": "Segment Computation ID",
+                "description": "For audience enter/exit events, this will be the audience ID.",
+                "type": "string"
+              }
+            },
+            "required": ["segment_computation_id"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_computation_key",
+          "type": "string",
+          "label": "Segment Computation Key",
+          "description": "For audience enter/exit events, this will be the audience key.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_key": {
+                "title": "Segment Computation Key",
+                "description": "For audience enter/exit events, this will be the audience key.",
+                "type": "string"
+              }
+            },
+            "required": ["segment_computation_key"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The email address of the user.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The email address of the user.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": ["email"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

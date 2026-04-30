@@ -1,0 +1,577 @@
+{
+  "name": "Dub (Actions)",
+  "description": "Track Lead and Sale conversion events on Dub.",
+  "basicOptions": ["apiKey"],
+  "options": {
+    "apiKey": {
+      "tags": ["authentication:test"],
+      "default": "",
+      "description": "The API Key is available via Dub Dashboard: https://app.dub.co/settings/tokens",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The apiKey property is required."]],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "dubPlugin",
+      "name": "Dub Browser Plugin",
+      "description": "Enriches all Segment payloads with dub_id cookie value",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "fields": []
+    },
+    {
+      "slug": "trackLead",
+      "name": "Track a Lead",
+      "description": "Track a Lead for a Short Link.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Sign Up\"",
+      "fields": [
+        {
+          "fieldKey": "clickId",
+          "type": "string",
+          "label": "Click ID",
+          "description": "The ID of the click in Dub. You can read this value from \"dub_id\" cookie.",
+          "defaultValue": {
+            "@path": "$.integrations.Dub (Actions).dub_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "clickId": {
+                "title": "Click ID",
+                "description": "The ID of the click in Dub. You can read this value from \"dub_id\" cookie.",
+                "type": "string"
+              }
+            },
+            "required": ["clickId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the Lead event to track.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the Lead event to track.",
+                "type": "string"
+              }
+            },
+            "required": ["eventName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalId",
+          "type": "string",
+          "label": "External ID",
+          "description": "The unique identifier for the customer in the your app. Used to track the customer's journey.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalId": {
+                "title": "External ID",
+                "description": "The unique identifier for the customer in the your app. Used to track the customer's journey.",
+                "type": "string"
+              }
+            },
+            "required": ["externalId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventQuantity",
+          "type": "number",
+          "label": "Event Quantity",
+          "description": "The quantity of the Lead event to track.",
+          "defaultValue": {
+            "@path": "$.properties.quantity"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventQuantity": {
+                "title": "Event Quantity",
+                "description": "The quantity of the Lead event to track.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerName",
+          "type": "string",
+          "label": "Customer Name",
+          "description": "The name of the customer.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.name"
+              },
+              "then": {
+                "@path": "$.context.traits.name"
+              },
+              "else": {
+                "@path": "$.properties.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerName": {
+                "title": "Customer Name",
+                "description": "The name of the customer.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerEmail",
+          "type": "string",
+          "label": "Customer Email",
+          "description": "The email of the customer.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerEmail": {
+                "title": "Customer Email",
+                "description": "The email of the customer.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customerAvatar",
+          "type": "string",
+          "label": "Customer Avatar",
+          "description": "The avatar of the customer.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.avatar"
+              },
+              "then": {
+                "@path": "$.context.traits.avatar"
+              },
+              "else": {
+                "@path": "$.properties.avatar"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customerAvatar": {
+                "title": "Customer Avatar",
+                "description": "The avatar of the customer.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Metadata",
+          "description": "Additional metadata to be stored with the Lead event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "description": "Additional metadata to be stored with the Lead event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackSale",
+      "name": "Track a Sale",
+      "description": "Track a Sale for a Short Link",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "externalId",
+          "type": "string",
+          "label": "External ID",
+          "description": "This is the unique identifier for the customer in the your app. This is used to track the customer's journey.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalId": {
+                "title": "External ID",
+                "description": "This is the unique identifier for the customer in the your app. This is used to track the customer's journey.",
+                "type": "string"
+              }
+            },
+            "required": ["externalId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "amount",
+          "type": "number",
+          "label": "Amount",
+          "description": "The amount of the Sale.",
+          "defaultValue": {
+            "@path": "$.properties.revenue"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "title": "Amount",
+                "description": "The amount of the Sale.",
+                "type": "number"
+              }
+            },
+            "required": ["amount"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "paymentProcessor",
+          "type": "string",
+          "label": "Payment Processor",
+          "description": "The payment processor via which the Sale was made.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "paymentProcessor": {
+                "title": "Payment Processor",
+                "description": "The payment processor via which the Sale was made.",
+                "type": "string"
+              }
+            },
+            "required": ["paymentProcessor"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the Sale event. It can be used to track different types of event for example \"Purchase\", \"Upgrade\", \"Payment\", etc.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the Sale event. It can be used to track different types of event for example \"Purchase\", \"Upgrade\", \"Payment\", etc.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "leadEventName",
+          "type": "string",
+          "label": "Lead Event Name",
+          "description": "The name of the Lead event that occurred before the Sale (case-sensitive). This is used to associate the Sale event with a particular Lead event (instead of the latest Lead event, which is the default behavior).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "leadEventName": {
+                "title": "Lead Event Name",
+                "description": "The name of the Lead event that occurred before the Sale (case-sensitive). This is used to associate the Sale event with a particular Lead event (instead of the latest Lead event, which is the default behavior).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "invoiceId",
+          "type": "string",
+          "label": "Invoice ID",
+          "description": "The invoice ID of the Sale. Can be used as a idempotency key – only one Sale event can be recorded for a given invoice ID.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "invoiceId": {
+                "title": "Invoice ID",
+                "description": "The invoice ID of the Sale. Can be used as a idempotency key – only one Sale event can be recorded for a given invoice ID.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "The currency of the Sale. Accepts ISO 4217 currency codes.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "The currency of the Sale. Accepts ISO 4217 currency codes.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Metadata",
+          "description": "Additional metadata to be stored with the Sale event.",
+          "defaultValue": {
+            "@path": "$.properties.products"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "description": "Additional metadata to be stored with the Sale event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "dubPlugin",
+      "name": "Dub Browser Plugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "type": "automatic"
+    }
+  ]
+}
