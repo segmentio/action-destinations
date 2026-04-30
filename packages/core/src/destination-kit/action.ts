@@ -814,19 +814,11 @@ export class Action<
      * Try to use the parsed response `.data` or `.content` string
      * @see {@link ../middleware/after-response/prepare-response.ts}
      */
-    console.log('[parseResponse] response type:', typeof response)
-    console.log('[parseResponse] response instanceof Response:', response instanceof Response)
-    console.log('[parseResponse] response value:', JSON.stringify(response))
-    console.log('[parseResponse] response.data:', (response as ModifiedResponse).data)
-
     if (response instanceof Response) {
-      const result = (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
-      console.log('[parseResponse] extracted from Response — .data/.content:', JSON.stringify(result))
-      return result
+      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
     }
 
     // otherwise, we don't really know what this is, so return as-is
-    console.log('[parseResponse] returning as-is (not a Response instance)')
     return response
   }
 
