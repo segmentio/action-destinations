@@ -137,7 +137,7 @@ function getDeleteUrl(interactionType: string, params: DeleteParams): string {
     itemId: params.itemId
   })
 
-  if (params.timestamp) {
+  if (params.timestamp !== undefined && params.timestamp !== null) {
     // In the URL, timestamp has to be seconds since epoch.
     if (typeof params.timestamp === 'number' || /^\d+$/.test(params.timestamp)) {
       if (String(params.timestamp).length > 10) {
