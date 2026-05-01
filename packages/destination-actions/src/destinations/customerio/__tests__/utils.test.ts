@@ -83,7 +83,9 @@ describe('resolveIdentifiers', () => {
     expect(resolveIdentifiers(identifiers)).toEqual({ anonymous_id: '123' })
   })
 
-  it('should return undefined if no identifiers are provided', () => {})
+  it('should return undefined if no identifiers are provided', () => {
+    expect(resolveIdentifiers({})).toBeUndefined()
+  })
 })
 
 describe('sendBatch', () => {
@@ -446,3 +448,4 @@ describe('convertValidTimestamp', () => {
     expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
   })
 })
+
