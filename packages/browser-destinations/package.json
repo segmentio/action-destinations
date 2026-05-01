@@ -65,13 +65,8 @@
       "@segment/actions-shared": "<rootDir>/../actions-shared/src",
       "@segment/browser-destination-runtime/(.*)": "<rootDir>/../browser-destination-runtime/src/$1"
     },
-    "globals": {
-      "ts-jest": {
-        "isolatedModules": true
-      }
-    },
     "transform": {
-      "^.+\\.[t|j]sx?$": "ts-jest"
+      "^.+\\.[t|j]sx?$": "<rootDir>/../../jest-swc-transformer.js"
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!(@segment/analytics-next|@braze/web-sdk/)).+\\.js$"

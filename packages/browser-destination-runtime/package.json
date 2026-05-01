@@ -71,11 +71,8 @@
     "@segment/analytics-next": "*"
   },
   "jest": {
-    "preset": "ts-jest",
-    "globals": {
-      "ts-jest": {
-        "isolatedModules": true
-      }
+    "transform": {
+      "^.+\\.[t|j]sx?$": "<rootDir>/../../jest-swc-transformer.js"
     },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [

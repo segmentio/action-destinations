@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-var
-var sftpPut = jest.fn().mockImplementation((args) => args)
-
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
   S3Client: jest.fn().mockImplementation(() => ({
@@ -14,24 +11,28 @@ jest.mock('@aws-sdk/client-sts', () => ({
   AssumeRoleCommand: jest.fn()
 }))
 
+jest.mock('ssh2-sftp-client', () => {
+  const sftpClient = {
+    put: jest.fn().mockImplementation((args) => args),
+    connect: jest.fn(),
+    end: jest.fn()
+  }
+  return jest.fn(() => sftpClient)
+})
+
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
 import nock from 'nock'
 import { enquoteIdentifier, normalize } from '../operations'
 import { LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
+import SftpClient from 'ssh2-sftp-client'
 
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'LiverampAudiences'
 
-jest.mock('ssh2-sftp-client', () => {
-  const sftpClient = {
-    put: sftpPut,
-    connect: jest.fn(),
-    end: jest.fn()
-  }
-  return jest.fn(() => sftpClient)
-})
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const sftpPut = new (SftpClient as any)().put
 
 describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destination action:`, () => {
   const actionSlug = 'audienceEnteredS3'

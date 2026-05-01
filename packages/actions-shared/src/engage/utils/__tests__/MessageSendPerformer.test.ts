@@ -15,7 +15,7 @@ class TestMessageSendPerformer extends MessageSendPerformer<MessageSettingsBase,
     return true
   }
 
-  executeInput: TestExecuteInput
+  declare executeInput: TestExecuteInput
 
   sendToRecepient: (_recepient: any) => Promise<any> = jest.fn(async (_recepient) => {
     return this.sendToRecepientImpl?.(_recepient)
