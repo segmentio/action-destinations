@@ -28,5 +28,5 @@ beforeEach(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {})
   global.document.domain = 'segment.com'
 
-  global.crypto = new Crypto()
+  Object.defineProperty(global, 'crypto', { value: new Crypto(), writable: true, configurable: true })
 })

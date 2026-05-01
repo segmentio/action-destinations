@@ -1,10 +1,7 @@
 /** @type { import('@jest/types').Config.InitialOptions } */
 module.exports = {
-  preset: 'ts-jest',
-  globals: {
-    'ts-jest': {
-      isolatedModules: false
-    }
+  transform: {
+    '^.+\\.[t|j]sx?$': '<rootDir>/../../jest-swc-transformer.js'
   },
   testRegex: '((\\.|/)(test))\\.(tsx?|json)$',
   modulePathIgnorePatterns: ['<rootDir>/dist/']

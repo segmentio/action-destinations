@@ -63,11 +63,8 @@
     "ssh2-sftp-client": "^12.0.1"
   },
   "jest": {
-    "preset": "ts-jest",
-    "globals": {
-      "ts-jest": {
-        "isolatedModules": true
-      }
+    "transform": {
+      "^.+\\.[t|j]sx?$": "<rootDir>/../../jest-swc-transformer.js"
     },
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [

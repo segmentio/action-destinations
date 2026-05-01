@@ -14,6 +14,14 @@ import * as path from 'path'
 import * as prompt from '../lib/prompt'
 import * as rimraf from 'rimraf'
 
+// jest.mock makes exports plain properties (no getters), which is needed
+// because @oclif/test's .stub() replaces the getter with the value when
+// it detects a getter-based property, breaking the function call.
+jest.mock('../lib/prompt', () => {
+  const actual = jest.requireActual('../lib/prompt')
+  return { __esModule: true, ...actual }
+})
+
 jest.setTimeout(15000)
 
 describe('cli init command', () => {
