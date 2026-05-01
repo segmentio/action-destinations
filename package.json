@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",
+    "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.32",
     "@swc/jest": "^0.2.39",
     "@types/aws4": "^1.11.2",
