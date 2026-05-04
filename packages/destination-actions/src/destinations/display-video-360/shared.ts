@@ -1,4 +1,4 @@
-import { IntegrationError, RequestClient, StatsContext, HTTPError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, StatsContext, HTTPError, AudienceMembership, PayloadValidationError } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
@@ -12,6 +12,7 @@ import {
   ErrorCode,
   UpdateUsersDataResponseSchema
 } from './proto/protofile'
+import { Payload as SyncPayload } from './syncAudience/generated-types'
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings } from './generated-types'
@@ -226,5 +227,61 @@ export const handleUpdate = async (
 
   return {
     status: 200
+  }
+}
+
+
+export const syncAudience = async (
+  request: RequestClient,
+  payload: SyncPayload[],
+  statsContext: StatsContext | undefined,
+  audienceMemberships: AudienceMembership[] | undefined
+) => {
+  const statsName = 'syncAudience'
+
+  validateMembership(payload, audienceMemberships)
+
+  const addPayloads: SyncPayload[] = []
+  const removePayloads: SyncPayload[] = []
+
+  payload.forEach((p, index) => {
+    if(audienceMemberships?.[index] === true) {
+      addPayloads.push(p)
+    }
+    else if (audienceMemberships?.[index] === false){  
+      removePayloads.push(p)
+    }
+  })
+
+  const addRequest = addPayloads.length > 0 ? createUpdateRequest(addPayloads, 'add') : undefined
+
+  if (addRequest && addRequest.ops.length > 0) {
+    await sendUpdateRequest(request, addRequest, statsName, statsContext)
+  } 
+
+  const deleteRequest = removePayloads.length > 0 ? createUpdateRequest(removePayloads, 'remove') : undefined
+
+  if (deleteRequest && deleteRequest.ops.length > 0) {
+    await sendUpdateRequest(request, deleteRequest, statsName, statsContext)
+  } 
+
+  if ((!addRequest || addRequest.ops.length === 0) && (!deleteRequest || deleteRequest.ops.length === 0)) {
+    statsContext?.statsClient.incr(`${statsName}.discard`, 1, statsContext?.tags)
+  }
+
+  return {
+    status: 200
+  }
+}
+
+export const validateMembership = (payloads: SyncPayload[], audienceMemberships: AudienceMembership[] | undefined) => {
+  if(!Array.isArray(audienceMemberships)){
+    throw new PayloadValidationError('Audience Memberships must be an array')
+  }
+  if(audienceMemberships.length !== payloads.length){
+    throw new PayloadValidationError('Audience Memberships length must match payloads length')
+  }
+  if (audienceMemberships.some((membership) => typeof membership !== 'boolean')) {
+    throw new PayloadValidationError('Audience Membership must be a boolean')
   }
 }
