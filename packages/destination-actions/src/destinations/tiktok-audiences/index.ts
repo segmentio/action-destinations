@@ -204,6 +204,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(addToAudience.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step All Triggers',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_all_triggers_track'
     }
   ]
 }

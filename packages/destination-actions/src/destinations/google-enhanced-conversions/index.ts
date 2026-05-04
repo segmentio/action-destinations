@@ -299,9 +299,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
       eventSlug: 'journeys_step_entered_track'
     },
     {
-      name: 'Journeys Step All Trigger',
-      partnerAction: 'uploadCallConversion2',
-      mapping: defaultValues(uploadCallConversion2.fields),
+      name: 'Journeys Step All Triggers',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_all_triggers_track'
     }
