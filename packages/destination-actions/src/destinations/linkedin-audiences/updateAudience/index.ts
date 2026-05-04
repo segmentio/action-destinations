@@ -9,11 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Syncs contacts from a Personas Audience to a LinkedIn DMP Segment.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields,
-  perform: async (request, { settings, payload, statsContext, stateContext, features }) => {
-    return processPayload(request, settings, [payload], statsContext, stateContext, features)
+  perform: async (request, { settings, payload, audienceMembership, features, statsContext, stateContext }) => {
+    return processPayload(request, settings, [payload], [audienceMembership], features, statsContext, stateContext)
   },
-  performBatch: async (request, { settings, payload, statsContext, stateContext, features }) => {
-    return processPayload(request, settings, payload, statsContext, stateContext, features)
+  performBatch: async (request, { settings, payload, audienceMembership, features, statsContext, stateContext }) => {
+    return processPayload(request, settings, payload, audienceMembership, features, statsContext, stateContext)
   }
 }
 
