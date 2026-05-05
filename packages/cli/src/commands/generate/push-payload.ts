@@ -692,7 +692,7 @@ export default class GeneratePushPayload extends Command {
 
       try {
         const payload = generateDestinationPayload(slug, definition)
-        const filePath = path.join(sourceDir, 'payload.json')
+        const filePath = path.join(sourceDir, 'metadata.json')
         await fs.writeJson(filePath, payload, { spaces: 2 })
         generated++
         this.spinner.succeed(`${definition.name} → ${filePath}`)

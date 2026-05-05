@@ -39,7 +39,7 @@ jobs:
               pull_number: context.issue.number,
               per_page: 100
             }, response => response.data.map(file => file.filename))
-            const files = allFiles.filter(f => !f.endsWith('payload.json'))
+            const files = allFiles.filter(f => !f.endsWith('metadata.json'))
             core.setOutput('files', JSON.stringify(files))
             if (files.length === 0) {
               core.setOutput('no_files_changed', true)
