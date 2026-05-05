@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError, IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, ErrorCodes, Features } from '@segment/actions-core'
 import { Payload as UploadPayload } from './conversionUpload/generated-types'
 import { Payload as Adjustayload } from './conversionAdjustmentUpload/generated-types'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -18,13 +18,23 @@ import {
   SuccessMaybeErrorResponse
 } from './types'
 import { processHashing } from '../../lib/hashing-utils'
+import { GOOGLE_CM360_API_VERSION, GOOGLE_CM360_CANARY_API_VERSION } from './versioning-info'
+
+export const API_VERSION = GOOGLE_CM360_API_VERSION
+export const CANARY_API_VERSION = GOOGLE_CM360_CANARY_API_VERSION
+export const FLAGON_NAME = 'cm360-canary-api-version'
+
+export function getApiVersion(features?: Features): string {
+  return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+}
 
 export async function send(
   request: RequestClient,
   settings: Settings,
   payloads: UploadPayload[] | Adjustayload[],
   isAdjustment: boolean,
-  auth?: AuthTokens
+  auth?: AuthTokens,
+  features?: Features
 ) {
   const json = getJSON(payloads, settings)
 
@@ -32,8 +42,10 @@ export async function send(
     maybeThrow(`No valid payloads found in batch of size ${payloads.length}`, true)
   }
 
+  const version = getApiVersion(features)
+
   const response = await request<SuccessMaybeErrorResponse>(
-    `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batch` +
+    `https://dfareporting.googleapis.com/dfareporting/${version}/userprofiles/${settings.profileId}/conversions/batch` +
       (isAdjustment ? 'update' : 'insert'),
     {
       method: 'POST',
