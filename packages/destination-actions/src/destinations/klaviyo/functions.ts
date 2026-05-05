@@ -40,9 +40,15 @@ import { ActionDestinationErrorResponseType } from '@segment/actions-core/destin
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
+const EXTERNAL_ID_LENGTH_ERROR: ActionDestinationErrorResponseType = {
+  status: 400,
+  errortype: 'PAYLOAD_VALIDATION_FAILED',
+  errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
+}
+
 export function validateExternalId(externalId: string | undefined): void {
   if (externalId && externalId.length > MAX_EXTERNAL_ID_LENGTH) {
-    throw new PayloadValidationError(`Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`)
+    throw new PayloadValidationError(EXTERNAL_ID_LENGTH_ERROR.errormessage)
   }
 }
 
@@ -105,8 +111,8 @@ export async function createProfile(
   phone_number: string | undefined,
   additionalAttributes: AdditionalAttributes
 ) {
+  validateExternalId(external_id)
   try {
-    validateExternalId(external_id)
     const profileData: ProfileData = {
       data: {
         type: 'profile',
@@ -594,11 +600,7 @@ function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload
   }
 
   if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
-    response.error = {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
-    }
+    response.error = EXTERNAL_ID_LENGTH_ERROR
     return response
   }
 
@@ -633,11 +635,7 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
   }
 
   if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
-    response.error = {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
-    }
+    response.error = EXTERNAL_ID_LENGTH_ERROR
     return response
   }
 
@@ -800,11 +798,7 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
     }
 
     if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
-      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
-      })
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, EXTERNAL_ID_LENGTH_ERROR)
       return
     }
 
@@ -955,11 +949,7 @@ export function validateProfilePayload(payload: Payload): validateProfilePayload
   }
 
   if (payload.external_id && payload.external_id.length > MAX_EXTERNAL_ID_LENGTH) {
-    response.error = {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
-    }
+    response.error = EXTERNAL_ID_LENGTH_ERROR
     return response
   }
 
