@@ -123,7 +123,7 @@ const destination: DestinationDefinition<Settings> = {
       version: {
         label: `Version:`,
         description: `${mod}`,
-        default: 'Version 3.1',
+        default: `Version 3.1   (nodeJS: ${process.version})`,
         type: 'string',
         required: false
       }
