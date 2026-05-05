@@ -1,0 +1,6013 @@
+{
+  "name": "TikTok Pixel",
+  "basicOptions": ["pixelCode", "ldu", "autoPageView", "useExistingPixel"],
+  "options": {
+    "pixelCode": {
+      "tags": [],
+      "default": "",
+      "description": "Your TikTok Pixel ID. Please see TikTok's [Pixel documentation](https://ads.tiktok.com/marketing_api/docs?id=1739583652957185) for information on how to find this value.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pixel Code",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The pixelCode property is required."]],
+      "uIMetadata": null
+    },
+    "ldu": {
+      "tags": [],
+      "default": false,
+      "description": "In order to help facilitate advertiser's compliance with the right to opt-out of sale and sharing of personal data under certain U.S. state privacy laws, TikTok offers a Limited Data Use (\"LDU\") feature. For more information, please refer to TikTok's [documentation page](https://business-api.tiktok.com/portal/docs?id=1770092377990145).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Limited Data Use",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "autoPageView": {
+      "tags": [],
+      "default": true,
+      "description": "If true, TikTok Pixel will fire a \"Pageview\" event whenevent the pixel is loaded on the page.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Fire TikTok Pixel Pageview event on page load.",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "useExistingPixel": {
+      "tags": [],
+      "default": false,
+      "description": "Deprecated. Please do not provide any value.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "[Deprecated] Use Existing Pixel",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Use a Segment identify() call to sent PII data to TikTok Pixel. Note that the PII information will be sent with the next track() call.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "phone_number",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "A single phone number in E.164 standard format. TikTok Pixel will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone_number": {
+                "title": "Phone Number",
+                "description": "A single phone number in E.164 standard format. TikTok Pixel will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "A single email address. TikTok Pixel will be hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "A single email address. TikTok Pixel will be hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "The first name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+          "defaultValue": {
+            "@path": "$.traits.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "The first name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The last name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+          "defaultValue": {
+            "@path": "$.traits.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "The last name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "The address of the customer.",
+          "defaultValue": {
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            },
+            "zip_code": {
+              "@path": "$.traits.address.postal_code"
+            },
+            "state": {
+              "@path": "$.traits.address.state"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "The address of the customer.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The customer's city.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The customer's country.",
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "title": "Zip Code",
+                    "description": "The customer's Zip Code.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "The customer's State.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "Uniquely identifies the user who triggered the conversion event. TikTok Pixel will hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "Uniquely identifies the user who triggered the conversion event. TikTok Pixel will hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "reportWebEvent",
+      "name": "Report Web Event",
+      "description": "Report events directly to TikTok. Data shared can power TikTok solutions like dynamic product ads, custom targeting, campaign optimization and attribution.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event_spec_type",
+          "type": "string",
+          "label": "Additional Fields",
+          "description": "Include fields for travel or vehicle events.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "value": "travel_fields",
+              "label": "Travel Fields"
+            },
+            {
+              "value": "vehicle_fields",
+              "label": "Vehicle Fields"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_spec_type": {
+                "title": "Additional Fields",
+                "description": "Include fields for travel or vehicle events.",
+                "type": "string",
+                "enum": ["travel_fields", "vehicle_fields"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "Conversion event name. Please refer to the \"Supported Web Events\" section on in TikTok’s [Pixel SDK documentation](https://business-api.tiktok.com/portal/docs?id=1739585696931842) for accepted event names.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "Conversion event name. Please refer to the \"Supported Web Events\" section on in TikTok’s [Pixel SDK documentation](https://business-api.tiktok.com/portal/docs?id=1739585696931842) for accepted event names.",
+                "type": "string"
+              }
+            },
+            "required": ["event"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "Any hashed ID that can identify a unique user/session.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "Any hashed ID that can identify a unique user/session.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "order_id",
+          "type": "string",
+          "label": "Order ID",
+          "description": "Order ID of the transaction.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "order_id": {
+                "title": "Order ID",
+                "description": "Order ID of the transaction.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "shop_id",
+          "type": "string",
+          "label": "Shop ID",
+          "description": "Shop ID of the transaction.",
+          "defaultValue": {
+            "@path": "$.properties.shop_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "shop_id": {
+                "title": "Shop ID",
+                "description": "Shop ID of the transaction.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contents",
+          "type": "object",
+          "label": "Contents",
+          "description": "Related item details for the event.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contents": {
+                "title": "Contents",
+                "description": "Related item details for the event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "price": {
+                      "title": "Price",
+                      "description": "Price of the item.",
+                      "type": "number"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "Number of items.",
+                      "type": "number"
+                    },
+                    "content_category": {
+                      "title": "Content Category",
+                      "description": "Category of the product item.",
+                      "type": "string"
+                    },
+                    "content_id": {
+                      "title": "Content ID",
+                      "description": "ID of the product item.",
+                      "type": "string"
+                    },
+                    "content_name": {
+                      "title": "Content Name",
+                      "description": "Name of the product item.",
+                      "type": "string"
+                    },
+                    "brand": {
+                      "title": "Brand",
+                      "description": "Brand name of the product item.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "content_ids",
+          "type": "string",
+          "label": "Content IDs",
+          "description": "Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.",
+          "defaultValue": {
+            "@path": "$.properties.content_ids"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "content_ids": {
+                "title": "Content IDs",
+                "description": "Product IDs associated with the event, such as SKUs. Do not populate this field if the 'Contents' field is populated. This field accepts a single string value or an array of string values.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "num_items",
+          "type": "number",
+          "label": "Number of Items",
+          "description": "Number of items when checkout was initiated. Used with the InitiateCheckout event.",
+          "defaultValue": {
+            "@path": "$.properties.num_items"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "num_items": {
+                "title": "Number of Items",
+                "description": "Number of items when checkout was initiated. Used with the InitiateCheckout event.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "content_type",
+          "type": "string",
+          "label": "Content Type",
+          "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
+          "defaultValue": "product",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "product",
+              "value": "product"
+            },
+            {
+              "label": "product_group",
+              "value": "product_group"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "content_type": {
+                "title": "Content Type",
+                "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
+                "type": "string",
+                "enum": ["product", "product_group"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "Currency for the value specified as ISO 4217 code.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "Currency for the value specified as ISO 4217 code.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "value",
+          "type": "number",
+          "label": "Value",
+          "description": "Value of the order or items sold.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.value"
+              },
+              "then": {
+                "@path": "$.properties.value"
+              },
+              "else": {
+                "@path": "$.properties.revenue"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "title": "Value",
+                "description": "Value of the order or items sold.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "A string description of the web event.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "A string description of the web event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "query",
+          "type": "string",
+          "label": "Query",
+          "description": "The text string that was searched for.",
+          "defaultValue": {
+            "@path": "$.properties.query"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "query": {
+                "title": "Query",
+                "description": "The text string that was searched for.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "search_string",
+          "type": "string",
+          "label": "Search String",
+          "description": "The text string entered by the user for the search. Optionally used with the Search event.",
+          "defaultValue": {
+            "@path": "$.properties.search_string"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "search_string": {
+                "title": "Search String",
+                "description": "The text string entered by the user for the search. Optionally used with the Search event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Search"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone_number",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "A single phone number in E.164 standard format. TikTok Pixel will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone_number": {
+                "title": "Phone Number",
+                "description": "A single phone number in E.164 standard format. TikTok Pixel will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "A single email address. TikTok Pixel will be hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "A single email address. TikTok Pixel will be hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "The first name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.first_name"
+              },
+              "then": {
+                "@path": "$.properties.first_name"
+              },
+              "else": {
+                "@path": "$.context.traits.first_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "The first name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The last name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.last_name"
+              },
+              "then": {
+                "@path": "$.properties.last_name"
+              },
+              "else": {
+                "@path": "$.context.traits.last_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "The last name of the customer. The name should be in lowercase without any punctuation. Special characters are allowed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "The address of the customer.",
+          "defaultValue": {
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.address.city"
+                },
+                "then": {
+                  "@path": "$.properties.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.address.country"
+                },
+                "then": {
+                  "@path": "$.properties.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            },
+            "zip_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.properties.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.address.state"
+                },
+                "then": {
+                  "@path": "$.properties.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "The address of the customer.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The customer's city.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The customer's country.",
+                    "type": "string"
+                  },
+                  "zip_code": {
+                    "title": "Zip Code",
+                    "description": "The customer's Zip Code.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "The customer's State.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "Uniquely identifies the user who triggered the conversion event. TikTok Pixel will hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "Uniquely identifies the user who triggered the conversion event. TikTok Pixel will hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "vehicle_fields",
+          "type": "object",
+          "label": "Vehicle Fields",
+          "description": "Fields related to vehicle events.",
+          "defaultValue": {
+            "postal_code": {
+              "@path": "$.properties.postal_code"
+            },
+            "make": {
+              "@path": "$.properties.make"
+            },
+            "model": {
+              "@path": "$.properties.model"
+            },
+            "year": {
+              "@path": "$.properties.year"
+            },
+            "state_of_vehicle": {
+              "@path": "$.properties.state_of_vehicle"
+            },
+            "mileage_value": {
+              "@path": "$.properties.mileage_value"
+            },
+            "mileage_unit": {
+              "@path": "$.properties.mileage_unit"
+            },
+            "exterior_color": {
+              "@path": "$.properties.exterior_color"
+            },
+            "transmission": {
+              "@path": "$.properties.transmission"
+            },
+            "body_style": {
+              "@path": "$.properties.body_style"
+            },
+            "fuel_type": {
+              "@path": "$.properties.fuel_type"
+            },
+            "drivetrain": {
+              "@path": "$.properties.drive_train"
+            },
+            "preferred_price_range_min": {
+              "@path": "$.properties.preferred_price_range_min"
+            },
+            "preferred_price_range_max": {
+              "@path": "$.properties.preferred_price_range_max"
+            },
+            "trim": {
+              "@path": "$.properties.trim"
+            },
+            "vin": {
+              "@path": "$.properties.vin"
+            },
+            "interior_color": {
+              "@path": "$.properties.interior_color"
+            },
+            "condition_of_vehicle": {
+              "@path": "$.properties.condition_of_vehicle"
+            },
+            "viewcontent_type": {
+              "@path": "$.properties.viewcontent_type"
+            },
+            "search_type": {
+              "@path": "$.properties.search_type"
+            },
+            "registration_type": {
+              "@path": "$.properties.registration_type"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "vehicle_fields": {
+                "title": "Vehicle Fields",
+                "description": "Fields related to vehicle events.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "postal_code": {
+                    "title": "Postal Code",
+                    "description": "Postal code for the vehicle location.",
+                    "type": "string"
+                  },
+                  "make": {
+                    "title": "Make of the Vehicle",
+                    "description": "Vehicle make/brand/manufacturer.",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model of the Vehicle",
+                    "description": "Vehicle model.",
+                    "type": "string"
+                  },
+                  "year": {
+                    "title": "Year of the Vehicle",
+                    "description": "Year the vehicle was laucned in yyyy format.",
+                    "type": "number"
+                  },
+                  "state_of_vehicle": {
+                    "title": "State of the Vehicle",
+                    "description": "Vehicle status.",
+                    "type": "string",
+                    "enum": ["New", "Used", "CPO"]
+                  },
+                  "mileage_value": {
+                    "title": "Mileage Value",
+                    "description": "Vehicle mileage (in km or miles). Zero (0) for new vehicle.",
+                    "type": "number"
+                  },
+                  "mileage_unit": {
+                    "title": "Mileage Unit",
+                    "description": "Mileage unites in miles (MI) or kilometers (KM).",
+                    "type": "string",
+                    "enum": ["MI", "KM"]
+                  },
+                  "exterior_color": {
+                    "title": "Exterior Color of the Vehicle",
+                    "description": "Vehicle exterior color.",
+                    "type": "string"
+                  },
+                  "transmission": {
+                    "title": "Transmission Type of the Vehicle",
+                    "description": "Vehicle transmission type.",
+                    "type": "string",
+                    "enum": ["Automatic", "Manual", "Other"]
+                  },
+                  "body_style": {
+                    "title": "Body Type of the Vehicle",
+                    "description": "Vehicle body type.",
+                    "type": "string",
+                    "enum": [
+                      "Convertible",
+                      "Coupe",
+                      "Hatchback",
+                      "Minivan",
+                      "Truck",
+                      "SUV",
+                      "Sedan",
+                      "Van",
+                      "Wagon",
+                      "Crossover",
+                      "Other"
+                    ]
+                  },
+                  "fuel_type": {
+                    "title": "Fuel Type of the Vehicle",
+                    "description": "Vehicle fuel type.",
+                    "type": "string",
+                    "enum": ["Diesel", "Electric", "Flex", "Gasoline", "Hybrid", "Other"]
+                  },
+                  "drivetrain": {
+                    "title": "Drivetrain of the Vehicle",
+                    "description": "Vehicle drivetrain.",
+                    "type": "string",
+                    "enum": ["AWD", "FOUR_WD", "FWD", "RWD", "TWO_WD", "Other"]
+                  },
+                  "preferred_price_range_min": {
+                    "title": "Minimum Preferred Price",
+                    "description": "Minimum preferred price of the vehicle.",
+                    "type": "number"
+                  },
+                  "preferred_price_range_max": {
+                    "title": "Maximum Preferred Price",
+                    "description": "Maximum preferred price of the vehicle.",
+                    "type": "number"
+                  },
+                  "trim": {
+                    "title": "Trim of the Vehicle",
+                    "description": "Vehicle trim.",
+                    "type": "string"
+                  },
+                  "vin": {
+                    "title": "VIN of the Vehicle",
+                    "description": "Vehicle identification number. Maximum characters: 17.",
+                    "type": "string"
+                  },
+                  "interior_color": {
+                    "title": "Interior Color of the Vehicle",
+                    "description": "Vehicle interior color.",
+                    "type": "string"
+                  },
+                  "condition_of_vehicle": {
+                    "title": "Condition of the Vehicle",
+                    "description": "Vehicle drivetrain.",
+                    "type": "string",
+                    "enum": ["Excellent", "Good", "Fair", "Poor", "Other"]
+                  },
+                  "viewcontent_type": {
+                    "title": "Soft Lead Landing Page",
+                    "description": "Optional for ViewContent. Use viewcontent_type to differentiate between soft lead landing pages.",
+                    "type": "string"
+                  },
+                  "search_type": {
+                    "title": "Other Search Page",
+                    "description": "Optional for Search. Use search_type to differentiate other user searches (such as dealer lookup) from inventory search.",
+                    "type": "string"
+                  },
+                  "registration_type": {
+                    "title": "Other Registration Page",
+                    "description": "Optional for CompleteRegistration. Use registration_type to differentiate between different types of customer registration on websites.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "event_spec_type",
+                "operator": "is",
+                "value": "vehicle_fields"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "travel_fields",
+          "type": "object",
+          "label": "Travel Fields",
+          "description": "Fields related to travel events.",
+          "defaultValue": {
+            "city": {
+              "@path": "$.properties.city"
+            },
+            "region": {
+              "@path": "$.properties.region"
+            },
+            "country": {
+              "@path": "$.properties.country"
+            },
+            "checkin_date": {
+              "@path": "$.properties.checkin_date"
+            },
+            "checkout_date": {
+              "@path": "$.properties.checkout_date"
+            },
+            "num_adults": {
+              "@path": "$.properties.num_adults"
+            },
+            "num_children": {
+              "@path": "$.properties.num_children"
+            },
+            "num_infants": {
+              "@path": "$.properties.num_infants"
+            },
+            "suggested_hotels": {
+              "@path": "$.properties.suggested_hotels"
+            },
+            "departing_departure_date": {
+              "@path": "$.properties.departing_departure_date"
+            },
+            "returning_departure_date": {
+              "@path": "$.properties.returning_departure_date"
+            },
+            "origin_airport": {
+              "@path": "$.properties.origin_airport"
+            },
+            "destination_airport": {
+              "@path": "$.properties.destination_airport"
+            },
+            "destination_ids": {
+              "@path": "$.properties.destination_ids"
+            },
+            "departing_arrival_date": {
+              "@path": "$.properties.departing_arrival_date"
+            },
+            "returning_arrival_date": {
+              "@path": "$.properties.returning_arrival_date"
+            },
+            "travel_class": {
+              "@path": "$.properties.travel_class"
+            },
+            "user_score": {
+              "@path": "$.properties.user_score"
+            },
+            "preferred_num_stops": {
+              "@path": "$.properties.preferred_num_stops"
+            },
+            "travel_start": {
+              "@path": "$.properties.travel_start"
+            },
+            "travel_end": {
+              "@path": "$.properties.travel_end"
+            },
+            "suggested_destinations": {
+              "@path": "$.properties.suggested_destinations"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "travel_fields": {
+                "title": "Travel Fields",
+                "description": "Fields related to travel events.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "Hotel City Location",
+                    "description": "Hotel city location.",
+                    "type": "string"
+                  },
+                  "region": {
+                    "title": "Hotel Region",
+                    "description": "Hotel region location.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Hotel Country",
+                    "description": "Hotel country location.",
+                    "type": "string"
+                  },
+                  "checkin_date": {
+                    "title": "Hotel Check-in Date",
+                    "description": "Hotel check-in date.",
+                    "type": "string"
+                  },
+                  "checkout_date": {
+                    "title": "Hotel Check-out Date",
+                    "description": "Hotel check-out date.",
+                    "type": "string"
+                  },
+                  "num_adults": {
+                    "title": "Number of Adults",
+                    "description": "Number of adults.",
+                    "type": "number"
+                  },
+                  "num_children": {
+                    "title": "Number of Children",
+                    "description": "Number of children.",
+                    "type": "number"
+                  },
+                  "num_infants": {
+                    "title": "Number of Infants",
+                    "description": "Number of infants flying.",
+                    "type": "number"
+                  },
+                  "suggested_hotels": {
+                    "title": "Suggested Hotels",
+                    "description": "Suggested hotels. This can be a single string value or an array of string values.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "departing_departure_date": {
+                    "title": "Departure Date",
+                    "description": "Date of flight departure. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD",
+                    "type": "string"
+                  },
+                  "returning_departure_date": {
+                    "title": "Arrival Date",
+                    "description": "Date of return flight. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD",
+                    "type": "string"
+                  },
+                  "origin_airport": {
+                    "title": "Origin Airport",
+                    "description": "Origin airport.",
+                    "type": "string"
+                  },
+                  "destination_airport": {
+                    "title": "Destination Airport",
+                    "description": "Destination airport.",
+                    "type": "string"
+                  },
+                  "destination_ids": {
+                    "title": "Destination IDs",
+                    "description": "If a client has a destination catalog, the client can associate one or more destinations in the catalog with a specific flight event. For instance, link a particular route to a nearby museum and a nearby beach, both of which are destinations in the catalog. This field accepts a single string value or an array of string values.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "departing_arrival_date": {
+                    "title": "Departing Arrival Date",
+                    "description": "The date and time for arrival at the destination of the outbound journey. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD",
+                    "type": "string"
+                  },
+                  "returning_arrival_date": {
+                    "title": "Returning Arrival Date",
+                    "description": "The date and time when the return journey is completed. Accepted date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD",
+                    "type": "string"
+                  },
+                  "travel_class": {
+                    "title": "Flight Ticket Class",
+                    "description": "Class of the flight ticket, must be: \"eco\", \"prem\", \"bus\", \"first\".",
+                    "type": "string",
+                    "enum": ["eco", "prem", "bus", "first"]
+                  },
+                  "user_score": {
+                    "title": "User Score",
+                    "description": "Represents the relative value of this potential customer to advertiser.",
+                    "type": "number"
+                  },
+                  "preferred_num_stops": {
+                    "title": "Preferred Number of Stops",
+                    "description": "The preferred number of stops the user is looking for. 0 for direct flight.",
+                    "type": "integer"
+                  },
+                  "travel_start": {
+                    "title": "Start Date of the Trip",
+                    "description": "The start date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.",
+                    "type": "string"
+                  },
+                  "travel_end": {
+                    "title": "End Date of the Trip",
+                    "description": "The end date of user's trip. Accept date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM-DDThh:mmTZD, and YYYY-MM-DDThh:mm:ssTZD.",
+                    "type": "string"
+                  },
+                  "suggested_destinations": {
+                    "title": "Suggested Destination IDs",
+                    "description": "A list of IDs representing destination suggestions for this user. This parameter is not applicable for the Search event. This field accepts a single string value or an array of string values.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "event_spec_type",
+                "operator": "is",
+                "value": "travel_fields"
+              }
+            ]
+          },
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add Payment Info",
+      "subscribe": "event = \"Payment Info Entered\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "AddPaymentInfo"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add to Cart",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "AddToCart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add to Wishlist",
+      "subscribe": "event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "AddToWishlist"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Click Button",
+      "subscribe": "event = \"Product Clicked\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "ClickButton"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Complete Payment",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "CompletePayment"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Complete Registration",
+      "subscribe": "event = \"Signed Up\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "event": "CompleteRegistration"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Contact",
+      "subscribe": "event = \"Callback Started\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "event": "Contact"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Download",
+      "subscribe": "event = \"Download Link Clicked\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "event": "Download"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Initiate Checkout",
+      "subscribe": "event = \"Checkout Started\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "InitiateCheckout"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event": "Pageview"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Place an Order",
+      "subscribe": "event = \"Order Placed\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "PlaceAnOrder"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Search",
+      "subscribe": "event = \"Products Searched\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "Search"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Submit Form",
+      "subscribe": "event = \"Form Submitted\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "event": "SubmitForm"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Subscribe",
+      "subscribe": "event = \"Subscription Created\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "event": "Subscribe"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "View Content",
+      "subscribe": "event = \"Product Viewed\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "content_ids": {
+          "@path": "$.properties.content_ids"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "search_string": {
+          "@path": "$.properties.search_string"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.first_name"
+            },
+            "then": {
+              "@path": "$.properties.first_name"
+            },
+            "else": {
+              "@path": "$.context.traits.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.last_name"
+            },
+            "then": {
+              "@path": "$.properties.last_name"
+            },
+            "else": {
+              "@path": "$.context.traits.last_name"
+            }
+          }
+        },
+        "address": {
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.city"
+              },
+              "then": {
+                "@path": "$.properties.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.country"
+              },
+              "then": {
+                "@path": "$.properties.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "zip_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "then": {
+                "@path": "$.properties.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.address.state"
+              },
+              "then": {
+                "@path": "$.properties.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          }
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "vehicle_fields": {
+          "postal_code": {
+            "@path": "$.properties.postal_code"
+          },
+          "make": {
+            "@path": "$.properties.make"
+          },
+          "model": {
+            "@path": "$.properties.model"
+          },
+          "year": {
+            "@path": "$.properties.year"
+          },
+          "state_of_vehicle": {
+            "@path": "$.properties.state_of_vehicle"
+          },
+          "mileage_value": {
+            "@path": "$.properties.mileage_value"
+          },
+          "mileage_unit": {
+            "@path": "$.properties.mileage_unit"
+          },
+          "exterior_color": {
+            "@path": "$.properties.exterior_color"
+          },
+          "transmission": {
+            "@path": "$.properties.transmission"
+          },
+          "body_style": {
+            "@path": "$.properties.body_style"
+          },
+          "fuel_type": {
+            "@path": "$.properties.fuel_type"
+          },
+          "drivetrain": {
+            "@path": "$.properties.drive_train"
+          },
+          "preferred_price_range_min": {
+            "@path": "$.properties.preferred_price_range_min"
+          },
+          "preferred_price_range_max": {
+            "@path": "$.properties.preferred_price_range_max"
+          },
+          "trim": {
+            "@path": "$.properties.trim"
+          },
+          "vin": {
+            "@path": "$.properties.vin"
+          },
+          "interior_color": {
+            "@path": "$.properties.interior_color"
+          },
+          "condition_of_vehicle": {
+            "@path": "$.properties.condition_of_vehicle"
+          },
+          "viewcontent_type": {
+            "@path": "$.properties.viewcontent_type"
+          },
+          "search_type": {
+            "@path": "$.properties.search_type"
+          },
+          "registration_type": {
+            "@path": "$.properties.registration_type"
+          }
+        },
+        "travel_fields": {
+          "city": {
+            "@path": "$.properties.city"
+          },
+          "region": {
+            "@path": "$.properties.region"
+          },
+          "country": {
+            "@path": "$.properties.country"
+          },
+          "checkin_date": {
+            "@path": "$.properties.checkin_date"
+          },
+          "checkout_date": {
+            "@path": "$.properties.checkout_date"
+          },
+          "num_adults": {
+            "@path": "$.properties.num_adults"
+          },
+          "num_children": {
+            "@path": "$.properties.num_children"
+          },
+          "num_infants": {
+            "@path": "$.properties.num_infants"
+          },
+          "suggested_hotels": {
+            "@path": "$.properties.suggested_hotels"
+          },
+          "departing_departure_date": {
+            "@path": "$.properties.departing_departure_date"
+          },
+          "returning_departure_date": {
+            "@path": "$.properties.returning_departure_date"
+          },
+          "origin_airport": {
+            "@path": "$.properties.origin_airport"
+          },
+          "destination_airport": {
+            "@path": "$.properties.destination_airport"
+          },
+          "destination_ids": {
+            "@path": "$.properties.destination_ids"
+          },
+          "departing_arrival_date": {
+            "@path": "$.properties.departing_arrival_date"
+          },
+          "returning_arrival_date": {
+            "@path": "$.properties.returning_arrival_date"
+          },
+          "travel_class": {
+            "@path": "$.properties.travel_class"
+          },
+          "user_score": {
+            "@path": "$.properties.user_score"
+          },
+          "preferred_num_stops": {
+            "@path": "$.properties.preferred_num_stops"
+          },
+          "travel_start": {
+            "@path": "$.properties.travel_start"
+          },
+          "travel_end": {
+            "@path": "$.properties.travel_end"
+          },
+          "suggested_destinations": {
+            "@path": "$.properties.suggested_destinations"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "ViewContent"
+      },
+      "type": "automatic"
+    }
+  ]
+}

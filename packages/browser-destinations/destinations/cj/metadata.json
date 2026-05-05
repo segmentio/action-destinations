@@ -1,0 +1,2048 @@
+{
+  "name": "Commission Junction (Actions)",
+  "description": "The Commission Junction Browser Destination allows you to install the CJ Javascript pixel onto your site and pass mapped Segment events and metadata to CJ.",
+  "basicOptions": ["tagId", "actionTrackerId"],
+  "options": {
+    "tagId": {
+      "tags": [],
+      "default": "",
+      "description": "Your Commission Junction Tag ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Tag ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The tagId property is required."]],
+      "uIMetadata": null
+    },
+    "actionTrackerId": {
+      "tags": [],
+      "default": "",
+      "description": "Used with the \"Order\" Action only. Can be overridden at the Action level. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Action Tracker ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "order",
+      "name": "Order",
+      "description": "Send order data to CJ.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "event = \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "verticalType",
+          "type": "string",
+          "label": "Vertical type",
+          "description": "Send additional data relating to travel, finance network services",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Travel Vertical",
+              "value": "travel"
+            },
+            {
+              "label": "Network Vertical",
+              "value": "network"
+            },
+            {
+              "label": "Finance Vertical",
+              "value": "finance"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "verticalType": {
+                "title": "Vertical type",
+                "description": "Send additional data relating to travel, finance network services",
+                "type": "string",
+                "enum": ["travel", "network", "finance"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A unique ID assigned by you to the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A unique ID assigned by you to the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enterpriseId",
+          "type": "number",
+          "label": "Enterprise ID",
+          "description": "Your CJ Enterprise ID.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enterpriseId": {
+                "title": "Enterprise ID",
+                "description": "Your CJ Enterprise ID.",
+                "type": "number"
+              }
+            },
+            "required": ["enterpriseId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageType",
+          "type": "string",
+          "label": "Page Type",
+          "description": "Page type to be sent to CJ. Must be set to \"conversionConfirmation\" for order events.",
+          "defaultValue": "conversionConfirmation",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Conversion Confirmation",
+              "value": "conversionConfirmation"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageType": {
+                "title": "Page Type",
+                "description": "Page type to be sent to CJ. Must be set to \"conversionConfirmation\" for order events.",
+                "type": "string",
+                "enum": ["conversionConfirmation"]
+              }
+            },
+            "required": ["pageType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailHash",
+          "type": "string",
+          "label": "Email address",
+          "description": "Segment will ensure the email address is hashed before sending to CJ.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailHash": {
+                "title": "Email address",
+                "description": "Segment will ensure the email address is hashed before sending to CJ.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "orderId",
+          "type": "string",
+          "label": "Order ID",
+          "description": "The orderId is a unique identifier, such as an order identifier or invoice number, which must be populated for each order.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "orderId": {
+                "title": "Order ID",
+                "description": "The orderId is a unique identifier, such as an order identifier or invoice number, which must be populated for each order.",
+                "type": "string"
+              }
+            },
+            "required": ["orderId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "actionTrackerId",
+          "type": "string",
+          "label": "Action Tracker ID",
+          "description": "Required if not specified in Settings. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "actionTrackerId": {
+                "title": "Action Tracker ID",
+                "description": "Required if not specified in Settings. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "The currency of the order, e.g. USD, EUR.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "The currency of the order, e.g. USD, EUR.",
+                "type": "string"
+              }
+            },
+            "required": ["currency"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "amount",
+          "type": "number",
+          "label": "Amount",
+          "description": "The total amount of the order. This should exclude shipping or tax.",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "title": "Amount",
+                "description": "The total amount of the order. This should exclude shipping or tax.",
+                "type": "number"
+              }
+            },
+            "required": ["amount"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "discount",
+          "type": "number",
+          "label": "Discount",
+          "description": "The total discount applied to the order.",
+          "defaultValue": {
+            "@path": "$.properties.discount"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "discount": {
+                "title": "Discount",
+                "description": "The total discount applied to the order.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "coupon",
+          "type": "string",
+          "label": "Coupon",
+          "description": "The coupon code applied to the order.",
+          "defaultValue": {
+            "@path": "$.properties.coupon"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "coupon": {
+                "title": "Coupon",
+                "description": "The coupon code applied to the order.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cjeventOrderCookieName",
+          "type": "string",
+          "label": "CJ Event Order Cookie Name",
+          "description": "The name of the cookie that stores the CJ Event ID. This is required whenever the advertiser uses their own cookie to store the Event ID.",
+          "defaultValue": "cje",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cjeventOrderCookieName": {
+                "title": "CJ Event Order Cookie Name",
+                "description": "The name of the cookie that stores the CJ Event ID. This is required whenever the advertiser uses their own cookie to store the Event ID.",
+                "type": "string"
+              }
+            },
+            "required": ["cjeventOrderCookieName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Items",
+          "description": "The items to be sent to CJ.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "unitPrice": {
+                  "@path": "$.price"
+                },
+                "itemId": {
+                  "@path": "$.id"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "discount": {
+                  "@path": "$.discount"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "title": "Items",
+                "description": "The items to be sent to CJ.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "unitPrice": {
+                      "title": "Unit Price",
+                      "description": "the price of the item before tax and discount.",
+                      "type": "number"
+                    },
+                    "itemId": {
+                      "title": "Item ID",
+                      "description": "The item sku.",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "The quantity of the item.",
+                      "type": "number"
+                    },
+                    "discount": {
+                      "title": "Discount",
+                      "description": "The discount applied to the item.",
+                      "type": "number"
+                    }
+                  },
+                  "required": ["unitPrice", "itemId", "quantity"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "allVerticals",
+          "type": "object",
+          "label": "All Vertical Parameters",
+          "description": "This field is used to pass additional parameters specific to the vertical. All vertical parameters listed below can be utilized regardless of the account's vertical.",
+          "defaultValue": {
+            "brand": {
+              "@path": "$.properties.brand"
+            },
+            "brandId": {
+              "@path": "$.properties.brand_id"
+            },
+            "businessUnit": {
+              "@path": "$.properties.business_unit"
+            },
+            "campaignId": {
+              "@path": "$.properties.campaign_id"
+            },
+            "campaignName": {
+              "@path": "$.properties.campaign_name"
+            },
+            "category": {
+              "@path": "$.properties.category"
+            },
+            "class": {
+              "@path": "$.properties.class"
+            },
+            "confirmationNumber": {
+              "@path": "$.properties.confirmation_number"
+            },
+            "couponDiscount": {
+              "@path": "$.properties.coupon_discount"
+            },
+            "couponType": {
+              "@path": "$.properties.coupon_type"
+            },
+            "customerCountry": {
+              "@path": "$.context.locale"
+            },
+            "customerSegment": {
+              "@path": "$.properties.customer_segment"
+            },
+            "customerStatus": {
+              "@path": "$.properties.customer_status"
+            },
+            "customerType": {
+              "@path": "$.properties.customer_type"
+            },
+            "delivery": {
+              "@path": "$.properties.delivery"
+            },
+            "description": {
+              "@path": "$.properties.description"
+            },
+            "duration": {
+              "@path": "$.properties.duration"
+            },
+            "endDateTime": {
+              "@path": "$.properties.end_date_time"
+            },
+            "genre": {
+              "@path": "$.properties.genre"
+            },
+            "itemId": {
+              "@path": "$.properties.item_id"
+            },
+            "itemName": {
+              "@path": "$.properties.item_name"
+            },
+            "itemType": {
+              "@path": "$.properties.item_type"
+            },
+            "lifestage": {
+              "@path": "$.properties.lifestage"
+            },
+            "location": {
+              "@path": "$.properties.location"
+            },
+            "loyaltyEarned": {
+              "@path": "$.properties.loyalty_earned"
+            },
+            "loyaltyFirstTimeSignup": {
+              "@path": "$.properties.loyalty_first_time_signup"
+            },
+            "loyaltyLevel": {
+              "@path": "$.properties.loyalty_level"
+            },
+            "loyaltyRedeemed": {
+              "@path": "$.properties.loyalty_redeemed"
+            },
+            "loyaltyStatus": {
+              "@path": "$.properties.loyalty_status"
+            },
+            "margin": {
+              "@path": "$.properties.margin"
+            },
+            "marketingChannel": {
+              "@path": "$.properties.marketing_channel"
+            },
+            "noCancellation": {
+              "@path": "$.properties.no_cancellation"
+            },
+            "orderSubtotal": {
+              "@path": "$.properties.order_subtotal"
+            },
+            "paymentMethod": {
+              "@path": "$.properties.payment_method"
+            },
+            "paymentModel": {
+              "@path": "$.properties.payment_model"
+            },
+            "platformId": {
+              "@path": "$.properties.platform_id"
+            },
+            "pointOfSale": {
+              "@path": "$.properties.point_of_sale"
+            },
+            "preorder": {
+              "@path": "$.properties.preorder"
+            },
+            "prepaid": {
+              "@path": "$.properties.prepaid"
+            },
+            "promotion": {
+              "@path": "$.properties.promotion"
+            },
+            "promotionAmount": {
+              "@path": "$.properties.promotion_amount"
+            },
+            "promotionConditionThreshold": {
+              "@path": "$.properties.promotion_condition_threshold"
+            },
+            "promotionConditionType": {
+              "@path": "$.properties.promotion_condition_type"
+            },
+            "promotionEnds": {
+              "@path": "$.properties.promotion_ends"
+            },
+            "promotionStarts": {
+              "@path": "$.properties.promotion_starts"
+            },
+            "promotionType": {
+              "@path": "$.properties.promotion_type"
+            },
+            "quantity": {
+              "@path": "$.properties.quantity"
+            },
+            "rating": {
+              "@path": "$.properties.rating"
+            },
+            "serviceType": {
+              "@path": "$.properties.service_type"
+            },
+            "startDateTime": {
+              "@path": "$.properties.start_date_time"
+            },
+            "subscriptionFee": {
+              "@path": "$.properties.subscription_fee"
+            },
+            "subscriptionLength": {
+              "@path": "$.properties.subscription_length"
+            },
+            "taxAmount": {
+              "@path": "$.properties.tax_amount"
+            },
+            "taxType": {
+              "@path": "$.properties.tax_type"
+            },
+            "upsell": {
+              "@path": "$.properties.upsell"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "allVerticals": {
+                "title": "All Vertical Parameters",
+                "description": "This field is used to pass additional parameters specific to the vertical. All vertical parameters listed below can be utilized regardless of the account's vertical.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ancillarySpend": {
+                    "title": "Ancillary Spend",
+                    "description": "Ancillary spend at the time of transaction, but not commissionable.",
+                    "type": "number"
+                  },
+                  "brand": {
+                    "title": "Brand",
+                    "description": "Brand of items purchased. If there are multiple items with different brands, one brand must be designated for the order.",
+                    "type": "string"
+                  },
+                  "brandId": {
+                    "title": "Brand ID",
+                    "description": "Identifier of brand of items purchased. If there are multiple items with different brands, one brand must be designated for the order.",
+                    "type": "string"
+                  },
+                  "businessUnit": {
+                    "title": "Business Unit",
+                    "description": "Identifies the business unit the customer purchased through. If there are multiple items with different business units, one business unit must be designated for the order.",
+                    "type": "string"
+                  },
+                  "campaignId": {
+                    "title": "Campaign ID",
+                    "description": "Marketing campaign id.",
+                    "type": "string"
+                  },
+                  "campaignName": {
+                    "title": "Campaign Name",
+                    "description": "Marketing campaign name.",
+                    "type": "string"
+                  },
+                  "category": {
+                    "title": "Category",
+                    "description": "Category of items purchased. If there are multiple items with different categories, one category must be designated for the order.",
+                    "type": "string"
+                  },
+                  "class": {
+                    "title": "Class",
+                    "description": "Class of item.",
+                    "type": "string"
+                  },
+                  "confirmationNumber": {
+                    "title": "Confirmation Number",
+                    "description": "Confirmation Number",
+                    "type": "number"
+                  },
+                  "couponDiscount": {
+                    "title": "Coupon Discount",
+                    "description": "The value (amount of discount) of the coupon. This should be the number linked to the \"coupon_type\" parameter",
+                    "type": "number"
+                  },
+                  "couponType": {
+                    "title": "Coupon Type",
+                    "description": "The type of coupon used in the order. This should be the number linked to the \"coupon_discount\" parameter.",
+                    "type": "string",
+                    "enum": ["percent", "dollars", "added_value"]
+                  },
+                  "customerCountry": {
+                    "title": "Customer Country",
+                    "description": "The customer's country. ISO 3166-1 alpha 2 country code, eg. US, UK, AU, FR.",
+                    "type": "string"
+                  },
+                  "customerSegment": {
+                    "title": "Customer Segment",
+                    "description": "Advertiser-specific customer segment definition.",
+                    "type": "string"
+                  },
+                  "customerStatus": {
+                    "title": "Customer Status",
+                    "description": "The status of the customer, e.g. new, returning.",
+                    "type": "string",
+                    "enum": ["New", "Lapsed", "Return"]
+                  },
+                  "customerType": {
+                    "title": "Customer Type",
+                    "description": "Indicates the type of individual making the purchase as someone representing a group.",
+                    "type": "string"
+                  },
+                  "delivery": {
+                    "title": "Delivery",
+                    "description": "The delivery method used for the order.",
+                    "type": "string",
+                    "enum": ["IN_STORE", "PICK_UP", "RECURRING", "STANDARD", "NEXT_DAY", "DIGITAL", "EXPRESS"]
+                  },
+                  "description": {
+                    "title": "Description",
+                    "description": "Description of the product.",
+                    "type": "string"
+                  },
+                  "duration": {
+                    "title": "Duration",
+                    "description": "Duration in days.",
+                    "type": "number"
+                  },
+                  "endDateTime": {
+                    "title": "End Date Time",
+                    "description": "End date and time of the order, in ISO 8601 format.",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "genre": {
+                    "title": "Genre",
+                    "description": "Product genre. If there are multiple items with different genres, one genre must be designated for the order.",
+                    "type": "string"
+                  },
+                  "itemId": {
+                    "title": "Item ID",
+                    "description": "Id for the item. (Simple Actions Only).",
+                    "type": "string"
+                  },
+                  "itemName": {
+                    "title": "Item Name",
+                    "description": "Advertiser assigned item name.",
+                    "type": "string"
+                  },
+                  "itemType": {
+                    "title": "Item Type",
+                    "description": "Advertiser assigned item type.",
+                    "type": "string"
+                  },
+                  "lifestage": {
+                    "title": "Lifestage",
+                    "description": "Advertiser assigned general demographic.",
+                    "type": "string"
+                  },
+                  "location": {
+                    "title": "Location",
+                    "description": "Identifies the customer location if different from customerCountry.",
+                    "type": "string"
+                  },
+                  "loyaltyEarned": {
+                    "title": "Loyalty Earned",
+                    "description": "Loyalty points earned on the transaction.",
+                    "type": "number"
+                  },
+                  "loyaltyFirstTimeSignup": {
+                    "title": "Loyalty First Time Signup",
+                    "description": "Indicates whether this order coincided with the consumer joining the loyalty program.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  },
+                  "loyaltyLevel": {
+                    "title": "Loyalty Level",
+                    "description": "Indicates the level of the customer's loyalty status.",
+                    "type": "string"
+                  },
+                  "loyaltyRedeemed": {
+                    "title": "Loyalty Redeemed",
+                    "description": "Loyalty points used during the transaction.",
+                    "type": "number"
+                  },
+                  "loyaltyStatus": {
+                    "title": "Loyalty Status",
+                    "description": "Indicates if the customer is a loyalty member.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  },
+                  "margin": {
+                    "title": "Margin",
+                    "description": "Margin on total order. Can be a dollar value or a custom indicator.",
+                    "type": "string"
+                  },
+                  "marketingChannel": {
+                    "title": "Marketing Channel",
+                    "description": "Advertiser-defined marketing channel assigned to this transaction.",
+                    "type": "string",
+                    "enum": ["affiliate", "display", "social", "search", "email", "direct navigation"]
+                  },
+                  "noCancellation": {
+                    "title": "No Cancellation",
+                    "description": "Indicates if the purchase has a no cancellation policy. \"Yes\" means there is a \"no cancellation\" policy, \"no\" means there is no policy.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  },
+                  "orderSubtotal": {
+                    "title": "Order Subtotal",
+                    "description": "Subtotal for order.",
+                    "type": "number"
+                  },
+                  "paymentMethod": {
+                    "title": "Payment Method",
+                    "description": "Method of payment.",
+                    "type": "string",
+                    "enum": [
+                      "credit_debit_card",
+                      "direct_debit",
+                      "EFTPOS",
+                      "online_payments",
+                      "cash",
+                      "check",
+                      "money_order",
+                      "gift_card_voucher",
+                      "digital_currency"
+                    ]
+                  },
+                  "paymentModel": {
+                    "title": "Payment Model",
+                    "description": "Model of payment used; advertiser-specific.",
+                    "type": "string"
+                  },
+                  "platformId": {
+                    "title": "Platform ID",
+                    "description": "Device platform customer is using.",
+                    "type": "string"
+                  },
+                  "pointOfSale": {
+                    "title": "Point of Sale",
+                    "description": "Point of sale for the transaction.",
+                    "type": "string",
+                    "enum": [
+                      "AMAZON",
+                      "CALL_CENTER",
+                      "CAR_RENTAL",
+                      "CATALOG",
+                      "HOTEL_LOCATION",
+                      "INTERNET",
+                      "IN_APP",
+                      "OUTLET",
+                      "RETAIL_STORE"
+                    ]
+                  },
+                  "preorder": {
+                    "title": "Preorder",
+                    "description": "Indicates if the purchase was made prior to the item becoming available.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  },
+                  "prepaid": {
+                    "title": "Prepaid",
+                    "description": "Indicates if the payment was made in advance of the item's consumption.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  },
+                  "promotion": {
+                    "title": "Promotion",
+                    "description": "Promotion applied. If multiple, must be comma-separated.",
+                    "type": "string"
+                  },
+                  "promotionAmount": {
+                    "title": "Promotion Amount",
+                    "description": "The numeric value associated with the promotion.",
+                    "type": "number"
+                  },
+                  "promotionConditionThreshold": {
+                    "title": "Promotion Condition Threshold",
+                    "description": "Threshold needed to qualify for the promotion.",
+                    "type": "number"
+                  },
+                  "promotionConditionType": {
+                    "title": "Promotion Condition Type",
+                    "description": "Type of conditions applied to the promotion.",
+                    "type": "string",
+                    "enum": [
+                      "BRAND_CARD_SIGNUP_SPECIFIC",
+                      "BRAND_CARD_SPECIFIC",
+                      "LOCATION_SPECIFIC",
+                      "MEMBERSHIP_REQUIRED",
+                      "LOYALTY_REQUIRED",
+                      "EMAIL_SIGNUP_REQUIRED",
+                      "NEW_CUSTOMER_SPECIFIC",
+                      "PRODUCT_SPECIFIC",
+                      "POINT_OF_SALE_SPECIFIC"
+                    ]
+                  },
+                  "promotionEnds": {
+                    "title": "Promotion Ends",
+                    "description": "End date of the promotion, in ISO 8601 format.",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "promotionStarts": {
+                    "title": "Promotion Starts",
+                    "description": "Start date of the promotion, in ISO 8601 format.",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "promotionType": {
+                    "title": "Promotion Type",
+                    "description": "Category of promotion.",
+                    "type": "string",
+                    "enum": [
+                      "BOGO",
+                      "AMOUNT_OFF",
+                      "FREE_GIFT",
+                      "FREE_SHIP",
+                      "INTRODUCTORY_OFFER",
+                      "PERCENT_OFF",
+                      "COUPON"
+                    ]
+                  },
+                  "quantity": {
+                    "title": "Quantity",
+                    "description": "Quantity for a given SKU. (Simple Actions Only).",
+                    "type": "integer"
+                  },
+                  "rating": {
+                    "title": "Rating",
+                    "description": "Rating of the product.",
+                    "type": "string"
+                  },
+                  "serviceType": {
+                    "title": "Service Type",
+                    "description": "Classification of service offered.",
+                    "type": "string",
+                    "enum": [
+                      "cable",
+                      "checking_internet",
+                      "credit_card",
+                      "identity",
+                      "insurance",
+                      "investment",
+                      "loan",
+                      "payment",
+                      "phone",
+                      "prepaid_debit",
+                      "savings",
+                      "tax",
+                      "tv_sat",
+                      "tv_stream",
+                      "wireless",
+                      "wireless_bus",
+                      "wireless_fam",
+                      "wireless_ind"
+                    ]
+                  },
+                  "startDateTime": {
+                    "title": "Start Date Time",
+                    "description": "Start of item duration (e.g., check-out or departure date/time). Must be in ISO 8601 format.",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "subscriptionFee": {
+                    "title": "Subscription Fee",
+                    "description": "Cost of subscription fee featured when signing up for free trial.",
+                    "type": "number"
+                  },
+                  "subscriptionLength": {
+                    "title": "Subscription Length",
+                    "description": "Product duration.",
+                    "type": "string"
+                  },
+                  "taxAmount": {
+                    "title": "Tax Amount",
+                    "description": "Total tax for the order.",
+                    "type": "number"
+                  },
+                  "taxType": {
+                    "title": "Tax Type",
+                    "description": "Type of tax assessed.",
+                    "type": "string",
+                    "enum": [
+                      "ADMINISTRATIVE",
+                      "CARRIER",
+                      "DELIVERY",
+                      "FEDERAL_UNIVERSAL_SERVICE",
+                      "LOCAL",
+                      "REGULATORY_COST_RECOVERY",
+                      "ROOM",
+                      "SEGMENT",
+                      "STATE",
+                      "TOURIST",
+                      "V911_SERVICE"
+                    ]
+                  },
+                  "upsell": {
+                    "title": "Upsell",
+                    "description": "Indicates if someone converted from a trial to a subscription.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "travelVerticals",
+          "type": "object",
+          "label": "Travel Vertical Parameters",
+          "description": "This field is used to pass additional parameters specific to the travel vertical.",
+          "defaultValue": {
+            "bookingDate": {
+              "@path": "$.properties.booking_date"
+            },
+            "bookingStatus": {
+              "@path": "$.properties.booking_status"
+            },
+            "bookingValuePostTax": {
+              "@path": "$.properties.booking_value_post_tax"
+            },
+            "bookingValuePreTax": {
+              "@path": "$.properties.booking_value_pre_tax"
+            },
+            "carOptions": {
+              "@path": "$.properties.car_options"
+            },
+            "class": {
+              "@path": "$.properties.class"
+            },
+            "cruiseType": {
+              "@path": "$.properties.cruise_type"
+            },
+            "destinationCity": {
+              "@path": "$.properties.destination_city"
+            },
+            "destinationCountry": {
+              "@path": "$.properties.destination_country"
+            },
+            "destinationState": {
+              "@path": "$.properties.destination_state"
+            },
+            "domestic": {
+              "@path": "$.properties.domestic"
+            },
+            "dropoffIata": {
+              "@path": "$.properties.dropoff_iata"
+            },
+            "dropoffId": {
+              "@path": "$.properties.dropoff_id"
+            },
+            "flightFareType": {
+              "@path": "$.properties.flight_fare_type"
+            },
+            "flightOptions": {
+              "@path": "$.properties.flight_options"
+            },
+            "flightType": {
+              "@path": "$.properties.flight_type"
+            },
+            "flyerMiles": {
+              "@path": "$.properties.flyer_miles"
+            },
+            "guests": {
+              "@path": "$.properties.guests"
+            },
+            "iata": {
+              "@path": "$.properties.iata"
+            },
+            "itineraryId": {
+              "@path": "$.properties.itinerary_id"
+            },
+            "minimumStayDuration": {
+              "@path": "$.properties.minimum_stay_duration"
+            },
+            "originCity": {
+              "@path": "$.properties.origin_city"
+            },
+            "originCountry": {
+              "@path": "$.properties.origin_country"
+            },
+            "originState": {
+              "@path": "$.properties.origin_state"
+            },
+            "paidAtBookingPostTax": {
+              "@path": "$.properties.paid_at_booking_post_tax"
+            },
+            "paidAtBookingPreTax": {
+              "@path": "$.properties.paid_at_booking_pre_tax"
+            },
+            "pickupIata": {
+              "@path": "$.properties.pickup_iata"
+            },
+            "pickupId": {
+              "@path": "$.properties.pickup_id"
+            },
+            "port": {
+              "@path": "$.properties.port"
+            },
+            "roomType": {
+              "@path": "$.properties.room_type"
+            },
+            "rooms": {
+              "@path": "$.properties.rooms"
+            },
+            "shipName": {
+              "@path": "$.properties.ship_name"
+            },
+            "travelType": {
+              "@path": "$.properties.travel_type"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "travelVerticals": {
+                "title": "Travel Vertical Parameters",
+                "description": "This field is used to pass additional parameters specific to the travel vertical.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "bookingDate": {
+                    "title": "Booking Date",
+                    "description": "Date the booking was made.",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "bookingStatus": {
+                    "title": "Booking Status",
+                    "description": "Booking status at the time of tag firing.",
+                    "type": "string"
+                  },
+                  "bookingValuePostTax": {
+                    "title": "Booking Value Post-Tax",
+                    "description": "Value of booking after taxes.",
+                    "type": "number"
+                  },
+                  "bookingValuePreTax": {
+                    "title": "Booking Value Pre-Tax",
+                    "description": "Value of booking before taxes.",
+                    "type": "number"
+                  },
+                  "carOptions": {
+                    "title": "Car Options",
+                    "description": "Other items added to the reservation beyond the vehicle itself (e.g. \"insurance\", \"GPS\", \"Car Seat\").",
+                    "type": "string"
+                  },
+                  "class": {
+                    "title": "Class",
+                    "description": "Class of item (flight, hotel, car, or cruise specific classes).",
+                    "type": "string",
+                    "enum": [
+                      "first",
+                      "business",
+                      "premiumeconomy",
+                      "economy",
+                      "basiceconomy",
+                      "standard",
+                      "deluxe",
+                      "junior_suite",
+                      "suite",
+                      "economy",
+                      "compact",
+                      "mid_size",
+                      "full_size",
+                      "premium",
+                      "luxury",
+                      "mini_van",
+                      "convertible",
+                      "mid_size_suv",
+                      "standard_suv",
+                      "full_size_suv",
+                      "full_size_van",
+                      "interior",
+                      "ocean_view",
+                      "suite",
+                      "balcony"
+                    ]
+                  },
+                  "cruiseType": {
+                    "title": "Cruise Type",
+                    "description": "Type of cruise (Alaskan, Caribbean, etc...).",
+                    "type": "string"
+                  },
+                  "destinationCity": {
+                    "title": "Destination City",
+                    "description": "Customer service destination city name (New York City, Boston, Atlanta, etc...). If destinationCity is provided, destinationState must also be provided. If there is no Origin/Destination combo, but needs to indicate a location of service (network service, event) use 'destination' set of parameters.",
+                    "type": "string"
+                  },
+                  "destinationCountry": {
+                    "title": "Destination Country",
+                    "description": "Customer service destination country code, per ISO 3166-1 alpha 3 country code (USA, GBR, SWE, etc...).",
+                    "type": "string"
+                  },
+                  "destinationState": {
+                    "title": "Destination State",
+                    "description": "Customer service destination state/province code. ISO 3166-2 country subdivision standards. e.g. US-NY, US-CA, US-FL, US-TX",
+                    "type": "string"
+                  },
+                  "domestic": {
+                    "title": "Domestic Travel",
+                    "description": "Indicates whether the travel is domestic (Yes) or international (No).",
+                    "type": "string",
+                    "enum": ["YES", "NO"]
+                  },
+                  "dropoffIata": {
+                    "title": "Dropoff IATA",
+                    "description": "Destination location IATA code. 3 letter IATA code.",
+                    "type": "string"
+                  },
+                  "dropoffId": {
+                    "title": "Dropoff ID",
+                    "description": "Advertiser ID for destination location.",
+                    "type": "string"
+                  },
+                  "flightFareType": {
+                    "title": "Flight Fare Type",
+                    "description": "Type of flight fare (e.g. gotta get away).",
+                    "type": "string"
+                  },
+                  "flightOptions": {
+                    "title": "Flight Options",
+                    "description": "Other items added to the reservation (e.g. Wi-Fi).",
+                    "type": "string"
+                  },
+                  "flightType": {
+                    "title": "Flight Type",
+                    "description": "Type of flight (e.g. direct, layover, overnight).",
+                    "type": "string",
+                    "enum": ["MULTI_CITY", "ONE_WAY", "ROUND_TRIP"]
+                  },
+                  "flyerMiles": {
+                    "title": "Flyer Miles",
+                    "description": "Flyer miles earned from this flight.",
+                    "type": "number"
+                  },
+                  "guests": {
+                    "title": "Guests",
+                    "description": "Number of guests.",
+                    "type": "integer"
+                  },
+                  "iata": {
+                    "title": "IATA",
+                    "description": "IATA code (3-letter); If using for a multi-stop flight each city in a flight can be provided in a comma-separated list.",
+                    "type": "string"
+                  },
+                  "itineraryId": {
+                    "title": "Itinerary ID",
+                    "description": "Booking itinerary ID.",
+                    "type": "string"
+                  },
+                  "minimumStayDuration": {
+                    "title": "Minimum Stay Duration",
+                    "description": "Minimum stay duration required in days.",
+                    "type": "number"
+                  },
+                  "originCity": {
+                    "title": "Origin City",
+                    "description": "Customer service origin city name (New York City, Ottawa, Los Angeles, etc...). If originCity is provided, originState is also provided",
+                    "type": "string"
+                  },
+                  "originCountry": {
+                    "title": "Origin Country",
+                    "description": "Customer service origin country code per ISO 3166-1 alpha 3 country code (USA, GBR, SWE, etc...).",
+                    "type": "string"
+                  },
+                  "originState": {
+                    "title": "Origin State",
+                    "description": "Customer service origin state/province code per ISO 3166-2 country subdivision standards (Alaska would be \"or_state=US-AK\", Bangkok would be \"or_state=TH-10\").",
+                    "type": "string"
+                  },
+                  "paidAtBookingPostTax": {
+                    "title": "Paid at Booking (Post-Tax)",
+                    "description": "Amount paid at booking after taxes.",
+                    "type": "number"
+                  },
+                  "paidAtBookingPreTax": {
+                    "title": "Paid at Booking (Pre-Tax)",
+                    "description": "Amount paid at booking before taxes.",
+                    "type": "number"
+                  },
+                  "pickupIata": {
+                    "title": "Pickup IATA",
+                    "description": "Origin location IATA code.",
+                    "type": "string"
+                  },
+                  "pickupId": {
+                    "title": "Pickup ID",
+                    "description": "Advertiser ID for origin location.",
+                    "type": "string"
+                  },
+                  "port": {
+                    "title": "Port",
+                    "description": "Departure port city (for cruises).",
+                    "type": "string"
+                  },
+                  "roomType": {
+                    "title": "Room Type",
+                    "description": "Room type booked. If using the same values listed for \"class\" parameter, use that parameter instead.",
+                    "type": "string"
+                  },
+                  "rooms": {
+                    "title": "Rooms",
+                    "description": "Number of rooms booked.",
+                    "type": "integer"
+                  },
+                  "shipName": {
+                    "title": "Ship Name",
+                    "description": "Name of the cruise ship.",
+                    "type": "string"
+                  },
+                  "travelType": {
+                    "title": "Travel Type",
+                    "description": "\tType of travel being booked. If you want access to standardized benchmark reporting, you must pass a value from the following list.",
+                    "type": "string",
+                    "enum": [
+                      "ACTIVITIES",
+                      "AIR",
+                      "CAR",
+                      "CRUISE",
+                      "EVENTS",
+                      "HOTEL",
+                      "OTHER",
+                      "PACKAGE",
+                      "RESTAURANTS",
+                      "TRAVEL_GUIDES",
+                      "VACATION_RENTAL"
+                    ]
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "financeVerticals",
+          "type": "object",
+          "label": "Finance Verticals",
+          "description": "This field is used to pass additional parameters specific to the finance vertical.",
+          "defaultValue": {
+            "annualFee": {
+              "@path": "$.properties.annual_fee"
+            },
+            "applicationStatus": {
+              "@path": "$.properties.application_status"
+            },
+            "apr": {
+              "@path": "$.properties.apr"
+            },
+            "aprTransfer": {
+              "@path": "$.properties.apr_transfer"
+            },
+            "aprTransferTime": {
+              "@path": "$.properties.apr_transfer_time"
+            },
+            "cardCategory": {
+              "@path": "$.properties.card_category"
+            },
+            "cashAdvanceFee": {
+              "@path": "$.properties.cash_advance_fee"
+            },
+            "contractLength": {
+              "@path": "$.properties.contract_length"
+            },
+            "contractType": {
+              "@path": "$.properties.contract_type"
+            },
+            "creditReport": {
+              "@path": "$.properties.credit_report"
+            },
+            "creditLine": {
+              "@path": "$.properties.credit_line"
+            },
+            "creditQuality": {
+              "@path": "$.properties.credit_quality"
+            },
+            "fundedAmount": {
+              "@path": "$.properties.funded_amount"
+            },
+            "fundedCurrency": {
+              "@path": "$.properties.funded_currency"
+            },
+            "introductoryApr": {
+              "@path": "$.properties.introductory_apr"
+            },
+            "introductoryAprTime": {
+              "@path": "$.properties.introductory_apr_time"
+            },
+            "minimumBalance": {
+              "@path": "$.properties.minimum_balance"
+            },
+            "minimumDeposit": {
+              "@path": "$.properties.minimum_deposit"
+            },
+            "prequalify": {
+              "@path": "$.properties.prequalify"
+            },
+            "transferFee": {
+              "@path": "$.properties.transfer_fee"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "financeVerticals": {
+                "title": "Finance Verticals",
+                "description": "This field is used to pass additional parameters specific to the finance vertical.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "annualFee": {
+                    "title": "Annual Fee",
+                    "description": "Amount of the annual fee.",
+                    "type": "number"
+                  },
+                  "applicationStatus": {
+                    "title": "Application Status",
+                    "description": "Identifies the status of the application at the time the transaction is sent to CJ.",
+                    "type": "string",
+                    "enum": [
+                      "instant_approved",
+                      "instant_declined",
+                      "pended",
+                      "approved",
+                      "declined",
+                      "declined_counter"
+                    ]
+                  },
+                  "apr": {
+                    "title": "APR",
+                    "description": "APR at time of application approval.",
+                    "type": "number"
+                  },
+                  "aprTransfer": {
+                    "title": "APR Transfer",
+                    "description": "APR for transfers.",
+                    "type": "number"
+                  },
+                  "aprTransferTime": {
+                    "title": "APR Transfer Time",
+                    "description": "If transfer APR is only for a certain period of time, pass the number of months here.",
+                    "type": "integer"
+                  },
+                  "cardCategory": {
+                    "title": "Card Category",
+                    "description": "Category of the card.",
+                    "type": "string",
+                    "enum": [
+                      "BALANCE_TRANSFER_CARDS",
+                      "CASH_BACK_REWARD_CARDS",
+                      "CHARGE_CARDS",
+                      "CLICKS",
+                      "MILITARY_AFFILIATE",
+                      "OTHER",
+                      "REWARD_POINTS_CARDS",
+                      "CREDIT_BUILDING_CARDS",
+                      "STUDENT_CARDS",
+                      "TRAVEL_REWARD_CARDS",
+                      "UNKNOWN_PRODUCT",
+                      "LOW_APR_CARDS"
+                    ]
+                  },
+                  "cashAdvanceFee": {
+                    "title": "Cash Advance Fee",
+                    "description": "Amount of the fee associated with the cash advance.",
+                    "type": "number"
+                  },
+                  "contractLength": {
+                    "title": "Contract Length",
+                    "description": "Contract length, in months.",
+                    "type": "number"
+                  },
+                  "contractType": {
+                    "title": "Contract Type",
+                    "description": "Advertiser-specific contract description.",
+                    "type": "string"
+                  },
+                  "creditReport": {
+                    "title": "Credit Report",
+                    "description": "Indicates if the customer received a credit report and if it was purchased.",
+                    "type": "string",
+                    "enum": ["purchase", "free", "trial"]
+                  },
+                  "creditLine": {
+                    "title": "Credit Line",
+                    "description": "Amount of credit extended through product.",
+                    "type": "number"
+                  },
+                  "creditQuality": {
+                    "title": "Credit Quality",
+                    "description": "Minimum credit tier required for product approval. (300-579=Very Poor, 580-669=Fair, 670-739=Good,740-799=Very Good, 800-850=Exceptional).",
+                    "type": "string",
+                    "enum": ["Very Poor", "Fair", "Good", "Very Good", "Exceptional"]
+                  },
+                  "fundedAmount": {
+                    "title": "Funded Amount",
+                    "description": "Indicates the amount of funding added to the account at the time of transaction.",
+                    "type": "number"
+                  },
+                  "fundedCurrency": {
+                    "title": "Funded Currency",
+                    "description": "Currency of the funding provided for the new account.",
+                    "type": "number"
+                  },
+                  "introductoryApr": {
+                    "title": "Introductory APR",
+                    "description": "The introductory APR amount. (If the intro APR is not different than overall APR, use the \"APR\" parameter).",
+                    "type": "number"
+                  },
+                  "introductoryAprTime": {
+                    "title": "Introductory APR Time",
+                    "description": "The number of months the intro APR applies for.",
+                    "type": "integer"
+                  },
+                  "minimumBalance": {
+                    "title": "Minimum Balance",
+                    "description": "Value of the minimum cash balance requirement for the account.",
+                    "type": "number"
+                  },
+                  "minimumDeposit": {
+                    "title": "Minimum Deposit",
+                    "description": "Indicates the value if a minimum deposit is required.",
+                    "type": "number"
+                  },
+                  "prequalify": {
+                    "title": "Prequalify",
+                    "description": "Indicates if the applicant was pre-qualified for the card.",
+                    "type": "string",
+                    "enum": ["Yes", "No"]
+                  },
+                  "transferFee": {
+                    "title": "Transfer Fee",
+                    "description": "The transfer fee amount (i.e. for a credit card).",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "networkServicesVerticals",
+          "type": "object",
+          "label": "Network Services Verticals",
+          "description": "This field is used to pass additional parameters specific to the network services vertical.",
+          "defaultValue": {
+            "annualFee": {
+              "@path": "$.properties.annual_fee"
+            },
+            "applicationStatus": {
+              "@path": "$.properties.application_status"
+            },
+            "contractLength": {
+              "@path": "$.properties.contract_length"
+            },
+            "contractType": {
+              "@path": "$.properties.contract_type"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "networkServicesVerticals": {
+                "title": "Network Services Verticals",
+                "description": "This field is used to pass additional parameters specific to the network services vertical.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "annualFee": {
+                    "title": "Annual Fee",
+                    "description": "Amount of the annual fee.",
+                    "type": "number"
+                  },
+                  "applicationStatus": {
+                    "title": "Application Status",
+                    "description": "Identifies the status of the application at the time the transaction is sent to CJ.",
+                    "type": "string",
+                    "enum": [
+                      "instant_approved",
+                      "instant_declined",
+                      "pended",
+                      "approved",
+                      "declined",
+                      "declined_counter"
+                    ]
+                  },
+                  "contractLength": {
+                    "title": "Contract Length",
+                    "description": "Contract length, in months.",
+                    "type": "number"
+                  },
+                  "contractType": {
+                    "title": "Contract Type",
+                    "description": "Advertiser-specific contract description.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sitePage",
+      "name": "Site Page",
+      "description": "Send site page data to CJ.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A unique ID assigned by you to the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A unique ID assigned by you to the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enterpriseId",
+          "type": "number",
+          "label": "Enterprise ID",
+          "description": "Your CJ Enterprise ID.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enterpriseId": {
+                "title": "Enterprise ID",
+                "description": "Your CJ Enterprise ID.",
+                "type": "number"
+              }
+            },
+            "required": ["enterpriseId"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "pageType",
+          "type": "string",
+          "label": "Page Type",
+          "description": "Page type to be sent to CJ.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Account Center",
+              "value": "accountCenter"
+            },
+            {
+              "label": "Account Signup",
+              "value": "accountSignup"
+            },
+            {
+              "label": "Application Start",
+              "value": "applicationStart"
+            },
+            {
+              "label": "Branch Locator",
+              "value": "branchLocator"
+            },
+            {
+              "label": "Cart",
+              "value": "cart"
+            },
+            {
+              "label": "Category",
+              "value": "category"
+            },
+            {
+              "label": "Conversion Confirmation",
+              "value": "conversionConfirmation"
+            },
+            {
+              "label": "Department",
+              "value": "department"
+            },
+            {
+              "label": "Homepage",
+              "value": "homepage"
+            },
+            {
+              "label": "Information",
+              "value": "information"
+            },
+            {
+              "label": "Product Detail",
+              "value": "productDetail"
+            },
+            {
+              "label": "Property Detail",
+              "value": "propertyDetail"
+            },
+            {
+              "label": "Property Results",
+              "value": "propertyResults"
+            },
+            {
+              "label": "Search Results",
+              "value": "searchResults"
+            },
+            {
+              "label": "Store Locator",
+              "value": "storeLocator"
+            },
+            {
+              "label": "Sub Category",
+              "value": "subCategory"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageType": {
+                "title": "Page Type",
+                "description": "Page type to be sent to CJ.",
+                "type": "string",
+                "enum": [
+                  "accountCenter",
+                  "accountSignup",
+                  "applicationStart",
+                  "branchLocator",
+                  "cart",
+                  "category",
+                  "conversionConfirmation",
+                  "department",
+                  "homepage",
+                  "information",
+                  "productDetail",
+                  "propertyDetail",
+                  "propertyResults",
+                  "searchResults",
+                  "storeLocator",
+                  "subCategory"
+                ]
+              }
+            },
+            "required": ["pageType"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referringChannel",
+          "type": "string",
+          "label": "Referring Channel",
+          "description": "The referring channel to be sent to CJ.",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Affiliate",
+              "value": "Affiliate"
+            },
+            {
+              "label": "Display",
+              "value": "Display"
+            },
+            {
+              "label": "Social",
+              "value": "Social"
+            },
+            {
+              "label": "Search",
+              "value": "Search"
+            },
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "Direct Navigation",
+              "value": "Direct_Navigation"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referringChannel": {
+                "title": "Referring Channel",
+                "description": "The referring channel to be sent to CJ.",
+                "type": "string",
+                "enum": ["Affiliate", "Display", "Social", "Search", "Email", "Direct_Navigation"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cartSubtotal",
+          "type": "number",
+          "label": "Cart Subtotal",
+          "description": "The cart subtotal to be sent to CJ.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cartSubtotal": {
+                "title": "Cart Subtotal",
+                "description": "The cart subtotal to be sent to CJ.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Items",
+          "description": "The items to be sent to CJ.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "unitPrice": {
+                  "@path": "$.price"
+                },
+                "itemId": {
+                  "@path": "$.id"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "discount": {
+                  "@path": "$.discount"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "title": "Items",
+                "description": "The items to be sent to CJ.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "unitPrice": {
+                      "title": "Unit Price",
+                      "description": "the price of the item before tax and discount.",
+                      "type": "number"
+                    },
+                    "itemId": {
+                      "title": "Item ID",
+                      "description": "The item sku.",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "The quantity of the item.",
+                      "type": "number"
+                    },
+                    "discount": {
+                      "title": "Discount",
+                      "description": "The discount applied to the item.",
+                      "type": "number"
+                    }
+                  },
+                  "required": ["unitPrice", "itemId", "quantity"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

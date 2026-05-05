@@ -1,0 +1,1317 @@
+{
+  "name": "Braze Web Mode (Actions)",
+  "basicOptions": [
+    "sdkVersion",
+    "api_key",
+    "endpoint",
+    "allowCrawlerActivity",
+    "allowUserSuppliedJavascript",
+    "deferUntilIdentified",
+    "appVersion",
+    "contentSecurityNonce",
+    "devicePropertyAllowlist",
+    "disablePushTokenMaintenance",
+    "doNotLoadFontAwesome",
+    "enableLogging",
+    "enableSdkAuthentication",
+    "inAppMessageZIndex",
+    "localization",
+    "automaticallyDisplayMessages",
+    "manageServiceWorkerExternally",
+    "minimumIntervalBetweenTriggerActionsInSeconds",
+    "noCookies",
+    "openCardsInNewTab",
+    "openInAppMessagesInNewTab",
+    "requireExplicitInAppMessageDismissal",
+    "safariWebsitePushId",
+    "serviceWorkerLocation",
+    "sessionTimeoutInSeconds"
+  ],
+  "options": {
+    "sdkVersion": {
+      "tags": [],
+      "default": "6.1",
+      "description": "The version of the Braze SDK to use",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SDK Version",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "3.1",
+          "label": "3.1",
+          "text": "3.1"
+        },
+        {
+          "value": "3.3",
+          "label": "3.3",
+          "text": "3.3"
+        },
+        {
+          "value": "3.5",
+          "label": "3.5",
+          "text": "3.5"
+        },
+        {
+          "value": "4.1",
+          "label": "4.1",
+          "text": "4.1"
+        },
+        {
+          "value": "4.6",
+          "label": "4.6",
+          "text": "4.6"
+        },
+        {
+          "value": "4.8",
+          "label": "4.8",
+          "text": "4.8"
+        },
+        {
+          "value": "4.10",
+          "label": "4.10",
+          "text": "4.10"
+        },
+        {
+          "value": "5.4",
+          "label": "5.4",
+          "text": "5.4"
+        },
+        {
+          "value": "5.7",
+          "label": "5.7",
+          "text": "5.7"
+        },
+        {
+          "value": "5.8",
+          "label": "5.8",
+          "text": "5.8"
+        },
+        {
+          "value": "5.9",
+          "label": "5.9",
+          "text": "5.9"
+        },
+        {
+          "value": "6.1",
+          "label": "6.1",
+          "text": "6.1"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The sdkVersion property is required."]],
+      "uIMetadata": null
+    },
+    "api_key": {
+      "tags": [],
+      "default": "",
+      "description": "Found in the Braze Dashboard under Manage Settings → Apps → Web",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": false,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The api_key property is required."]],
+      "uIMetadata": null
+    },
+    "endpoint": {
+      "tags": [],
+      "default": "sdk.iad-01.braze.com",
+      "description": "Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/user_guide/administrative/access_braze/sdk_endpoints/)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SDK Endpoint",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "sdk.iad-01.braze.com",
+          "label": "US-01\t(https://dashboard-01.braze.com)",
+          "text": "US-01\t(https://dashboard-01.braze.com)"
+        },
+        {
+          "value": "sdk.iad-02.braze.com",
+          "label": "US-02\t(https://dashboard-02.braze.com)",
+          "text": "US-02\t(https://dashboard-02.braze.com)"
+        },
+        {
+          "value": "sdk.iad-03.braze.com",
+          "label": "US-03\t(https://dashboard-03.braze.com)",
+          "text": "US-03\t(https://dashboard-03.braze.com)"
+        },
+        {
+          "value": "sdk.iad-04.braze.com",
+          "label": "US-04\t(https://dashboard-04.braze.com)",
+          "text": "US-04\t(https://dashboard-04.braze.com)"
+        },
+        {
+          "value": "sdk.iad-05.braze.com",
+          "label": "US-05\t(https://dashboard-05.braze.com)",
+          "text": "US-05\t(https://dashboard-05.braze.com)"
+        },
+        {
+          "value": "sdk.iad-06.braze.com",
+          "label": "US-06\t(https://dashboard-06.braze.com)",
+          "text": "US-06\t(https://dashboard-06.braze.com)"
+        },
+        {
+          "value": "sdk.iad-07.braze.com",
+          "label": "US-07\t(https://dashboard-07.braze.com)",
+          "text": "US-07\t(https://dashboard-07.braze.com)"
+        },
+        {
+          "value": "sdk.iad-08.braze.com",
+          "label": "US-08\t(https://dashboard-08.braze.com)",
+          "text": "US-08\t(https://dashboard-08.braze.com)"
+        },
+        {
+          "value": "sdk.us-09.braze.com",
+          "label": "US-09\t(https://dashboard-09.braze.com)",
+          "text": "US-09\t(https://dashboard-09.braze.com)"
+        },
+        {
+          "value": "sdk.us-10.braze.com",
+          "label": "US-10 (https://dashboard-10.braze.com)",
+          "text": "US-10 (https://dashboard-10.braze.com)"
+        },
+        {
+          "value": "sdk.fra-01.braze.eu",
+          "label": "EU-01\t(https://dashboard-01.braze.eu)",
+          "text": "EU-01\t(https://dashboard-01.braze.eu)"
+        },
+        {
+          "value": "sdk.fra-02.braze.eu",
+          "label": "EU-02\t(https://dashboard-02.braze.eu)",
+          "text": "EU-02\t(https://dashboard-02.braze.eu)"
+        },
+        {
+          "value": "sdk.au-01.braze.com",
+          "label": "AU-01 (https://dashboard.au-01.braze.com)",
+          "text": "AU-01 (https://dashboard.au-01.braze.com)"
+        },
+        {
+          "value": "sdk.id-01.braze.com",
+          "label": "ID-01 (https://dashboard.id-01.braze.com)",
+          "text": "ID-01 (https://dashboard.id-01.braze.com)"
+        },
+        {
+          "value": "sdk.jp-01.braze.com",
+          "label": "JP-01 (https://dashboard.jp-01.braze.com)",
+          "text": "JP-01 (https://dashboard.jp-01.braze.com)"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [["required", "The endpoint property is required."]],
+      "uIMetadata": null
+    },
+    "allowCrawlerActivity": {
+      "tags": [],
+      "default": false,
+      "description": "Allow Braze to log activity from crawlers. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Allow Crawler Activity",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "allowUserSuppliedJavascript": {
+      "tags": [],
+      "default": false,
+      "description": "To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Allow User Supplied Javascript",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "deferUntilIdentified": {
+      "tags": [],
+      "default": false,
+      "description": "If enabled, this setting delays initialization of the Braze SDK until the user has been identified. When enabled, events for anonymous users will no longer be sent to Braze.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Only Track Known Users",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "appVersion": {
+      "tags": [],
+      "default": "",
+      "description": "Version to which user events sent to Braze will be associated with. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "App Version",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "contentSecurityNonce": {
+      "tags": [],
+      "default": "",
+      "description": "Allows Braze to add the nonce to any <script> and <style> elements created by the SDK. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Content Security nonce",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "devicePropertyAllowlist": {
+      "tags": [],
+      "default": "",
+      "description": "By default, the Braze SDK automatically detects and collects all device properties in DeviceProperties. To override this behavior, provide an array of DeviceProperties. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Device Property Allow List",
+      "private": false,
+      "scope": "event_destination",
+      "type": "array",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "disablePushTokenMaintenance": {
+      "tags": [],
+      "default": false,
+      "description": "By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to true",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Disable Push Token Maintenance",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "doNotLoadFontAwesome": {
+      "tags": [],
+      "default": false,
+      "description": "Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Do Not Load Font Awesome",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "enableLogging": {
+      "tags": [],
+      "default": false,
+      "description": "Set to true to enable logging by default",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Logging",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "enableSdkAuthentication": {
+      "tags": [],
+      "default": false,
+      "description": "Set to true to enable the SDK Authentication feature.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable SDK Authentication",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "inAppMessageZIndex": {
+      "tags": [],
+      "default": 0,
+      "description": "By default, the Braze SDK will show In-App Messages with a z-index of 1040 for the screen overlay, 1050 for the actual in-app message, and 1060 for the message's close button. Provide a value for this option to override these default z-indexes.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "In-App Message Z Index",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "localization": {
+      "tags": [],
+      "default": "en",
+      "description": "By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Localization",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "automaticallyDisplayMessages": {
+      "tags": [],
+      "default": true,
+      "description": "When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Automatically Send In-App Messages",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "manageServiceWorkerExternally": {
+      "tags": [],
+      "default": false,
+      "description": "If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Manage Service Worker Externally",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "minimumIntervalBetweenTriggerActionsInSeconds": {
+      "tags": [],
+      "default": 30,
+      "description": "Provide a value to override the default interval between trigger actions with a value of your own. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Minimum Interval Between Trigger Actions in Seconds",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "noCookies": {
+      "tags": [],
+      "default": false,
+      "description": "By default, the Braze SDK will store small amounts of data (user ids, session ids), in cookies. Pass true for this option to disable cookie storage and rely entirely on HTML 5 localStorage to identify users and sessions. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "No Cookies",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "openCardsInNewTab": {
+      "tags": [],
+      "default": false,
+      "description": "By default, links from Card objects load in the current tab or window. Set this option to true to make links from cards open in a new tab or window.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Open Cards In New Tab",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "openInAppMessagesInNewTab": {
+      "tags": [],
+      "default": false,
+      "description": "By default, links from in-app message clicks load in the current tab or a new tab as specified in the dashboard on a message-by-message basis. Set this option to true to force all links from in-app message clicks open in a new tab or window.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Open In-App Messages In New Tab",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "requireExplicitInAppMessageDismissal": {
+      "tags": [],
+      "default": false,
+      "description": "By default, when an in-app message is showing, pressing the escape button or a click on the greyed-out background of the page will dismiss the message. Set this option to true to prevent this behavior and require an explicit button click to dismiss messages.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Require Explicit In-App Message Dismissal",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "safariWebsitePushId": {
+      "tags": [],
+      "default": "",
+      "description": "If you support Safari push, you must specify this option with the website push ID that you provided to Apple when creating your Safari push certificate (starts with \"web\", e.g. \"web.com.example.domain\").",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Safari Website Push ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "serviceWorkerLocation": {
+      "tags": [],
+      "default": "",
+      "description": "By default, when registering users for web push notifications Braze will look for the required service worker file in the root directory of your web server at /service-worker.js. If you want to host your service worker at a different path on that server, provide a value for this option that is the absolute path to the file, e.g. /mycustompath/my-worker.js. VERY IMPORTANT: setting a value here limits the scope of push notifications on your site. For instance, in the above example, because the service  ,worker file is located within the /mycustompath/ directory, appboy.registerAppboyPushMessages MAY ONLY BE CALLED from web pages that start with http://yoursite.com/mycustompath/.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Service Worker Location",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "sessionTimeoutInSeconds": {
+      "tags": [],
+      "default": 1800,
+      "description": "By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Session Timeout in Seconds",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": ["us-west-2", "eu-west-1"],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "debounce",
+      "name": "Debounce Middleware",
+      "description": "When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent. Debounce functionality requires a frontend client to work. Therefore, it cannot be used with server-side libraries or with Engage.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"group\"",
+      "fields": []
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Reports that the current user performed a custom named event.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event != \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The identifier for the event to track.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The identifier for the event to track.",
+                "type": "string"
+              }
+            },
+            "required": ["eventName"]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventProperties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Hash of properties for this event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventProperties": {
+                "title": "Event Properties",
+                "description": "Hash of properties for this event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPurchase",
+      "name": "Track Purchase",
+      "description": "Reports that the current user made an in-app purchase.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "purchaseProperties",
+          "type": "object",
+          "label": "Purchase Properties",
+          "description": "Hash of properties for this purchase. Keys are limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation. Values can be numeric, boolean, Date objects, strings 255 characters or shorter, or nested objects whose values can be numeric, boolean, Date objects, arrays, strings, or null. Total size of purchase properties cannot exceed 50KB.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "purchaseProperties": {
+                "title": "Purchase Properties",
+                "description": "Hash of properties for this purchase. Keys are limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation. Values can be numeric, boolean, Date objects, strings 255 characters or shorter, or nested objects whose values can be numeric, boolean, Date objects, arrays, strings, or null. Total size of purchase properties cannot exceed 50KB.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "List of products purchased by the user",
+          "defaultValue": {
+            "@path": "$.properties.products"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "List of products purchased by the user",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "product_id": {
+                      "title": "Product ID",
+                      "description": "A string identifier for the product purchased, e.g. an SKU. Value is limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation.",
+                      "type": "string"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "description": "The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2)",
+                      "type": "number"
+                    },
+                    "currency": {
+                      "title": "Currency Code",
+                      "description": "Default USD. Currencies should be represented as an ISO 4217 currency code",
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "Default 1. The quantity of items purchased expressed as a whole number. Must be at least 1 and at most 100.",
+                      "type": "number"
+                    }
+                  },
+                  "required": ["product_id", "price"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "updateUserProfile",
+      "name": "Update User Profile",
+      "description": "Updates a users profile attributes in Braze",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External User ID",
+          "description": "The unique user identifier",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External User ID",
+                "description": "The unique user identifier",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The country code of the user",
+          "defaultValue": {
+            "@path": "$.context.location.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The country code of the user",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "current_location",
+          "type": "object",
+          "label": "Current Location",
+          "description": "The user's current longitude/latitude.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "current_location": {
+                "title": "Current Location",
+                "description": "The user's current longitude/latitude.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "key": {
+                    "title": "Key",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "title": "Latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "type": "number"
+                  }
+                },
+                "required": ["key", "latitude", "longitude"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_attributes",
+          "type": "object",
+          "label": "Custom Attributes",
+          "description": "Sets a custom user attribute. This can be any key/value pair and is used to collect extra information about the user.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_attributes": {
+                "title": "Custom Attributes",
+                "description": "Sets a custom user attribute. This can be any key/value pair and is used to collect extra information about the user.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dob",
+          "type": "datetime",
+          "label": "Date of Birth",
+          "description": "The user's date of birth",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dob": {
+                "title": "Date of Birth",
+                "description": "The user's date of birth",
+                "type": ["string", "number", "null"],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email",
+                "type": ["string", "null"],
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email_subscribe",
+          "type": "string",
+          "label": "Email Subscribe",
+          "description": "The user's email subscription preference: “opted_in” (explicitly registered to receive email messages), “unsubscribed” (explicitly opted out of email messages), and “subscribed” (neither opted in nor out).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email_subscribe": {
+                "title": "Email Subscribe",
+                "description": "The user's email subscription preference: “opted_in” (explicitly registered to receive email messages), “unsubscribed” (explicitly opted out of email messages), and “subscribed” (neither opted in nor out).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "The user's first name",
+          "defaultValue": {
+            "@path": "$.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "The user's first name",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The user's last name",
+          "defaultValue": {
+            "@path": "$.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "The user's last name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gender",
+          "type": "string",
+          "label": "Gender",
+          "description": "The user's gender: “M”, “F”, “O” (other), “N” (not applicable), “P” (prefer not to say) or nil (unknown).",
+          "defaultValue": {
+            "@path": "$.traits.gender"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gender": {
+                "title": "Gender",
+                "description": "The user's gender: “M”, “F”, “O” (other), “N” (not applicable), “P” (prefer not to say) or nil (unknown).",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "home_city",
+          "type": "string",
+          "label": "Home City",
+          "description": "The user's home city.",
+          "defaultValue": {
+            "@path": "$.traits.address.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "home_city": {
+                "title": "Home City",
+                "description": "The user's home city.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "image_url",
+          "type": "string",
+          "label": "Image URL",
+          "description": "URL of image to be associated with user profile.",
+          "defaultValue": {
+            "@path": "$.traits.avatar"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "image_url": {
+                "title": "Image URL",
+                "description": "URL of image to be associated with user profile.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "The user's preferred language.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "The user's preferred language.",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "The user's phone number",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone Number",
+                "description": "The user's phone number",
+                "type": ["string", "null"]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "push_subscribe",
+          "type": "string",
+          "label": "Push Subscribe",
+          "description": "The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "push_subscribe": {
+                "title": "Push Subscribe",
+                "description": "The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subscription_groups",
+          "type": "object",
+          "label": "Subscription Groups",
+          "description": "A list of subscription group IDs and states to set. Subscription group states can be either \"subscribed\" or \"unsubscribed\". Subscription Group IDs are found in the Braze dashboard.",
+          "defaultValue": {
+            "@path": "$.traits.braze_subscription_groups"
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subscription_groups": {
+                "title": "Subscription Groups",
+                "description": "A list of subscription group IDs and states to set. Subscription group states can be either \"subscribed\" or \"unsubscribed\". Subscription Group IDs are found in the Braze dashboard.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "subscription_group_id": {
+                      "title": "Subscription Group ID",
+                      "type": "string"
+                    },
+                    "subscription_group_state": {
+                      "title": "Subscription Group State",
+                      "type": "string",
+                      "enum": ["subscribed", "unsubscribed"]
+                    }
+                  },
+                  "required": ["subscription_group_id", "subscription_group_state"]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "updateUserProfile",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\" or type = \"group\"",
+      "mapping": {
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "custom_attributes": {
+          "@path": "$.traits"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "first_name": {
+          "@path": "$.traits.firstName"
+        },
+        "last_name": {
+          "@path": "$.traits.lastName"
+        },
+        "gender": {
+          "@path": "$.traits.gender"
+        },
+        "home_city": {
+          "@path": "$.traits.address.city"
+        },
+        "image_url": {
+          "@path": "$.traits.avatar"
+        },
+        "phone": {
+          "@path": "$.traits.phone"
+        },
+        "subscription_groups": {
+          "@path": "$.traits.braze_subscription_groups"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackPurchase",
+      "name": "Order Completed calls",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "purchaseProperties": {
+          "@path": "$.properties"
+        },
+        "products": {
+          "@path": "$.properties.products"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\" and event != \"Order Completed\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        },
+        "eventProperties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}
