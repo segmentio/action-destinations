@@ -209,7 +209,7 @@
       "tags": [
         "authentication:test"
       ],
-      "default": "Version 3.1   (nodeJS: v22.13.1)",
+      "default": "Version 3.1",
       "description": "\nLast-Modified: 06.28.2023 16.15.37\n",
       "encrypt": false,
       "hidden": false,
