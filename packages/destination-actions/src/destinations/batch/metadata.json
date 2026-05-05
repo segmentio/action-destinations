@@ -1,0 +1,489 @@
+{
+  "name": "Batch (Actions)",
+  "basicOptions": [
+    "apiToken",
+    "projectKey"
+  ],
+  "options": {
+    "apiToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Token used to authorize sending data to the Destination platform",
+      "encrypt": true,
+      "hidden": false,
+      "label": "REST API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "projectKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The unique project key identifying your project in the Destination platform",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Project Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The projectKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "updateProfile",
+      "name": "Update User Profile",
+      "description": "Sends user events or creates and updates user profiles in Batch.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "identifiers",
+          "type": "object",
+          "label": "Identifiers",
+          "description": "User identifiers",
+          "defaultValue": {
+            "custom_id": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "identifiers": {
+                "title": "Identifiers",
+                "description": "User identifiers",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "custom_id": {
+                    "title": "User ID",
+                    "description": "The unique profile identifier",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "custom_id"
+                ]
+              }
+            },
+            "required": [
+              "identifiers"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 200.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "If enabled, the action will send multiple profiles in a single request. The maximum number of profiles in a single request is 200.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of attributes to include in each batch.",
+          "defaultValue": 200,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of attributes to include in each batch.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "profileAttributes",
+          "type": "object",
+          "label": "Profile attributes",
+          "description": "Attributes for the user profile. Batch can accept up to 50 attributes per user.",
+          "defaultValue": {
+            "language": {
+              "@path": "$.context.locale"
+            },
+            "email_address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "phone_number": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.traits.phone"
+                }
+              }
+            },
+            "email_marketing": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email_marketing"
+                },
+                "then": {
+                  "@path": "$.context.traits.email_marketing"
+                },
+                "else": {
+                  "@path": "$.traits.email_marketing"
+                }
+              }
+            },
+            "sms_marketing": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.sms_marketing"
+                },
+                "then": {
+                  "@path": "$.context.traits.sms_marketing"
+                },
+                "else": {
+                  "@path": "$.traits.sms_marketing"
+                }
+              }
+            },
+            "timezone": {
+              "@path": "$.context.timezone"
+            },
+            "region": {
+              "@path": "$.context.locale"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "profileAttributes": {
+                "title": "Profile attributes",
+                "description": "Attributes for the user profile. Batch can accept up to 50 attributes per user.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "language": {
+                    "title": "Language",
+                    "description": "The profile's language. This can be sent as a locale (e.g., 'en-US') or a language code (e.g., 'en').",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "email_address": {
+                    "title": "Email",
+                    "description": "The profile's email",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "email"
+                  },
+                  "phone_number": {
+                    "title": "Phone Number",
+                    "description": "The profile's phone number",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "email_marketing": {
+                    "title": "Email marketing subscribe",
+                    "description": "The profile's marketing emails subscription. Setting to 'reset' will reset the marketing emails subscription.",
+                    "type": "string",
+                    "enum": [
+                      "subscribed",
+                      "unsubscribed",
+                      "reset"
+                    ]
+                  },
+                  "sms_marketing": {
+                    "title": "SMS marketing subscribe",
+                    "description": "The profile's marketing SMS subscription. Setting to 'reset' will reset the marketing SMS subscription.",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "subscribed",
+                      "unsubscribed",
+                      "reset",
+                      null
+                    ]
+                  },
+                  "timezone": {
+                    "title": "Timezone",
+                    "description": "The profile's time zone name from IANA Time Zone Database (e.g., “Europe/Paris”). Only valid time zone values will be set.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "The profile's region. This can be sent as a locale (e.g., 'en-US') or a country code (e.g., 'US').",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventAttributes",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "An object containining the event's attributes",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "eventAttributes": {
+                "title": "Event Attributes",
+                "description": "An object containining the event's attributes",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "updateProfile",
+      "name": "Update Profile",
+      "subscribe": "type = \"identify\" or type = \"track\"",
+      "mapping": {
+        "identifiers": {
+          "custom_id": {
+            "@path": "$.userId"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 200,
+        "profileAttributes": {
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "email_address": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phone_number": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
+          },
+          "email_marketing": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email_marketing"
+              },
+              "then": {
+                "@path": "$.context.traits.email_marketing"
+              },
+              "else": {
+                "@path": "$.traits.email_marketing"
+              }
+            }
+          },
+          "sms_marketing": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.sms_marketing"
+              },
+              "then": {
+                "@path": "$.context.traits.sms_marketing"
+              },
+              "else": {
+                "@path": "$.traits.sms_marketing"
+              }
+            }
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          },
+          "region": {
+            "@path": "$.context.locale"
+          }
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "eventAttributes": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

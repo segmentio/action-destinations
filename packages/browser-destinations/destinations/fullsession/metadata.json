@@ -1,0 +1,298 @@
+{
+  "name": "FullSession",
+  "basicOptions": [
+    "customerId"
+  ],
+  "options": {
+    "customerId": {
+      "tags": [],
+      "default": "",
+      "description": "Your FullSession Customer ID. You can find this in your FullSession dashboard under Settings .",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Customer ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The customerId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Identify users and set their properties in FullSession.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's unique identifier.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The user's unique identifier.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The user's anonymous identifier when no user ID is available.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The user's anonymous identifier when no user ID is available.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User Traits",
+          "description": "User traits and properties to be sent to FullSession.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "User Traits",
+                "description": "User traits and properties to be sent to FullSession.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "visitPage",
+      "name": "Page View",
+      "description": "Track page views and set page-specific attributes in FullSession for navigation analysis.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Page Properties",
+          "description": "Properties and metadata associated with the page being viewed",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Page Properties",
+                "description": "Properties and metadata associated with the page being viewed",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "recordEvent",
+      "name": "Track Event",
+      "description": "Track custom events and user interactions in FullSession for behavioral analysis.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event being tracked.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Name",
+                "description": "The name of the event being tracked.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Additional properties and metadata associated with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Additional properties and metadata associated with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "recordEvent",
+      "name": "Record Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "visitPage",
+      "name": "Visit Page",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

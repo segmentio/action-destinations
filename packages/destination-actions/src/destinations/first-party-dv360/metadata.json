@@ -1,0 +1,1361 @@
+{
+  "name": "First Party Dv360",
+  "basicOptions": [
+    "advertiserId",
+    "audienceType",
+    "description",
+    "appId",
+    "membershipDurationDays",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "advertiserId": {
+      "tags": [],
+      "default": "",
+      "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "audienceType": {
+      "tags": [],
+      "default": "",
+      "description": "The type of the audience.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Audience Type",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "CUSTOMER_MATCH_CONTACT_INFO",
+          "label": "CUSTOMER MATCH CONTACT INFO",
+          "text": "CUSTOMER MATCH CONTACT INFO"
+        },
+        {
+          "value": "CUSTOMER_MATCH_DEVICE_ID",
+          "label": "CUSTOMER MATCH DEVICE ID",
+          "text": "CUSTOMER MATCH DEVICE ID"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The audienceType property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "description": {
+      "tags": [],
+      "default": "",
+      "description": "The description of the audience.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Description",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "appId": {
+      "tags": [],
+      "default": "",
+      "description": "The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**",
+      "encrypt": false,
+      "hidden": false,
+      "label": "App ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "membershipDurationDays": {
+      "tags": [],
+      "default": "",
+      "description": "The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Membership Duration Days",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The membershipDurationDays property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "addToAudContactInfo",
+      "name": "Edit Customer Match Members - Contact Info List",
+      "description": "Add or update customer match members in Google Display & Video 360 Contact Info List Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "emails",
+          "type": "string",
+          "label": "Emails",
+          "description": "A list of the user's emails. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.emails"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emails": {
+                "title": "Emails",
+                "description": "A list of the user's emails. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phoneNumbers",
+          "type": "string",
+          "label": "Phone Numbers",
+          "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.phoneNumbers"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phoneNumbers": {
+                "title": "Phone Numbers",
+                "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "zipCodes",
+          "type": "string",
+          "label": "ZIP Codes",
+          "description": "A list of the user's zip codes.",
+          "defaultValue": {
+            "@path": "$.context.traits.zipCodes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "zipCodes": {
+                "title": "ZIP Codes",
+                "description": "A list of the user's zip codes.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "The user's first name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "The user's first name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The user's last name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "The user's last name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "countryCode",
+          "type": "string",
+          "label": "Country Code",
+          "description": "The country code of the user.",
+          "defaultValue": {
+            "@path": "$.context.traits..countryCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countryCode": {
+                "title": "Country Code",
+                "description": "The country code of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The ID of the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The Advertiser ID associated with the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 500000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "addToAudMobileDeviceId",
+      "name": "Edit Customer Match Members - Mobile Device Id List",
+      "description": "Add or update customer match members in Google Display & Video 360 Mobile Device Id List Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "mobileDeviceIds",
+          "type": "string",
+          "label": "Mobile Device IDs",
+          "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+          "defaultValue": {
+            "@path": "$.context.traits.mobileDeviceIds"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileDeviceIds": {
+                "title": "Mobile Device IDs",
+                "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mobileDeviceIds"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The ID of the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "external_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The Advertiser ID associated with the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "advertiser_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 500000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeFromAudContactInfo",
+      "name": "Remove Customer Match Members - Contact Info List",
+      "description": "Remove customer match members in Google Display & Video 360 Contact Info List Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "emails",
+          "type": "string",
+          "label": "Emails",
+          "description": "A list of the user's emails. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.emails"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emails": {
+                "title": "Emails",
+                "description": "A list of the user's emails. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phoneNumbers",
+          "type": "string",
+          "label": "Phone Numbers",
+          "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.phoneNumbers"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phoneNumbers": {
+                "title": "Phone Numbers",
+                "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "zipCodes",
+          "type": "string",
+          "label": "ZIP Codes",
+          "description": "A list of the user's zip codes.",
+          "defaultValue": {
+            "@path": "$.context.traits.zipCodes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "zipCodes": {
+                "title": "ZIP Codes",
+                "description": "A list of the user's zip codes.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "The user's first name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "The user's first name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The user's last name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "The user's last name. If not already hashed, the system will hash it before use. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "countryCode",
+          "type": "string",
+          "label": "Country Code",
+          "description": "The country code of the user.",
+          "defaultValue": {
+            "@path": "$.context.traits..countryCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countryCode": {
+                "title": "Country Code",
+                "description": "The country code of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The ID of the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The Advertiser ID associated with the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 500000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeFromAudMobileDeviceId",
+      "name": "Remove Customer Match Members - Mobile Device Id List",
+      "description": "Remove customer match members in Google Display & Video 360 Mobile Device Id List Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "mobileDeviceIds",
+          "type": "string",
+          "label": "Mobile Device IDs",
+          "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+          "defaultValue": {
+            "@path": "$.context.traits.mobileDeviceIds"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileDeviceIds": {
+                "title": "Mobile Device IDs",
+                "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mobileDeviceIds"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The ID of the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "external_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The Advertiser ID associated with the DV360 Audience.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "advertiser_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 500000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "addToAudContactInfo",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "emails": {
+          "@path": "$.context.traits.emails"
+        },
+        "phoneNumbers": {
+          "@path": "$.context.traits.phoneNumbers"
+        },
+        "zipCodes": {
+          "@path": "$.context.traits.zipCodes"
+        },
+        "firstName": {
+          "@path": "$.context.traits.firstName"
+        },
+        "lastName": {
+          "@path": "$.context.traits.lastName"
+        },
+        "countryCode": {
+          "@path": "$.context.traits..countryCode"
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "removeFromAudContactInfo",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "emails": {
+          "@path": "$.context.traits.emails"
+        },
+        "phoneNumbers": {
+          "@path": "$.context.traits.phoneNumbers"
+        },
+        "zipCodes": {
+          "@path": "$.context.traits.zipCodes"
+        },
+        "firstName": {
+          "@path": "$.context.traits.firstName"
+        },
+        "lastName": {
+          "@path": "$.context.traits.lastName"
+        },
+        "countryCode": {
+          "@path": "$.context.traits..countryCode"
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "addToAudContactInfo",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "emails": {
+          "@path": "$.context.traits.emails"
+        },
+        "phoneNumbers": {
+          "@path": "$.context.traits.phoneNumbers"
+        },
+        "zipCodes": {
+          "@path": "$.context.traits.zipCodes"
+        },
+        "firstName": {
+          "@path": "$.context.traits.firstName"
+        },
+        "lastName": {
+          "@path": "$.context.traits.lastName"
+        },
+        "countryCode": {
+          "@path": "$.context.traits..countryCode"
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "removeFromAudContactInfo",
+      "name": "Entities Audience Exited",
+      "mapping": {
+        "emails": {
+          "@path": "$.context.traits.emails"
+        },
+        "phoneNumbers": {
+          "@path": "$.context.traits.phoneNumbers"
+        },
+        "zipCodes": {
+          "@path": "$.context.traits.zipCodes"
+        },
+        "firstName": {
+          "@path": "$.context.traits.firstName"
+        },
+        "lastName": {
+          "@path": "$.context.traits.lastName"
+        },
+        "countryCode": {
+          "@path": "$.context.traits..countryCode"
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "partnerAction": "addToAudContactInfo",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "emails": {
+          "@path": "$.context.traits.emails"
+        },
+        "phoneNumbers": {
+          "@path": "$.context.traits.phoneNumbers"
+        },
+        "zipCodes": {
+          "@path": "$.context.traits.zipCodes"
+        },
+        "firstName": {
+          "@path": "$.context.traits.firstName"
+        },
+        "lastName": {
+          "@path": "$.context.traits.lastName"
+        },
+        "countryCode": {
+          "@path": "$.context.traits..countryCode"
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

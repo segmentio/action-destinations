@@ -1,0 +1,1695 @@
+{
+  "name": "TikTok Audiences",
+  "basicOptions": [
+    "advertiser_ids",
+    "advertiserId",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "advertiser_ids": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Advertiser IDs where audiences should be synced. Hidden in production and should not be altered by users.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "TikTok Advertiser IDs",
+      "private": true,
+      "scope": "event_destination",
+      "type": "array",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "advertiserId": {
+      "tags": [],
+      "default": "",
+      "description": "The advertiser ID to use when syncing audiences. Required if you wish to create or update an audience.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "addUser",
+      "name": "Add Users (Legacy)",
+      "description": "Add contacts from an Engage Audience to a TikTok Audience Segment.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "selected_advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The advertiser ID to use when syncing audiences.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "selected_advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The advertiser ID to use when syncing audiences.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "selected_advertiser_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_id": {
+                "title": "Audience ID",
+                "description": "Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "User Phone Number",
+          "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "User Phone Number",
+                "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "User Advertising ID",
+          "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "User Advertising ID",
+                "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "send_email",
+          "type": "boolean",
+          "label": "Send Email?",
+          "description": "Send email to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_email": {
+                "title": "Send Email?",
+                "description": "Send email to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_phone",
+          "type": "boolean",
+          "label": "Send Phone Number?",
+          "description": "Send phone number to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_phone": {
+                "title": "Send Phone Number?",
+                "description": "Send phone number to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_advertising_id",
+          "type": "boolean",
+          "label": "Send Mobile Advertising ID?",
+          "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_advertising_id": {
+                "title": "Send Mobile Advertising ID?",
+                "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the TikTok Audiences.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the TikTok Audiences.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "addToAudience",
+      "name": "Add to Audience",
+      "description": "Add records from an Engage Audience to a TikTok Audience Segment.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "User Phone Number",
+          "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "User Phone Number",
+                "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "User Advertising ID",
+          "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "User Advertising ID",
+                "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "send_email",
+          "type": "boolean",
+          "label": "Send Email?",
+          "description": "Send email to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_email": {
+                "title": "Send Email?",
+                "description": "Send email to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_phone",
+          "type": "boolean",
+          "label": "Send Phone Number?",
+          "description": "Send phone number to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_phone": {
+                "title": "Send Phone Number?",
+                "description": "Send phone number to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_advertising_id",
+          "type": "boolean",
+          "label": "Send Mobile Advertising ID?",
+          "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_advertising_id": {
+                "title": "Send Mobile Advertising ID?",
+                "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the TikTok Audiences.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the TikTok Audiences.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "External Audience ID",
+          "description": "The Audience ID in TikTok's DB.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "External Audience ID",
+                "description": "The Audience ID in TikTok's DB.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createAudience",
+      "name": "Create Audience (Legacy)",
+      "description": "Use this action to create a new audience in TikTok Audience Segment. This is required for legacy instances of the TikTok Audience destination to create a partner audience within TikTok for syncing Engage audiences to.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Create Audience\"",
+      "fields": [
+        {
+          "fieldKey": "selected_advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The advertiser ID to use when syncing audiences.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "selected_advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The advertiser ID to use when syncing audiences.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "selected_advertiser_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_audience_name",
+          "type": "string",
+          "label": "Custom Audience Name",
+          "description": "Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with \"...\" appended.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_audience_name": {
+                "title": "Custom Audience Name",
+                "description": "Custom audience name of audience to be created. Please note that names over 70 characters will be truncated to 67 characters with \"...\" appended.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "custom_audience_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeUser",
+      "name": "Remove Users (Legacy)",
+      "description": "Remove contacts from an Engage Audience to a TikTok Audience Segment.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "selected_advertiser_id",
+          "type": "string",
+          "label": "Advertiser ID",
+          "description": "The advertiser ID to use when syncing audiences.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "selected_advertiser_id": {
+                "title": "Advertiser ID",
+                "description": "The advertiser ID to use when syncing audiences.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "selected_advertiser_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_id": {
+                "title": "Audience ID",
+                "description": "Audience ID for the TikTok Audience you want to sync your Engage audience to. This is returned after you create an audience and can also be found in the TikTok Audiences dashboard.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "User Phone Number",
+          "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "User Phone Number",
+                "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "User Advertising ID",
+          "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "User Advertising ID",
+                "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "send_email",
+          "type": "boolean",
+          "label": "Send Email?",
+          "description": "Send email to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_email": {
+                "title": "Send Email?",
+                "description": "Send email to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_phone",
+          "type": "boolean",
+          "label": "Send Phone Number?",
+          "description": "Send phone number to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_phone": {
+                "title": "Send Phone Number?",
+                "description": "Send phone number to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_advertising_id",
+          "type": "boolean",
+          "label": "Send Mobile Advertising ID?",
+          "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_advertising_id": {
+                "title": "Send Mobile Advertising ID?",
+                "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the TikTok Audiences.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the TikTok Audiences.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeFromAudience",
+      "name": "Remove from Audience",
+      "description": "Remove contacts from an Engage Audience to a TikTok Audience Segment.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "The user's email address to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "User Phone Number",
+          "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "User Phone Number",
+                "description": "The user's phone number to send to TikTok. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "User Advertising ID",
+          "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "User Advertising ID",
+                "description": "The user's mobile advertising ID to send to TikTok. This could be a GAID, IDFA, or AAID. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "send_email",
+          "type": "boolean",
+          "label": "Send Email?",
+          "description": "Send email to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_email": {
+                "title": "Send Email?",
+                "description": "Send email to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_phone",
+          "type": "boolean",
+          "label": "Send Phone Number?",
+          "description": "Send phone number to TikTok. Segment will hash this value before sending",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_phone": {
+                "title": "Send Phone Number?",
+                "description": "Send phone number to TikTok. Segment will hash this value before sending",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send_advertising_id",
+          "type": "boolean",
+          "label": "Send Mobile Advertising ID?",
+          "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send_advertising_id": {
+                "title": "Send Mobile Advertising ID?",
+                "description": "Send mobile advertising ID (IDFA, AAID or GAID) to TikTok. Segment will hash this value before sending.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the TikTok Audiences.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the TikTok Audiences.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "External Audience ID",
+          "description": "The Audience ID in TikTok's DB.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "External Audience ID",
+                "description": "The Audience ID in TikTok's DB.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "addToAudience",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "send_email": true,
+        "send_phone": true,
+        "send_advertising_id": true,
+        "event_name": {
+          "@path": "$.event"
+        },
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "removeFromAudience",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "send_email": true,
+        "send_phone": true,
+        "send_advertising_id": true,
+        "event_name": {
+          "@path": "$.event"
+        },
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "addToAudience",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "send_email": true,
+        "send_phone": true,
+        "send_advertising_id": true,
+        "event_name": {
+          "@path": "$.event"
+        },
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "removeFromAudience",
+      "name": "Entities Audience Exited",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "send_email": true,
+        "send_phone": true,
+        "send_advertising_id": true,
+        "event_name": {
+          "@path": "$.event"
+        },
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "partnerAction": "addToAudience",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "send_email": true,
+        "send_phone": true,
+        "send_advertising_id": true,
+        "event_name": {
+          "@path": "$.event"
+        },
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

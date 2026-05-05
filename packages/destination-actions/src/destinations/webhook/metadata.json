@@ -1,0 +1,263 @@
+{
+  "name": "Webhook",
+  "basicOptions": [
+    "sharedSecret"
+  ],
+  "options": {
+    "sharedSecret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "If set, Segment will sign requests with an HMAC in the \"X-Signature\" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Shared Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "send",
+      "name": "Send",
+      "description": "Send an HTTP request.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL to deliver data to.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL to deliver data to.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "method",
+          "type": "string",
+          "label": "Method",
+          "description": "HTTP method to use.",
+          "defaultValue": "POST",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "POST",
+              "value": "POST"
+            },
+            {
+              "label": "PUT",
+              "value": "PUT"
+            },
+            {
+              "label": "PATCH",
+              "value": "PATCH"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "method": {
+                "title": "Method",
+                "description": "HTTP method to use.",
+                "type": "string",
+                "enum": [
+                  "POST",
+                  "PUT",
+                  "PATCH"
+                ]
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 0,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Headers",
+          "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "title": "Headers",
+                "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "Payload to deliver to webhook URL (JSON-encoded).",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "Payload to deliver to webhook URL (JSON-encoded).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The mapping keys to batch events together by.",
+          "defaultValue": [
+            "url",
+            "method",
+            "headers"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The mapping keys to batch events together by.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,554 @@
+{
+  "name": "Ms Bing Ads Audiences",
+  "basicOptions": [
+    "customerAccountId",
+    "customerId",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "customerAccountId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface. Not to be confused with Account Number.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Customer Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The customerAccountId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "customerId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The customer (parent) ID associated with your Microsoft Advertising account. You can find this in the URL when viewing your account in the Microsoft Ads User Interface.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Customer ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The customerId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "syncAudiences",
+      "name": "Sync Audiences",
+      "description": "Sync users to Microsoft Bing Ads Audiences",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "The ID of the audience to which you want to add or remove users.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_id": {
+                "title": "Audience ID",
+                "description": "The ID of the audience to which you want to add or remove users.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "[Hidden] Traits or Properties",
+          "description": "[Hidden] properties object from track() payloads. Note: identify calls are not handled and are disabled in the Partner Portal.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "[Hidden] Traits or Properties",
+                "description": "[Hidden] properties object from track() payloads. Note: identify calls are not handled and are disabled in the Partner Portal.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits_or_props"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_key",
+          "type": "string",
+          "label": "[Hidden] Audience Key",
+          "description": "[Hidden]: The Engage Audience Key / Slug.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_key": {
+                "title": "[Hidden] Audience Key",
+                "description": "[Hidden]: The Engage Audience Key / Slug.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "identifier_type",
+          "type": "string",
+          "label": "Identifier Type",
+          "description": "The type of identifier you are using to sync users.",
+          "defaultValue": "Email",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "CRM ID",
+              "value": "CRM"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifier_type": {
+                "title": "Identifier Type",
+                "description": "The type of identifier you are using to sync users.",
+                "type": "string",
+                "enum": [
+                  "Email",
+                  "CRM"
+                ]
+              }
+            },
+            "required": [
+              "identifier_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The email address of the user to add or remove from the audience. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The email address of the user to add or remove from the audience. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "identifier_type"
+                  ],
+                  "properties": {
+                    "identifier_type": {
+                      "const": "Email"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "email"
+                  ]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "Email"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "category": "hashedPII",
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "identifier_type",
+                  "operator": "is",
+                  "value": "Email"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "crm_id",
+          "type": "string",
+          "label": "CRM ID",
+          "description": "The CRM ID of the user to add or remove from the audience.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "crm_id": {
+                "title": "CRM ID",
+                "description": "The CRM ID of the user to add or remove from the audience.",
+                "type": "string"
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "identifier_type"
+                  ],
+                  "properties": {
+                    "identifier_type": {
+                      "const": "CRM"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "crm_id"
+                  ]
+                }
+              }
+            ]
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "CRM"
+              }
+            ]
+          },
+          "displayMetadata": {
+            "conditionallyRequired": {
+              "conditions": [
+                {
+                  "fieldKey": "identifier_type",
+                  "operator": "is",
+                  "value": "CRM"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of user syncs to optimize performance. When enabled, user syncs will be sent in batches based on the specified batch size.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of user syncs to optimize performance. When enabled, user syncs will be sent in batches based on the specified batch size.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "[Hidden] Batch Size",
+          "description": "[Hidden] The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.",
+          "defaultValue": 1000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "[Hidden] Batch Size",
+                "description": "[Hidden] The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 1000
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 1000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_class",
+          "type": "string",
+          "label": "Computation Class",
+          "description": "Hidden field: The computation class for the audience.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_class": {
+                "title": "Computation Class",
+                "description": "Hidden field: The computation class for the audience.",
+                "type": "string",
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
+              }
+            },
+            "required": [
+              "computation_class"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

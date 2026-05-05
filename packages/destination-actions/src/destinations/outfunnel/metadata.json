@@ -1,0 +1,953 @@
+{
+  "name": "Outfunnel",
+  "basicOptions": [
+    "userId",
+    "apiToken"
+  ],
+  "options": {
+    "userId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Outfunnel User ID. This is found under Account",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Outfunnel User Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The userId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Outfunnel API Token. This is found under Account",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "forwardGroupEvent",
+      "name": "Forward group event",
+      "description": "Forward group event to Outfunnel",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "action",
+          "type": "string",
+          "label": "Action name",
+          "description": "Indicates which action was triggered",
+          "defaultValue": "group",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "title": "Action name",
+                "description": "Indicates which action was triggered",
+                "type": "string"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The identifier of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The identifier of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "Anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "ID of the group",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "ID of the group",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_name",
+          "type": "string",
+          "label": "Group name",
+          "description": "Name of the group where user belongs to",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_name": {
+                "title": "Group name",
+                "description": "Name of the group where user belongs to",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event timestamp",
+          "description": "The time the event occured in UTC",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event timestamp",
+                "description": "The time the event occured in UTC",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Group traits",
+          "description": "Group traits",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Group traits",
+                "description": "Group traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "Event context",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "Event context",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "forwardIdentifyEvent",
+      "name": "Forward identify event",
+      "description": "Forward identify event to Outfunnel",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "action",
+          "type": "string",
+          "label": "Action name",
+          "description": "Indicates which action was triggered",
+          "defaultValue": "identify",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "title": "Action name",
+                "description": "Indicates which action was triggered",
+                "type": "string"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The identifier of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The identifier of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "Anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "Email address of the user who performed the event",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "Email address of the user who performed the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event timestamp",
+          "description": "The time the event occured in UTC",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event timestamp",
+                "description": "The time the event occured in UTC",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User traits",
+          "description": "Optional metadata describing the user",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "User traits",
+                "description": "Optional metadata describing the user",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "Event context",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "Event context",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "forwardTrackEvent",
+      "name": "Forward track event",
+      "description": "Forward track event to outfunnel",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "action",
+          "type": "string",
+          "label": "Action name",
+          "description": "Indicates which action was triggered",
+          "defaultValue": "track",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "title": "Action name",
+                "description": "Indicates which action was triggered",
+                "type": "string"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event name",
+          "description": "The name of the event that occured",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event name",
+                "description": "The name of the event that occured",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The identifier of the user who performed the event",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The identifier of the user who performed the event",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "Anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The identifier of the group where user belongs to",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The identifier of the group where user belongs to",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "Email address of the user who performed the event",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "Email address of the user who performed the event",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event timestamp",
+          "description": "The time the event occured in UTC",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event timestamp",
+                "description": "The time the event occured in UTC",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event properties",
+          "description": "Optional metadata describing the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event properties",
+                "description": "Optional metadata describing the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "Event context",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "Event context",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "forwardGroupEvent",
+      "name": "Group Events",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "action": "group",
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "group_id": {
+          "@path": "$.groupId"
+        },
+        "group_name": {
+          "@path": "$.traits.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "context": {
+          "@path": "$.context"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "forwardIdentifyEvent",
+      "name": "Identify Events",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "action": "identify",
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "context": {
+          "@path": "$.context"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "forwardTrackEvent",
+      "name": "Track Events",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "action": "track",
+        "event_name": {
+          "@path": "$.event"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

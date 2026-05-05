@@ -1,0 +1,454 @@
+{
+  "name": "Qualified",
+  "description": "Qualified is a Conversational Marketing platform that helps B2B companies engage and convert website visitors into customers using real-time chat, AI-driven insights, and personalized experiences.",
+  "basicOptions": [
+    "api_key"
+  ],
+  "options": {
+    "api_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Qualified API Key. When creating the API Key in Qualified make sure to select all scopes.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "updateCompany",
+      "name": "Update Company",
+      "description": "Update all Leads withing a Company in Qualified.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Leads In Company Updated\"",
+      "fields": [
+        {
+          "fieldKey": "domain",
+          "type": "string",
+          "label": "Domain",
+          "description": "The domain of the company to update.",
+          "defaultValue": {
+            "@path": "$.traits.domain"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "domain": {
+                "title": "Domain",
+                "description": "The domain of the company to update.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "domain"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "string_fields",
+          "type": "object",
+          "label": "String Fields",
+          "description": "String, text or picklist field values to set on all Leads associated with the Company.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "string_fields": {
+                "title": "String Fields",
+                "description": "String, text or picklist field values to set on all Leads associated with the Company.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "boolean_fields",
+          "type": "object",
+          "label": "Boolean Fields",
+          "description": "boolean / checkbox field values to set on all Leads associated with the Company.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "boolean_fields": {
+                "title": "Boolean Fields",
+                "description": "boolean / checkbox field values to set on all Leads associated with the Company.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "number_fields",
+          "type": "object",
+          "label": "Number Fields",
+          "description": "Numeric / decimal field values to set on all Leads associated with the Company.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "number_fields": {
+                "title": "Number Fields",
+                "description": "Numeric / decimal field values to set on all Leads associated with the Company.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "upsertLead",
+      "name": "Upsert Lead",
+      "description": "Send a Lead to Qualified, or update an existing Lead",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Lead Updated\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The email address of the lead to upsert.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The email address of the lead to upsert.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "The phone number of the lead to upsert.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "The phone number of the lead to upsert.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company",
+          "type": "string",
+          "label": "Company",
+          "description": "The company name of the lead to upsert.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.company"
+              },
+              "then": {
+                "@path": "$.context.traits.company"
+              },
+              "else": {
+                "@path": "$.properties.company"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company": {
+                "title": "Company",
+                "description": "The company name of the lead to upsert.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The name of the lead to upsert.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.name"
+              },
+              "then": {
+                "@path": "$.context.traits.name"
+              },
+              "else": {
+                "@path": "$.properties.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The name of the lead to upsert.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "string_fields",
+          "type": "object",
+          "label": "String Fields",
+          "description": "Additional string, text, picklist fields to set on the Lead.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "string_fields": {
+                "title": "String Fields",
+                "description": "Additional string, text, picklist fields to set on the Lead.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "boolean_fields",
+          "type": "object",
+          "label": "Boolean Fields",
+          "description": "Additional boolean / checkbox fields to set on the Lead.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "boolean_fields": {
+                "title": "Boolean Fields",
+                "description": "Additional boolean / checkbox fields to set on the Lead.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "number_fields",
+          "type": "object",
+          "label": "Number Fields",
+          "description": "Additional numeric / decimal fields to set on the Lead.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "number_fields": {
+                "title": "Number Fields",
+                "description": "Additional numeric / decimal fields to set on the Lead.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

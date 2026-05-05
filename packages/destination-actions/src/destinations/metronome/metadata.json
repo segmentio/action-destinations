@@ -1,0 +1,244 @@
+{
+  "name": "Metronome (Actions)",
+  "basicOptions": [
+    "apiToken"
+  ],
+  "options": {
+    "apiToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Metronome API Token",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEvent",
+      "name": "Send Event",
+      "description": "Send an event to Metronome",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "transaction_id",
+          "type": "string",
+          "label": "transaction_id",
+          "description": "The Metronome transaction ID uniquely identifies an event to ensure Metronome only processes each event once.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "transaction_id": {
+                "title": "transaction_id",
+                "description": "The Metronome transaction ID uniquely identifies an event to ensure Metronome only processes each event once.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "transaction_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customer_id",
+          "type": "string",
+          "label": "customer_id",
+          "description": "The Metronome customer ID or ingest alias this event should be associated with.",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer_id": {
+                "title": "customer_id",
+                "description": "The Metronome customer ID or ingest alias this event should be associated with.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "customer_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "timestamp",
+          "description": "The timestamp at which this event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "timestamp",
+                "description": "The timestamp at which this event occurred.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "event_type",
+          "description": "The Metronome `event_type`.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "event_type",
+                "description": "The Metronome `event_type`.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "properties",
+          "description": "The Metronome properties object.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "properties",
+                "description": "The Metronome properties object.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "properties"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send track events to Metronome",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "transaction_id": {
+          "@path": "$.messageId"
+        },
+        "customer_id": {
+          "@path": "$.context.groupId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "event_type": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,576 @@
+{
+  "name": "Moengage Web",
+  "basicOptions": [
+    "app_id",
+    "env",
+    "moeDataCenter",
+    "project_id",
+    "swPath",
+    "enableSPA",
+    "disable_onsite",
+    "customProxyDomain",
+    "bots_list",
+    "disableCookies",
+    "disableSdk",
+    "cards_enabled",
+    "css_selector_inbox_icon",
+    "floating_bell_icon_desktop",
+    "floating_bell_icon_mobile"
+  ],
+  "options": {
+    "app_id": {
+      "tags": [],
+      "default": "",
+      "description": "Your Moengage Workspace ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Workspace ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The app_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "env": {
+      "tags": [],
+      "default": "LIVE",
+      "description": "The environment for your Moengage account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Environment",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "LIVE",
+          "label": "LIVE",
+          "text": "LIVE"
+        },
+        {
+          "value": "TEST",
+          "label": "TEST",
+          "text": "TEST"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The env property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "moeDataCenter": {
+      "tags": [],
+      "default": "dc_1",
+      "description": "The datacenter for your Moengage account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Datacenter",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "dc_1",
+          "label": "DC-01",
+          "text": "DC-01"
+        },
+        {
+          "value": "dc_2",
+          "label": "DC-02",
+          "text": "DC-02"
+        },
+        {
+          "value": "dc_3",
+          "label": "DC-03",
+          "text": "DC-03"
+        },
+        {
+          "value": "dc_4",
+          "label": "DC-04",
+          "text": "DC-04"
+        },
+        {
+          "value": "dc_5",
+          "label": "DC-05",
+          "text": "DC-05"
+        },
+        {
+          "value": "dc_6",
+          "label": "DC-06",
+          "text": "DC-06"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The moeDataCenter property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "project_id": {
+      "tags": [],
+      "default": "",
+      "description": "Your Moengage Project ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Project ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "swPath": {
+      "tags": [],
+      "default": "",
+      "description": "The path to the service worker file for MoEngage web push notifications. if provided here, you need to host this file on your server.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Service Worker Path",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "enableSPA": {
+      "tags": [],
+      "default": false,
+      "description": "Enable Single Page Application (SPA) support in the Moengage SDK. Enable this if your website is a single page application to ensure proper tracking.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Single Page Application (SPA) Support",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "disable_onsite": {
+      "tags": [],
+      "default": false,
+      "description": "Disable Moengage from showing Onsite Messaging on your website.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Disable Onsite Messaging",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "customProxyDomain": {
+      "tags": [],
+      "default": "",
+      "description": "A custom domain name where the MoEngage web SDK is hosted. Data will be sent to this domain.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Custom Proxy Domain",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "bots_list": {
+      "tags": [],
+      "default": "",
+      "description": "A comma delimited list of bot user agents to ignore when tracking events.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Bots List",
+      "private": false,
+      "scope": "event_destination",
+      "type": "array",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "disableCookies": {
+      "tags": [],
+      "default": false,
+      "description": "Disable Moengage from setting cookies on your website when the page loads.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Disable Cookies",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "disableSdk": {
+      "tags": [],
+      "default": false,
+      "description": "Disable the Moengage SDK from initializing on your website when the page loads. You can use this to conditionally load the SDK based on user consent.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Disable SDK",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "cards_enabled": {
+      "tags": [],
+      "default": false,
+      "description": "Enable MoEngage Cards on your website to engage users with personalized content.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Cards",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "css_selector_inbox_icon": {
+      "tags": [],
+      "default": "",
+      "description": "The CSS selector for the MoEngage Inbox icon on your website. The user will click this icon to open the inbox.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "CSS Selector for Inbox Icon",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "cards_enabled",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "floating_bell_icon_desktop": {
+      "tags": [],
+      "default": false,
+      "description": "Enable the floating bell icon for MoEngage notifications on desktop devices.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Floating Bell Icon on Desktop",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "cards_enabled",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "floating_bell_icon_mobile": {
+      "tags": [],
+      "default": false,
+      "description": "Enable the floating bell icon for MoEngage notifications on mobile devices.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Floating Bell Icon on Mobile",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "cards_enabled",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Send Segment identify events to Moengage.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "identifiers",
+          "type": "object",
+          "label": "Identifiers",
+          "description": "Unique identifiers for the user to be identified in Moengage. This can be a user ID, email, or any other unique identifier.",
+          "defaultValue": {
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "mobile": {
+              "@path": "$.traits.phone"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "identifiers": {
+                "title": "Identifiers",
+                "description": "Unique identifiers for the user to be identified in Moengage. This can be a user ID, email, or any other unique identifier.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "user_id": {
+                    "title": "User ID",
+                    "description": "A unique identifier for the user.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the user.",
+                    "type": "string"
+                  },
+                  "mobile": {
+                    "title": "Mobile",
+                    "description": "The mobile number of the user.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "User Attributes",
+          "description": "A dictionary of key-value pairs that will be sent as user attributes to Moengage.",
+          "defaultValue": {
+            "first_name": {
+              "@path": "$.traits.first_name"
+            },
+            "last_name": {
+              "@path": "$.traits.last_name"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "mobile": {
+              "@path": "$.traits.phone"
+            },
+            "username": {
+              "@path": "$.traits.username"
+            },
+            "gender": {
+              "@path": "$.traits.gender"
+            },
+            "birthday": {
+              "@path": "$.traits.birthday"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "attributes": {
+                "title": "User Attributes",
+                "description": "A dictionary of key-value pairs that will be sent as user attributes to Moengage.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "The first name of the user.",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "The last name of the user.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the user.",
+                    "type": "string"
+                  },
+                  "mobile": {
+                    "title": "Mobile",
+                    "description": "The mobile number of the user.",
+                    "type": "string"
+                  },
+                  "username": {
+                    "title": "Username",
+                    "description": "The username of the user.",
+                    "type": "string"
+                  },
+                  "gender": {
+                    "title": "Gender",
+                    "description": "The gender of the user.",
+                    "type": "string"
+                  },
+                  "birthday": {
+                    "title": "Birthday",
+                    "description": "The birthday of the user in ISO 8601 format (YYYY-MM-DD).",
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send Segment track events to Moengage.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to be tracked in Moengage.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event to be tracked in Moengage.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attributes",
+          "description": "A dictionary of key-value pairs that will be sent as event attributes to Moengage.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attributes",
+                "description": "A dictionary of key-value pairs that will be sent as event attributes to Moengage.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,186 @@
+{
+  "name": "Koala",
+  "description": "Connect Koala in Segment to send visitor events or traits to Koala.",
+  "basicOptions": [
+    "project_slug"
+  ],
+  "options": {
+    "project_slug": {
+      "tags": [],
+      "default": "",
+      "description": "Please enter your Public API Key found in your Koala workspace settings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Public API Key",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The project_slug property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyVisitor",
+      "name": "Identify Visitor",
+      "description": "Update visitor traits in Koala.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "Traits to associate with the visitor in Koala.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "object",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "Traits to associate with the visitor in Koala.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send visitor events to Koala.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The event name.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The event name.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Properties to send with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "object",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Properties to send with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyVisitor",
+      "name": "Identify Visitor",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,4044 @@
+{
+  "name": "Segment",
+  "basicOptions": [
+    "source_write_key"
+  ],
+  "options": {
+    "source_write_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The **Write Key** of a Segment source.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Source Write Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The source_write_key property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": false,
+    "server": false,
+    "mobile": false,
+    "warehouse": true,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendGroup",
+      "name": "Send Group",
+      "description": "Send a group call to Segment’s tracking API. This is used to associate an individual user with a group",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The group or account ID a user is associated with.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The group or account ID a user is associated with.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "group_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "application",
+          "type": "object",
+          "label": "Application",
+          "description": "Dictionary of information about the current application.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "application": {
+                "title": "Application",
+                "description": "Dictionary of information about the current application.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The app name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The app version.",
+                    "type": "string"
+                  },
+                  "build": {
+                    "title": "Build",
+                    "description": "The app build.",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "title": "Namespace",
+                    "description": "The app namespace.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_parameters",
+          "type": "object",
+          "label": "Campaign Parameters",
+          "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_parameters": {
+                "title": "Campaign Parameters",
+                "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The campaign name.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "Source",
+                    "description": "The campaign source.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The campaign medium.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The campaign term.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The campaign content.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device",
+          "type": "object",
+          "label": "Device",
+          "description": "Dictionary of information about the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device": {
+                "title": "Device",
+                "description": "Dictionary of information about the device the API call originated from.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The device ID.",
+                    "type": "string"
+                  },
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The device Advertising ID.",
+                    "type": "string"
+                  },
+                  "adTracking_Enabled": {
+                    "title": "Ad Tracking Enabled",
+                    "description": "Whether or not ad tracking is enabled.",
+                    "type": "boolean"
+                  },
+                  "manufacturer": {
+                    "title": "Manufacturer",
+                    "description": "The device manufacturer.",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "description": "The device model.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The device name.",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Type",
+                    "description": "The device type.",
+                    "type": "string"
+                  },
+                  "token": {
+                    "title": "Token",
+                    "description": "The device token.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The current user’s IP address.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "IP Address",
+                "description": "The current user’s IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "Locale string for the current user, for example en-US.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "Locale string for the current user, for example en-US.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "Dictionary of information about the user’s current location.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "Dictionary of information about the user’s current location.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "title": "Latitude",
+                    "description": "The user's latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "description": "The user's longitude",
+                    "type": "number"
+                  },
+                  "speed": {
+                    "title": "Speed",
+                    "description": "The user's speed",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "network",
+          "type": "object",
+          "label": "Network",
+          "description": "Dictionary of information about the current network connection.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "network": {
+                "title": "Network",
+                "description": "Dictionary of information about the current network connection.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "bluetooth": {
+                    "title": "Bluetooth",
+                    "description": "Whether or not bluetooth is enabled.",
+                    "type": "boolean"
+                  },
+                  "carrier": {
+                    "title": "Carrier",
+                    "description": "The network carrier.",
+                    "type": "string"
+                  },
+                  "cellular": {
+                    "title": "Cellular",
+                    "description": "Whether or not cellular data is enabled.",
+                    "type": "boolean"
+                  },
+                  "wifi": {
+                    "title": "WiFi",
+                    "description": "Whether or not WiFi is enabled.",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operating_system",
+          "type": "object",
+          "label": "Operating System",
+          "description": "Dictionary of information about the operating system.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operating_system": {
+                "title": "Operating System",
+                "description": "Dictionary of information about the operating system.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The operating system name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The operating system version.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "Dictionary of information about the current page in the browser.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "Dictionary of information about the current page in the browser.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "title": "Path",
+                    "description": "The page path.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The page referrer.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search",
+                    "description": "The page search query.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "description": "The page title.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "URL",
+                    "description": "The page URL.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Dictionary of information about the device’s screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Dictionary of information about the device’s screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "density": {
+                    "title": "Density",
+                    "description": "The screen density.",
+                    "type": "number"
+                  },
+                  "height": {
+                    "title": "Height",
+                    "description": "The screen height.",
+                    "type": "number"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The screen width.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent of the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent of the device the API call originated from.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The user’s timezone as a tz database string, for example America/New_York.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The user’s timezone as a tz database string, for example America/New_York.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "Free-form dictionary of traits that describe the user or group of users.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "Free-form dictionary of traits that describe the user or group of users.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment messageId.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Segment event consent category preferences.",
+          "defaultValue": {
+            "@path": "$.context.consent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Segment event consent category preferences.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendIdentify",
+      "name": "Send Identify",
+      "description": "Send an identify call to Segment’s tracking API. This is used to tie your users to their actions and record traits about them.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "application",
+          "type": "object",
+          "label": "Application",
+          "description": "Dictionary of information about the current application.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "application": {
+                "title": "Application",
+                "description": "Dictionary of information about the current application.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The app name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The app version.",
+                    "type": "string"
+                  },
+                  "build": {
+                    "title": "Build",
+                    "description": "The app build.",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "title": "Namespace",
+                    "description": "The app namespace.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_parameters",
+          "type": "object",
+          "label": "Campaign Parameters",
+          "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_parameters": {
+                "title": "Campaign Parameters",
+                "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The campaign name.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "Source",
+                    "description": "The campaign source.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The campaign medium.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The campaign term.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The campaign content.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device",
+          "type": "object",
+          "label": "Device",
+          "description": "Dictionary of information about the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device": {
+                "title": "Device",
+                "description": "Dictionary of information about the device the API call originated from.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The device ID.",
+                    "type": "string"
+                  },
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The device Advertising ID.",
+                    "type": "string"
+                  },
+                  "adTracking_Enabled": {
+                    "title": "Ad Tracking Enabled",
+                    "description": "Whether or not ad tracking is enabled.",
+                    "type": "boolean"
+                  },
+                  "manufacturer": {
+                    "title": "Manufacturer",
+                    "description": "The device manufacturer.",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "description": "The device model.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The device name.",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Type",
+                    "description": "The device type.",
+                    "type": "string"
+                  },
+                  "token": {
+                    "title": "Token",
+                    "description": "The device token.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The current user’s IP address.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "IP Address",
+                "description": "The current user’s IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "Locale string for the current user, for example en-US.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "Locale string for the current user, for example en-US.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "Dictionary of information about the user’s current location.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "Dictionary of information about the user’s current location.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "title": "Latitude",
+                    "description": "The user's latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "description": "The user's longitude",
+                    "type": "number"
+                  },
+                  "speed": {
+                    "title": "Speed",
+                    "description": "The user's speed",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "network",
+          "type": "object",
+          "label": "Network",
+          "description": "Dictionary of information about the current network connection.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "network": {
+                "title": "Network",
+                "description": "Dictionary of information about the current network connection.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "bluetooth": {
+                    "title": "Bluetooth",
+                    "description": "Whether or not bluetooth is enabled.",
+                    "type": "boolean"
+                  },
+                  "carrier": {
+                    "title": "Carrier",
+                    "description": "The network carrier.",
+                    "type": "string"
+                  },
+                  "cellular": {
+                    "title": "Cellular",
+                    "description": "Whether or not cellular data is enabled.",
+                    "type": "boolean"
+                  },
+                  "wifi": {
+                    "title": "WiFi",
+                    "description": "Whether or not WiFi is enabled.",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operating_system",
+          "type": "object",
+          "label": "Operating System",
+          "description": "Dictionary of information about the operating system.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operating_system": {
+                "title": "Operating System",
+                "description": "Dictionary of information about the operating system.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The operating system name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The operating system version.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "Dictionary of information about the current page in the browser.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "Dictionary of information about the current page in the browser.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "title": "Path",
+                    "description": "The page path.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The page referrer.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search",
+                    "description": "The page search query.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "description": "The page title.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "URL",
+                    "description": "The page URL.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Dictionary of information about the device’s screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Dictionary of information about the device’s screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "density": {
+                    "title": "Density",
+                    "description": "The screen density.",
+                    "type": "number"
+                  },
+                  "height": {
+                    "title": "Height",
+                    "description": "The screen height.",
+                    "type": "number"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The screen width.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent of the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent of the device the API call originated from.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The user’s timezone as a tz database string, for example America/New_York.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The user’s timezone as a tz database string, for example America/New_York.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The group or account ID a user is associated with.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The group or account ID a user is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "Free-form dictionary of traits that describe the user or group of users.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "Free-form dictionary of traits that describe the user or group of users.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment messageId.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Segment event consent category preferences.",
+          "defaultValue": {
+            "@path": "$.context.consent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Segment event consent category preferences.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "Dictionary of information about the user’s current Address.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "Dictionary of information about the user’s current Address.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "street": {
+                    "title": "Street",
+                    "description": "The user's street address",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "The user's State",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country",
+                    "type": "string"
+                  },
+                  "postalCode": {
+                    "title": "Postal Code",
+                    "description": "The user's Postal Code",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendPage",
+      "name": "Send Page",
+      "description": "Send a page call to Segment’s tracking API. This is used to track website page views.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page_name",
+          "type": "string",
+          "label": "Page Name",
+          "description": "Name of the page that was viewed.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page_name": {
+                "title": "Page Name",
+                "description": "Name of the page that was viewed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page_category",
+          "type": "string",
+          "label": "Page Category",
+          "description": "Category of the page that was viewed.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page_category": {
+                "title": "Page Category",
+                "description": "Category of the page that was viewed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "application",
+          "type": "object",
+          "label": "Application",
+          "description": "Dictionary of information about the current application.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "application": {
+                "title": "Application",
+                "description": "Dictionary of information about the current application.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The app name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The app version.",
+                    "type": "string"
+                  },
+                  "build": {
+                    "title": "Build",
+                    "description": "The app build.",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "title": "Namespace",
+                    "description": "The app namespace.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_parameters",
+          "type": "object",
+          "label": "Campaign Parameters",
+          "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_parameters": {
+                "title": "Campaign Parameters",
+                "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The campaign name.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "Source",
+                    "description": "The campaign source.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The campaign medium.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The campaign term.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The campaign content.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device",
+          "type": "object",
+          "label": "Device",
+          "description": "Dictionary of information about the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device": {
+                "title": "Device",
+                "description": "Dictionary of information about the device the API call originated from.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The device ID.",
+                    "type": "string"
+                  },
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The device Advertising ID.",
+                    "type": "string"
+                  },
+                  "adTracking_Enabled": {
+                    "title": "Ad Tracking Enabled",
+                    "description": "Whether or not ad tracking is enabled.",
+                    "type": "boolean"
+                  },
+                  "manufacturer": {
+                    "title": "Manufacturer",
+                    "description": "The device manufacturer.",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "description": "The device model.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The device name.",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Type",
+                    "description": "The device type.",
+                    "type": "string"
+                  },
+                  "token": {
+                    "title": "Token",
+                    "description": "The device token.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The current user’s IP address.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "IP Address",
+                "description": "The current user’s IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "Locale string for the current user, for example en-US.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "Locale string for the current user, for example en-US.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "Dictionary of information about the user’s current location.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "Dictionary of information about the user’s current location.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "title": "Latitude",
+                    "description": "The user's latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "description": "The user's longitude",
+                    "type": "number"
+                  },
+                  "speed": {
+                    "title": "Speed",
+                    "description": "The user's speed",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "network",
+          "type": "object",
+          "label": "Network",
+          "description": "Dictionary of information about the current network connection.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "network": {
+                "title": "Network",
+                "description": "Dictionary of information about the current network connection.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "bluetooth": {
+                    "title": "Bluetooth",
+                    "description": "Whether or not bluetooth is enabled.",
+                    "type": "boolean"
+                  },
+                  "carrier": {
+                    "title": "Carrier",
+                    "description": "The network carrier.",
+                    "type": "string"
+                  },
+                  "cellular": {
+                    "title": "Cellular",
+                    "description": "Whether or not cellular data is enabled.",
+                    "type": "boolean"
+                  },
+                  "wifi": {
+                    "title": "WiFi",
+                    "description": "Whether or not WiFi is enabled.",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operating_system",
+          "type": "object",
+          "label": "Operating System",
+          "description": "Dictionary of information about the operating system.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operating_system": {
+                "title": "Operating System",
+                "description": "Dictionary of information about the operating system.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The operating system name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The operating system version.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "Dictionary of information about the current page in the browser.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "Dictionary of information about the current page in the browser.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "title": "Path",
+                    "description": "The page path.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The page referrer.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search",
+                    "description": "The page search query.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "description": "The page title.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "URL",
+                    "description": "The page URL.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Dictionary of information about the device’s screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Dictionary of information about the device’s screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "density": {
+                    "title": "Density",
+                    "description": "The screen density.",
+                    "type": "number"
+                  },
+                  "height": {
+                    "title": "Height",
+                    "description": "The screen height.",
+                    "type": "number"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The screen width.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent of the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent of the device the API call originated from.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The user’s timezone as a tz database string, for example America/New_York.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The user’s timezone as a tz database string, for example America/New_York.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The group or account ID a user is associated with.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The group or account ID a user is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Free-form dictionary of properties that describe the screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Free-form dictionary of properties that describe the screen.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment messageId.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Segment event consent category preferences.",
+          "defaultValue": {
+            "@path": "$.context.consent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Segment event consent category preferences.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendScreen",
+      "name": "Send Screen",
+      "description": "Send a screen call to Segment’s tracking API. This is used to track mobile app screen views.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_name",
+          "type": "string",
+          "label": "Screen Name",
+          "description": "Name of the screen that was viewed.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_name": {
+                "title": "Screen Name",
+                "description": "Name of the screen that was viewed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "application",
+          "type": "object",
+          "label": "Application",
+          "description": "Dictionary of information about the current application.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "application": {
+                "title": "Application",
+                "description": "Dictionary of information about the current application.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The app name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The app version.",
+                    "type": "string"
+                  },
+                  "build": {
+                    "title": "Build",
+                    "description": "The app build.",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "title": "Namespace",
+                    "description": "The app namespace.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_parameters",
+          "type": "object",
+          "label": "Campaign Parameters",
+          "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_parameters": {
+                "title": "Campaign Parameters",
+                "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The campaign name.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "Source",
+                    "description": "The campaign source.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The campaign medium.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The campaign term.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The campaign content.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device",
+          "type": "object",
+          "label": "Device",
+          "description": "Dictionary of information about the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device": {
+                "title": "Device",
+                "description": "Dictionary of information about the device the API call originated from.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The device ID.",
+                    "type": "string"
+                  },
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The device Advertising ID.",
+                    "type": "string"
+                  },
+                  "adTracking_Enabled": {
+                    "title": "Ad Tracking Enabled",
+                    "description": "Whether or not ad tracking is enabled.",
+                    "type": "boolean"
+                  },
+                  "manufacturer": {
+                    "title": "Manufacturer",
+                    "description": "The device manufacturer.",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "description": "The device model.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The device name.",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Type",
+                    "description": "The device type.",
+                    "type": "string"
+                  },
+                  "token": {
+                    "title": "Token",
+                    "description": "The device token.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The current user’s IP address.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "IP Address",
+                "description": "The current user’s IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "Locale string for the current user, for example en-US.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "Locale string for the current user, for example en-US.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "Dictionary of information about the user’s current location.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "Dictionary of information about the user’s current location.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "title": "Latitude",
+                    "description": "The user's latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "description": "The user's longitude",
+                    "type": "number"
+                  },
+                  "speed": {
+                    "title": "Speed",
+                    "description": "The user's speed",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "network",
+          "type": "object",
+          "label": "Network",
+          "description": "Dictionary of information about the current network connection.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "network": {
+                "title": "Network",
+                "description": "Dictionary of information about the current network connection.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "bluetooth": {
+                    "title": "Bluetooth",
+                    "description": "Whether or not bluetooth is enabled.",
+                    "type": "boolean"
+                  },
+                  "carrier": {
+                    "title": "Carrier",
+                    "description": "The network carrier.",
+                    "type": "string"
+                  },
+                  "cellular": {
+                    "title": "Cellular",
+                    "description": "Whether or not cellular data is enabled.",
+                    "type": "boolean"
+                  },
+                  "wifi": {
+                    "title": "WiFi",
+                    "description": "Whether or not WiFi is enabled.",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operating_system",
+          "type": "object",
+          "label": "Operating System",
+          "description": "Dictionary of information about the operating system.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operating_system": {
+                "title": "Operating System",
+                "description": "Dictionary of information about the operating system.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The operating system name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The operating system version.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "Dictionary of information about the current page in the browser.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "Dictionary of information about the current page in the browser.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "title": "Path",
+                    "description": "The page path.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The page referrer.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search",
+                    "description": "The page search query.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "description": "The page title.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "URL",
+                    "description": "The page URL.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Dictionary of information about the device’s screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Dictionary of information about the device’s screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "density": {
+                    "title": "Density",
+                    "description": "The screen density.",
+                    "type": "number"
+                  },
+                  "height": {
+                    "title": "Height",
+                    "description": "The screen height.",
+                    "type": "number"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The screen width.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent of the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent of the device the API call originated from.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The user’s timezone as a tz database string, for example America/New_York.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The user’s timezone as a tz database string, for example America/New_York.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The group or account ID a user is associated with.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The group or account ID a user is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Free-form dictionary of properties that describe the screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Free-form dictionary of properties that describe the screen.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment messageId.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Segment event consent category preferences.",
+          "defaultValue": {
+            "@path": "$.context.consent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Segment event consent category preferences.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendTrack",
+      "name": "Send Track",
+      "description": "Send a track call to Segment’s tracking API. This is used to record actions your users perform.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "Unique identifier for the user in your database. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A pseudo-unique substitute for a User ID, for cases when you don’t have an absolutely unique identifier. A userId or an anonymousId is required.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp when the message itself took place as a ISO-8601 format date string. Defaults to current time if not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "Name of the action that a user has performed.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "Name of the action that a user has performed.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "application",
+          "type": "object",
+          "label": "Application",
+          "description": "Dictionary of information about the current application.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "application": {
+                "title": "Application",
+                "description": "Dictionary of information about the current application.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The app name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The app version.",
+                    "type": "string"
+                  },
+                  "build": {
+                    "title": "Build",
+                    "description": "The app build.",
+                    "type": "string"
+                  },
+                  "namespace": {
+                    "title": "Namespace",
+                    "description": "The app namespace.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_parameters",
+          "type": "object",
+          "label": "Campaign Parameters",
+          "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_parameters": {
+                "title": "Campaign Parameters",
+                "description": "Dictionary of information about the campaign that resulted in the API call. This maps directly to the common UTM campaign parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The campaign name.",
+                    "type": "string"
+                  },
+                  "source": {
+                    "title": "Source",
+                    "description": "The campaign source.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The campaign medium.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The campaign term.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The campaign content.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device",
+          "type": "object",
+          "label": "Device",
+          "description": "Dictionary of information about the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device": {
+                "title": "Device",
+                "description": "Dictionary of information about the device the API call originated from.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The device ID.",
+                    "type": "string"
+                  },
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The device Advertising ID.",
+                    "type": "string"
+                  },
+                  "adTracking_Enabled": {
+                    "title": "Ad Tracking Enabled",
+                    "description": "Whether or not ad tracking is enabled.",
+                    "type": "boolean"
+                  },
+                  "manufacturer": {
+                    "title": "Manufacturer",
+                    "description": "The device manufacturer.",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "description": "The device model.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The device name.",
+                    "type": "string"
+                  },
+                  "type": {
+                    "title": "Type",
+                    "description": "The device type.",
+                    "type": "string"
+                  },
+                  "token": {
+                    "title": "Token",
+                    "description": "The device token.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The current user’s IP address.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "IP Address",
+                "description": "The current user’s IP address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "Locale string for the current user, for example en-US.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "Locale string for the current user, for example en-US.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location",
+          "type": "object",
+          "label": "Location",
+          "description": "Dictionary of information about the user’s current location.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location": {
+                "title": "Location",
+                "description": "Dictionary of information about the user’s current location.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country",
+                    "type": "string"
+                  },
+                  "latitude": {
+                    "title": "Latitude",
+                    "description": "The user's latitude",
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "title": "Longitude",
+                    "description": "The user's longitude",
+                    "type": "number"
+                  },
+                  "speed": {
+                    "title": "Speed",
+                    "description": "The user's speed",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "network",
+          "type": "object",
+          "label": "Network",
+          "description": "Dictionary of information about the current network connection.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "network": {
+                "title": "Network",
+                "description": "Dictionary of information about the current network connection.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "bluetooth": {
+                    "title": "Bluetooth",
+                    "description": "Whether or not bluetooth is enabled.",
+                    "type": "boolean"
+                  },
+                  "carrier": {
+                    "title": "Carrier",
+                    "description": "The network carrier.",
+                    "type": "string"
+                  },
+                  "cellular": {
+                    "title": "Cellular",
+                    "description": "Whether or not cellular data is enabled.",
+                    "type": "boolean"
+                  },
+                  "wifi": {
+                    "title": "WiFi",
+                    "description": "Whether or not WiFi is enabled.",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operating_system",
+          "type": "object",
+          "label": "Operating System",
+          "description": "Dictionary of information about the operating system.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operating_system": {
+                "title": "Operating System",
+                "description": "Dictionary of information about the operating system.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The operating system name.",
+                    "type": "string"
+                  },
+                  "version": {
+                    "title": "Version",
+                    "description": "The operating system version.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page",
+          "type": "object",
+          "label": "Page",
+          "description": "Dictionary of information about the current page in the browser.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page": {
+                "title": "Page",
+                "description": "Dictionary of information about the current page in the browser.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "title": "Path",
+                    "description": "The page path.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "The page referrer.",
+                    "type": "string"
+                  },
+                  "search": {
+                    "title": "Search",
+                    "description": "The page search query.",
+                    "type": "string"
+                  },
+                  "title": {
+                    "title": "Title",
+                    "description": "The page title.",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "URL",
+                    "description": "The page URL.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Dictionary of information about the device’s screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Dictionary of information about the device’s screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "density": {
+                    "title": "Density",
+                    "description": "The screen density.",
+                    "type": "number"
+                  },
+                  "height": {
+                    "title": "Height",
+                    "description": "The screen height.",
+                    "type": "number"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The screen width.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent of the device the API call originated from.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent of the device the API call originated from.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The user’s timezone as a tz database string, for example America/New_York.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The user’s timezone as a tz database string, for example America/New_York.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The group or account ID a user is associated with.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The group or account ID a user is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Free-form dictionary of properties that describe the screen.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Free-form dictionary of properties that describe the screen.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "Free-form dictionary of traits that describe the user or group of users.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "Free-form dictionary of traits that describe the user or group of users.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment messageId.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Segment event consent category preferences.",
+          "defaultValue": {
+            "@path": "$.context.consent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Segment event consent category preferences.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

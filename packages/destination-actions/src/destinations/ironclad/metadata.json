@@ -1,0 +1,347 @@
+{
+  "name": "Ironclad",
+  "basicOptions": [
+    "sid",
+    "staging_endpoint",
+    "test_mode"
+  ],
+  "options": {
+    "sid": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Site Access ID. An ID that’s unique for each site within your account. Information on finding your sid can be found in the authentication section.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Site Access ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The sid property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "staging_endpoint": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": false,
+      "description": "Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Staging Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "test_mode": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": false,
+      "description": "Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Test Mode",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "recordAction",
+      "name": "Record Action",
+      "description": "Based on the action destination configuration, this will record an action to Clickwrap either agreeing, disagreeing, or agreeing to a contract configured in the event.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "sig",
+          "type": "string",
+          "label": "Signer ID",
+          "description": "The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sig": {
+                "title": "Signer ID",
+                "description": "The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sig"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event coming from the source, this is an additional information field before the call goes to Ironclad.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event coming from the source, this is an additional information field before the call goes to Ironclad.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "integer",
+          "label": "Clickwrap Group Id",
+          "description": "The ID of the Clickwrap Group associated with the acceptance event. Needs to be an integer",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Clickwrap Group Id",
+                "description": "The ID of the Clickwrap Group associated with the acceptance event. Needs to be an integer",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "group_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event being logged, the available choices are displayed, agreed, and disagreed.",
+          "defaultValue": "displayed",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Displayed",
+              "value": "displayed"
+            },
+            {
+              "label": "Agreed",
+              "value": "agreed"
+            },
+            {
+              "label": "Disagreed",
+              "value": "disagreed"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "Event Type",
+                "description": "The type of event being logged, the available choices are displayed, agreed, and disagreed.",
+                "type": "string",
+                "enum": [
+                  "displayed",
+                  "agreed",
+                  "disagreed"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contextParameters",
+          "type": "object",
+          "label": "Context Parameters",
+          "description": "Context Parameters including page, time and other information.",
+          "defaultValue": {
+            "addr": {
+              "@path": "$.ip"
+            },
+            "ts": {
+              "@path": "$.timestamp"
+            },
+            "pat": {
+              "@path": "$.context.page.title"
+            },
+            "pau": {
+              "@path": "$.context.page.url"
+            },
+            "pap": {
+              "@path": "$.context.page.path"
+            },
+            "paq": {
+              "@path": "$.context.page.search"
+            },
+            "ref": {
+              "@path": "$.context.page.referrer"
+            },
+            "btz": {
+              "@path": "$.context.timezone"
+            },
+            "bl": {
+              "@path": "$.context.locale"
+            },
+            "os": {
+              "@path": "$.context.os.name"
+            },
+            "res": {
+              "@path": "$.context.screen"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contextParameters": {
+                "title": "Context Parameters",
+                "description": "Context Parameters including page, time and other information.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customData",
+          "type": "object",
+          "label": "Custom Data",
+          "description": "Optional, located in the properties object, used to attach custom data to your Activity. The example is URL encoded for { \"first name\": \"Eric\" } Using this in an updated activity will append the data to the signer, otherwise it will be added to the specific activity call/transaction.",
+          "defaultValue": {
+            "first_name": {
+              "@path": "$.properties.first_name"
+            },
+            "last_name": {
+              "@path": "$.properties.last_name"
+            },
+            "company_name": {
+              "@path": "$.properties.company_name"
+            },
+            "title": {
+              "@path": "$.properties.title"
+            },
+            "customer_id": {
+              "@path": "$.properties.customer_id"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customData": {
+                "title": "Custom Data",
+                "description": "Optional, located in the properties object, used to attach custom data to your Activity. The example is URL encoded for { \"first name\": \"Eric\" } Using this in an updated activity will append the data to the signer, otherwise it will be added to the specific activity call/transaction.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,685 @@
+{
+  "name": "Dotdigital Audiences",
+  "basicOptions": [
+    "api_host",
+    "username",
+    "password",
+    "audienceName",
+    "visibility",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "api_host": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://r1-api.dotdigital.com",
+      "description": "The region your account is in",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://r1-api.dotdigital.com",
+          "label": "r1",
+          "text": "r1"
+        },
+        {
+          "value": "https://r2-api.dotdigital.com",
+          "label": "r2",
+          "text": "r2"
+        },
+        {
+          "value": "https://r3-api.dotdigital.com",
+          "label": "r3",
+          "text": "r3"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_host property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "username": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Dotdigital API username",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The username property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "password": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Dotdigital API password",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Password",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The password property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "audienceName": {
+      "tags": [],
+      "default": "",
+      "description": "A Dotdigital list name. Leave blank to use the audience name from Segment.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Dotdigital List Name",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "visibility": {
+      "tags": [],
+      "default": "Private",
+      "description": "The visibility of the Dotdigital list",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Visibility",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "Public",
+          "label": "Public",
+          "text": "Public"
+        },
+        {
+          "value": "Private",
+          "label": "Private",
+          "text": "Private"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The visibility property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "syncAudience",
+      "name": "Sync Audience",
+      "description": "Sync Segment Engage Audience to a Dotdigital List",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "segment_computation_action",
+          "type": "string",
+          "label": "Segment Computation Action",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_action": {
+                "title": "Segment Computation Action",
+                "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+                "type": "string",
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
+              }
+            },
+            "required": [
+              "segment_computation_action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_key",
+          "type": "string",
+          "label": "Audience Computation Key",
+          "description": "Segment's friendly name for the Audience",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_key": {
+                "title": "Audience Computation Key",
+                "description": "Segment's friendly name for the Audience",
+                "type": "string"
+              }
+            },
+            "required": [
+              "computation_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "Unique Audience Identifier returned by the createAudience() function call.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "Audience ID",
+                "description": "Unique Audience Identifier returned by the createAudience() function call.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "external_audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "emailIdentifier",
+          "type": "string",
+          "label": "Email address",
+          "description": "The Contact's email address.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "emailIdentifier": {
+                "title": "Email address",
+                "description": "The Contact's email address.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mobileNumberIdentifier",
+          "type": "string",
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileNumberIdentifier": {
+                "title": "Mobile Number",
+                "description": "The Contact's mobile number.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or properties object",
+          "description": "A computed object for track and identify events. This field should not need to be edited.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or properties object",
+                "description": "A computed object for track and identify events. This field should not need to be edited.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits_or_props"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dataFields",
+          "type": "object",
+          "label": "Data Fields",
+          "description": "An object containing key/value pairs for data fields assigned to this Contact. Custom Data Fields must already be defined in Dotdigital.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dataFields": {
+                "title": "Data Fields",
+                "description": "An object containing key/value pairs for data fields assigned to this Contact. Custom Data Fields must already be defined in Dotdigital.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "syncAudience",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "computation_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "emailIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "mobileNumberIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "computation_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "emailIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "mobileNumberIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "computation_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "emailIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "mobileNumberIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "syncAudience",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "computation_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "emailIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "mobileNumberIdentifier": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

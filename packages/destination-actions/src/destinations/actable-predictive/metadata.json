@@ -1,0 +1,936 @@
+{
+  "name": "Actable Predictive",
+  "basicOptions": [
+    "client_id",
+    "client_secret"
+  ],
+  "options": {
+    "client_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Actable-supplied Client ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "client_secret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Actable-supplied Client Secret.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Client Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendCustomEvent",
+      "name": "Send Custom Event",
+      "description": "Send a custom event to Actable for prediction. Use this to supply events that are not in Actable 's customer view.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customer_id",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The unique user identifier.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer_id": {
+                "title": "Customer ID",
+                "description": "The unique user identifier.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "customer_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp of Event",
+          "description": "Timestamp of when the custom event occured.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp of Event",
+                "description": "Timestamp of when the custom event occured.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Custom Properties",
+          "description": "Send an object of custom properties to Actable Predictive for custom data modeling.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Custom Properties",
+                "description": "Send an object of custom properties to Actable Predictive for custom data modeling.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "properties"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stream_key",
+          "type": "string",
+          "label": "Stream Key",
+          "description": "Dataset label, should be left as default unless specified otherwise.",
+          "defaultValue": "custom",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_key": {
+                "title": "Stream Key",
+                "description": "Dataset label, should be left as default unless specified otherwise.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "stream_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "sendEmailEvent",
+      "name": "Send Email Event",
+      "description": "Send an email event to Actable for prediction. Use this to supply clicks, opens, and unsubscribes.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customer_id",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The unique user identifier.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer_id": {
+                "title": "Customer ID",
+                "description": "The unique user identifier.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "customer_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "date_email_sent",
+          "type": "datetime",
+          "label": "timestamp of event",
+          "description": "Timestamp of event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "date_email_sent": {
+                "title": "timestamp of event",
+                "description": "Timestamp of event",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "date_email_sent"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_name",
+          "type": "string",
+          "label": "Campaign Name of Email",
+          "description": "name of the campaign associated with the email",
+          "defaultValue": {
+            "@path": "$.context.campaign.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_name": {
+                "title": "Campaign Name of Email",
+                "description": "name of the campaign associated with the email",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "clicked_flag",
+          "type": "integer",
+          "label": "Click Event Indicator",
+          "description": "1=email was clicked, 0 email was not clicked",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "clicked_flag": {
+                "title": "Click Event Indicator",
+                "description": "1=email was clicked, 0 email was not clicked",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "opened_flag",
+          "type": "integer",
+          "label": "Open Event Indicator",
+          "description": "1=email was opened, 0 email was not opened",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "opened_flag": {
+                "title": "Open Event Indicator",
+                "description": "1=email was opened, 0 email was not opened",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unsub_flag",
+          "type": "integer",
+          "label": "Unsubscribe Event Indicator",
+          "description": "1=customer unsubscribed from the email list, 0 user remained subscribed",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unsub_flag": {
+                "title": "Unsubscribe Event Indicator",
+                "description": "1=customer unsubscribed from the email list, 0 user remained subscribed",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stream_key",
+          "type": "string",
+          "label": "Stream Key",
+          "description": "Dataset label, should be left as default unless directed otherwise",
+          "defaultValue": "email",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_key": {
+                "title": "Stream Key",
+                "description": "Dataset label, should be left as default unless directed otherwise",
+                "type": "string"
+              }
+            },
+            "required": [
+              "stream_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "sendTransactionEvent",
+      "name": "Send Transaction Event",
+      "description": "Send a purchase event to Actable for prediction. Purchase events should be in v2 Commerce Spec.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customer_id",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The unique user identifier.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer_id": {
+                "title": "Customer ID",
+                "description": "The unique user identifier.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "customer_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "discount_code",
+          "type": "string",
+          "label": "Discount Code",
+          "description": "Discount code, if any, used on purchase. Will be used in addition to per-product coupons in Segment v2commerce events spec.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "discount_code": {
+                "title": "Discount Code",
+                "description": "Discount code, if any, used on purchase. Will be used in addition to per-product coupons in Segment v2commerce events spec.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "transaction_id",
+          "type": "string",
+          "label": "Transaction ID",
+          "description": "Optional Identifier for transaction.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "transaction_id": {
+                "title": "Transaction ID",
+                "description": "Optional Identifier for transaction.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "spend",
+          "type": "number",
+          "label": "Amount",
+          "description": "Total order amount.",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "spend": {
+                "title": "Amount",
+                "description": "Total order amount.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products Purchased",
+          "description": "product(s) purchased in transaction. This value should be an array of objects which at the minimum contains a Product ID or SKU per-product.",
+          "defaultValue": {
+            "@path": "$.properties.products"
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products Purchased",
+                "description": "product(s) purchased in transaction. This value should be an array of objects which at the minimum contains a Product ID or SKU per-product.",
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "products"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "purchase_datetime",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "timestamp of when transaction event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "purchase_datetime": {
+                "title": "Timestamp",
+                "description": "timestamp of when transaction event occurred.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "purchase_datetime"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stream_key",
+          "type": "string",
+          "label": "Stream Key",
+          "description": "Dataset label, should be left as default unless directed otherwise.",
+          "defaultValue": "transaction",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_key": {
+                "title": "Stream Key",
+                "description": "Dataset label, should be left as default unless directed otherwise.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "stream_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "sendWebEvent",
+      "name": "Send Web Activity Event",
+      "description": "Send a Web (or app) event to Actable for prediction. Use this to supply events like page views, link clicks, etc.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "customer_id",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "The unique user identifier.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer_id": {
+                "title": "Customer ID",
+                "description": "The unique user identifier.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "customer_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "datetime",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "Timestamp of event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "datetime": {
+                "title": "Event Timestamp",
+                "description": "Timestamp of event",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "datetime"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "interaction_type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "type of interaction (page view, add to cart, etc).",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "interaction_type": {
+                "title": "Event Type",
+                "description": "type of interaction (page view, add to cart, etc).",
+                "type": "string"
+              }
+            },
+            "required": [
+              "interaction_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_campaign",
+          "type": "string",
+          "label": "UTM Campaign",
+          "description": "UTM campaign parameter associated with event.",
+          "defaultValue": {
+            "@path": "$.context.campaign.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_campaign": {
+                "title": "UTM Campaign",
+                "description": "UTM campaign parameter associated with event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_medium",
+          "type": "string",
+          "label": "UTM Medium",
+          "description": "UTM medium parameter associated with event.",
+          "defaultValue": {
+            "@path": "$.context.campaign.medium"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_medium": {
+                "title": "UTM Medium",
+                "description": "UTM medium parameter associated with event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_source",
+          "type": "string",
+          "label": "UTM Source",
+          "description": "UTM source parameter associated with event.",
+          "defaultValue": {
+            "@path": "$.context.campaign.source"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_source": {
+                "title": "UTM Source",
+                "description": "UTM source parameter associated with event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "stream_key",
+          "type": "string",
+          "label": "Stream Key",
+          "description": "Dataset label, should be left as default unless directed otherwise",
+          "defaultValue": "web",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "stream_key": {
+                "title": "Stream Key",
+                "description": "Dataset label, should be left as default unless directed otherwise",
+                "type": "string"
+              }
+            },
+            "required": [
+              "stream_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

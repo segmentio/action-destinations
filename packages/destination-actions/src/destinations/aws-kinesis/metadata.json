@@ -1,0 +1,464 @@
+{
+  "name": "Aws Kinesis",
+  "basicOptions": [
+    "iamRoleArn",
+    "iamExternalId"
+  ],
+  "options": {
+    "iamRoleArn": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The ARN of the IAM Role to assume for sending data to Kinesis.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "IAM Role ARN",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The iamRoleArn property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "iamExternalId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "IAM External ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The iamExternalId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "send",
+      "name": "Send",
+      "description": "Send event to AWS Kinesis",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "payload",
+          "type": "object",
+          "label": "Payload",
+          "description": "The data to send to AWS Kinesis",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "payload": {
+                "title": "Payload",
+                "description": "The data to send to AWS Kinesis",
+                "type": "object"
+              }
+            },
+            "required": [
+              "payload"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "partitionKey",
+          "type": "string",
+          "label": "Partition Key",
+          "description": "The partition key to use for the record",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "partitionKey": {
+                "title": "Partition Key",
+                "description": "The partition key to use for the record",
+                "type": "string"
+              }
+            },
+            "required": [
+              "partitionKey"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "streamName",
+          "type": "string",
+          "label": "Stream Name",
+          "description": "The name of the Kinesis stream to send records to",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "streamName": {
+                "title": "Stream Name",
+                "description": "The name of the Kinesis stream to send records to",
+                "type": "string"
+              }
+            },
+            "required": [
+              "streamName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": []
+          }
+        },
+        {
+          "fieldKey": "awsRegion",
+          "type": "string",
+          "label": "AWS Region",
+          "description": "The AWS region where the Kinesis stream is located",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "us-east-1",
+              "value": "us-east-1"
+            },
+            {
+              "label": "us-east-2",
+              "value": "us-east-2"
+            },
+            {
+              "label": "us-west-1",
+              "value": "us-west-1"
+            },
+            {
+              "label": "us-west-2",
+              "value": "us-west-2"
+            },
+            {
+              "label": "eu-west-1",
+              "value": "eu-west-1"
+            },
+            {
+              "label": "eu-west-2",
+              "value": "eu-west-2"
+            },
+            {
+              "label": "eu-west-3",
+              "value": "eu-west-3"
+            },
+            {
+              "label": "ap-southeast-1",
+              "value": "ap-southeast-1"
+            },
+            {
+              "label": "ap-southeast-2",
+              "value": "ap-southeast-2"
+            },
+            {
+              "label": "sa-east-1",
+              "value": "sa-east-1"
+            },
+            {
+              "label": "ap-northeast-1",
+              "value": "ap-northeast-1"
+            },
+            {
+              "label": "ap-northeast-2",
+              "value": "ap-northeast-2"
+            },
+            {
+              "label": "ap-south-1",
+              "value": "ap-south-1"
+            },
+            {
+              "label": "ca-central-1",
+              "value": "ca-central-1"
+            },
+            {
+              "label": "eu-central-1",
+              "value": "eu-central-1"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "awsRegion": {
+                "title": "AWS Region",
+                "description": "The AWS region where the Kinesis stream is located",
+                "type": "string",
+                "enum": [
+                  "us-east-1",
+                  "us-east-2",
+                  "us-west-1",
+                  "us-west-2",
+                  "eu-west-1",
+                  "eu-west-2",
+                  "eu-west-3",
+                  "ap-southeast-1",
+                  "ap-southeast-2",
+                  "sa-east-1",
+                  "ap-northeast-1",
+                  "ap-northeast-2",
+                  "ap-south-1",
+                  "ca-central-1",
+                  "eu-central-1"
+                ]
+              }
+            },
+            "required": [
+              "awsRegion"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Max Batch Size",
+          "description": "The maximum number of payloads to include in a batch.",
+          "defaultValue": 500,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Max Batch Size",
+                "description": "The maximum number of payloads to include in a batch.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 500
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 500,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "awsRegion",
+            "streamName"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "max_batch_size",
+          "type": "number",
+          "label": "Max Batch Size",
+          "description": "The maximum number of payloads to include in a batch.",
+          "defaultValue": 500,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "max_batch_size": {
+                "title": "Max Batch Size",
+                "description": "The maximum number of payloads to include in a batch.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 500
+              }
+            },
+            "required": [
+              "max_batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 500,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Kinesis?",
+          "description": "If true, Segment will batch events before sending to Kinesis",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Kinesis?",
+                "description": "If true, Segment will batch events before sending to Kinesis",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.",
+          "defaultValue": 1000000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_bytes"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

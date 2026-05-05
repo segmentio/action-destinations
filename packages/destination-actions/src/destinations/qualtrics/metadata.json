@@ -1,0 +1,879 @@
+{
+  "name": "Qualtrics",
+  "basicOptions": [
+    "apiToken",
+    "datacenter"
+  ],
+  "options": {
+    "apiToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Qualtrics API token found in your Qualtrics account under \"Account settings\" -> \"Qualtrics IDs.\"",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "datacenter": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "iad1",
+      "description": "Qualtrics datacenter id that identifies where your qualtrics instance is located. Found under \"Account settings\" -> \"Qualtrics IDs\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Datacenter ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The datacenter property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "addContactToXmd",
+      "name": "Create and/or update contact in XM Directory",
+      "description": "Create and/or update contact in XM Directory. Updating is handled by contact deduplication in your [directory settings](https://www.qualtrics.com/support/iq-directory/directory-settings-tab/automatic-deduplication/). If deduplication is setup correctly this action will perform UPSERT operations on contacts",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "directoryId",
+          "type": "string",
+          "label": "Directory ID",
+          "description": "Directory id. Also known as the Pool ID. POOL_XXX",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "directoryId": {
+                "title": "Directory ID",
+                "description": "Directory id. Also known as the Pool ID. POOL_XXX",
+                "type": "string"
+              }
+            },
+            "required": [
+              "directoryId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extRef",
+          "type": "string",
+          "label": "External Data Reference",
+          "description": "The external data reference which is a unique identifier for the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extRef": {
+                "title": "External Data Reference",
+                "description": "The external data reference which is a unique identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email of contact",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.email"
+              },
+              "then": {
+                "@path": "$.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email of contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone number",
+          "description": "Phone number of contact",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone number",
+                "description": "Phone number of contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "First name of contact",
+          "defaultValue": {
+            "@path": "$.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "First name of contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "Last name of contact",
+          "defaultValue": {
+            "@path": "$.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "Last name of contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "Language code of the contact",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.language"
+              },
+              "then": {
+                "@path": "$.traits.language"
+              },
+              "else": "EN"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "Language code of the contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unsubscribed",
+          "type": "boolean",
+          "label": "Contact is unsubscribed",
+          "description": "Should the contact be unsubscribed from correspondence",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unsubscribed": {
+                "title": "Contact is unsubscribed",
+                "description": "Should the contact be unsubscribed from correspondence",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "embeddedData",
+          "type": "object",
+          "label": "Contact embedded data",
+          "description": "Contact embedded data (properties of the contact)",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "embeddedData": {
+                "title": "Contact embedded data",
+                "description": "Contact embedded data (properties of the contact)",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "triggerXflowWorkflow",
+      "name": "Start a workflow in Qualtrics",
+      "description": "This action is used to kick off a workflow in Qualtrics",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "workflowUrl",
+          "type": "string",
+          "label": "Workflow URL",
+          "description": "Enter the full URL as you see in your Xflow trigger. [See more details on setting up an xflow trigger and getting the URL.](https://static-assets.qualtrics.com/static/integrations-external/twilio_segment_event_webhook_setup_instructions.pdf)",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "workflowUrl": {
+                "title": "Workflow URL",
+                "description": "Enter the full URL as you see in your Xflow trigger. [See more details on setting up an xflow trigger and getting the URL.](https://static-assets.qualtrics.com/static/integrations-external/twilio_segment_event_webhook_setup_instructions.pdf)",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "workflowUrl"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventPayload",
+          "type": "object",
+          "label": "Event payload",
+          "description": "A mapping of key values to send to Qualtrics xflow.",
+          "defaultValue": {
+            "event": {
+              "@path": "$.event"
+            },
+            "type": {
+              "@path": "$.type"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "properties": {
+              "@path": "$.properties"
+            },
+            "traits": {
+              "@path": "$.traits"
+            },
+            "context": {
+              "@path": "$.context"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventPayload": {
+                "title": "Event payload",
+                "description": "A mapping of key values to send to Qualtrics xflow.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContactTransaction",
+      "name": "Upsert contact transaction",
+      "description": "Add a transaction to a contact in Qualtrics directory. If the contact already exists, add the transaction. If the contact does not exist, create the contact first, then add the transaction record.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\", event = \"Transaction Created\"",
+      "fields": [
+        {
+          "fieldKey": "directoryId",
+          "type": "string",
+          "label": "Directory ID",
+          "description": "Directory id. Also known as the Pool ID. POOL_XXX",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "directoryId": {
+                "title": "Directory ID",
+                "description": "Directory id. Also known as the Pool ID. POOL_XXX",
+                "type": "string"
+              }
+            },
+            "required": [
+              "directoryId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mailingListId",
+          "type": "string",
+          "label": "Mailing list ID",
+          "description": "ID of the mailing list the contact belongs too. If not part of the event payload, create / use an existing mailing list from Qualtrics. Will have the form CG_xxx",
+          "defaultValue": {
+            "@path": "$.traits.qualtricsMailingListId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mailingListId": {
+                "title": "Mailing list ID",
+                "description": "ID of the mailing list the contact belongs too. If not part of the event payload, create / use an existing mailing list from Qualtrics. Will have the form CG_xxx",
+                "type": "string"
+              }
+            },
+            "required": [
+              "mailingListId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contactId",
+          "type": "string",
+          "label": "Contact ID",
+          "description": "The id of the contact to add the transaction. if this field is not supplied, you must supply an external data reference, email and/or phone so a look can be performed. If the lookup does not find a contact, one will be created with these fields and including the optionally supplied firstName, lastName, language, subscribed and embeddedData",
+          "defaultValue": {
+            "@path": "$.traits.qualtricsContactId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactId": {
+                "title": "Contact ID",
+                "description": "The id of the contact to add the transaction. if this field is not supplied, you must supply an external data reference, email and/or phone so a look can be performed. If the lookup does not find a contact, one will be created with these fields and including the optionally supplied firstName, lastName, language, subscribed and embeddedData",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extRef",
+          "type": "string",
+          "label": "External Data Reference",
+          "description": "The external data reference which is a unique identifier for the user. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extRef": {
+                "title": "External Data Reference",
+                "description": "The external data reference which is a unique identifier for the user. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "extRef"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email of contact. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.email"
+              },
+              "then": {
+                "@path": "$.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email of contact. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone number",
+          "description": "Phone number of contact. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone number",
+                "description": "Phone number of contact. This is only used to search for the contact and if a new contact needs to be created, it is not added to the transaction data.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First name",
+          "description": "First name of contact. This is only used if a new contact needs to be created and is not added to the transaction data.",
+          "defaultValue": {
+            "@path": "$.traits.firstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First name",
+                "description": "First name of contact. This is only used if a new contact needs to be created and is not added to the transaction data.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last name",
+          "description": "Last name of contact. This is only used if a new contact needs to be created and is not added to the transaction data.",
+          "defaultValue": {
+            "@path": "$.traits.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last name",
+                "description": "Last name of contact. This is only used if a new contact needs to be created and is not added to the transaction data.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "Language code of the contact. This is only used if a new contact needs to be created and is not added to the transaction data.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.language"
+              },
+              "then": {
+                "@path": "$.traits.language"
+              },
+              "else": "EN"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "Language code of the contact. This is only used if a new contact needs to be created and is not added to the transaction data.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unsubscribed",
+          "type": "boolean",
+          "label": "Contact is unsubscribed",
+          "description": "Should the contact be unsubscribed from correspondence. This is only used if a new contact needs to be created and is not added to the transaction.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unsubscribed": {
+                "title": "Contact is unsubscribed",
+                "description": "Should the contact be unsubscribed from correspondence. This is only used if a new contact needs to be created and is not added to the transaction.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "embeddedData",
+          "type": "object",
+          "label": "Contact embedded data",
+          "description": "Contact embedded data (properties of the contact). These are added to the contact only if a new contact needs to be created not added to the transaction.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "embeddedData": {
+                "title": "Contact embedded data",
+                "description": "Contact embedded data (properties of the contact). These are added to the contact only if a new contact needs to be created not added to the transaction.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "transactionDate",
+          "type": "datetime",
+          "label": "Date & time of transaction",
+          "description": "Date and time of when the transaction occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "transactionDate": {
+                "title": "Date & time of transaction",
+                "description": "Date and time of when the transaction occurred.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "transactionData",
+          "type": "object",
+          "label": "Transaction data",
+          "description": "Properties of the transaction too add to the users record",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "transactionData": {
+                "title": "Transaction data",
+                "description": "Properties of the transaction too add to the users record",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

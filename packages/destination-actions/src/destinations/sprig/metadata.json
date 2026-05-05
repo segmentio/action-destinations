@@ -1,0 +1,274 @@
+{
+  "name": "Sprig Cloud (Actions)",
+  "description": "Send Segment analytics events and user profile data to Sprig.",
+  "basicOptions": [
+    "apiKey"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Sprig API key.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Upserts a user along with any traits to the Sprig platform.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The userId of the identified user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The userId of the identified user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attributes",
+          "description": "The traits to attribute to the userId.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attributes",
+                "description": "The traits to attribute to the userId.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send an event to Sprig.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The event to be sent to Sprig.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The event to be sent to Sprig.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "eventName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The userId of the identified user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The userId of the identified user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "attributes": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Screen Event",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "userId": {
+          "@path": "$.userId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "userId": {
+          "@path": "$.userId"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

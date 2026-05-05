@@ -1,0 +1,170 @@
+{
+  "name": "Aggregations.io (Actions)",
+  "description": "Send Segment events to Aggregations.io",
+  "basicOptions": [
+    "api_key",
+    "ingest_id"
+  ],
+  "options": {
+    "api_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Aggregations.io API Key. This key requires Write permissions.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "ingest_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The ID of the ingest you want to send data to. This ingest should be set up as \"Array of JSON Objects\". Find your ID on the Aggregations.io Organization page.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Ingest Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The ingest_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "send",
+      "name": "Send Events",
+      "description": "Send events to Aggregations.io.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "Payload to deliver (JSON-encoded).",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "Payload to deliver (JSON-encoded).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enabling sending batches of events to Aggregations.io.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enabling sending batches of events to Aggregations.io.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. If you know your events are large, you may want to tune your batch size down to meet API requirements.",
+          "defaultValue": 300,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. If you know your events are large, you may want to tune your batch size down to meet API requirements.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

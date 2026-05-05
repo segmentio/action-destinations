@@ -1,0 +1,1630 @@
+{
+  "name": "Saleswings (Actions)",
+  "basicOptions": [
+    "apiKey",
+    "environment"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Segment.io API key for your SalesWings project.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "environment": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "helium",
+      "description": "SalesWings environment this destination is connected with.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "helium",
+          "label": "Helium (live environment)",
+          "text": "Helium (live environment)"
+        },
+        {
+          "value": "ozone",
+          "label": "Ozone (test environment)",
+          "text": "Ozone (test environment)"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The environment property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "submitIdentifyEvent",
+      "name": "Submit Identify Event",
+      "description": "Send your Segment Identify events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "kind",
+          "type": "string",
+          "label": "Custom Event Kind",
+          "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "defaultValue": "Identify",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "title": "Custom Event Kind",
+                "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "string",
+          "label": "Custom Event Data",
+          "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Custom Event Data",
+                "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "data"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userID",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userID": {
+                "title": "Segment User ID",
+                "description": "Permanent identifier of a Segment user the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousID",
+          "type": "string",
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousID": {
+                "title": "Segment Anonymous User ID",
+                "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Identified email of the Segment User.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Identified email of the Segment User.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrerUrl",
+          "type": "string",
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrerUrl": {
+                "title": "Referrer URL",
+                "description": "Referrer URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "User Agent associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "When the event was sent.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Custom Attribute Values",
+          "description": "Custom attribute values associated with the SalesWings custom event.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Custom Attribute Values",
+                "description": "Custom attribute values associated with the SalesWings custom event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "submitPageEvent",
+      "name": "Submit Page Event",
+      "description": "Send your Segment Page events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "userID",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userID": {
+                "title": "Segment User ID",
+                "description": "Permanent identifier of a Segment user the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousID",
+          "type": "string",
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousID": {
+                "title": "Segment Anonymous User ID",
+                "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrerUrl",
+          "type": "string",
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrerUrl": {
+                "title": "Referrer URL",
+                "description": "Referrer URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "User Agent associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "When the event was sent.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "submitScreenEvent",
+      "name": "Submit Screen Event",
+      "description": "Send your Segment Screen events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "kind",
+          "type": "string",
+          "label": "Custom Event Kind",
+          "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "defaultValue": "Screen",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "title": "Custom Event Kind",
+                "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "string",
+          "label": "Custom Event Data",
+          "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "defaultValue": {
+            "@path": "$.name"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Custom Event Data",
+                "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "data"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userID",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userID": {
+                "title": "Segment User ID",
+                "description": "Permanent identifier of a Segment user the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousID",
+          "type": "string",
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousID": {
+                "title": "Segment Anonymous User ID",
+                "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Identified email of the Segment User.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Identified email of the Segment User.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrerUrl",
+          "type": "string",
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrerUrl": {
+                "title": "Referrer URL",
+                "description": "Referrer URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "User Agent associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "When the event was sent.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Custom Attribute Values",
+          "description": "Custom attribute values associated with the SalesWings custom event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Custom Attribute Values",
+                "description": "Custom attribute values associated with the SalesWings custom event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "submitTrackEvent",
+      "name": "Submit Track Event",
+      "description": "Send your Segment Track events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "kind",
+          "type": "string",
+          "label": "Custom Event Kind",
+          "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "defaultValue": "Track",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "title": "Custom Event Kind",
+                "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "string",
+          "label": "Custom Event Data",
+          "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Custom Event Data",
+                "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "data"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userID",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userID": {
+                "title": "Segment User ID",
+                "description": "Permanent identifier of a Segment user the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousID",
+          "type": "string",
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousID": {
+                "title": "Segment Anonymous User ID",
+                "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Identified email of the Segment User.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Identified email of the Segment User.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrerUrl",
+          "type": "string",
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrerUrl": {
+                "title": "Referrer URL",
+                "description": "Referrer URL associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "User Agent associated with the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "When the event was sent.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "values",
+          "type": "object",
+          "label": "Custom Attribute Values",
+          "description": "Custom attribute values associated with the SalesWings custom event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "values": {
+                "title": "Custom Attribute Values",
+                "description": "Custom attribute values associated with the SalesWings custom event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "submitIdentifyEvent",
+      "name": "Submit Identify Event",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "kind": "Identify",
+        "data": {
+          "@path": "$.traits.email"
+        },
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "values": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "submitPageEvent",
+      "name": "Submit Page Event",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "submitScreenEvent",
+      "name": "Submit Screen Event",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "kind": "Screen",
+        "data": {
+          "@path": "$.name"
+        },
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "values": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "submitTrackEvent",
+      "name": "Submit Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "kind": "Track",
+        "data": {
+          "@path": "$.event"
+        },
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "values": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,508 @@
+{
+  "name": "LaunchDarkly",
+  "description": "Use Segment events as custom metric events in LaunchDarkly experiments, so you can measure results immediately, without any instrumentation, code, or delays.",
+  "basicOptions": [
+    "client_id",
+    "events_host_name"
+  ],
+  "options": {
+    "client_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Find and copy the client-side ID in the LaunchDarkly account settings page.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "LaunchDarkly client-side ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "events_host_name": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "events.launchdarkly.com",
+      "description": "Your LaunchDarkly events host name. If not specified, the default value of events.launchdarkly.com will be used. Most customers will not need to change this setting.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "LaunchDarkly events host name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "aliasUser",
+      "name": "Alias User",
+      "description": "Alias an anonymous user with an identified user key.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"alias\"",
+      "fields": [
+        {
+          "fieldKey": "user_key",
+          "type": "string",
+          "label": "User key",
+          "description": "The user's unique key.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_key": {
+                "title": "User key",
+                "description": "The user's unique key.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "previous_key",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The user's unauthenticated identifier.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.previousId"
+              },
+              "then": {
+                "@path": "$.previousId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "previous_key": {
+                "title": "Anonymous ID",
+                "description": "The user's unauthenticated identifier.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "previous_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "The time when the event happened. Defaults to the current time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "The time when the event happened. Defaults to the current time.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Track custom events for use in A/B tests and experimentation.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "context_kind",
+          "type": "string",
+          "label": "Context Kind",
+          "description": "The event's context kind. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).",
+          "defaultValue": "user",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context_kind": {
+                "title": "Context Kind",
+                "description": "The event's context kind. If not specified, the context kind will default to `user`. To learn more about context kinds and where you can find a list of context kinds LaunchDarkly has observed, read [Context kinds](https://docs.launchdarkly.com/home/contexts/context-kinds).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_key",
+          "type": "string",
+          "label": "Context Key",
+          "description": "The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_key": {
+                "title": "Context Key",
+                "description": "The unique LaunchDarkly context key. In most cases the Segment `userId` should be used.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additional_context_keys",
+          "type": "object",
+          "label": "Additional Context Keys",
+          "description": "A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).",
+          "defaultValue": {
+            "unauthenticatedUser": {
+              "@path": "$.anonymousId"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additional_context_keys": {
+                "title": "Additional Context Keys",
+                "description": "A mapping of additional context kinds to context keys. To learn more, read [Contexts and segments](https://docs.launchdarkly.com/home/contexts).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to track. This name typically corresponds to a LaunchDarkly metric with the same key.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event to track. This name typically corresponds to a LaunchDarkly metric with the same key.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metric_value",
+          "type": "number",
+          "label": "Metric Value",
+          "description": "The numeric value associated with the event. This value is used by the LaunchDarkly experimentation feature in numeric custom metrics, and will also be returned as part of the custom event for Data Export.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metric_value": {
+                "title": "Metric Value",
+                "description": "The numeric value associated with the event. This value is used by the LaunchDarkly experimentation feature in numeric custom metrics, and will also be returned as part of the custom event for Data Export.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Optional object containing the properties for the event being tracked. These properties assist with observational analytics for LaunchDarkly Data Export destinations. These properties are not saved to the LaunchDarkly user.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_properties": {
+                "title": "Event Properties",
+                "description": "Optional object containing the properties for the event being tracked. These properties assist with observational analytics for LaunchDarkly Data Export destinations. These properties are not saved to the LaunchDarkly user.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event timestamp",
+          "description": "The time when the event happened. Defaults to the current time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event timestamp",
+                "description": "The time when the event happened. Defaults to the current time.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "aliasUser",
+      "name": "Alias User",
+      "subscribe": "type = \"identify\" or type = \"alias\"",
+      "mapping": {
+        "user_key": {
+          "@path": "$.userId"
+        },
+        "previous_key": {
+          "@if": {
+            "exists": {
+              "@path": "$.previousId"
+            },
+            "then": {
+              "@path": "$.previousId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "context_kind": "user",
+        "user_key": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "additional_context_keys": {
+          "unauthenticatedUser": {
+            "@path": "$.anonymousId"
+          }
+        },
+        "event_name": {
+          "@path": "$.event"
+        },
+        "metric_value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.revenue"
+            },
+            "then": {
+              "@path": "$.properties.revenue"
+            },
+            "else": {
+              "@path": "$.properties.value"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

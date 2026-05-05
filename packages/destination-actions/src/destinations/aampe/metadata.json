@@ -1,0 +1,614 @@
+{
+  "name": "Aampe (Actions)",
+  "basicOptions": [
+    "apiKey",
+    "region"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Aampe API Key",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app/v1/",
+      "description": "Your data region",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app/v1/",
+          "label": "Singapore",
+          "text": "Singapore"
+        },
+        {
+          "value": "https://ingestion-service-europe-west3-toqowp62ka-ey.a.run.app/v1/",
+          "label": "Germany",
+          "text": "Germany"
+        },
+        {
+          "value": "https://ingestion.us-east1.api.aampe.com/v1/",
+          "label": "US",
+          "text": "US"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEvent",
+      "name": "Send Event",
+      "description": "Send analytics, page and screen events to Aampe.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "contact_id",
+          "type": "string",
+          "label": "Contact ID",
+          "description": "Identifier for user. Use `userId` or `anonymousId` from the Segment event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contact_id": {
+                "title": "Contact ID",
+                "description": "Identifier for user. Use `userId` or `anonymousId` from the Segment event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contact_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "Name of the event. Use `event` from the Segment event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.type"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "Name of the event. Use `event` from the Segment event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp for when the event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp for when the event happened.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "User’s local timezone.",
+          "defaultValue": {
+            "@path": "$.context.timezone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "User’s local timezone.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Metadata",
+          "description": "Event properties.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "description": "Event properties.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "Unique identifier for the event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "Unique identifier for the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertUserProfile",
+      "name": "Upsert User Profile",
+      "description": "Send user profile updates to Aampe.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\" or type = \"page\" or type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "contact_id",
+          "type": "string",
+          "label": "Contact ID",
+          "description": "Identifier for user. Use `userId` or `anonymousId` from the Segment event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contact_id": {
+                "title": "Contact ID",
+                "description": "Identifier for user. Use `userId` or `anonymousId` from the Segment event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contact_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "Name of the event. Use `event` from the Segment event.",
+          "defaultValue": "User Profile Updated",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "Name of the event. Use `event` from the Segment event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Timestamp for when the event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp for when the event happened.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Metadata",
+          "description": "Event properties.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "description": "Event properties.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "Unique identifier for the event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "Unique identifier for the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_properties",
+          "type": "object",
+          "label": "User Properties",
+          "description": "User properties. Make sure to update the default mapping if you are sending user proferties via properties object in a track, page or screen event.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_properties": {
+                "title": "User Properties",
+                "description": "User properties. Make sure to update the default mapping if you are sending user proferties via properties object in a track, page or screen event.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "user_properties"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "upsertUserProfile",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "contact_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "event_name": "User Profile Updated",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "metadata": {
+          "@path": "$.properties"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user_properties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send Event",
+      "subscribe": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "mapping": {
+        "contact_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "event_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.type"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "metadata": {
+          "@path": "$.properties"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

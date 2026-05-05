@@ -1,0 +1,570 @@
+{
+  "name": "Voiceops",
+  "description": "Send Segment call-completed events to Voiceops for call ingestion, conference bridge splitting, and agent attribution.",
+  "basicOptions": [
+    "accessToken",
+    "baseUrl"
+  ],
+  "options": {
+    "accessToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Voiceops access token.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Access Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The accessToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "baseUrl": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://projectfrontline.net",
+      "description": "Your Voiceops base URL.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Base URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The baseUrl property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendCallCompleted",
+      "name": "Send Call Completed",
+      "description": "Send a completed call event to Voiceops using the canonical Voiceops call payload.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Call Completed\"",
+      "fields": [
+        {
+          "fieldKey": "call_id",
+          "type": "string",
+          "label": "Call ID",
+          "description": "The external call identifier used by Voiceops.",
+          "defaultValue": {
+            "@path": "$.properties.call_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "call_id": {
+                "title": "Call ID",
+                "description": "The external call identifier used by Voiceops.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "call_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "call_started_at",
+          "type": "string",
+          "label": "Call Started At",
+          "description": "The call start time as a Unix timestamp in seconds, for example `1712683200`.",
+          "defaultValue": {
+            "@path": "$.properties.call_started_at"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "call_started_at": {
+                "title": "Call Started At",
+                "description": "The call start time as a Unix timestamp in seconds, for example `1712683200`.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "call_started_at"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "agent_email",
+          "type": "string",
+          "label": "Agent Email",
+          "description": "The email address for the primary handling agent.",
+          "defaultValue": {
+            "@path": "$.properties.agent_email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "agent_email": {
+                "title": "Agent Email",
+                "description": "The email address for the primary handling agent.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [
+              "agent_email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recording_url",
+          "type": "string",
+          "label": "Recording URL",
+          "description": "A direct URI to the call recording file, for example `https://example.com/audio.wav`.",
+          "defaultValue": {
+            "@path": "$.properties.recording_url"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recording_url": {
+                "title": "Recording URL",
+                "description": "A direct URI to the call recording file, for example `https://example.com/audio.wav`.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "recording_url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "The first name for the primary handling agent.",
+          "defaultValue": {
+            "@path": "$.properties.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "The first name for the primary handling agent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The last name for the primary handling agent.",
+          "defaultValue": {
+            "@path": "$.properties.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "The last name for the primary handling agent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "channels",
+          "type": "object",
+          "label": "Channels",
+          "description": "Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.channels",
+              {
+                "channel": {
+                  "@path": "$.channel"
+                },
+                "type": {
+                  "@path": "$.type"
+                },
+                "recording_start_time": {
+                  "@path": "$.recording_start_time"
+                },
+                "identifier": {
+                  "@path": "$.identifier"
+                },
+                "first_name": {
+                  "@path": "$.first_name"
+                },
+                "last_name": {
+                  "@path": "$.last_name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "channels": {
+                "title": "Channels",
+                "description": "Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "channel": {
+                      "title": "Channel",
+                      "description": "The audio channel number.",
+                      "type": "integer"
+                    },
+                    "type": {
+                      "title": "Type",
+                      "description": "The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.",
+                      "type": "string",
+                      "enum": [
+                        "CONTACT",
+                        "HANDLING_AGENT",
+                        "TRANSFER_AGENT"
+                      ]
+                    },
+                    "recording_start_time": {
+                      "title": "Recording Start Time",
+                      "description": "The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "identifier": {
+                      "title": "Identifier",
+                      "description": "The participant identifier. HANDLING_AGENT entries must use an email address, while CONTACT and TRANSFER_AGENT entries can use any non-empty string.",
+                      "type": "string"
+                    },
+                    "first_name": {
+                      "title": "First Name",
+                      "description": "The participant first name when available.",
+                      "type": "string"
+                    },
+                    "last_name": {
+                      "title": "Last Name",
+                      "description": "The participant last name when available.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "channel",
+                    "type",
+                    "recording_start_time",
+                    "identifier"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "agentLegs",
+          "type": "object",
+          "label": "Agent Legs",
+          "description": "Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.agentLegs",
+              {
+                "agent_email": {
+                  "@path": "$.agent_email"
+                },
+                "started_at": {
+                  "@path": "$.started_at"
+                },
+                "ended_at": {
+                  "@path": "$.ended_at"
+                },
+                "first_name": {
+                  "@path": "$.first_name"
+                },
+                "last_name": {
+                  "@path": "$.last_name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "agentLegs": {
+                "title": "Agent Legs",
+                "description": "Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "agent_email": {
+                      "title": "Agent Email",
+                      "description": "The email address for the agent handling this leg of the call.",
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "started_at": {
+                      "title": "Started At",
+                      "description": "When this agent began handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "ended_at": {
+                      "title": "Ended At",
+                      "description": "When this agent stopped handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:37:47.000Z`.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "first_name": {
+                      "title": "First Name",
+                      "description": "The first name of the agent for this call leg.",
+                      "type": "string"
+                    },
+                    "last_name": {
+                      "title": "Last Name",
+                      "description": "The last name of the agent for this call leg.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "agent_email",
+                    "started_at",
+                    "first_name",
+                    "last_name"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraMetadata",
+          "type": "object",
+          "label": "Extra Metadata",
+          "description": "Additional call metadata to forward to Voiceops unchanged.",
+          "defaultValue": {
+            "@path": "$.properties.extraMetadata"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "extraMetadata": {
+                "title": "Extra Metadata",
+                "description": "Additional call metadata to forward to Voiceops unchanged.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sendCallCompleted",
+      "name": "Send Call Completed",
+      "subscribe": "type = \"track\" and event = \"Call Completed\"",
+      "mapping": {
+        "call_id": {
+          "@path": "$.properties.call_id"
+        },
+        "call_started_at": {
+          "@path": "$.properties.call_started_at"
+        },
+        "agent_email": {
+          "@path": "$.properties.agent_email"
+        },
+        "recording_url": {
+          "@path": "$.properties.recording_url"
+        },
+        "first_name": {
+          "@path": "$.properties.first_name"
+        },
+        "last_name": {
+          "@path": "$.properties.last_name"
+        },
+        "channels": {
+          "@arrayPath": [
+            "$.properties.channels",
+            {
+              "channel": {
+                "@path": "$.channel"
+              },
+              "type": {
+                "@path": "$.type"
+              },
+              "recording_start_time": {
+                "@path": "$.recording_start_time"
+              },
+              "identifier": {
+                "@path": "$.identifier"
+              },
+              "first_name": {
+                "@path": "$.first_name"
+              },
+              "last_name": {
+                "@path": "$.last_name"
+              }
+            }
+          ]
+        },
+        "agentLegs": {
+          "@arrayPath": [
+            "$.properties.agentLegs",
+            {
+              "agent_email": {
+                "@path": "$.agent_email"
+              },
+              "started_at": {
+                "@path": "$.started_at"
+              },
+              "ended_at": {
+                "@path": "$.ended_at"
+              },
+              "first_name": {
+                "@path": "$.first_name"
+              },
+              "last_name": {
+                "@path": "$.last_name"
+              }
+            }
+          ]
+        },
+        "extraMetadata": {
+          "@path": "$.properties.extraMetadata"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,425 @@
+{
+  "name": "Criteo Audiences",
+  "description": "Add/remove users to/from Criteo Audiences using Criteo API",
+  "basicOptions": [
+    "client_id",
+    "client_secret",
+    "advertiser_id",
+    "enable_batching"
+  ],
+  "options": {
+    "client_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Criteo API client ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "API Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "client_secret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Criteo API client secret",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Client Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "advertiser_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Criteo Advertiser ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The advertiser_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "enable_batching": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": true,
+      "description": "Important: This setting should remain enabled!",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Batching",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "addUserToAudience",
+      "name": "Add users to Audience",
+      "description": "Add users from Criteo audience by connecting to Criteo API",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "audience_key",
+          "type": "string",
+          "label": "Audience key",
+          "description": "Unique name for personas audience",
+          "defaultValue": {
+            "@path": "$.properties.audience_key"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_key": {
+                "title": "Audience key",
+                "description": "Unique name for personas audience",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event name",
+          "description": "Event for audience entering or exiting",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event name",
+                "description": "Event for audience entering or exiting",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email",
+          "defaultValue": {
+            "@path": "$.context.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "hash_emails",
+          "type": "boolean",
+          "label": "Hash Emails",
+          "description": "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hash_emails": {
+                "title": "Hash Emails",
+                "description": "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching for this request",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching for this request",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeUserFromAudience",
+      "name": "Remove users from Audience",
+      "description": "Remove users from Criteo audience by connecting to Criteo API",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "audience_key",
+          "type": "string",
+          "label": "Audience key",
+          "description": "Unique name for personas audience",
+          "defaultValue": {
+            "@path": "$.properties.audience_key"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_key": {
+                "title": "Audience key",
+                "description": "Unique name for personas audience",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event name",
+          "description": "Event for audience entering or exiting",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event name",
+                "description": "Event for audience entering or exiting",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email",
+          "defaultValue": {
+            "@path": "$.context.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "hash_emails",
+          "type": "boolean",
+          "label": "Hash Emails",
+          "description": "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hash_emails": {
+                "title": "Hash Emails",
+                "description": "Hash emails before sending them to Criteo (may lower your audience's match rate). If deactivated, emails will be sent unhashed to Criteo's API and will be hashed upon reception at Criteo's server.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching for this request",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching for this request",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

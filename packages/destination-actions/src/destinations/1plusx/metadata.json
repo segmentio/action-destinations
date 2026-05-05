@@ -1,0 +1,1137 @@
+{
+  "name": "1plusX",
+  "basicOptions": [
+    "client_id",
+    "use_test_endpoint"
+  ],
+  "options": {
+    "client_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your 1plusX Client ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "use_test_endpoint": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": false,
+      "description": "If true, events are sent to `https://tagger-test.opecloud.com` instead of `https://tagger.opecloud.com`",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Use Test Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendEvent",
+      "name": "Send Event",
+      "description": "Send an event to 1plusX",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "ope_user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's unique identifier, prefixed with the identifier type",
+          "defaultValue": {
+            "@template": "ANONYMOUSID:{{anonymousId}}"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_user_id": {
+                "title": "User ID",
+                "description": "The user's unique identifier, prefixed with the identifier type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ope_user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_event_type",
+          "type": "string",
+          "label": "Event Name",
+          "description": "A description of the event",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_event_type": {
+                "title": "Event Name",
+                "description": "A description of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ope_event_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_alt_user_ids",
+          "type": "string",
+          "label": "Alternative User IDs",
+          "description": "Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_alt_user_ids": {
+                "title": "Alternative User IDs",
+                "description": "Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_item_uri",
+          "type": "string",
+          "label": "Website URL",
+          "description": "The website URL of the page",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_item_uri": {
+                "title": "Website URL",
+                "description": "The website URL of the page",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_app_version",
+          "type": "string",
+          "label": "Mobile App Version",
+          "description": "Version of the mobile app",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_app_version": {
+                "title": "Mobile App Version",
+                "description": "Version of the mobile app",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_event_time_ms",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_event_time_ms": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_user_agent",
+          "type": "string",
+          "label": "Browser UserAgent",
+          "description": "The user agent as submitted by the browser",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_user_agent": {
+                "title": "Browser UserAgent",
+                "description": "The user agent as submitted by the browser",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr",
+          "type": "integer",
+          "label": "GDPR Consent Flag",
+          "description": "Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr": {
+                "title": "GDPR Consent Flag",
+                "description": "Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr_consent",
+          "type": "string",
+          "label": "GDPR Consent String",
+          "description": "If subject to GDPR, populate with appropriate consents",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr_consent": {
+                "title": "GDPR Consent String",
+                "description": "If subject to GDPR, populate with appropriate consents",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_usp_string",
+          "type": "string",
+          "label": "US Privacy Consent String",
+          "description": "If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_usp_string": {
+                "title": "US Privacy Consent String",
+                "description": "If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "platform",
+          "type": "string",
+          "label": "Platform",
+          "description": "The platform that data is originating from",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "platform": {
+                "title": "Platform",
+                "description": "The platform that data is originating from",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom Fields",
+          "description": "Custom fields to include with the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom Fields",
+                "description": "Custom fields to include with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendPageview",
+      "name": "Send Pageview",
+      "description": "Send a pageview to 1plusX",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\" or type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "ope_user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's unique identifier, prefixed with the identifier type",
+          "defaultValue": {
+            "@template": "ANONYMOUSID:{{anonymousId}}"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_user_id": {
+                "title": "User ID",
+                "description": "The user's unique identifier, prefixed with the identifier type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ope_user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_event_type",
+          "type": "string",
+          "label": "Event Name",
+          "description": "A description of the event",
+          "defaultValue": "Pageview",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_event_type": {
+                "title": "Event Name",
+                "description": "A description of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ope_event_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_alt_user_ids",
+          "type": "string",
+          "label": "Alternative User IDs",
+          "description": "Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_alt_user_ids": {
+                "title": "Alternative User IDs",
+                "description": "Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_item_uri",
+          "type": "string",
+          "label": "Website URL",
+          "description": "The website URL of the page",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_item_uri": {
+                "title": "Website URL",
+                "description": "The website URL of the page",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_app_version",
+          "type": "string",
+          "label": "Mobile App Version",
+          "description": "Version of the mobile app",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_app_version": {
+                "title": "Mobile App Version",
+                "description": "Version of the mobile app",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_event_time_ms",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_event_time_ms": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_user_agent",
+          "type": "string",
+          "label": "Browser UserAgent",
+          "description": "The user agent as submitted by the browser",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_user_agent": {
+                "title": "Browser UserAgent",
+                "description": "The user agent as submitted by the browser",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr",
+          "type": "integer",
+          "label": "GDPR Consent Flag",
+          "description": "Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr": {
+                "title": "GDPR Consent Flag",
+                "description": "Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr_consent",
+          "type": "string",
+          "label": "GDPR Consent String",
+          "description": "If subject to GDPR, populate with appropriate consents",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr_consent": {
+                "title": "GDPR Consent String",
+                "description": "If subject to GDPR, populate with appropriate consents",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_usp_string",
+          "type": "string",
+          "label": "US Privacy Consent String",
+          "description": "If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_usp_string": {
+                "title": "US Privacy Consent String",
+                "description": "If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "platform",
+          "type": "string",
+          "label": "Platform",
+          "description": "The platform that data is originating from",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "platform": {
+                "title": "Platform",
+                "description": "The platform that data is originating from",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom Fields",
+          "description": "Custom fields to include with the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom Fields",
+                "description": "Custom fields to include with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendUserData",
+      "name": "Send User Data",
+      "description": "Send user data to 1plusX",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "ope_user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's unique identifier, prefixed with the identifier type",
+          "defaultValue": {
+            "@template": "ANONYMOUSID:{{anonymousId}}"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_user_id": {
+                "title": "User ID",
+                "description": "The user's unique identifier, prefixed with the identifier type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ope_user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_event_type",
+          "type": "string",
+          "label": "Event Name",
+          "description": "A description of the event",
+          "defaultValue": "User Identified",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_event_type": {
+                "title": "Event Name",
+                "description": "A description of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ope_event_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_alt_user_ids",
+          "type": "string",
+          "label": "Alternative User IDs",
+          "description": "Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_alt_user_ids": {
+                "title": "Alternative User IDs",
+                "description": "Alternative user ids if there is more than one identifier available, each prefixed with the identifier type and separated by commas",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_item_uri",
+          "type": "string",
+          "label": "Website URL",
+          "description": "The website URL of the page",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_item_uri": {
+                "title": "Website URL",
+                "description": "The website URL of the page",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_app_version",
+          "type": "string",
+          "label": "Mobile App Version",
+          "description": "Version of the mobile app",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_app_version": {
+                "title": "Mobile App Version",
+                "description": "Version of the mobile app",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_event_time_ms",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_event_time_ms": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened. If not set, timestamp recorded by 1plusX upon receipt is used.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_user_agent",
+          "type": "string",
+          "label": "Browser UserAgent",
+          "description": "The user agent as submitted by the browser",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_user_agent": {
+                "title": "Browser UserAgent",
+                "description": "The user agent as submitted by the browser",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr",
+          "type": "integer",
+          "label": "GDPR Consent Flag",
+          "description": "Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr": {
+                "title": "GDPR Consent Flag",
+                "description": "Set to 1 if subject to GDPR, set to 0 or leave blank if not subject to GDPR",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr_consent",
+          "type": "string",
+          "label": "GDPR Consent String",
+          "description": "If subject to GDPR, populate with appropriate consents",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr_consent": {
+                "title": "GDPR Consent String",
+                "description": "If subject to GDPR, populate with appropriate consents",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ope_usp_string",
+          "type": "string",
+          "label": "US Privacy Consent String",
+          "description": "If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ope_usp_string": {
+                "title": "US Privacy Consent String",
+                "description": "If subject to CCPA, this field should be populated with appropriate consents. 1plusX will parse the string value and process the event only when the consent indicates no optout from sales. Leave blank or set to 1--- if not subject to CCPA.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "platform",
+          "type": "string",
+          "label": "Platform",
+          "description": "The platform that data is originating from",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "platform": {
+                "title": "Platform",
+                "description": "The platform that data is originating from",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom Fields",
+          "description": "Custom fields to include with the event",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom Fields",
+                "description": "Custom fields to include with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

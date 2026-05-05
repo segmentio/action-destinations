@@ -1,0 +1,678 @@
+{
+  "name": "Kafka",
+  "description": "Send data to a Kafka topic",
+  "basicOptions": [
+    "clientId",
+    "brokers",
+    "mechanism",
+    "username",
+    "password",
+    "accessKeyId",
+    "secretAccessKey",
+    "authorizationIdentity",
+    "ssl_enabled",
+    "ssl_ca",
+    "ssl_key",
+    "ssl_cert",
+    "ssl_reject_unauthorized_ca"
+  ],
+  "options": {
+    "clientId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "segment-actions-kafka-producer",
+      "description": "The client ID for your Kafka instance. Defaults to 'segment-actions-kafka-producer'.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The clientId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "brokers": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The brokers for your Kafka instance, in the format of `host:port`. E.g. localhost:9092. Accepts a comma delimited string.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Brokers",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The brokers property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "mechanism": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "plain",
+      "description": "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Authentication Mechanism",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "plain",
+          "label": "Plain",
+          "text": "Plain"
+        },
+        {
+          "value": "scram-sha-256",
+          "label": "SCRAM-SHA-256",
+          "text": "SCRAM-SHA-256"
+        },
+        {
+          "value": "scram-sha-512",
+          "label": "SCRAM-SHA-512",
+          "text": "SCRAM-SHA-512"
+        },
+        {
+          "value": "client-cert-auth",
+          "label": "Client Certificate",
+          "text": "Client Certificate"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The mechanism property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "username": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The username for your Kafka instance. Should be populated only if using PLAIN or SCRAM Authentication Mechanisms.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "match": "any",
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "plain"
+          },
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "scram-sha-256"
+          },
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "scram-sha-512"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "password": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The password for your Kafka instance. Should only be populated if using PLAIN or SCRAM Authentication Mechanisms.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Password",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": {
+        "match": "any",
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "plain"
+          },
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "scram-sha-256"
+          },
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "scram-sha-512"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "accessKeyId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Access Key ID for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Access Key ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "aws"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "secretAccessKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "AWS Secret Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "aws"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "authorizationIdentity": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "AWS IAM role ARN used for authorization. This field is optional, and should only be populated if using the AWS IAM Authentication Mechanism.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Authorization Identity",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "aws"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ssl_enabled": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": true,
+      "description": "Indicates if SSL should be enabled.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SSL Enabled",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ssl_ca": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SSL Certificate Authority",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ssl_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "SSL Client Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "client-cert-auth"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ssl_cert": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SSL Client Certificate",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "mechanism",
+            "operator": "is",
+            "value": "client-cert-auth"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ssl_reject_unauthorized_ca": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": true,
+      "description": "Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SSL - Reject Unauthorized Certificate Authority",
+      "private": true,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "send",
+      "name": "Send",
+      "description": "Send data to a Kafka topic",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "topic",
+          "type": "string",
+          "label": "Topic",
+          "description": "The Kafka topic to send messages to. This field auto-populates from your Kafka instance.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "topic": {
+                "title": "Topic",
+                "description": "The Kafka topic to send messages to. This field auto-populates from your Kafka instance.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "topic"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "payload",
+          "type": "object",
+          "label": "Payload",
+          "description": "The data to send to Kafka",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "payload": {
+                "title": "Payload",
+                "description": "The data to send to Kafka",
+                "type": "object"
+              }
+            },
+            "required": [
+              "payload"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Headers",
+          "description": "Header data to send to Kafka. Format is Header key, Header value (optional).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "title": "Headers",
+                "description": "Header data to send to Kafka. Format is Header key, Header value (optional).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "partition",
+          "type": "integer",
+          "label": "Partition",
+          "description": "The partition to send the message to (optional)",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "partition": {
+                "title": "Partition",
+                "description": "The partition to send the message to (optional)",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "default_partition",
+          "type": "integer",
+          "label": "Default Partition",
+          "description": "The default partition to send the message to (optional)",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "default_partition": {
+                "title": "Default Partition",
+                "description": "The default partition to send the message to (optional)",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key",
+          "type": "string",
+          "label": "Message Key",
+          "description": "The key for the message (optional)",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "title": "Message Key",
+                "description": "The key for the message (optional)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Kafka?",
+          "description": "If true, Segment will batch events before sending to Kafka.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Kafka?",
+                "description": "If true, Segment will batch events before sending to Kafka.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "topic",
+            "partition",
+            "default_partition"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_bytes",
+          "type": "number",
+          "label": "Batch Bytes",
+          "description": "Specifies the maximum number of bytes to batch before sending. The default is 1 MB, though the maximum allowed depends on the Kafka cluster. Smaller batch sizes result in more frequent requests to the cluster. Minimum is 5 KB.",
+          "defaultValue": 1000000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_bytes": {
+                "title": "Batch Bytes",
+                "description": "Specifies the maximum number of bytes to batch before sending. The default is 1 MB, though the maximum allowed depends on the Kafka cluster. Smaller batch sizes result in more frequent requests to the cluster. Minimum is 5 KB.",
+                "type": "number",
+                "minimum": 5000
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 5000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Max batch size to send to Kafka",
+          "defaultValue": 1002,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Max batch size to send to Kafka",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

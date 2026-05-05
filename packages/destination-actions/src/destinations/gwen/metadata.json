@@ -1,0 +1,289 @@
+{
+  "name": "GWEN (Actions)",
+  "basicOptions": [
+    "apiKey"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "GWEN API key. Can be found [here](http://gwen.insertcoin.se/iam/api-token) (login required)",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Starts a new GWEN user session. Provide the users IP and userAgent to improve the GWEN experience",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "User IP Address",
+          "description": "The IP address of the user",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "User IP Address",
+                "description": "The IP address of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The userAgent string of the user",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The userAgent string of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendEvent",
+      "name": "Send Event",
+      "description": "Send a user event to GWEN",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The user's id. (Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)",
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Event Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "The data to be sent to GWEN",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "The data to be sent to GWEN",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify a user",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send an event to GWEN",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "data": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

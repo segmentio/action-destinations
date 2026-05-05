@@ -1,0 +1,892 @@
+{
+  "name": "Launchpad (Actions)",
+  "basicOptions": [
+    "apiSecret",
+    "apiRegion",
+    "sourceName"
+  ],
+  "options": {
+    "apiSecret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Launchpad project secret. You can find that in the settings in your Launchpad.pm account.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Secret Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiRegion": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "US 🇺🇸",
+      "description": "Learn about [EU data residency](https://help.launchpad.pm).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Data Residency",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US 🇺🇸",
+          "label": "US 🇺🇸",
+          "text": "US 🇺🇸"
+        },
+        {
+          "value": "EU 🇪🇺",
+          "label": "EU 🇪🇺",
+          "text": "EU 🇪🇺"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "sourceName": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "This value, if it's not blank, will be sent as segment_source_name to Launchpad for every event/page/screen call.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Source Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "groupIdentifyUser",
+      "name": "Group Identify User",
+      "description": "Updates or adds properties to a group profile. The profile is created if it does not exist. [Learn more about Group Analytics.](https://help.Launchpad.pm)",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "groupKey",
+          "type": "string",
+          "label": "Group Key",
+          "description": "The group key you specified in Launchpad under the company corresponding to the group. If this is not specified, it will be defaulted to \"$group_id\". This is helpful when you have a group of companies that should be joined together as in when you have a multinational.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupKey": {
+                "title": "Group Key",
+                "description": "The group key you specified in Launchpad under the company corresponding to the group. If this is not specified, it will be defaulted to \"$group_id\". This is helpful when you have a group of companies that should be joined together as in when you have a multinational.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group. If there is a trait that matches the group key, it will override this value.",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group. If there is a trait that matches the group key, it will override this value.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "groupId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Group Properties",
+          "description": "The properties to set on the group profile.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Group Properties",
+                "description": "The properties to set on the group profile.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "“Creates or updates a user profile, and adds or updates trait values on the user profile that you can use for segmentation within the Launchpad platform.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User Properties",
+          "description": "Properties that you want to set on the user profile and you would want to segment by later.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "User Properties",
+                "description": "Properties that you want to set on the user profile and you would want to segment by later.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send an event to Launchpad. [Learn more about Events in Launchpad](https://help.launchpad.pm)",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the action being performed.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the action being performed.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "A unique ID for a known user. This will be used as the Distinct ID. This field is required if the Anonymous ID field is empty",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "A unique ID for an anonymous user. This will be used as the Distinct ID if the User ID field is empty. This field is required if the User ID field is empty",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group that performed this event.",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group that performed this event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "Insert ID",
+          "description": "A random id that is unique to an event. Launchpad uses $insert_id to deduplicate events.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "Insert ID",
+                "description": "A random id that is unique to an event. Launchpad uses $insert_id to deduplicate events.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "messageId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Launchpad expects epoch timestamp in millisecond or second. Please note, Launchpad only accepts this field as the timestamp. If the field is empty, it will be set to the time Launchpad servers receive it.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event. Launchpad expects epoch timestamp in millisecond or second. Please note, Launchpad only accepts this field as the timestamp. If the field is empty, it will be set to the time Launchpad servers receive it.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User Properties",
+          "description": "An object of key-value pairs that represent additional data tied to the user. This is used for segmentation within the platform.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "User Properties",
+                "description": "An object of key-value pairs that represent additional data tied to the user. This is used for segmentation within the platform.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "An object of key-value pairs that provides useful context about the event.",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "An object of key-value pairs that provides useful context about the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Launchpad",
+          "description": "Set as true to ensure Segment sends data to Launchpad in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Launchpad",
+                "description": "Set as true to ensure Segment sends data to Launchpad in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "groupIdentifyUser",
+      "name": "Group Calls",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Page Calls",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event": {
+          "@template": "Viewed {{name}}"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "groupId": {
+          "@path": "$.context.groupId"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "enable_batching": true
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Screen Calls",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "event": {
+          "@template": "Viewed {{name}}"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "groupId": {
+          "@path": "$.context.groupId"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "enable_batching": true
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\" and event != \"Order Completed\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "groupId": {
+          "@path": "$.context.groupId"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "enable_batching": true
+      },
+      "type": "automatic"
+    }
+  ]
+}

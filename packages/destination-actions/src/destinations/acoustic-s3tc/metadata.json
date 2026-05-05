@@ -1,0 +1,471 @@
+{
+  "name": "Acoustic (Actions)",
+  "description": "Acoustic (S3TC) - Provide Segment Track and Identify Event Data to Acoustic Connect",
+  "basicOptions": [
+    "fileNamePrefix",
+    "s3_bucket_accesspoint_alias",
+    "s3_access_key",
+    "s3_secret",
+    "s3_region",
+    "version"
+  ],
+  "options": {
+    "fileNamePrefix": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "customer_org_",
+      "description": "Use your Acoustic Org name but replace any spaces with an underscore, eg., AcmeCustomer_Prod",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Customer Prefix",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The fileNamePrefix property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_bucket_accesspoint_alias": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Alias of the Access Point created for your access to the S3 Bucket.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "S3 Bucket Access Point Alias",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_bucket_accesspoint_alias property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_access_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "S3 Access Key for the S3 bucket.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "S3 Access Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_access_key property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_secret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "S3 Secret credential for the S3 bucket.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "S3 Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_secret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "us-east-1",
+      "description": "Should always be us-east-1 unless directed by Acoustic otherwise. ",
+      "encrypt": false,
+      "hidden": false,
+      "label": "S3 Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_region property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "version": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "Version 2.3",
+      "description": "\n\nLast-Modified: 02.01.2024 10.30.43\n\n",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Version:",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "receiveEvents",
+      "name": "Send Events",
+      "description": "Send Segment identify() and track() events to Acoustic Connect. At least one of the following optional fields should be populated: Key-Value pairs, Arrays, Context, Properties, Traits.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "key_value_pairs",
+          "type": "object",
+          "label": "Key-Value pairs",
+          "description": "Map simple Key-Value pairs (optional) ",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_value_pairs": {
+                "title": "Key-Value pairs",
+                "description": "Map simple Key-Value pairs (optional) ",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "array_data",
+          "type": "object",
+          "label": "Arrays",
+          "description": "If the data needed is in an array, use this section to Map Array data into useable attributes (optional) ",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "array_data": {
+                "title": "Arrays",
+                "description": "If the data needed is in an array, use this section to Map Array data into useable attributes (optional) ",
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context",
+          "description": "If the data is present in a Context section, use this to map the attributes of a Context Section (optional)",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context",
+                "description": "If the data is present in a Context section, use this to map the attributes of a Context Section (optional)",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "If the data is present in a Properties section, use this to map the attributes of a Properties Section (optional) ",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "If the data is present in a Properties section, use this to map the attributes of a Properties Section (optional) ",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "If the data is present in a Traits section, use this to map the attributes of a Traits Section (optional) ",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "If the data is present in a Traits section, use this to map the attributes of a Traits Section (optional) ",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "uniqueRecipientId",
+          "type": "string",
+          "label": "UniqueRecipientId",
+          "description": "The field to be used to uniquely identify the Recipient in Acoustic. This field is required with Email preferred but not required.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "uniqueRecipientId": {
+                "title": "UniqueRecipientId",
+                "description": "The field to be used to uniquely identify the Recipient in Acoustic. This field is required with Email preferred but not required.",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": [
+              "uniqueRecipientId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "Do Not Modify - The type of event. e.g. track or identify, this field is required",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "Do Not Modify - The type of event. e.g. track or identify, this field is required",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Do Not Modify - The timestamp for when the event took place. This field is required",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Do Not Modify - The timestamp for when the event took place. This field is required",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "receiveEvents",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "uniqueRecipientId": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "receiveEvents",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "uniqueRecipientId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

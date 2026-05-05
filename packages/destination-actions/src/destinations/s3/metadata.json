@@ -1,0 +1,715 @@
+{
+  "name": "AWS S3 (Actions)",
+  "description": "Sync Segment event data to AWS S3.",
+  "basicOptions": [
+    "iam_role_arn",
+    "s3_aws_bucket_name",
+    "s3_aws_region",
+    "iam_external_id"
+  ],
+  "options": {
+    "iam_role_arn": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name",
+      "encrypt": false,
+      "hidden": false,
+      "label": "IAM Role ARN",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The iam_role_arn property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_aws_bucket_name": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Name of the S3 bucket where the files will be uploaded to.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Bucket Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_aws_bucket_name property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_aws_region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Region Code",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_aws_region property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "iam_external_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The External ID to your IAM role. Generate a secure string and treat it like a password.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "IAM External ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The iam_external_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "syncToS3",
+      "name": "Sync to S3",
+      "description": "Syncs Segment event data to S3.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Columns",
+          "description": "Column to write to the S3 CSV file.",
+          "defaultValue": {
+            "event_name": {
+              "@path": "$.event"
+            },
+            "event_type": {
+              "@path": "$.type"
+            },
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "anonymous_id": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "properties": {
+              "@path": "$.properties"
+            },
+            "traits": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits"
+                },
+                "then": {
+                  "@path": "$.traits"
+                },
+                "else": {
+                  "@path": "$.context.traits"
+                }
+              }
+            },
+            "context": {
+              "@path": "$.context"
+            },
+            "timestamp": {
+              "@path": "$.timestamp"
+            },
+            "message_id": {
+              "@path": "$.messageId"
+            },
+            "integrations": {
+              "@path": "$.integrations"
+            },
+            "audience_name": {
+              "@path": "$.context.personas.computation_key"
+            },
+            "audience_id": {
+              "@path": "$.context.personas.computation_id"
+            },
+            "audience_space_id": {
+              "@path": "$.context.personas.space_id"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Columns",
+                "description": "Column to write to the S3 CSV file.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "event_name": {
+                    "title": "Event Name",
+                    "description": "Name of the event.",
+                    "type": "string"
+                  },
+                  "event_type": {
+                    "title": "Event Type",
+                    "description": "The type of event",
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "title": "User ID",
+                    "description": "User ID",
+                    "type": "string"
+                  },
+                  "anonymous_id": {
+                    "title": "Anonymous ID",
+                    "description": "Anonymous ID",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Email address",
+                    "type": "string"
+                  },
+                  "properties": {
+                    "title": "Properties",
+                    "description": "Properties of the event",
+                    "type": "object"
+                  },
+                  "traits": {
+                    "title": "Traits",
+                    "description": "User traits",
+                    "type": "object"
+                  },
+                  "context": {
+                    "title": "Context",
+                    "description": "Context of the event",
+                    "type": "object"
+                  },
+                  "timestamp": {
+                    "title": "Timestamp",
+                    "description": "Timestamp of the event",
+                    "type": "string"
+                  },
+                  "message_id": {
+                    "title": "Message ID",
+                    "description": "Name of column for the unique identifier for the message.",
+                    "type": "string"
+                  },
+                  "integrations": {
+                    "title": "Integrations Object",
+                    "description": "Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment",
+                    "type": "object"
+                  },
+                  "audience_name": {
+                    "title": "Audience Name",
+                    "description": "Name of the audience",
+                    "type": "string"
+                  },
+                  "audience_id": {
+                    "title": "Audience ID",
+                    "description": "ID of the audience",
+                    "type": "string"
+                  },
+                  "audience_space_id": {
+                    "title": "Audience Space ID",
+                    "description": "ID of the Engage Space where the Audience was generated",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "columns"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_action_column_name",
+          "type": "string",
+          "label": "Audience Action Column Name",
+          "description": "Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.",
+          "defaultValue": "audience_action",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_action_column_name": {
+                "title": "Audience Action Column Name",
+                "description": "Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
+          }
+        },
+        {
+          "fieldKey": "batch_size_column_name",
+          "type": "string",
+          "label": "Batch Size Column Name",
+          "description": "Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required",
+          "defaultValue": "batch_size",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size_column_name": {
+                "title": "Batch Size Column Name",
+                "description": "Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
+          }
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or Props - Hidden Field",
+          "description": "Field used to retrieve Audience value",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or Props - Hidden Field",
+                "description": "Field used to retrieve Audience value",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_key",
+          "type": "string",
+          "label": "Audience_Key - Hidden Field",
+          "description": "Field used to retrieve Audience Key",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_key": {
+                "title": "Audience_Key - Hidden Field",
+                "description": "Field used to retrieve Audience Key",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable Batching Hidden Field",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable Batching Hidden Field",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 100000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
+          }
+        },
+        {
+          "fieldKey": "s3_aws_folder_name",
+          "type": "string",
+          "label": "AWS Subfolder Name",
+          "description": "Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "s3_aws_folder_name": {
+                "title": "AWS Subfolder Name",
+                "description": "Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": []
+          }
+        },
+        {
+          "fieldKey": "filename_prefix",
+          "type": "string",
+          "label": "Filename prefix",
+          "description": "Prefix to append to the name of the uploaded file.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filename_prefix": {
+                "title": "Filename prefix",
+                "description": "Prefix to append to the name of the uploaded file.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
+          }
+        },
+        {
+          "fieldKey": "delimiter",
+          "type": "string",
+          "label": "Delimeter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "defaultValue": ",",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "comma",
+              "value": ","
+            },
+            {
+              "label": "pipe",
+              "value": "|"
+            },
+            {
+              "label": "tab",
+              "value": "tab"
+            },
+            {
+              "label": "semicolon",
+              "value": ";"
+            },
+            {
+              "label": "colon",
+              "value": ":"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delimiter": {
+                "title": "Delimeter",
+                "description": "Character used to separate tokens in the resulting file.",
+                "type": "string",
+                "enum": [
+                  ",",
+                  "|",
+                  "tab",
+                  ";",
+                  ":"
+                ]
+              }
+            },
+            "required": [
+              "delimiter"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
+          }
+        },
+        {
+          "fieldKey": "file_extension",
+          "type": "string",
+          "label": "File Extension",
+          "description": "File extension for the uploaded file.",
+          "defaultValue": "csv",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "csv",
+              "value": "csv"
+            },
+            {
+              "label": "txt",
+              "value": "txt"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "file_extension": {
+                "title": "File Extension",
+                "description": "File extension for the uploaded file.",
+                "type": "string",
+                "enum": [
+                  "csv",
+                  "txt"
+                ]
+              }
+            },
+            "required": [
+              "file_extension"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable",
+              "literal"
+            ]
+          }
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "s3_aws_folder_name"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

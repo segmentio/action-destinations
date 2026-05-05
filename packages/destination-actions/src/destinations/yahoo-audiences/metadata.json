@@ -1,0 +1,853 @@
+{
+  "name": "Yahoo Audiences",
+  "description": "Sync users to Yahoo Ads",
+  "basicOptions": [
+    "mdm_id",
+    "engage_space_id",
+    "customer_desc",
+    "placeholder",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "mdm_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Yahoo MDM ID provided by Yahoo representative",
+      "encrypt": false,
+      "hidden": false,
+      "label": "MDM ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The mdm_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "engage_space_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Engage Space Id found in Unify > Settings > API Access",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Engage Space Id",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The engage_space_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "customer_desc": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Engage space name and description",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Customer Description",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "placeholder": {
+      "tags": [],
+      "default": true,
+      "description": "Placeholder field to allow the audience to be created. Do not change this",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Placeholder Setting",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "updateSegment",
+      "name": "Sync To Yahoo Ads Segment",
+      "description": "Sync Segment Audience to Yahoo Ads Segment",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "segment_audience_id",
+          "type": "string",
+          "label": "Segment Audience Id",
+          "description": "Segment Audience Id (aud_...). Maps to \"Id\" of a Segment node in Yahoo taxonomy",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_audience_id": {
+                "title": "Segment Audience Id",
+                "description": "Segment Audience Id (aud_...). Maps to \"Id\" of a Segment node in Yahoo taxonomy",
+                "type": "string"
+              }
+            },
+            "required": [
+              "segment_audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_audience_key",
+          "type": "string",
+          "label": "Segment Audience Key",
+          "description": "Segment Audience Key. Maps to the \"Name\" of the Segment node in Yahoo taxonomy",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_audience_key": {
+                "title": "Segment Audience Key",
+                "description": "Segment Audience Key. Maps to the \"Name\" of the Segment node in Yahoo taxonomy",
+                "type": "string"
+              }
+            },
+            "required": [
+              "segment_audience_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_attributes",
+          "type": "object",
+          "label": "Event traits or properties. Do not modify this setting",
+          "description": "Event traits or properties. Do not modify this setting",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_attributes": {
+                "title": "Event traits or properties. Do not modify this setting",
+                "description": "Event traits or properties. Do not modify this setting",
+                "type": "object"
+              }
+            },
+            "required": [
+              "event_attributes"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_computation_action",
+          "type": "string",
+          "label": "Segment Computation Action",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_computation_action": {
+                "title": "Segment Computation Action",
+                "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+                "type": "string",
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
+              }
+            },
+            "required": [
+              "segment_computation_action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "User Phone",
+          "description": "Phone number of a user. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "User Phone",
+                "description": "Phone number of a user. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "Email address of a user. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "Email address of a user. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "User Mobile Advertising ID",
+          "description": "User's mobile advertising Id",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "User Mobile Advertising ID",
+                "description": "User's mobile advertising Id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_type",
+          "type": "string",
+          "label": "User Mobile Device Type",
+          "description": "User's mobile device type",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_type": {
+                "title": "User Mobile Device Type",
+                "description": "User's mobile device type",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gdpr_settings",
+          "type": "object",
+          "label": "GDPR Settings",
+          "description": "GDPR Settings for the audience",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gdpr_settings": {
+                "title": "GDPR Settings",
+                "description": "GDPR Settings for the audience",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "gdpr_flag": {
+                    "title": "GDPR Flag",
+                    "description": "Set to true to indicate that audience data is subject to GDPR regulations",
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "gdpr_euconsent": {
+                    "title": "GDPR Consent Attributes",
+                    "description": "Required if GDPR flag is set to \"true\". Using IAB Purpose bit descriptions specify the following user consent attributes: \"Storage and Access of Information\", \"Personalization\"",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "gdpr_flag"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Yahoo",
+          "description": "If true, batch requests to Yahoo. Yahoo accepts batches of up to 1000 events. If false, send each event individually.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Yahoo",
+                "description": "If true, batch requests to Yahoo. Yahoo accepts batches of up to 1000 events. If false, send each event individually.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "updateSegment",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "event_attributes": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "updateSegment",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "event_attributes": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "updateSegment",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "event_attributes": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "updateSegment",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "event_attributes": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

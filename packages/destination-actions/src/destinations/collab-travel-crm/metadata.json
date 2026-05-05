@@ -1,0 +1,456 @@
+{
+  "name": "Collab Travel CRM",
+  "description": "Sync your customer data, bookings, and leads with Collab Travel CRM - the all-in-one platform for modern travel agencies.",
+  "basicOptions": [
+    "apiKey"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Collab Travel CRM webhook secret. Find this in Settings > Integrations > Segment.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Create or update a contact in Collab Travel CRM.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The email address of the contact.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The email address of the contact.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First Name",
+          "description": "The first name of the contact.",
+          "defaultValue": {
+            "@path": "$.traits.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First Name",
+                "description": "The first name of the contact.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The last name of the contact.",
+          "defaultValue": {
+            "@path": "$.traits.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last Name",
+                "description": "The last name of the contact.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "The phone number of the contact.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "The phone number of the contact.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique identifier for the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The unique identifier for the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Additional Traits",
+          "description": "Additional user traits to sync.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Additional Traits",
+                "description": "Additional user traits to sync.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send track events (bookings, leads, page views) to Collab Travel CRM.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event (e.g., \"Trip Booked\", \"Lead Created\").",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event (e.g., \"Trip Booked\", \"Lead Created\").",
+                "type": "string"
+              }
+            },
+            "required": [
+              "eventName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Additional properties associated with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Additional properties associated with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique identifier for the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The unique identifier for the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous identifier when User ID is not available.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "An anonymous identifier when User ID is not available.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify Users",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "firstName": {
+          "@path": "$.traits.first_name"
+        },
+        "lastName": {
+          "@path": "$.traits.last_name"
+        },
+        "phone": {
+          "@path": "$.traits.phone"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Events",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "name": "Spiffy",
+  "basicOptions": [
+    "org_id",
+    "api_key",
+    "environment"
+  ],
+  "options": {
+    "org_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Spiffy Org ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Organization ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The org_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "api_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Spiffy Org API Key",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "environment": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Spiffy Org Environment",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Spiffy Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "prod",
+          "label": "Production",
+          "text": "Production"
+        },
+        {
+          "value": "dev",
+          "label": "Development",
+          "text": "Development"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The environment property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "send",
+      "name": "Send",
+      "description": "Send data to Spiffy.AI",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "payload",
+          "type": "object",
+          "label": "Payload",
+          "description": "The data to send to Spiffy.AI",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "payload": {
+                "title": "Payload",
+                "description": "The data to send to Spiffy.AI",
+                "type": "object"
+              }
+            },
+            "required": [
+              "payload"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Headers",
+          "description": "Header data to send to Spiffy. Format is Header key, Header value (optional).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "title": "Headers",
+                "description": "Header data to send to Spiffy. Format is Header key, Header value (optional).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

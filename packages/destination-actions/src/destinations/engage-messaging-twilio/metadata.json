@@ -1,0 +1,1664 @@
+{
+  "name": "Engage Messaging Twilio",
+  "description": "This is an Engage specific action to send an SMS and Whatsapp messages using Twilio API",
+  "basicOptions": [
+    "twilioAccountSID",
+    "twilioApiKeySID",
+    "twilioApiKeySecret",
+    "profileApiEnvironment",
+    "profileApiAccessToken",
+    "spaceId",
+    "sourceId",
+    "webhookUrl",
+    "twilioHostname",
+    "connectionOverrides",
+    "region"
+  ],
+  "options": {
+    "twilioAccountSID": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Twilio Account SID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Twilio Account SID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The twilioAccountSID property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "twilioApiKeySID": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Twilio API Key SID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Twilio API Key SID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The twilioApiKeySID property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "twilioApiKeySecret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Twilio API Key Secret",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Twilio API Key Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The twilioApiKeySecret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "profileApiEnvironment": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Profile API Environment",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Profile API Environment",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The profileApiEnvironment property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "profileApiAccessToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Profile API Access Token",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Profile API Access Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The profileApiAccessToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "spaceId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Space ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Space ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The spaceId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "sourceId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Source ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Source ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The sourceId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "webhookUrl": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Webhook URL that will receive all events for the sent message",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Webhook URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "twilioHostname": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "api.twilio.com",
+      "description": "Overrides the default Twilio host name used mainly for testing without having to send real messages.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Twilio host name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "connectionOverrides": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "rp=all&rc=5",
+      "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Connection Overrides",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "us-west-2",
+      "description": "The region where the message is originating from",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "us-west-2",
+          "label": "US West 2",
+          "text": "US West 2"
+        },
+        {
+          "value": "eu-west-1",
+          "label": "EU West 1",
+          "text": "EU West 1"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendMobilePush",
+      "name": "Send Mobile Push Notification",
+      "description": "Send a push notification to a mobile device using Twilio",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "contentSid",
+          "type": "string",
+          "label": "Content template Sid",
+          "description": "The template to be sent",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contentSid": {
+                "title": "Content template Sid",
+                "description": "The template to be sent",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "from",
+          "type": "string",
+          "label": "From",
+          "description": "The Push Service Sid to send the push notification from.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "description": "The Push Service Sid to send the push notification from.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "from"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customizations",
+          "type": "object",
+          "label": "Customizations",
+          "description": "Customizations for the notification",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customizations": {
+                "title": "Customizations",
+                "description": "Customizations for the notification",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "title": "Notification title",
+                    "description": "The title to be displayed for your notification",
+                    "type": "string"
+                  },
+                  "body": {
+                    "title": "Notification body",
+                    "description": "The body to be displayed for your notification",
+                    "type": "string"
+                  },
+                  "media": {
+                    "title": "Media urls",
+                    "description": "Media to display in notification",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "tapAction": {
+                    "title": "Notification open action",
+                    "description": "Sets the notification click action/category: open_app, open_url, deep_link, or a custom string",
+                    "type": "string"
+                  },
+                  "link": {
+                    "title": "Notification Link",
+                    "description": "Deep link or URL to navigate to when the notification is tapped",
+                    "type": "string"
+                  },
+                  "sound": {
+                    "title": "Notification sound",
+                    "description": "Sets the sound played when the notification arrives",
+                    "type": "string"
+                  },
+                  "priority": {
+                    "title": "Notification priority",
+                    "description": "Sets the priority of the message",
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "high"
+                    ]
+                  },
+                  "badgeAmount": {
+                    "title": "Badge amount",
+                    "description": "The badge count which is used in combination with badge strategy to determine the final badge",
+                    "type": "number",
+                    "default": 1
+                  },
+                  "badgeStrategy": {
+                    "title": "Badge strategy",
+                    "description": "Sets the badge count strategy in the notification",
+                    "type": "string",
+                    "default": "inc",
+                    "enum": [
+                      "inc",
+                      "dec",
+                      "set"
+                    ]
+                  },
+                  "ttl": {
+                    "title": "Time to live",
+                    "description": "Sets the time to live for the notification",
+                    "type": "number"
+                  },
+                  "tapActionButtons": {
+                    "title": "Tap action buttons",
+                    "description": "Sets the buttons to show when interacting with a notification",
+                    "type": "array",
+                    "items": {
+                      "$schema": "http://json-schema.org/schema#",
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "title": "Id",
+                          "description": "Button id",
+                          "type": "string"
+                        },
+                        "text": {
+                          "title": "Text",
+                          "description": "Button text",
+                          "type": "string"
+                        },
+                        "onTap": {
+                          "title": "Tap action",
+                          "description": "The action to perform when this button is tapped: open_app, open_url, deep_link, or a custom string",
+                          "type": "string"
+                        },
+                        "link": {
+                          "title": "Link",
+                          "description": "Deep link or URL to navigate to when this button is tapped",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "text",
+                        "onTap"
+                      ]
+                    }
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customArgs",
+          "type": "object",
+          "label": "Custom Arguments",
+          "description": "Additional custom arguments that will be opaquely sent back on webhook events",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customArgs": {
+                "title": "Custom Arguments",
+                "description": "Additional custom arguments that will be opaquely sent back on webhook events",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "connectionOverrides",
+          "type": "string",
+          "label": "Connection Overrides",
+          "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "connectionOverrides": {
+                "title": "Connection Overrides",
+                "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send",
+          "type": "boolean",
+          "label": "Send Notification",
+          "description": "Whether or not the notification should actually get sent.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send": {
+                "title": "Send Notification",
+                "description": "Whether or not the notification should actually get sent.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segmentComputationId",
+          "type": "string",
+          "label": "Segment Computation ID",
+          "description": "Segment computation ID",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentComputationId": {
+                "title": "Segment Computation ID",
+                "description": "Segment computation ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalIds",
+          "type": "object",
+          "label": "External IDs",
+          "description": "An array of user profile identity information.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.external_ids",
+              {
+                "id": {
+                  "@path": "$.id"
+                },
+                "type": {
+                  "@path": "$.type"
+                },
+                "channelType": {
+                  "@path": "$.channelType"
+                },
+                "subscriptionStatus": {
+                  "@path": "$.isSubscribed"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalIds": {
+                "title": "External IDs",
+                "description": "An array of user profile identity information.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "title": "ID",
+                      "description": "A unique identifier for the collection.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "type",
+                      "description": "The external ID contact type.",
+                      "type": "string"
+                    },
+                    "channelType": {
+                      "title": "type",
+                      "description": "The external ID contact channel type (SMS, WHATSAPP, etc).",
+                      "type": "string"
+                    },
+                    "subscriptionStatus": {
+                      "title": "ID",
+                      "description": "The subscription status for the identity.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "A user profile's traits",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "A user profile's traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventOccurredTS",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventOccurredTS": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "googleApiVersion",
+          "type": "string",
+          "label": "Google Api Version",
+          "description": "Controls the notification payload format",
+          "defaultValue": "legacy",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "legacy",
+              "value": "legacy"
+            },
+            {
+              "label": "v1",
+              "value": "v1"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "googleApiVersion": {
+                "title": "Google Api Version",
+                "description": "Controls the notification payload format",
+                "type": "string",
+                "enum": [
+                  "legacy",
+                  "v1"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendSms",
+      "name": "Send SMS",
+      "description": "Send SMS using Twilio",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "User ID in Segment",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "User ID in Segment",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "toNumber",
+          "type": "string",
+          "label": "Test Number",
+          "description": "Number to send SMS to when testing",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "toNumber": {
+                "title": "Test Number",
+                "description": "Number to send SMS to when testing",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "from",
+          "type": "string",
+          "label": "From",
+          "description": "The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "description": "The Twilio Phone Number, Short Code, or Messaging Service to send SMS from.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "from"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "body",
+          "type": "text",
+          "label": "Message",
+          "description": "Message to send",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "body": {
+                "title": "Message",
+                "description": "Message to send",
+                "type": "string",
+                "format": "text"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "media",
+          "type": "string",
+          "label": "Media Urls",
+          "description": "Media to attach to message",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "media": {
+                "title": "Media Urls",
+                "description": "Media to attach to message",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contentSid",
+          "type": "string",
+          "label": "SMS content template SID",
+          "description": "Content template SID for Twilio Content API",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contentSid": {
+                "title": "SMS content template SID",
+                "description": "Content template SID for Twilio Content API",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customArgs",
+          "type": "object",
+          "label": "Custom Arguments",
+          "description": "Additional custom arguments that will be opaquely sent back on webhook events",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customArgs": {
+                "title": "Custom Arguments",
+                "description": "Additional custom arguments that will be opaquely sent back on webhook events",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "connectionOverrides",
+          "type": "string",
+          "label": "Connection Overrides",
+          "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "connectionOverrides": {
+                "title": "Connection Overrides",
+                "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send",
+          "type": "boolean",
+          "label": "Send Message",
+          "description": "Whether or not the message should actually get sent.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send": {
+                "title": "Send Message",
+                "description": "Whether or not the message should actually get sent.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traitEnrichment",
+          "type": "boolean",
+          "label": "Trait Enrich",
+          "description": "Whether or not trait enrich from event (i.e without profile api call)",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traitEnrichment": {
+                "title": "Trait Enrich",
+                "description": "Whether or not trait enrich from event (i.e without profile api call)",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sendBasedOnOptOut",
+          "type": "boolean",
+          "label": "Send OptOut",
+          "description": "Send to any subscription status other than unsubscribed",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sendBasedOnOptOut": {
+                "title": "Send OptOut",
+                "description": "Send to any subscription status other than unsubscribed",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segmentComputationId",
+          "type": "string",
+          "label": "Segment Computation ID",
+          "description": "Segment computation ID",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentComputationId": {
+                "title": "Segment Computation ID",
+                "description": "Segment computation ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalIds",
+          "type": "object",
+          "label": "External IDs",
+          "description": "An array of user profile identity information.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.external_ids",
+              {
+                "id": {
+                  "@path": "$.id"
+                },
+                "type": {
+                  "@path": "$.type"
+                },
+                "channelType": {
+                  "@path": "$.channelType"
+                },
+                "subscriptionStatus": {
+                  "@path": "$.isSubscribed"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalIds": {
+                "title": "External IDs",
+                "description": "An array of user profile identity information.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "title": "ID",
+                      "description": "A unique identifier for the collection.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "type",
+                      "description": "The external ID contact type.",
+                      "type": "string"
+                    },
+                    "channelType": {
+                      "title": "type",
+                      "description": "The external ID contact channel type (SMS, WHATSAPP, etc).",
+                      "type": "string"
+                    },
+                    "subscriptionStatus": {
+                      "title": "ID",
+                      "description": "The subscription status for the identity.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "A user profile's traits",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "A user profile's traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventOccurredTS",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventOccurredTS": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "MessageId",
+                "description": "The Segment messageId",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendWhatsApp",
+      "name": "Send WhatsApp",
+      "description": "Send WhatsApp using Twilio",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "contentSid",
+          "type": "string",
+          "label": "WhatsApp template Content Sid",
+          "description": "The template you sending through WhatsApp",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contentSid": {
+                "title": "WhatsApp template Content Sid",
+                "description": "The template you sending through WhatsApp",
+                "type": "string"
+              }
+            },
+            "required": [
+              "contentSid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contentVariables",
+          "type": "object",
+          "label": "WhatsApp template variables",
+          "description": "Content personalization variables/merge tags for your WhatsApp message",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contentVariables": {
+                "title": "WhatsApp template variables",
+                "description": "Content personalization variables/merge tags for your WhatsApp message",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "toNumber",
+          "type": "string",
+          "label": "Test Number",
+          "description": "Number to send WhatsApp to when testing",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "toNumber": {
+                "title": "Test Number",
+                "description": "Number to send WhatsApp to when testing",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "from",
+          "type": "string",
+          "label": "From",
+          "description": "The Twilio Phone Number, Short Code, or Messaging Service to send WhatsApp from.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "description": "The Twilio Phone Number, Short Code, or Messaging Service to send WhatsApp from.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "from"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customArgs",
+          "type": "object",
+          "label": "Custom Arguments",
+          "description": "Additional custom arguments that will be opaquely sent back on webhook events",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customArgs": {
+                "title": "Custom Arguments",
+                "description": "Additional custom arguments that will be opaquely sent back on webhook events",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "connectionOverrides",
+          "type": "string",
+          "label": "Connection Overrides",
+          "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "connectionOverrides": {
+                "title": "Connection Overrides",
+                "description": "Connection overrides are configuration supported by twilio webhook services. Must be passed as fragments on the callback url",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "send",
+          "type": "boolean",
+          "label": "Send Message",
+          "description": "Whether or not the message should actually get sent.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "send": {
+                "title": "Send Message",
+                "description": "Whether or not the message should actually get sent.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traitEnrichment",
+          "type": "boolean",
+          "label": "Trait Enrich",
+          "description": "Whether or not trait enrich from event (i.e without profile api call)",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traitEnrichment": {
+                "title": "Trait Enrich",
+                "description": "Whether or not trait enrich from event (i.e without profile api call)",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segmentComputationId",
+          "type": "string",
+          "label": "Segment Computation ID",
+          "description": "Segment computation ID",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentComputationId": {
+                "title": "Segment Computation ID",
+                "description": "Segment computation ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalIds",
+          "type": "object",
+          "label": "External IDs",
+          "description": "An array of user profile identity information.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.external_ids",
+              {
+                "id": {
+                  "@path": "$.id"
+                },
+                "type": {
+                  "@path": "$.type"
+                },
+                "channelType": {
+                  "@path": "$.channelType"
+                },
+                "subscriptionStatus": {
+                  "@path": "$.isSubscribed"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalIds": {
+                "title": "External IDs",
+                "description": "An array of user profile identity information.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "title": "ID",
+                      "description": "A unique identifier for the collection.",
+                      "type": "string"
+                    },
+                    "type": {
+                      "title": "type",
+                      "description": "The external ID contact type.",
+                      "type": "string"
+                    },
+                    "channelType": {
+                      "title": "type",
+                      "description": "The external ID contact channel type (SMS, WHATSAPP, etc).",
+                      "type": "string"
+                    },
+                    "subscriptionStatus": {
+                      "title": "ID",
+                      "description": "The subscription status for the identity.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "A user profile's traits",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "A user profile's traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventOccurredTS",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Time of when the actual event happened.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventOccurredTS": {
+                "title": "Event Timestamp",
+                "description": "Time of when the actual event happened.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

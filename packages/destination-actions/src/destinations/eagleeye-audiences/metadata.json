@@ -1,0 +1,216 @@
+{
+  "name": "Eagle Eye",
+  "description": "Synchronize Segment audiences to trigger behavioral actions in Eagle Eye AIR, enabling customer rewards.",
+  "basicOptions": [
+    "connectorUrl",
+    "externalKey",
+    "behavioralActionTriggerReferences",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "connectorUrl": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Eagle Eye URL of the Segment connector provided by your EagleEye CSM",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Connector URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The connectorUrl property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "externalKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Key to authenticate with the connector provided by your EagleEye CSM",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Connector External Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The externalKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "behavioralActionTriggerReferences": {
+      "tags": [],
+      "default": "",
+      "description": "Required if connecting to an Engage Audience. Accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Behavioral Action trigger reference",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "triggerBehavioralAction",
+      "name": "Trigger Behavioral Action",
+      "description": "Trigger behavioral actions in AIR based on tracked events",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "identityValue",
+          "type": "string",
+          "label": "User identity value",
+          "description": "Customer wallet identity value in AIR for this event",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identityValue": {
+                "title": "User identity value",
+                "description": "Customer wallet identity value in AIR for this event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "identityValue"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "walletTransactionReference",
+          "type": "string",
+          "label": "Wallet transaction reference",
+          "description": "Optional wallet transaction reference from the event triggering this Behavioral Action",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "walletTransactionReference": {
+                "title": "Wallet transaction reference",
+                "description": "Optional wallet transaction reference from the event triggering this Behavioral Action",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "behavioralActionTriggerReferences",
+          "type": "string",
+          "label": "Behavioral Action trigger reference",
+          "description": "If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001",
+          "defaultValue": {
+            "@path": "$.context.personas.audience_settings.behavioralActionTriggerReferences"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "behavioralActionTriggerReferences": {
+                "title": "Behavioral Action trigger reference",
+                "description": "If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001",
+                "type": "string"
+              }
+            },
+            "required": [
+              "behavioralActionTriggerReferences"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

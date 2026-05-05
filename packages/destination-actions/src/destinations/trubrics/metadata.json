@@ -1,0 +1,494 @@
+{
+  "name": "Trubrics",
+  "basicOptions": [
+    "apiKey",
+    "url"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Trubrics Project API Key. This can be found in your project settings.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Project API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "url": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "app.trubrics.com/api/ingestion",
+      "description": "The Trubrics API URL. In most cases the default value should be used.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Project URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The url property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Identify a user in Trubrics and associate traits with them.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user performing the event.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The ID of the user performing the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous identifier",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An anonymous identifier",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "The traits of the user.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "The traits of the user.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "track",
+      "name": "Track",
+      "description": "Track an event in Trubrics.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The event name",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The event name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "llm_properties",
+          "type": "object",
+          "label": "LLM Event Properties",
+          "description": "The properties associated with an LLM event",
+          "defaultValue": {
+            "assistant_id": {
+              "@path": "$.properties.$trubrics_assistant_id"
+            },
+            "prompt": {
+              "@path": "$.properties.$trubrics_prompt"
+            },
+            "generation": {
+              "@path": "$.properties.$trubrics_generation"
+            },
+            "thread_id": {
+              "@path": "$.properties.$trubrics_thread_id"
+            },
+            "latency": {
+              "@path": "$.properties.$trubrics_latency"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "llm_properties": {
+                "title": "LLM Event Properties",
+                "description": "The properties associated with an LLM event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "assistant_id": {
+                    "title": "LLM Assistant ID",
+                    "description": "The LLM assistant ID (often the model name)",
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "title": "LLM User Prompt",
+                    "description": "A user prompt to an LLM",
+                    "type": "string"
+                  },
+                  "generation": {
+                    "title": "LLM Assistant Generation",
+                    "description": "An LLM assistant response",
+                    "type": "string"
+                  },
+                  "thread_id": {
+                    "title": "LLM Thread ID",
+                    "description": "The thread/conversation ID of the LLM conversation.",
+                    "type": "string"
+                  },
+                  "latency": {
+                    "title": "LLM Latency",
+                    "description": "The latency in seconds between the LLM prompt and generation",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event properties",
+          "description": "Properties to send with the event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event properties",
+                "description": "Properties to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context properties",
+          "description": "Context properties to send with the event",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context properties",
+                "description": "Context properties to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The Anonymous ID associated with the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "The Anonymous ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

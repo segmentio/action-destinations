@@ -1,0 +1,126 @@
+{
+  "name": "CDP Resolution",
+  "description": "Sync Segment user identifier to CDP Resolution",
+  "basicOptions": [
+    "clientIdentifier",
+    "endpoint"
+  ],
+  "options": {
+    "clientIdentifier": {
+      "tags": [],
+      "default": "",
+      "description": "Client identifier provided by CDP Resolution [Hashed Account ID]",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client Identifier",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The clientIdentifier property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "endpoint": {
+      "tags": [],
+      "default": "https://a.usbrowserspeed.com/cs",
+      "description": "Identity resolution endpoint. [CDP Resolution documentation](https://www.cdpresolution.com/docs/)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "CDP Resolution Endpoint",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://a.usbrowserspeed.com/cs",
+          "label": "CDPRes-Endpoint",
+          "text": "CDPRes-Endpoint"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sync",
+      "name": "Sync Anonymous ID",
+      "description": "Sync Anonymous ID to CDP Resolution.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\" or type = \"track\" or type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous Id",
+          "description": "The anonymous id of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous Id",
+                "description": "The anonymous id of the user",
+                "type": "string"
+              }
+            },
+            "required": [
+              "anonymousId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sync",
+      "name": "Sync Anonymous ID",
+      "subscribe": "type = \"page\" or type = \"track\" or type = \"identify\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

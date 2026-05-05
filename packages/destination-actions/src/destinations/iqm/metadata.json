@@ -1,0 +1,99 @@
+{
+  "name": "Iqm",
+  "description": "Send Segment events to IQM",
+  "basicOptions": [
+    "pixel_id"
+  ],
+  "options": {
+    "pixel_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Pixel ID for your IQM Conversion.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pixel ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The pixel_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "postEvent",
+      "name": "Post Event",
+      "description": "Post a user event to IQM",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "The data to be sent to IQM",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "The data to be sent to IQM",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "postEvent",
+      "name": "Send an event to IQM",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "data": {
+          "@path": "$."
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

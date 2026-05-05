@@ -1,0 +1,538 @@
+{
+  "name": "Vibe Audience",
+  "description": "Sync Segment Engage Audiences to Vibe",
+  "basicOptions": [
+    "advertiserId",
+    "authToken"
+  ],
+  "options": {
+    "advertiserId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Vibe advertiser ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "authToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Vibe authentication token.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Auth Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The authToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sync",
+      "name": "Sync Audience",
+      "description": "Sync data to Vibe Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "User's email (ex: foo@bar.com)",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "User's email (ex: foo@bar.com)",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_name",
+          "type": "string",
+          "label": "Audience Name",
+          "description": "The name of the audience to which you want to add users.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_name": {
+                "title": "Audience Name",
+                "description": "The name of the audience to which you want to add users.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip_address",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip_address": {
+                "title": "IP Address",
+                "description": "The IP address of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "The ID of the audience to which you want to add users.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_id": {
+                "title": "Audience ID",
+                "description": "The ID of the audience to which you want to add users.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or properties object",
+          "description": "A computed object for track and identify events. This field should not need to be edited.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or properties object",
+                "description": "A computed object for track and identify events. This field should not need to be edited.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits_or_props"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "personal_information",
+          "type": "object",
+          "label": "Personal Information",
+          "description": "Additional user profile details to send to Vibe. This information is used to improve the match rate.",
+          "defaultValue": {
+            "first_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "personal_information": {
+                "title": "Personal Information",
+                "description": "Additional user profile details to send to Vibe. This information is used to improve the match rate.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "User's first name",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "User's last name",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone number",
+                    "description": "User's phone number",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "audience_id",
+            "audience_name"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sync",
+      "name": "Sync Engage Audience",
+      "subscribe": "type = \"identify\" or type = \"track\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "audience_name": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "ip_address": {
+          "@path": "$.context.ip"
+        },
+        "audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "personal_information": {
+          "first_name": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last_name": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_keys": [
+          "audience_id",
+          "audience_name"
+        ]
+      },
+      "type": "automatic"
+    }
+  ]
+}

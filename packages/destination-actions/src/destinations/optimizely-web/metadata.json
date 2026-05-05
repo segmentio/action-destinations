@@ -1,0 +1,592 @@
+{
+  "name": "Optimizely Web (Actions)",
+  "basicOptions": [
+    "optimizelyApiKey",
+    "optimizelyAccountId",
+    "projectID"
+  ],
+  "options": {
+    "optimizelyApiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Optimizely API Key. TODO: Provide link to instructions on how to get this.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Optimizely API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The optimizelyApiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "optimizelyAccountId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Optimizely Account ID. TODO: Provide link to instructions on how to get this.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Optimizely Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The optimizelyAccountId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "projectID": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": 0,
+      "description": "The unique numeric identifier for the project.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Optimizely Project ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The projectID property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send a Segment track event to Optimizely",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "uuid",
+          "type": "string",
+          "label": "UUID",
+          "description": "Unique message UUID to send with the event",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "uuid": {
+                "title": "UUID",
+                "description": "Unique message UUID to send with the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "uuid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "endUserId",
+          "type": "string",
+          "label": "Optimizely End User ID",
+          "description": "The unique identifier for the user. The value should be taken from the optimizelyEndUserId cookie, or it can be collected using window.optimizely.get('visitor').visitorId. If using the BYOID feature pass in the value of the ID for your user.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.end_user_id"
+              },
+              "then": {
+                "@path": "$.properties.end_user_id"
+              },
+              "else": {
+                "@path": "$.integrations.Optimizely Web (Actions).end_user_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "endUserId": {
+                "title": "Optimizely End User ID",
+                "description": "The unique identifier for the user. The value should be taken from the optimizelyEndUserId cookie, or it can be collected using window.optimizely.get('visitor').visitorId. If using the BYOID feature pass in the value of the ID for your user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "endUserId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymizeIP",
+          "type": "boolean",
+          "label": "Anonymize IP",
+          "description": "Anonymize the IP address of the user.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymizeIP": {
+                "title": "Anonymize IP",
+                "description": "Anonymize the IP address of the user.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "anonymizeIP"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "freeform",
+              "function",
+              "literal",
+              "variable"
+            ]
+          }
+        },
+        {
+          "fieldKey": "eventSyncConfig",
+          "type": "object",
+          "label": "Event Syncing Configuration",
+          "description": "Specify how Segment should sync Segment events to Optimizely events, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.",
+          "defaultValue": {
+            "createEventIfNotFound": "CREATE",
+            "shouldSnakeCaseEventKey": false,
+            "eventKey": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            },
+            "eventId": {
+              "@path": "$.properties.event_id"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventSyncConfig": {
+                "title": "Event Syncing Configuration",
+                "description": "Specify how Segment should sync Segment events to Optimizely events, as well as specify if Segment should create new Custom Events and Pages in Optimizely if they don't exist.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "createEventIfNotFound": {
+                    "title": "Create If Not Found",
+                    "description": "Segment can define new Custom Events in Optimizely, along with their custom properties. However once an event is defined by Segment its properties cannot be modified.",
+                    "type": "string",
+                    "enum": [
+                      "DO_NOT_CREATE",
+                      "CREATE"
+                    ]
+                  },
+                  "shouldSnakeCaseEventKey": {
+                    "title": "Should Snake Case Event Key",
+                    "description": "If the event key should be converted to snake case before sending to Optimizely.",
+                    "type": "boolean"
+                  },
+                  "eventKey": {
+                    "title": "Event Key",
+                    "description": "Optimizely event or page key to record the event against.",
+                    "type": "string",
+                    "default": {
+                      "@path": "$.event"
+                    }
+                  },
+                  "eventId": {
+                    "title": "Event ID",
+                    "description": "Optimizely event or page ID to record the event against. The ID can only be used when the event / page has already been created in Optimizely. Segment cannot create new events in Optimizely using the ID.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "createEventIfNotFound",
+                  "shouldSnakeCaseEventKey"
+                ]
+              }
+            },
+            "required": [
+              "eventSyncConfig"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Timestamp for when the event took place",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Timestamp for when the event took place",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "tags",
+          "type": "object",
+          "label": "Tags",
+          "description": "Tags to send with the event",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "tags": {
+                "title": "Tags",
+                "description": "Tags to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "standardEventProperties",
+          "type": "object",
+          "label": "Standard Event Properties",
+          "description": "Standard event properties to send with the event.",
+          "defaultValue": {
+            "revenue": {
+              "@path": "$.properties.revenue"
+            },
+            "value": {
+              "@path": "$.properties.value"
+            },
+            "quantity": {
+              "@path": "$.properties.quantity"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "standardEventProperties": {
+                "title": "Standard Event Properties",
+                "description": "Standard event properties to send with the event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "revenue": {
+                    "title": "Revenue",
+                    "description": "The revenue amount associated with this event For example, to represent $23.42, this field would be set to 23.42.",
+                    "type": "number"
+                  },
+                  "value": {
+                    "title": "Value",
+                    "description": "A scalar value associated with an event. This should be some non-revenue number.",
+                    "type": "number"
+                  },
+                  "quantity": {
+                    "title": "Quantity",
+                    "description": "An aggregatable \"count\" associated with this event; for example, a number of video views or items in a shopping cart.",
+                    "type": "integer"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customStringProperties",
+          "type": "object",
+          "label": "Custom Properties (string)",
+          "description": "Additional custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.",
+          "defaultValue": {
+            "Category": {
+              "@path": "$.properties.category"
+            },
+            "Subcategory": {
+              "@path": "$.properties.subcategory"
+            },
+            "Text": {
+              "@path": "$.properties.text"
+            },
+            "URL": {
+              "@path": "$.properties.url"
+            },
+            "SKU": {
+              "@path": "$.properties.sku"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "customStringProperties": {
+                "title": "Custom Properties (string)",
+                "description": "Additional custom string event properties to send with the event. These must be defined in Optimizely before they can be sent.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "Category": {
+                    "title": "Category",
+                    "description": "Category of the event",
+                    "type": "string"
+                  },
+                  "Subcategory": {
+                    "title": "Subcategory",
+                    "description": "Subcategory of the event",
+                    "type": "string"
+                  },
+                  "Text": {
+                    "title": "Text",
+                    "description": "Text of the event",
+                    "type": "string"
+                  },
+                  "URL": {
+                    "title": "URL",
+                    "description": "URL of the event",
+                    "type": "string"
+                  },
+                  "SKU": {
+                    "title": "SKU",
+                    "description": "SKU of the event",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customNumericProperties",
+          "type": "object",
+          "label": "Custom Properties (numeric)",
+          "description": "Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "customNumericProperties": {
+                "title": "Custom Properties (numeric)",
+                "description": "Additioanl custom numeric event properties to send with the event. These must be defined in Optimizely before they can be sent.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customBooleanProperties",
+          "type": "object",
+          "label": "Custom Properties (boolean)",
+          "description": "Additioanl custom boolean event properties to send with the event. These must be defined in Optimizely before they can be sent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "customBooleanProperties": {
+                "title": "Custom Properties (boolean)",
+                "description": "Additioanl custom boolean event properties to send with the event. These must be defined in Optimizely before they can be sent.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sessionId",
+          "type": "string",
+          "label": "Session ID",
+          "description": "A unique identifier that identifies the session context, if any, for these events. If omitted, the Optimizely backend will calculate session-based results by inferring sessions by opening a session when an event is first received from a given visitor_id, and closing the session after 30 minutes with no events received for that visitor, with a maximum session size of 24 hours.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.actions-optimizely-web.session_id"
+              },
+              "then": {
+                "@path": "$.integrations.actions-optimizely-web.session_id"
+              },
+              "else": {
+                "@path": "$.properties.session_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "title": "Session ID",
+                "description": "A unique identifier that identifies the session context, if any, for these events. If omitted, the Optimizely backend will calculate session-based results by inferring sessions by opening a session when an event is first received from a given visitor_id, and closing the session after 30 minutes with no events received for that visitor, with a maximum session size of 24 hours.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

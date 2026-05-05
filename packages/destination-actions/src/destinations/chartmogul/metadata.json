@@ -1,0 +1,988 @@
+{
+  "name": "ChartMogul",
+  "description": "Send Contacts and Customers to ChartMogul.",
+  "basicOptions": [
+    "chartmogul_webhook_url"
+  ],
+  "options": {
+    "chartmogul_webhook_url": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Copy the webhook URL from ChartMogul and paste it here",
+      "encrypt": false,
+      "hidden": false,
+      "label": "ChartMogul webhook URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The chartmogul_webhook_url property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sendContact",
+      "name": "Send Contact",
+      "description": "Send a Contact to ChartMogul CRM",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event",
+          "defaultValue": "Send Contact",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Event Type",
+                "description": "The type of event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment message id",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment message id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "message_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "The timestamp at which the event was created",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "The timestamp at which the event was created",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sent_at",
+          "type": "datetime",
+          "label": "Sent At",
+          "description": "When the event was sent",
+          "defaultValue": {
+            "@path": "$.sentAt"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sent_at": {
+                "title": "Sent At",
+                "description": "When the event was sent",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "sent_at"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User Id",
+          "description": "Segment User Id",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User Id",
+                "description": "Segment User Id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous Id",
+          "description": "Segment Anonymous Id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous Id",
+                "description": "Segment Anonymous Id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The user's email",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The user's email",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "The contact's first name",
+          "defaultValue": {
+            "@path": "$.traits.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "The contact's first name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The contact's last name",
+          "defaultValue": {
+            "@path": "$.traits.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "The contact's last name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Full Name",
+          "description": "The contact's full name. It is used if first_name and last_name are not provided.",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Full Name",
+                "description": "The contact's full name. It is used if first_name and last_name are not provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "Title",
+          "description": "The contact's job or personal title",
+          "defaultValue": {
+            "@path": "$.traits.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "Title",
+                "description": "The contact's job or personal title",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "The contact's phone number",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone Number",
+                "description": "The contact's phone number",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "linked_in",
+          "type": "string",
+          "label": "LinkedIn",
+          "description": "The contact's LinkedIn URL",
+          "defaultValue": {
+            "@path": "$.traits.linkedIn"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "linked_in": {
+                "title": "LinkedIn",
+                "description": "The contact's LinkedIn URL",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "twitter",
+          "type": "string",
+          "label": "Twitter (X)",
+          "description": "The contact's Twitter (X) URL or handle",
+          "defaultValue": {
+            "@path": "$.traits.twitter"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "twitter": {
+                "title": "Twitter (X)",
+                "description": "The contact's Twitter (X) URL or handle",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company",
+          "type": "object",
+          "label": "Company",
+          "description": "The contact's Company. It creates a Customer in ChartMogul if the company id is present.",
+          "defaultValue": {
+            "id": {
+              "@path": "$.traits.company.id"
+            },
+            "name": {
+              "@path": "$.traits.company.name"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company": {
+                "title": "Company",
+                "description": "The contact's Company. It creates a Customer in ChartMogul if the company id is present.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "Company Id",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Company Name",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "sendCustomer",
+      "name": "Send Customer",
+      "description": "Send a Customer (company) to ChartMogul CRM",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event",
+          "defaultValue": "Send Customer",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Event Type",
+                "description": "The type of event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "message_id",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment message id",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message_id": {
+                "title": "MessageId",
+                "description": "The Segment message id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "message_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "The timestamp at which the event was created",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "The timestamp at which the event was created",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sent_at",
+          "type": "datetime",
+          "label": "Sent At",
+          "description": "When the event was sent",
+          "defaultValue": {
+            "@path": "$.sentAt"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sent_at": {
+                "title": "Sent At",
+                "description": "When the event was sent",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "sent_at"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User Id",
+          "description": "Segment User Id",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User Id",
+                "description": "Segment User Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group Id",
+          "description": "Segment Group Id",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group Id",
+                "description": "Segment Group Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "group_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The company's name",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The company's name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "The company's name",
+          "defaultValue": {
+            "@path": "$.traits.description"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "The company's name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The company's email",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The company's email",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "website",
+          "type": "string",
+          "label": "Website",
+          "description": "The company's website URL",
+          "defaultValue": {
+            "@path": "$.traits.website"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "website": {
+                "title": "Website",
+                "description": "The company's website URL",
+                "type": "string",
+                "format": "uri-reference"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "created_at",
+          "type": "datetime",
+          "label": "Created at",
+          "description": "Date the group’s account was first created",
+          "defaultValue": {
+            "@path": "$.traits.createdAt"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "title": "Created at",
+                "description": "Date the group’s account was first created",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "The company’s address details",
+          "defaultValue": {
+            "street": {
+              "@path": "$.traits.address.street"
+            },
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "state": {
+              "@path": "$.traits.address.state"
+            },
+            "postal_code": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "The company’s address details",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "street": {
+                    "title": "Street",
+                    "description": "The company’s street address",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "The company’s city",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "The company’s state or region",
+                    "type": "string"
+                  },
+                  "postal_code": {
+                    "title": "Postal code",
+                    "description": "The company’s zip or postal code",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The company’s country",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

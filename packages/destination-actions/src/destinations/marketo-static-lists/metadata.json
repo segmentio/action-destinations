@@ -1,0 +1,989 @@
+{
+  "name": "Marketo Static Lists (Actions)",
+  "basicOptions": [
+    "client_id",
+    "client_secret",
+    "api_endpoint",
+    "folder_name",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "client_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Marketo REST API Client ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "client_secret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Marketo REST API Client Secret.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Client Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "api_endpoint": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Marketo REST API Endpoint in this format: https://<your_account_id>.mktorest.com.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "API Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_endpoint property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "folder_name": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Name of the folder in which to create static lists.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Folder Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The folder_name property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "addToList",
+      "name": "Add to List",
+      "description": "Add users to a list in Marketo.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\"",
+      "fields": [
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The ID of the Static List that users will be synced to.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The ID of the Static List that users will be synced to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lookup_field",
+          "type": "string",
+          "label": "Lookup Field",
+          "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+          "defaultValue": "email",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Id",
+              "value": "id"
+            },
+            {
+              "label": "Cookies",
+              "value": "cookies"
+            },
+            {
+              "label": "Twitter ID",
+              "value": "twitterId"
+            },
+            {
+              "label": "Facebook ID",
+              "value": "facebookId"
+            },
+            {
+              "label": "LinkedIn ID",
+              "value": "linkedinId"
+            },
+            {
+              "label": "Salesforce Account ID",
+              "value": "sfdcAccountId"
+            },
+            {
+              "label": "Salesforce Contact ID",
+              "value": "sfdcContactId"
+            },
+            {
+              "label": "Salesforce Lead ID",
+              "value": "sfdcLeadId"
+            },
+            {
+              "label": "Salesforce Opportunity ID",
+              "value": "sfdcOpptyId"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lookup_field": {
+                "title": "Lookup Field",
+                "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+                "type": "string",
+                "enum": [
+                  "email",
+                  "id",
+                  "cookies",
+                  "twitterId",
+                  "facebookId",
+                  "linkedinId",
+                  "sfdcAccountId",
+                  "sfdcContactId",
+                  "sfdcLeadId",
+                  "sfdcOpptyId"
+                ]
+              }
+            },
+            "required": [
+              "lookup_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Lead Info Fields",
+          "description": "The fields that contain data about the lead, such as Email, Last Name, etc. On the left-hand side, input the field name exactly how it appears in Marketo. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "defaultValue": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "data": {
+                "title": "Lead Info Fields",
+                "description": "The fields that contain data about the lead, such as Email, Last Name, etc. On the left-hand side, input the field name exactly how it appears in Marketo. On the right-hand side, map the Segment field that contains the corresponding value.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "email": {
+                    "title": "Email",
+                    "description": "The user's email address to send to Marketo.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "data"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 300000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 300000
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 300000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "list_id",
+          "type": "string",
+          "label": "Existing List ID",
+          "description": "The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "list_id": {
+                "title": "Existing List ID",
+                "description": "The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "list_name",
+          "type": "string",
+          "label": "List Name",
+          "description": "The name of the Marketo Static List that you would like to create.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "list_name": {
+                "title": "List Name",
+                "description": "The name of the Marketo Static List that you would like to create.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "retlOnMappingSave",
+          "type": "object",
+          "label": "Connect to a static list in Marketo",
+          "description": "When saving this mapping, we will create a static list in Marketo using the fields you provided.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retlOnMappingSave": {
+                "title": "Connect to a static list in Marketo",
+                "description": "When saving this mapping, we will create a static list in Marketo using the fields you provided.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "title": "ID",
+                    "description": "The ID of the created Marketo Static List that users will be synced to.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "List Name",
+                    "description": "The name of the created Marketo Static List that users will be synced to.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "retlOnMappingSave"
+        }
+      ]
+    },
+    {
+      "slug": "removeFromList",
+      "name": "Remove From List",
+      "description": "Remove users from a list in Marketo.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "The ID of the Static List that users will be synced to.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "The ID of the Static List that users will be synced to.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lookup_field",
+          "type": "string",
+          "label": "Lookup Field",
+          "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+          "defaultValue": "email",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Id",
+              "value": "id"
+            },
+            {
+              "label": "Cookies",
+              "value": "cookies"
+            },
+            {
+              "label": "Twitter ID",
+              "value": "twitterId"
+            },
+            {
+              "label": "Facebook ID",
+              "value": "facebookId"
+            },
+            {
+              "label": "LinkedIn ID",
+              "value": "linkedinId"
+            },
+            {
+              "label": "Salesforce Account ID",
+              "value": "sfdcAccountId"
+            },
+            {
+              "label": "Salesforce Contact ID",
+              "value": "sfdcContactId"
+            },
+            {
+              "label": "Salesforce Lead ID",
+              "value": "sfdcLeadId"
+            },
+            {
+              "label": "Salesforce Opportunity ID",
+              "value": "sfdcOpptyId"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lookup_field": {
+                "title": "Lookup Field",
+                "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+                "type": "string",
+                "enum": [
+                  "email",
+                  "id",
+                  "cookies",
+                  "twitterId",
+                  "facebookId",
+                  "linkedinId",
+                  "sfdcAccountId",
+                  "sfdcContactId",
+                  "sfdcLeadId",
+                  "sfdcOpptyId"
+                ]
+              }
+            },
+            "required": [
+              "lookup_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "field_value",
+          "type": "string",
+          "label": "Field Value",
+          "description": "The value cooresponding to the lookup field.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field_value": {
+                "title": "Field Value",
+                "description": "The value cooresponding to the lookup field.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "field_value"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 300,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 300
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 300,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "addToList",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "removeFromList",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "field_value": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "addToList",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "removeFromList",
+      "name": "Entities Audience Exited",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "field_value": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "partnerAction": "addToList",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

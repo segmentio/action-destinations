@@ -1,0 +1,652 @@
+{
+  "name": "Voyage",
+  "basicOptions": [
+    "apiKey"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Voyage API key. You can create a new API key or find your existing API key in the Advanced section of your [Settings page](https://app.voyagetext.com/dashboard/settings/advanced).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackOrderPlaced",
+      "name": "Track Order Placed",
+      "description": "Track when an order is placed.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "DateCreated",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "Date of cart creation. Default to current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "DateCreated": {
+                "title": "Timestamp",
+                "description": "Date of cart creation. Default to current date and time.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "DateCreated"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "OrderNumber",
+          "type": "string",
+          "label": "Order Number",
+          "description": "Order number from e-commerce platform.",
+          "defaultValue": {
+            "@path": "$.properties.OrderNumber"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "OrderNumber": {
+                "title": "Order Number",
+                "description": "Order number from e-commerce platform.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "SourceId",
+          "type": "string",
+          "label": "Order ID",
+          "description": "Order id from e-commerce platform (same as checkout id).",
+          "defaultValue": {
+            "@path": "$.properties.SourceId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "SourceId": {
+                "title": "Order ID",
+                "description": "Order id from e-commerce platform (same as checkout id).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "TokenId",
+          "type": "string",
+          "label": "Token ID",
+          "description": "A reference to the order that is a string value.",
+          "defaultValue": {
+            "@path": "$.properties.TokenId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "TokenId": {
+                "title": "Token ID",
+                "description": "A reference to the order that is a string value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "CustomerId",
+          "type": "string",
+          "label": "Customer ID",
+          "description": "Customer ID from e-commerce platform.",
+          "defaultValue": {
+            "@path": "$.properties.CustomerId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "CustomerId": {
+                "title": "Customer ID",
+                "description": "Customer ID from e-commerce platform.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "CustomerId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "Url",
+          "type": "string",
+          "label": "Order URL",
+          "description": "Link for user to click on to see status.",
+          "defaultValue": {
+            "@path": "$.properties.Url"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Url": {
+                "title": "Order URL",
+                "description": "Link for user to click on to see status.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "Url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "OrderTotal",
+          "type": "number",
+          "label": "Order Total",
+          "description": "Total Order Value.",
+          "defaultValue": {
+            "@path": "$.properties.OrderTotal"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "OrderTotal": {
+                "title": "Order Total",
+                "description": "Total Order Value.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "OrderTotal"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "TotalSpent",
+          "type": "number",
+          "label": "Total Spent",
+          "description": "Total customer lifetime spend.",
+          "defaultValue": {
+            "@path": "$.properties.TotalSpent"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "TotalSpent": {
+                "title": "Total Spent",
+                "description": "Total customer lifetime spend.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "TotalSpent"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "FirstName",
+          "type": "string",
+          "label": "First name",
+          "description": "Customer's first name.",
+          "defaultValue": {
+            "@path": "$.properties.FirstName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "FirstName": {
+                "title": "First name",
+                "description": "Customer's first name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last name",
+          "description": "Customer's last name.",
+          "defaultValue": {
+            "@path": "$.properties.lastName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last name",
+                "description": "Customer's last name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "Phone",
+          "type": "string",
+          "label": "Phone number",
+          "description": "Customer's phone number.",
+          "defaultValue": {
+            "@path": "$.properties.Phone"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Phone": {
+                "title": "Phone number",
+                "description": "Customer's phone number.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "Phone"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "Email",
+          "type": "string",
+          "label": "Email",
+          "description": "Customer's email address",
+          "defaultValue": {
+            "@path": "$.properties.Email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Email": {
+                "title": "Email",
+                "description": "Customer's email address",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "Zip",
+          "type": "string",
+          "label": "Zip code",
+          "description": "Customer's postal code",
+          "defaultValue": {
+            "@path": "$.properties.Zip"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Zip": {
+                "title": "Zip code",
+                "description": "Customer's postal code",
+                "type": "string"
+              }
+            },
+            "required": [
+              "Zip"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "LastUpdated",
+          "type": "datetime",
+          "label": "Last Updated",
+          "description": "The date and time when the updates interacted with.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "LastUpdated": {
+                "title": "Last Updated",
+                "description": "The date and time when the updates interacted with.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ProductImageUrl",
+          "type": "string",
+          "label": "Product Image URL",
+          "description": "URL with product image.",
+          "defaultValue": {
+            "@path": "$.properties.ProductImageUrl"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ProductImageUrl": {
+                "title": "Product Image URL",
+                "description": "URL with product image.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "LinkReference",
+          "type": "string",
+          "label": "Link reference",
+          "description": "Used as a key to link events together.",
+          "defaultValue": {
+            "@path": "$.properties.LinkReference"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "LinkReference": {
+                "title": "Link reference",
+                "description": "Used as a key to link events together.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "HomepageUrl",
+          "type": "string",
+          "label": "Homepage URL",
+          "description": "URL of the tenant's e-commerce homepage.",
+          "defaultValue": {
+            "@path": "$.properties.HomepageUrl"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "HomepageUrl": {
+                "title": "Homepage URL",
+                "description": "URL of the tenant's e-commerce homepage.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "trackOrderPlaced",
+      "name": "Track Order Placed Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "DateCreated": {
+          "@path": "$.timestamp"
+        },
+        "OrderNumber": {
+          "@path": "$.properties.OrderNumber"
+        },
+        "SourceId": {
+          "@path": "$.properties.SourceId"
+        },
+        "TokenId": {
+          "@path": "$.properties.TokenId"
+        },
+        "CustomerId": {
+          "@path": "$.properties.CustomerId"
+        },
+        "Url": {
+          "@path": "$.properties.Url"
+        },
+        "OrderTotal": {
+          "@path": "$.properties.OrderTotal"
+        },
+        "TotalSpent": {
+          "@path": "$.properties.TotalSpent"
+        },
+        "FirstName": {
+          "@path": "$.properties.FirstName"
+        },
+        "lastName": {
+          "@path": "$.properties.lastName"
+        },
+        "Phone": {
+          "@path": "$.properties.Phone"
+        },
+        "Email": {
+          "@path": "$.properties.Email"
+        },
+        "Zip": {
+          "@path": "$.properties.Zip"
+        },
+        "LastUpdated": {
+          "@path": "$.timestamp"
+        },
+        "ProductImageUrl": {
+          "@path": "$.properties.ProductImageUrl"
+        },
+        "LinkReference": {
+          "@path": "$.properties.LinkReference"
+        },
+        "HomepageUrl": {
+          "@path": "$.properties.HomepageUrl"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,2116 @@
+{
+  "name": "Reddit Pixel",
+  "description": "The Reddit Pixel Browser Destination allows you to install the Reddit Javascript pixel onto your site and pass mapped Segment events and metadata to Reddit.",
+  "basicOptions": [
+    "pixel_id",
+    "ldu"
+  ],
+  "options": {
+    "pixel_id": {
+      "tags": [],
+      "default": "",
+      "description": "Your Reddit Pixel ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pixel ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The pixel_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "ldu": {
+      "tags": [],
+      "default": false,
+      "description": "Limited Data Use - When the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences. See [this documentation](https://business.reddithelp.com/s/article/Limited-Data-Use) for more information. If enabling this toggle, also go into each event and configure the Country and Region in the Data Processing Options for each event being sent.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Limited Data Use",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "reportWebEvent",
+      "name": "Reddit Pixel",
+      "description": "Send Standard Pixel Events to Reddit. This includes pagevisits, addtocarts, search, etc.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "tracking_type",
+          "type": "string",
+          "label": "Tracking Type",
+          "description": "One of Reddit Pixel's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Page Visit",
+              "value": "PageVisit"
+            },
+            {
+              "label": "View Content",
+              "value": "ViewContent"
+            },
+            {
+              "label": "Search",
+              "value": "Search"
+            },
+            {
+              "label": "Add to Cart",
+              "value": "AddToCart"
+            },
+            {
+              "label": "Add to Wishlist",
+              "value": "AddToWishlist"
+            },
+            {
+              "label": "Purchase",
+              "value": "Purchase"
+            },
+            {
+              "label": "Lead",
+              "value": "Lead"
+            },
+            {
+              "label": "Sign Up",
+              "value": "SignUp"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "tracking_type": {
+                "title": "Tracking Type",
+                "description": "One of Reddit Pixel's standard conversion event types. To send a Custom event to Reddit use the Custom Event Action instead.",
+                "type": "string",
+                "enum": [
+                  "PageVisit",
+                  "ViewContent",
+                  "Search",
+                  "AddToCart",
+                  "AddToWishlist",
+                  "Purchase",
+                  "Lead",
+                  "SignUp"
+                ]
+              }
+            },
+            "required": [
+              "tracking_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "The products associated with the conversion event.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "category": {
+                  "@path": "$.category"
+                },
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "name": {
+                  "@path": "$.name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "The products associated with the conversion event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "category": {
+                      "title": "Category",
+                      "description": "The category the product.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "title": "Product ID",
+                      "description": "The ID representing the product in a catalog",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "The name of the product",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user",
+          "type": "object",
+          "label": "User",
+          "description": "The identifying user parameters associated with the conversion event.",
+          "defaultValue": {
+            "advertising_id": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "device_type": {
+              "@path": "$.context.device.type"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "externalId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.userId"
+                },
+                "then": {
+                  "@path": "$.userId"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            },
+            "phoneNumber": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.phone"
+                },
+                "then": {
+                  "@path": "$.properties.phone"
+                },
+                "else": {
+                  "@path": "$.context.traits.phone"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user": {
+                "title": "User",
+                "description": "The identifying user parameters associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.",
+                    "type": "string"
+                  },
+                  "device_type": {
+                    "title": "Device Type",
+                    "description": "The type of mobile device. e.g. iOS or Android.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the user.",
+                    "type": "string"
+                  },
+                  "externalId": {
+                    "title": "External ID",
+                    "description": "An advertiser-assigned persistent identifier for the user.",
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "title": "Phone Number",
+                    "description": "The phone number of the user in E.164 standard format.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options",
+          "type": "object",
+          "label": "Data Processing Options",
+          "description": "A structure of data processing options to specify the processing type for the event. This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options": {
+                "title": "Data Processing Options",
+                "description": "A structure of data processing options to specify the processing type for the event. This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country Code of the user. We support ISO 3166-1 alpha-2 country code.",
+                    "type": "string",
+                    "enum": [
+                      "AD",
+                      "AE",
+                      "AF",
+                      "AG",
+                      "AI",
+                      "AL",
+                      "AM",
+                      "AO",
+                      "AQ",
+                      "AR",
+                      "AS",
+                      "AT",
+                      "AU",
+                      "AW",
+                      "AX",
+                      "AZ",
+                      "BA",
+                      "BB",
+                      "BD",
+                      "BE",
+                      "BF",
+                      "BG",
+                      "BH",
+                      "BI",
+                      "BJ",
+                      "BL",
+                      "BM",
+                      "BN",
+                      "BO",
+                      "BQ",
+                      "BR",
+                      "BS",
+                      "BT",
+                      "BV",
+                      "BW",
+                      "BY",
+                      "BZ",
+                      "CA",
+                      "CC",
+                      "CD",
+                      "CF",
+                      "CG",
+                      "CH",
+                      "CI",
+                      "CK",
+                      "CL",
+                      "CM",
+                      "CN",
+                      "CO",
+                      "CR",
+                      "CU",
+                      "CV",
+                      "CW",
+                      "CX",
+                      "CY",
+                      "CZ",
+                      "DE",
+                      "DJ",
+                      "DK",
+                      "DM",
+                      "DO",
+                      "DZ",
+                      "EC",
+                      "EE",
+                      "EG",
+                      "EH",
+                      "ER",
+                      "ES",
+                      "ET",
+                      "FI",
+                      "FJ",
+                      "FK",
+                      "FM",
+                      "FO",
+                      "FR",
+                      "GA",
+                      "GB",
+                      "GD",
+                      "GE",
+                      "GF",
+                      "GG",
+                      "GH",
+                      "GI",
+                      "GL",
+                      "GM",
+                      "GN",
+                      "GP",
+                      "GQ",
+                      "GR",
+                      "GT",
+                      "GU",
+                      "GW",
+                      "GY",
+                      "HK",
+                      "HM",
+                      "HN",
+                      "HR",
+                      "HT",
+                      "HU",
+                      "ID",
+                      "IE",
+                      "IL",
+                      "IM",
+                      "IN",
+                      "IO",
+                      "IQ",
+                      "IR",
+                      "IS",
+                      "IT",
+                      "JE",
+                      "JM",
+                      "JO",
+                      "JP",
+                      "KE",
+                      "KG",
+                      "KH",
+                      "KI",
+                      "KM",
+                      "KN",
+                      "KP",
+                      "KR",
+                      "KW",
+                      "KY",
+                      "KZ",
+                      "LA",
+                      "LB",
+                      "LC",
+                      "LI",
+                      "LK",
+                      "LR",
+                      "LS",
+                      "LT",
+                      "LU",
+                      "LV",
+                      "LY",
+                      "MA",
+                      "MC",
+                      "MD",
+                      "ME",
+                      "MF",
+                      "MG",
+                      "MH",
+                      "MK",
+                      "ML",
+                      "MM",
+                      "MN",
+                      "MO",
+                      "MP",
+                      "MQ",
+                      "MR",
+                      "MS",
+                      "MT",
+                      "MU",
+                      "MV",
+                      "MW",
+                      "MX",
+                      "MY",
+                      "MZ",
+                      "NA",
+                      "NC",
+                      "NE",
+                      "NF",
+                      "NG",
+                      "NI",
+                      "NL",
+                      "NO",
+                      "NP",
+                      "NR",
+                      "NU",
+                      "NZ",
+                      "OM",
+                      "PA",
+                      "PE",
+                      "PF",
+                      "PG",
+                      "PH",
+                      "PK",
+                      "PL",
+                      "PM",
+                      "PN",
+                      "PR",
+                      "PT",
+                      "PW",
+                      "PY",
+                      "QA",
+                      "RE",
+                      "RO",
+                      "RS",
+                      "RU",
+                      "RW",
+                      "SA",
+                      "SB",
+                      "SC",
+                      "SD",
+                      "SE",
+                      "SG",
+                      "SH",
+                      "SI",
+                      "SJ",
+                      "SK",
+                      "SL",
+                      "SM",
+                      "SN",
+                      "SO",
+                      "SR",
+                      "SS",
+                      "ST",
+                      "SV",
+                      "SX",
+                      "SY",
+                      "SZ",
+                      "TC",
+                      "TD",
+                      "TF",
+                      "TG",
+                      "TH",
+                      "TJ",
+                      "TK",
+                      "TL",
+                      "TM",
+                      "TN",
+                      "TO",
+                      "TR",
+                      "TT",
+                      "TV",
+                      "TZ",
+                      "UA",
+                      "UG",
+                      "UM",
+                      "UN",
+                      "US",
+                      "UY",
+                      "UZ",
+                      "VA",
+                      "VC",
+                      "VE",
+                      "VG",
+                      "VI",
+                      "VN",
+                      "VU",
+                      "WF",
+                      "WS",
+                      "YE",
+                      "YT",
+                      "ZA",
+                      "ZM",
+                      "ZW"
+                    ]
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "Region Code of the user. We support ISO 3166-2 region code, ex: \"US-CA, US-NY, etc.\" or just the region code without country prefix, e.g. \"CA, NY, etc.\". This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_metadata",
+          "type": "object",
+          "label": "Event Metadata",
+          "description": "The metadata associated with the conversion event.",
+          "defaultValue": {
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "itemCount": {
+              "@path": "$.properties.quantity"
+            },
+            "value": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.revenue"
+                },
+                "then": {
+                  "@path": "$.properties.revenue"
+                },
+                "else": {
+                  "@path": "$.properties.total"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_metadata": {
+                "title": "Event Metadata",
+                "description": "The metadata associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "currency": {
+                    "title": "Currency",
+                    "description": "The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.",
+                    "type": "string",
+                    "enum": [
+                      "AUD",
+                      "CAD",
+                      "EUR",
+                      "GBP",
+                      "NZD",
+                      "USD"
+                    ]
+                  },
+                  "itemCount": {
+                    "title": "Item Count",
+                    "description": "The number of items in the event. This should only be set for revenue-related events.",
+                    "type": "integer"
+                  },
+                  "value": {
+                    "title": "Value Decimal",
+                    "description": "The value of the transaction in the base unit of the currency. This should only be set for revenue-related events.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": [
+                  null,
+                  null,
+                  ""
+                ]
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "Lead"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "SignUp"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "conversion_id",
+          "type": "string",
+          "label": "Conversion ID",
+          "description": "The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversion_id": {
+                "title": "Conversion ID",
+                "description": "The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "reportCustomWebEvent",
+      "name": "Reddit Pixel - Custom Event",
+      "description": "Send Custom Pixel Events to Reddit.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "conversion_id",
+          "type": "string",
+          "label": "Conversion ID",
+          "description": "The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "conversion_id": {
+                "title": "Conversion ID",
+                "description": "The unique conversion ID that corresponds to a distinct conversion event. This is used for deduplication. If you are using both Reddit Pixel and CAPI integrations, this field is required in order to dedupe the same events across both sources.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_metadata",
+          "type": "object",
+          "label": "Event Metadata",
+          "description": "The metadata associated with the conversion event.",
+          "defaultValue": {
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "itemCount": {
+              "@path": "$.properties.quantity"
+            },
+            "value": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.revenue"
+                },
+                "then": {
+                  "@path": "$.properties.revenue"
+                },
+                "else": {
+                  "@path": "$.properties.total"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_metadata": {
+                "title": "Event Metadata",
+                "description": "The metadata associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "currency": {
+                    "title": "Currency",
+                    "description": "The currency for the value provided. This must be a three-character ISO 4217 currency code. This should only be set for revenue-related events.",
+                    "type": "string",
+                    "enum": [
+                      "AUD",
+                      "CAD",
+                      "EUR",
+                      "GBP",
+                      "NZD",
+                      "USD"
+                    ]
+                  },
+                  "itemCount": {
+                    "title": "Item Count",
+                    "description": "The number of items in the event. This should only be set for revenue-related events.",
+                    "type": "integer"
+                  },
+                  "value": {
+                    "title": "Value Decimal",
+                    "description": "The value of the transaction in the base unit of the currency. This should only be set for revenue-related events.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": [
+                  null,
+                  null,
+                  ""
+                ]
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "Lead"
+              },
+              {
+                "fieldKey": "tracking_type",
+                "operator": "is",
+                "value": "SignUp"
+              }
+            ]
+          },
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user",
+          "type": "object",
+          "label": "User",
+          "description": "The identifying user parameters associated with the conversion event.",
+          "defaultValue": {
+            "advertising_id": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "device_type": {
+              "@path": "$.context.device.type"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "externalId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.userId"
+                },
+                "then": {
+                  "@path": "$.userId"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            },
+            "phoneNumber": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.phone"
+                },
+                "then": {
+                  "@path": "$.properties.phone"
+                },
+                "else": {
+                  "@path": "$.context.traits.phone"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user": {
+                "title": "User",
+                "description": "The identifying user parameters associated with the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "advertising_id": {
+                    "title": "Advertising ID",
+                    "description": "The mobile advertising ID for the user. This can be the iOS IDFA, Android AAID.",
+                    "type": "string"
+                  },
+                  "device_type": {
+                    "title": "Device Type",
+                    "description": "The type of mobile device. e.g. iOS or Android.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email address of the user.",
+                    "type": "string"
+                  },
+                  "externalId": {
+                    "title": "External ID",
+                    "description": "An advertiser-assigned persistent identifier for the user.",
+                    "type": "string"
+                  },
+                  "phoneNumber": {
+                    "title": "Phone Number",
+                    "description": "The phone number of the user in E.164 standard format.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "The products associated with the conversion event.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "category": {
+                  "@path": "$.category"
+                },
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "name": {
+                  "@path": "$.name"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "The products associated with the conversion event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "category": {
+                      "title": "Category",
+                      "description": "The category the product.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "title": "Product ID",
+                      "description": "The ID representing the product in a catalog",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "The name of the product",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data_processing_options",
+          "type": "object",
+          "label": "Data Processing Options",
+          "description": "A structure of data processing options to specify the processing type for the event. This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data_processing_options": {
+                "title": "Data Processing Options",
+                "description": "A structure of data processing options to specify the processing type for the event. This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "Country Code of the user. We support ISO 3166-1 alpha-2 country code.",
+                    "type": "string",
+                    "enum": [
+                      "AD",
+                      "AE",
+                      "AF",
+                      "AG",
+                      "AI",
+                      "AL",
+                      "AM",
+                      "AO",
+                      "AQ",
+                      "AR",
+                      "AS",
+                      "AT",
+                      "AU",
+                      "AW",
+                      "AX",
+                      "AZ",
+                      "BA",
+                      "BB",
+                      "BD",
+                      "BE",
+                      "BF",
+                      "BG",
+                      "BH",
+                      "BI",
+                      "BJ",
+                      "BL",
+                      "BM",
+                      "BN",
+                      "BO",
+                      "BQ",
+                      "BR",
+                      "BS",
+                      "BT",
+                      "BV",
+                      "BW",
+                      "BY",
+                      "BZ",
+                      "CA",
+                      "CC",
+                      "CD",
+                      "CF",
+                      "CG",
+                      "CH",
+                      "CI",
+                      "CK",
+                      "CL",
+                      "CM",
+                      "CN",
+                      "CO",
+                      "CR",
+                      "CU",
+                      "CV",
+                      "CW",
+                      "CX",
+                      "CY",
+                      "CZ",
+                      "DE",
+                      "DJ",
+                      "DK",
+                      "DM",
+                      "DO",
+                      "DZ",
+                      "EC",
+                      "EE",
+                      "EG",
+                      "EH",
+                      "ER",
+                      "ES",
+                      "ET",
+                      "FI",
+                      "FJ",
+                      "FK",
+                      "FM",
+                      "FO",
+                      "FR",
+                      "GA",
+                      "GB",
+                      "GD",
+                      "GE",
+                      "GF",
+                      "GG",
+                      "GH",
+                      "GI",
+                      "GL",
+                      "GM",
+                      "GN",
+                      "GP",
+                      "GQ",
+                      "GR",
+                      "GT",
+                      "GU",
+                      "GW",
+                      "GY",
+                      "HK",
+                      "HM",
+                      "HN",
+                      "HR",
+                      "HT",
+                      "HU",
+                      "ID",
+                      "IE",
+                      "IL",
+                      "IM",
+                      "IN",
+                      "IO",
+                      "IQ",
+                      "IR",
+                      "IS",
+                      "IT",
+                      "JE",
+                      "JM",
+                      "JO",
+                      "JP",
+                      "KE",
+                      "KG",
+                      "KH",
+                      "KI",
+                      "KM",
+                      "KN",
+                      "KP",
+                      "KR",
+                      "KW",
+                      "KY",
+                      "KZ",
+                      "LA",
+                      "LB",
+                      "LC",
+                      "LI",
+                      "LK",
+                      "LR",
+                      "LS",
+                      "LT",
+                      "LU",
+                      "LV",
+                      "LY",
+                      "MA",
+                      "MC",
+                      "MD",
+                      "ME",
+                      "MF",
+                      "MG",
+                      "MH",
+                      "MK",
+                      "ML",
+                      "MM",
+                      "MN",
+                      "MO",
+                      "MP",
+                      "MQ",
+                      "MR",
+                      "MS",
+                      "MT",
+                      "MU",
+                      "MV",
+                      "MW",
+                      "MX",
+                      "MY",
+                      "MZ",
+                      "NA",
+                      "NC",
+                      "NE",
+                      "NF",
+                      "NG",
+                      "NI",
+                      "NL",
+                      "NO",
+                      "NP",
+                      "NR",
+                      "NU",
+                      "NZ",
+                      "OM",
+                      "PA",
+                      "PE",
+                      "PF",
+                      "PG",
+                      "PH",
+                      "PK",
+                      "PL",
+                      "PM",
+                      "PN",
+                      "PR",
+                      "PT",
+                      "PW",
+                      "PY",
+                      "QA",
+                      "RE",
+                      "RO",
+                      "RS",
+                      "RU",
+                      "RW",
+                      "SA",
+                      "SB",
+                      "SC",
+                      "SD",
+                      "SE",
+                      "SG",
+                      "SH",
+                      "SI",
+                      "SJ",
+                      "SK",
+                      "SL",
+                      "SM",
+                      "SN",
+                      "SO",
+                      "SR",
+                      "SS",
+                      "ST",
+                      "SV",
+                      "SX",
+                      "SY",
+                      "SZ",
+                      "TC",
+                      "TD",
+                      "TF",
+                      "TG",
+                      "TH",
+                      "TJ",
+                      "TK",
+                      "TL",
+                      "TM",
+                      "TN",
+                      "TO",
+                      "TR",
+                      "TT",
+                      "TV",
+                      "TZ",
+                      "UA",
+                      "UG",
+                      "UM",
+                      "UN",
+                      "US",
+                      "UY",
+                      "UZ",
+                      "VA",
+                      "VC",
+                      "VE",
+                      "VG",
+                      "VI",
+                      "VN",
+                      "VU",
+                      "WF",
+                      "WS",
+                      "YE",
+                      "YT",
+                      "ZA",
+                      "ZM",
+                      "ZW"
+                    ]
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "Region Code of the user. We support ISO 3166-2 region code, ex: \"US-CA, US-NY, etc.\" or just the region code without country prefix, e.g. \"CA, NY, etc.\". This is only used for LDU - when the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_event_name",
+          "type": "string",
+          "label": "Custom Event Name",
+          "description": "A custom event name that can be passed when tracking_type is set to \"Custom\". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_event_name": {
+                "title": "Custom Event Name",
+                "description": "A custom event name that can be passed when tracking_type is set to \"Custom\". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "custom_event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add to Cart",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@path": "$.properties.price"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "AddToCart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add to Wishlist",
+      "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@path": "$.properties.price"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "AddToWishlist"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Lead",
+      "subscribe": "type = \"track\" and event = \"Lead Generated\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Lead"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Page Visit",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "PageVisit"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Purchase",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Purchase"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Search",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Search"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Sign Up",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "SignUp"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "View Content",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "ViewContent"
+      },
+      "type": "automatic"
+    }
+  ]
+}

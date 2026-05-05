@@ -1,0 +1,2594 @@
+{
+  "name": "Algolia Insights (Actions)",
+  "basicOptions": [
+    "appId",
+    "apiKey"
+  ],
+  "options": {
+    "appId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Algolia Application ID.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "appId",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The appId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "An API key which has write permissions to the Algolia Insights API",
+      "encrypt": true,
+      "hidden": false,
+      "label": "apiKey",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "algoliaPlugin",
+      "name": "Algolia Browser Plugin",
+      "description": "Enriches all Segment payloads with the Algolia query_id value",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "fields": []
+    },
+    {
+      "slug": "conversionEvents",
+      "name": "Conversion Events",
+      "description": "In ecommerce, conversions are purchase or add-to-cart events often but not always involving multiple products. Outside of ecommerce, a conversion can be any positive signal associated with an index record. Query ID is optional and indicates that the event is the result of a search query.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "eventSubtype",
+          "type": "string",
+          "label": "Event Subtype",
+          "description": "Sub-type of the event, \"purchase\" or \"addToCart\".",
+          "defaultValue": "purchase",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "value": "purchase",
+              "label": "Purchase"
+            },
+            {
+              "value": "addToCart",
+              "label": "Add To Cart"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventSubtype": {
+                "title": "Event Subtype",
+                "description": "Sub-type of the event, \"purchase\" or \"addToCart\".",
+                "type": "string",
+                "enum": [
+                  "purchase",
+                  "addToCart"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Product Details",
+          "description": "Populates the ObjectIDs field in the Algolia Insights API. An array of objects representing the purchased items. Each object must contain a product_id field.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "discount": {
+                  "@path": "$.discount"
+                },
+                "queryID": {
+                  "@path": "$.queryID"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Product Details",
+                "description": "Populates the ObjectIDs field in the Algolia Insights API. An array of objects representing the purchased items. Each object must contain a product_id field.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "product_id": {
+                      "title": "product_id",
+                      "type": "string"
+                    },
+                    "price": {
+                      "title": "price",
+                      "type": "number"
+                    },
+                    "quantity": {
+                      "title": "quantity",
+                      "type": "number"
+                    },
+                    "discount": {
+                      "title": "discount",
+                      "type": "number"
+                    },
+                    "queryID": {
+                      "title": "queryID",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "product_id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "products"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "index",
+          "type": "string",
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "defaultValue": {
+            "@path": "$.properties.search_index"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "title": "Index",
+                "description": "Name of the targeted search index.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "queryID",
+          "type": "string",
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was purchased.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "queryID": {
+                "title": "Query ID",
+                "description": "Query ID of the list on which the item was purchased.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userToken",
+          "type": "string",
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userToken": {
+                "title": "User Token",
+                "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userToken"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "authenticatedUserToken",
+          "type": "string",
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "authenticatedUserToken": {
+                "title": "Authenticated User Token",
+                "description": "The authenticated ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "value",
+          "type": "number",
+          "label": "Value",
+          "description": "The value of the cart that is being converted.",
+          "defaultValue": {
+            "@path": "$.properties.value"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "title": "Value",
+                "description": "The value of the cart that is being converted.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "Currency of the objects associated with the event in 3-letter ISO 4217 format. Required when `value` or `price` is set.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "Currency of the objects associated with the event in 3-letter ISO 4217 format. Required when `value` or `price` is set.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraProperties",
+          "type": "object",
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extraProperties": {
+                "title": "Extra Properties",
+                "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to send to Algolia. Defaults to 'Conversion Event'",
+          "defaultValue": "Conversion Event",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to send to Algolia. Defaults to 'Conversion Event'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'conversion'",
+          "defaultValue": "conversion",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "View",
+              "value": "view"
+            },
+            {
+              "label": "Conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "Click",
+              "value": "click"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of event to send to Algolia. Defaults to 'conversion'",
+                "type": "string",
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "productAddedEvents",
+      "name": "Product Added Events",
+      "description": "Product added events for ecommerce use cases for a customer adding an item to their cart. Query ID is optional and indicates that the event was the result of a search query.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Added\"",
+      "fields": [
+        {
+          "fieldKey": "product",
+          "type": "string",
+          "label": "Product ID",
+          "description": "Populates the ObjectIds field in the Algolia Insights API with a single ObjectId (productId) of the product added.",
+          "defaultValue": {
+            "@path": "$.properties.product_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "product": {
+                "title": "Product ID",
+                "description": "Populates the ObjectIds field in the Algolia Insights API with a single ObjectId (productId) of the product added.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "product"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "index",
+          "type": "string",
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "defaultValue": {
+            "@path": "$.properties.search_index"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "title": "Index",
+                "description": "Name of the targeted search index.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "queryID",
+          "type": "string",
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was purchased.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "queryID": {
+                "title": "Query ID",
+                "description": "Query ID of the list on which the item was purchased.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userToken",
+          "type": "string",
+          "label": "User Token",
+          "description": "The ID associated with the user.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userToken": {
+                "title": "User Token",
+                "description": "The ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userToken"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "authenticatedUserToken",
+          "type": "string",
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "authenticatedUserToken": {
+                "title": "Authenticated User Token",
+                "description": "The authenticated ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraProperties",
+          "type": "object",
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extraProperties": {
+                "title": "Extra Properties",
+                "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Add to cart'",
+          "defaultValue": "Add to cart",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to be send to Algolia. Defaults to 'Add to cart'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'conversion'",
+          "defaultValue": "conversion",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of event to send to Algolia. Defaults to 'conversion'",
+                "type": "string",
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "productClickedEvents",
+      "name": "Product Clicked Events",
+      "description": "When a product is clicked within an Algolia Search, Recommend or Predict result",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Clicked\"",
+      "fields": [
+        {
+          "fieldKey": "objectID",
+          "type": "string",
+          "label": "Product ID",
+          "description": "Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.",
+          "defaultValue": {
+            "@path": "$.properties.product_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "objectID": {
+                "title": "Product ID",
+                "description": "Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "objectID"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "index",
+          "type": "string",
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "defaultValue": {
+            "@path": "$.properties.search_index"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "title": "Index",
+                "description": "Name of the targeted search index.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "queryID",
+          "type": "string",
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was clicked.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "queryID": {
+                "title": "Query ID",
+                "description": "Query ID of the list on which the item was clicked.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "position",
+          "type": "integer",
+          "label": "Position",
+          "description": "Position of the click in the list of Algolia search results. Positions should start from 1, not 0.",
+          "defaultValue": {
+            "@path": "$.properties.position"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "position": {
+                "title": "Position",
+                "description": "Position of the click in the list of Algolia search results. Positions should start from 1, not 0.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userToken",
+          "type": "string",
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userToken": {
+                "title": "User Token",
+                "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userToken"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "authenticatedUserToken",
+          "type": "string",
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "authenticatedUserToken": {
+                "title": "Authenticated User Token",
+                "description": "The authenticated ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraProperties",
+          "type": "object",
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extraProperties": {
+                "title": "Extra Properties",
+                "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product Clicked'",
+          "defaultValue": "Product Clicked",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to be send to Algolia. Defaults to 'Product Clicked'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'click'",
+          "defaultValue": "click",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of event to send to Algolia. Defaults to 'click'",
+                "type": "string",
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "productListFilteredEvents",
+      "name": "Product List Filtered Events",
+      "description": "When a product list is filtered within an Algolia Search",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product List Filtered\"",
+      "fields": [
+        {
+          "fieldKey": "filters",
+          "type": "object",
+          "label": "Filters",
+          "description": "Populates the filters field in the Algolia Insights API, a list of up to 10 facet filters. Field should be an array of strings with format ${attribute}:${value}.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.filters",
+              {
+                "attribute": {
+                  "@path": "$.attribute"
+                },
+                "value": {
+                  "@path": "$.value"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filters": {
+                "title": "Filters",
+                "description": "Populates the filters field in the Algolia Insights API, a list of up to 10 facet filters. Field should be an array of strings with format ${attribute}:${value}.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "attribute": {
+                      "title": "Filter name",
+                      "description": "The name of the Filter",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Filter value",
+                      "description": "The value of the Filter",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "attribute",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "filters"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "index",
+          "type": "string",
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "defaultValue": {
+            "@path": "$.properties.search_index"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "title": "Index",
+                "description": "Name of the targeted search index.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "queryID",
+          "type": "string",
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was clicked.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "queryID": {
+                "title": "Query ID",
+                "description": "Query ID of the list on which the item was clicked.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userToken",
+          "type": "string",
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userToken": {
+                "title": "User Token",
+                "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userToken"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "authenticatedUserToken",
+          "type": "string",
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "authenticatedUserToken": {
+                "title": "Authenticated User Token",
+                "description": "The authenticated ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraProperties",
+          "type": "object",
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extraProperties": {
+                "title": "Extra Properties",
+                "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product List Filtered'",
+          "defaultValue": "Product List Filtered",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to be send to Algolia. Defaults to 'Product List Filtered'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'click'",
+          "defaultValue": "click",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of event to send to Algolia. Defaults to 'click'",
+                "type": "string",
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "productListViewedEvents",
+      "name": "Product List Viewed Events",
+      "description": "Product list viewed events act as a positive signal for associated record objects — the associated Product IDs. Query ID is optional and indicates that the view events are the result of a search query.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product List Viewed\"",
+      "fields": [
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Product Details",
+          "description": "The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Product Details",
+                "description": "The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "product_id": {
+                      "title": "product_id",
+                      "description": "The unique ID of the product.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "product_id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "products"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "index",
+          "type": "string",
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "defaultValue": {
+            "@path": "$.properties.search_index"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "title": "Index",
+                "description": "Name of the targeted search index.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "queryID",
+          "type": "string",
+          "label": "Query ID",
+          "description": "Query ID of the list on which the items were viewed.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "queryID": {
+                "title": "Query ID",
+                "description": "Query ID of the list on which the items were viewed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userToken",
+          "type": "string",
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userToken": {
+                "title": "User Token",
+                "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userToken"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "authenticatedUserToken",
+          "type": "string",
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "authenticatedUserToken": {
+                "title": "Authenticated User Token",
+                "description": "The authenticated ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraProperties",
+          "type": "object",
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extraProperties": {
+                "title": "Extra Properties",
+                "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product List Viewed'",
+          "defaultValue": "Product List Viewed",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to be send to Algolia. Defaults to 'Product List Viewed'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'view'",
+          "defaultValue": "view",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of event to send to Algolia. Defaults to 'view'",
+                "type": "string",
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "productViewedEvents",
+      "name": "Product Viewed Events",
+      "description": "Product view events act as a positive signal for associated record objects — the associated Product ID. Query ID is optional and indicates that the view event is the result of a search query.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Viewed\"",
+      "fields": [
+        {
+          "fieldKey": "objectID",
+          "type": "string",
+          "label": "Product ID",
+          "description": "Product ID of the viewed item.",
+          "defaultValue": {
+            "@path": "$.properties.product_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "objectID": {
+                "title": "Product ID",
+                "description": "Product ID of the viewed item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "objectID"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "index",
+          "type": "string",
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "defaultValue": {
+            "@path": "$.properties.search_index"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "title": "Index",
+                "description": "Name of the targeted search index.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "index"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "queryID",
+          "type": "string",
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was viewed.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "queryID": {
+                "title": "Query ID",
+                "description": "Query ID of the list on which the item was viewed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userToken",
+          "type": "string",
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userToken": {
+                "title": "User Token",
+                "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userToken"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "authenticatedUserToken",
+          "type": "string",
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "authenticatedUserToken": {
+                "title": "Authenticated User Token",
+                "description": "The authenticated ID associated with the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "extraProperties",
+          "type": "object",
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "extraProperties": {
+                "title": "Extra Properties",
+                "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
+          "defaultValue": "Product Viewed",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'view'",
+          "defaultValue": "view",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "The type of event to send to Algolia. Defaults to 'view'",
+                "type": "string",
+                "enum": [
+                  "view",
+                  "conversion",
+                  "click"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "algoliaPlugin",
+      "name": "Algolia Plugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "productAddedEvents",
+      "name": "Send an add-to-cart event to Algolia",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "product": {
+          "@path": "$.properties.product_id"
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Add to cart",
+        "eventType": "conversion"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "productClickedEvents",
+      "name": "Send product clicked events to Algolia",
+      "subscribe": "type = \"track\" and event = \"Product Clicked\"",
+      "mapping": {
+        "objectID": {
+          "@path": "$.properties.product_id"
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "position": {
+          "@path": "$.properties.position"
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product Clicked",
+        "eventType": "click"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "productListFilteredEvents",
+      "name": "Send product list filtered events to Algolia",
+      "subscribe": "type = \"track\" and event = \"Product List Filtered\"",
+      "mapping": {
+        "filters": {
+          "@arrayPath": [
+            "$.properties.filters",
+            {
+              "attribute": {
+                "@path": "$.attribute"
+              },
+              "value": {
+                "@path": "$.value"
+              }
+            }
+          ]
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product List Filtered",
+        "eventType": "click"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "productListViewedEvents",
+      "name": "Send product list viewed events to Algolia",
+      "subscribe": "type = \"track\" and event = \"Product List Viewed\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              }
+            }
+          ]
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product List Viewed",
+        "eventType": "view"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "productViewedEvents",
+      "name": "Send product viewed events to Algolia",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "objectID": {
+          "@path": "$.properties.product_id"
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product Viewed",
+        "eventType": "view"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "conversionEvents",
+      "name": "Send purchase events to Algolia",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "eventSubtype": "purchase",
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "discount": {
+                "@path": "$.discount"
+              },
+              "queryID": {
+                "@path": "$.queryID"
+              }
+            }
+          ]
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Conversion Event",
+        "eventType": "conversion"
+      },
+      "type": "automatic"
+    }
+  ]
+}

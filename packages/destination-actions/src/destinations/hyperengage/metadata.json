@@ -1,0 +1,2761 @@
+{
+  "name": "Hyperengage (Actions)",
+  "description": "Hyperengage actions destination, to connect your product usage data from Segment to Hyperengage",
+  "basicOptions": [
+    "apiKey",
+    "workspaceIdentifier"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Hyperengage API key located in the Integration Settings page.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "workspaceIdentifier": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Hyperengage workspace identifier located in the Integration Settings page.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Workspace Identifier",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The workspaceIdentifier property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "group",
+      "name": "Group",
+      "description": "Send group calls to Hyperengage.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "account_id",
+          "type": "string",
+          "label": "Account id",
+          "description": "The External ID of the account to send properties for",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.group_id"
+              },
+              "then": {
+                "@path": "$.context.group_id"
+              },
+              "else": {
+                "@path": "$.groupId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "account_id": {
+                "title": "Account id",
+                "description": "The External ID of the account to send properties for",
+                "type": "string"
+              }
+            },
+            "required": [
+              "account_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Account name",
+          "description": "The Account name",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.name"
+              },
+              "then": {
+                "@path": "$.traits.name"
+              },
+              "else": {
+                "@path": "$.properties.name"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Account name",
+                "description": "The Account name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "created_at",
+          "type": "string",
+          "label": "Account created at",
+          "description": "The timestamp when the account was created, represented in the ISO-8601 date format. For instance, \"2023-09-26T15:30:00Z\".",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.created_at"
+              },
+              "then": {
+                "@path": "$.traits.created_at"
+              },
+              "else": {
+                "@path": "$.traits.createdAt"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "title": "Account created at",
+                "description": "The timestamp when the account was created, represented in the ISO-8601 date format. For instance, \"2023-09-26T15:30:00Z\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Account properties",
+          "description": "The properties of the account",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Account properties",
+                "description": "The properties of the account",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "plan",
+          "type": "string",
+          "label": "Account subscription plan",
+          "description": "Subscription plan the account is associated with",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.plan"
+              },
+              "then": {
+                "@path": "$.traits.plan"
+              },
+              "else": {
+                "@path": "$.traits.plan_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "plan": {
+                "title": "Account subscription plan",
+                "description": "Subscription plan the account is associated with",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "industry",
+          "type": "string",
+          "label": "Account industry",
+          "description": "The account industry",
+          "defaultValue": {
+            "@path": "$.traits.industry"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "industry": {
+                "title": "Account industry",
+                "description": "The account industry",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "website",
+          "type": "string",
+          "label": "Account website",
+          "description": "The account website",
+          "defaultValue": {
+            "@path": "$.traits.website"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "website": {
+                "title": "Account website",
+                "description": "The account website",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "User Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "User Anonymous id",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "The ID of the event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "The ID of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_path",
+          "type": "string",
+          "label": "Document Path",
+          "description": "The path of the document.",
+          "defaultValue": {
+            "@path": "$.context.page.path"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_path": {
+                "title": "Document Path",
+                "description": "The path of the document.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_search",
+          "type": "string",
+          "label": "Document Search",
+          "description": "The search query of the document.",
+          "defaultValue": {
+            "@path": "$.context.page.search"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_search": {
+                "title": "Document Search",
+                "description": "The search query of the document.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_title",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_title": {
+                "title": "Page Title",
+                "description": "The title of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The URL of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The URL of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referer",
+          "type": "string",
+          "label": "Referrer",
+          "description": "The referrer of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referer": {
+                "title": "Referrer",
+                "description": "The referrer of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the browser.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "The user agent of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_language",
+          "type": "string",
+          "label": "User Language",
+          "description": "The language of the browser.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_language": {
+                "title": "User Language",
+                "description": "The language of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utc_time",
+          "type": "string",
+          "label": "UTC Time",
+          "description": "The time of the event in UTC.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utc_time": {
+                "title": "UTC Time",
+                "description": "The time of the event in UTC.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm",
+          "type": "object",
+          "label": "UTM",
+          "description": "Information about the UTM parameters.",
+          "defaultValue": {
+            "source": {
+              "@path": "$.context.campaign.source"
+            },
+            "medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "name": {
+              "@path": "$.context.campaign.name"
+            },
+            "term": {
+              "@path": "$.context.campaign.term"
+            },
+            "content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm": {
+                "title": "UTM",
+                "description": "Information about the UTM parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "title": "Source",
+                    "description": "The source of the campaign.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The medium of the campaign.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the campaign.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The term of the campaign.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The content of the campaign.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Information about the screen.",
+          "defaultValue": {
+            "height": {
+              "@path": "$.context.screen.height"
+            },
+            "width": {
+              "@path": "$.context.screen.width"
+            },
+            "density": {
+              "@path": "$.context.screen.density"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Information about the screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "height": {
+                    "title": "Height",
+                    "description": "The height of the screen.",
+                    "type": "integer"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The width of the screen.",
+                    "type": "integer"
+                  },
+                  "density": {
+                    "title": "Density",
+                    "description": "The density of the screen.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The timezone of the browser.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.timezone"
+              },
+              "then": {
+                "@path": "$.context.timezone"
+              },
+              "else": {
+                "@path": "$.properties.timezone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The timezone of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "source_ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Send identify calls to Hyperengage.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The External ID of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The External ID of the user",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "The user's name",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.name"
+              },
+              "then": {
+                "@path": "$.traits.name"
+              },
+              "else": {
+                "@path": "$.properties.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "The user's name",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First name",
+          "description": "The user's first name. This field is mandatory if you're not providing a name field",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First name",
+                "description": "The user's first name. This field is mandatory if you're not providing a name field",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last name",
+          "description": "The user's last name. This field is mandatory if you're not providing a name field",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last name",
+                "description": "The user's last name. This field is mandatory if you're not providing a name field",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email address",
+          "description": "The user's email address",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email address",
+                "description": "The user's email address",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "account_id",
+          "type": "string",
+          "label": "Account id",
+          "description": "The account id, to uniquely identify the account associated with the user",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.group_id"
+              },
+              "then": {
+                "@path": "$.context.group_id"
+              },
+              "else": {
+                "@path": "$.groupId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "account_id": {
+                "title": "Account id",
+                "description": "The account id, to uniquely identify the account associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "created_at",
+          "type": "string",
+          "label": "Created at",
+          "description": "The timestamp when the user was created, represented in the ISO-8601 date format. For instance, \"2023-09-26T15:30:00Z\".",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.created_at"
+              },
+              "then": {
+                "@path": "$.traits.created_at"
+              },
+              "else": {
+                "@path": "$.traits.createdAt"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "title": "Created at",
+                "description": "The timestamp when the user was created, represented in the ISO-8601 date format. For instance, \"2023-09-26T15:30:00Z\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "Properties to associate with the user",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "Properties to associate with the user",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "User Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "User Anonymous id",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "The ID of the event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "The ID of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_path",
+          "type": "string",
+          "label": "Document Path",
+          "description": "The path of the document.",
+          "defaultValue": {
+            "@path": "$.context.page.path"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_path": {
+                "title": "Document Path",
+                "description": "The path of the document.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_search",
+          "type": "string",
+          "label": "Document Search",
+          "description": "The search query of the document.",
+          "defaultValue": {
+            "@path": "$.context.page.search"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_search": {
+                "title": "Document Search",
+                "description": "The search query of the document.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_title",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_title": {
+                "title": "Page Title",
+                "description": "The title of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The URL of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The URL of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referer",
+          "type": "string",
+          "label": "Referrer",
+          "description": "The referrer of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referer": {
+                "title": "Referrer",
+                "description": "The referrer of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the browser.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "The user agent of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_language",
+          "type": "string",
+          "label": "User Language",
+          "description": "The language of the browser.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_language": {
+                "title": "User Language",
+                "description": "The language of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utc_time",
+          "type": "string",
+          "label": "UTC Time",
+          "description": "The time of the event in UTC.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utc_time": {
+                "title": "UTC Time",
+                "description": "The time of the event in UTC.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm",
+          "type": "object",
+          "label": "UTM",
+          "description": "Information about the UTM parameters.",
+          "defaultValue": {
+            "source": {
+              "@path": "$.context.campaign.source"
+            },
+            "medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "name": {
+              "@path": "$.context.campaign.name"
+            },
+            "term": {
+              "@path": "$.context.campaign.term"
+            },
+            "content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm": {
+                "title": "UTM",
+                "description": "Information about the UTM parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "title": "Source",
+                    "description": "The source of the campaign.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The medium of the campaign.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the campaign.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The term of the campaign.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The content of the campaign.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Information about the screen.",
+          "defaultValue": {
+            "height": {
+              "@path": "$.context.screen.height"
+            },
+            "width": {
+              "@path": "$.context.screen.width"
+            },
+            "density": {
+              "@path": "$.context.screen.density"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Information about the screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "height": {
+                    "title": "Height",
+                    "description": "The height of the screen.",
+                    "type": "integer"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The width of the screen.",
+                    "type": "integer"
+                  },
+                  "density": {
+                    "title": "Density",
+                    "description": "The density of the screen.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The timezone of the browser.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.timezone"
+              },
+              "then": {
+                "@path": "$.context.timezone"
+              },
+              "else": {
+                "@path": "$.properties.timezone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The timezone of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "source_ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "track",
+      "name": "Track",
+      "description": "Send track calls to Hyperengage.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event name",
+          "description": "The name of the event",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event name",
+                "description": "The name of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User id",
+          "description": "The user id, to uniquely identify the user associated with the event",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User id",
+                "description": "The user id, to uniquely identify the user associated with the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "account_id",
+          "type": "string",
+          "label": "Account id",
+          "description": "The account id, to uniquely identify the account associated with the user",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.groupId"
+              },
+              "then": {
+                "@path": "$.context.groupId"
+              },
+              "else": {
+                "@path": "$.groupId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "account_id": {
+                "title": "Account id",
+                "description": "The account id, to uniquely identify the account associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event properties",
+          "description": "The properties of the track call",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event properties",
+                "description": "The properties of the track call",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "User Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "User Anonymous id",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "The ID of the event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "The ID of the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_path",
+          "type": "string",
+          "label": "Document Path",
+          "description": "The path of the document.",
+          "defaultValue": {
+            "@path": "$.context.page.path"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_path": {
+                "title": "Document Path",
+                "description": "The path of the document.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_search",
+          "type": "string",
+          "label": "Document Search",
+          "description": "The search query of the document.",
+          "defaultValue": {
+            "@path": "$.context.page.search"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_search": {
+                "title": "Document Search",
+                "description": "The search query of the document.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "doc_title",
+          "type": "string",
+          "label": "Page Title",
+          "description": "The title of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "doc_title": {
+                "title": "Page Title",
+                "description": "The title of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The URL of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The URL of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referer",
+          "type": "string",
+          "label": "Referrer",
+          "description": "The referrer of the page where the event occurred.",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referer": {
+                "title": "Referrer",
+                "description": "The referrer of the page where the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the browser.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "The user agent of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_language",
+          "type": "string",
+          "label": "User Language",
+          "description": "The language of the browser.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_language": {
+                "title": "User Language",
+                "description": "The language of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utc_time",
+          "type": "string",
+          "label": "UTC Time",
+          "description": "The time of the event in UTC.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utc_time": {
+                "title": "UTC Time",
+                "description": "The time of the event in UTC.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm",
+          "type": "object",
+          "label": "UTM",
+          "description": "Information about the UTM parameters.",
+          "defaultValue": {
+            "source": {
+              "@path": "$.context.campaign.source"
+            },
+            "medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "name": {
+              "@path": "$.context.campaign.name"
+            },
+            "term": {
+              "@path": "$.context.campaign.term"
+            },
+            "content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm": {
+                "title": "UTM",
+                "description": "Information about the UTM parameters.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "title": "Source",
+                    "description": "The source of the campaign.",
+                    "type": "string"
+                  },
+                  "medium": {
+                    "title": "Medium",
+                    "description": "The medium of the campaign.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the campaign.",
+                    "type": "string"
+                  },
+                  "term": {
+                    "title": "Term",
+                    "description": "The term of the campaign.",
+                    "type": "string"
+                  },
+                  "content": {
+                    "title": "Content",
+                    "description": "The content of the campaign.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen",
+          "type": "object",
+          "label": "Screen",
+          "description": "Information about the screen.",
+          "defaultValue": {
+            "height": {
+              "@path": "$.context.screen.height"
+            },
+            "width": {
+              "@path": "$.context.screen.width"
+            },
+            "density": {
+              "@path": "$.context.screen.density"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen": {
+                "title": "Screen",
+                "description": "Information about the screen.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "height": {
+                    "title": "Height",
+                    "description": "The height of the screen.",
+                    "type": "integer"
+                  },
+                  "width": {
+                    "title": "Width",
+                    "description": "The width of the screen.",
+                    "type": "integer"
+                  },
+                  "density": {
+                    "title": "Density",
+                    "description": "The density of the screen.",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The timezone of the browser.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.timezone"
+              },
+              "then": {
+                "@path": "$.context.timezone"
+              },
+              "else": {
+                "@path": "$.properties.timezone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The timezone of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "source_ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "group",
+      "name": "Group",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "account_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.group_id"
+            },
+            "then": {
+              "@path": "$.context.group_id"
+            },
+            "else": {
+              "@path": "$.groupId"
+            }
+          }
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.name"
+            },
+            "then": {
+              "@path": "$.traits.name"
+            },
+            "else": {
+              "@path": "$.properties.name"
+            }
+          }
+        },
+        "created_at": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.created_at"
+            },
+            "then": {
+              "@path": "$.traits.created_at"
+            },
+            "else": {
+              "@path": "$.traits.createdAt"
+            }
+          }
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "plan": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.plan"
+            },
+            "then": {
+              "@path": "$.traits.plan"
+            },
+            "else": {
+              "@path": "$.traits.plan_name"
+            }
+          }
+        },
+        "industry": {
+          "@path": "$.traits.industry"
+        },
+        "website": {
+          "@path": "$.traits.website"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "doc_path": {
+          "@path": "$.context.page.path"
+        },
+        "doc_search": {
+          "@path": "$.context.page.search"
+        },
+        "doc_title": {
+          "@path": "$.context.page.title"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referer": {
+          "@path": "$.context.page.referrer"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "user_language": {
+          "@path": "$.context.locale"
+        },
+        "utc_time": {
+          "@path": "$.timestamp"
+        },
+        "utm": {
+          "source": {
+            "@path": "$.context.campaign.source"
+          },
+          "medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "name": {
+            "@path": "$.context.campaign.name"
+          },
+          "term": {
+            "@path": "$.context.campaign.term"
+          },
+          "content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "screen": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          }
+        },
+        "timezone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.timezone"
+            },
+            "then": {
+              "@path": "$.context.timezone"
+            },
+            "else": {
+              "@path": "$.properties.timezone"
+            }
+          }
+        },
+        "source_ip": {
+          "@path": "$.context.ip"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identify",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.name"
+            },
+            "then": {
+              "@path": "$.traits.name"
+            },
+            "else": {
+              "@path": "$.properties.name"
+            }
+          }
+        },
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.first_name"
+            },
+            "then": {
+              "@path": "$.traits.first_name"
+            },
+            "else": {
+              "@path": "$.properties.first_name"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.last_name"
+            },
+            "then": {
+              "@path": "$.traits.last_name"
+            },
+            "else": {
+              "@path": "$.properties.last_name"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "account_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.group_id"
+            },
+            "then": {
+              "@path": "$.context.group_id"
+            },
+            "else": {
+              "@path": "$.groupId"
+            }
+          }
+        },
+        "created_at": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.created_at"
+            },
+            "then": {
+              "@path": "$.traits.created_at"
+            },
+            "else": {
+              "@path": "$.traits.createdAt"
+            }
+          }
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "doc_path": {
+          "@path": "$.context.page.path"
+        },
+        "doc_search": {
+          "@path": "$.context.page.search"
+        },
+        "doc_title": {
+          "@path": "$.context.page.title"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referer": {
+          "@path": "$.context.page.referrer"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "user_language": {
+          "@path": "$.context.locale"
+        },
+        "utc_time": {
+          "@path": "$.timestamp"
+        },
+        "utm": {
+          "source": {
+            "@path": "$.context.campaign.source"
+          },
+          "medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "name": {
+            "@path": "$.context.campaign.name"
+          },
+          "term": {
+            "@path": "$.context.campaign.term"
+          },
+          "content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "screen": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          }
+        },
+        "timezone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.timezone"
+            },
+            "then": {
+              "@path": "$.context.timezone"
+            },
+            "else": {
+              "@path": "$.properties.timezone"
+            }
+          }
+        },
+        "source_ip": {
+          "@path": "$.context.ip"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "track",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "account_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.groupId"
+            },
+            "then": {
+              "@path": "$.context.groupId"
+            },
+            "else": {
+              "@path": "$.groupId"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "doc_path": {
+          "@path": "$.context.page.path"
+        },
+        "doc_search": {
+          "@path": "$.context.page.search"
+        },
+        "doc_title": {
+          "@path": "$.context.page.title"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referer": {
+          "@path": "$.context.page.referrer"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "user_language": {
+          "@path": "$.context.locale"
+        },
+        "utc_time": {
+          "@path": "$.timestamp"
+        },
+        "utm": {
+          "source": {
+            "@path": "$.context.campaign.source"
+          },
+          "medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "name": {
+            "@path": "$.context.campaign.name"
+          },
+          "term": {
+            "@path": "$.context.campaign.term"
+          },
+          "content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "screen": {
+          "height": {
+            "@path": "$.context.screen.height"
+          },
+          "width": {
+            "@path": "$.context.screen.width"
+          },
+          "density": {
+            "@path": "$.context.screen.density"
+          }
+        },
+        "timezone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.timezone"
+            },
+            "then": {
+              "@path": "$.context.timezone"
+            },
+            "else": {
+              "@path": "$.properties.timezone"
+            }
+          }
+        },
+        "source_ip": {
+          "@path": "$.context.ip"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

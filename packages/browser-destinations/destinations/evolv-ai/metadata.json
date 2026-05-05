@@ -1,0 +1,361 @@
+{
+  "name": "Evolv AI Web Mode (Actions)",
+  "basicOptions": [
+    "environment",
+    "useSegmentId",
+    "evolvTimeout",
+    "useCookies",
+    "receiveConfirmations",
+    "receiveUniqueConfirmations"
+  ],
+  "options": {
+    "environment": {
+      "tags": [],
+      "default": "",
+      "description": "To load the Evolv AI snippet via Segment, include your Environment API Key found in the Evolv AI Manager. This option should only be used if you are not already loading the Evolv AI snippet on your site.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Evolv AI Environment Key",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "useSegmentId": {
+      "tags": [],
+      "default": false,
+      "description": "When using this option, Evolv AI will levarage the Segment Anonymous ID instead of generating a new user id.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Use Segment's Anonymous ID as the Evolv user id",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "environment",
+            "operator": "is_not",
+            "value": ""
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "evolvTimeout": {
+      "tags": [],
+      "default": 10000,
+      "description": "If you want to ignore users who take too long to apply the optimization changes, then you can use this configuration to limit how long Evolv AI should wait till the page renders.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Evolv Timeout",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "environment",
+            "operator": "is_not",
+            "value": ""
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "useCookies": {
+      "tags": [],
+      "default": "",
+      "description": "By default, Evolv AI stores the user id in localStorage. Since localStorage cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com), you will need to specify a cookie domain (for example .example.com) in order to track users across subdomains.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Cookie domain name to store Evolv AI user id",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "environment",
+            "operator": "is_not",
+            "value": ""
+          },
+          {
+            "fieldKey": "useSegmentId",
+            "operator": "is",
+            "value": false
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "receiveConfirmations": {
+      "tags": [],
+      "default": true,
+      "description": "When set, all Evolv AI confirmations for each project will be sent to Segment.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Receive all Evolv AI project confirmations",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "receiveUniqueConfirmations": {
+      "tags": [],
+      "default": false,
+      "description": "When set, only unique confirmations (once per project per session) will be sent to Segment.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Receive unique project confirmations only",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "receiveConfirmations",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Send Segment user traits to Evolv AI",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Attributes",
+          "description": "Object containing additional attributes associated with the user.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Attributes",
+                "description": "Object containing additional attributes associated with the user.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "attributes"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "Unique identifier for the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "Unique identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous identifier for the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "Anonymous identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send Segment track event to Evolv AI",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Name",
+          "description": "Name of the event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Name",
+                "description": "Name of the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "eventName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "JSON object containing additional properties associated with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "JSON object containing additional properties associated with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "attributes": {
+          "@path": "$.traits"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

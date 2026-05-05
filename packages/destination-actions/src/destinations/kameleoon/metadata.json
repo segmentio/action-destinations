@@ -1,0 +1,1320 @@
+{
+  "name": "Kameleoon (Actions)",
+  "description": "Send Segment events to Kameleoon",
+  "basicOptions": [
+    "apiKey",
+    "sitecode"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Kameleoon API key. You can generate one using the link in the help doc (https://help.kameleoon.com/setting-up-segment/).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "sitecode": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Kameleoon project sitecode. You can find this project dashboard (https://help.kameleoon.com/question/how-do-i-find-my-site-id/).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Sitecode",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The sitecode property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "group",
+      "name": "Group Event",
+      "description": "Send group traits to Kameleoon",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "Anonymous id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The group id",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "The group id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "groupId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "User Traits",
+          "description": "Traits to send with the event",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "User Traits",
+                "description": "Traits to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "kameleoonVisitorCode",
+          "type": "string",
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "defaultValue": {
+            "@path": "$.traits.kameleoonVisitorCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kameleoonVisitorCode": {
+                "title": "Kameleoon Visitor Code",
+                "description": "Kameleoon Visitor Code - a unique identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "MessageId",
+                "description": "The Segment messageId",
+                "type": "string"
+              }
+            },
+            "required": [
+              "messageId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identify",
+      "name": "Identify Event",
+      "description": "Send user traits to Kameleoon",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "Anonymous id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "User Traits",
+          "description": "Traits to send with the event",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "User Traits",
+                "description": "Traits to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "kameleoonVisitorCode",
+          "type": "string",
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "defaultValue": {
+            "@path": "$.traits.kameleoonVisitorCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kameleoonVisitorCode": {
+                "title": "Kameleoon Visitor Code",
+                "description": "Kameleoon Visitor Code - a unique identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "MessageId",
+                "description": "The Segment messageId",
+                "type": "string"
+              }
+            },
+            "required": [
+              "messageId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "logEvent",
+      "name": "Log Event",
+      "description": "Send a track event to Kameleoon",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "Anonymous id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The event name",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The event name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event properties or user traits",
+          "description": "Additional event Properties or user Traits to send with the event",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event properties or user traits",
+                "description": "Additional event Properties or user Traits to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "kameleoonVisitorCode",
+          "type": "string",
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.kameleoonVisitorCode"
+              },
+              "then": {
+                "@path": "$.properties.kameleoonVisitorCode"
+              },
+              "else": {
+                "@path": "$.traits.kameleoonVisitorCode"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kameleoonVisitorCode": {
+                "title": "Kameleoon Visitor Code",
+                "description": "Kameleoon Visitor Code - a unique identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context properties",
+          "description": "Context properties to send with the event",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context properties",
+                "description": "Context properties to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "MessageId",
+                "description": "The Segment messageId",
+                "type": "string"
+              }
+            },
+            "required": [
+              "messageId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "page",
+      "name": "Page Event",
+      "description": "Send a page event to Kameleoon",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "Anonymous id",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID associated with the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Type",
+          "description": "The type of the event",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Type",
+                "description": "The type of the event",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Page properties",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Page properties",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "kameleoonVisitorCode",
+          "type": "string",
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "defaultValue": {
+            "@path": "$.properties.kameleoonVisitorCode"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kameleoonVisitorCode": {
+                "title": "Kameleoon Visitor Code",
+                "description": "Kameleoon Visitor Code - a unique identifier for the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Page Name",
+          "description": "The name of the page",
+          "defaultValue": {
+            "@path": "$.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Page Name",
+                "description": "The name of the page",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Context properties",
+          "description": "Context properties to send with the event",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Context properties",
+                "description": "Context properties to send with the event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "MessageId",
+                "description": "The Segment messageId",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "group",
+      "name": "Group Calls",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "properties": {
+          "@path": "$.traits"
+        },
+        "kameleoonVisitorCode": {
+          "@path": "$.traits.kameleoonVisitorCode"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identify",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "properties": {
+          "@path": "$.traits"
+        },
+        "kameleoonVisitorCode": {
+          "@path": "$.traits.kameleoonVisitorCode"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "page",
+      "name": "Page Calls",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "kameleoonVisitorCode": {
+          "@path": "$.properties.kameleoonVisitorCode"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "logEvent",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "event": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "properties": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "kameleoonVisitorCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.kameleoonVisitorCode"
+            },
+            "then": {
+              "@path": "$.properties.kameleoonVisitorCode"
+            },
+            "else": {
+              "@path": "$.traits.kameleoonVisitorCode"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

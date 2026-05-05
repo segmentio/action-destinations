@@ -1,0 +1,961 @@
+{
+  "name": "Podscribe (Actions)",
+  "basicOptions": [
+    "advertiser",
+    "userId"
+  ],
+  "options": {
+    "advertiser": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Podscribe advertiser lookup key",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The advertiser property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "userId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Podscribe user ID",
+      "encrypt": false,
+      "hidden": false,
+      "label": "User ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "page",
+      "name": "Page",
+      "description": "Register page view in Podscribe",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The anonymous ID associated with the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The anonymous ID associated with the user",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Page Referrer",
+          "description": "The page referrer",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.referrer"
+              },
+              "then": {
+                "@path": "$.context.page.referrer"
+              },
+              "else": {
+                "@path": "$.properties.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Page Referrer",
+                "description": "The page referrer",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The page URL",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.url"
+              },
+              "then": {
+                "@path": "$.context.page.url"
+              },
+              "else": {
+                "@path": "$.properties.url"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "Page URL",
+                "description": "The page URL",
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "User IP address",
+          "description": "The IP address of the device sending the event.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "User IP address",
+                "description": "The IP address of the device sending the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ip"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library",
+          "type": "object",
+          "label": "Segment Library",
+          "description": "The library sending the event.",
+          "defaultValue": {
+            "@path": "$.context.library"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library": {
+                "title": "Segment Library",
+                "description": "The library sending the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the device sending the event.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The user agent of the device sending the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "track",
+      "name": "Track",
+      "description": "Send user events to Podscribe",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The anonymous ID associated with the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID",
+                "description": "The anonymous ID associated with the user",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Page Referrer",
+          "description": "The page referrer",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.referrer"
+              },
+              "then": {
+                "@path": "$.context.page.referrer"
+              },
+              "else": {
+                "@path": "$.properties.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Page Referrer",
+                "description": "The page referrer",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The page URL",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.url"
+              },
+              "then": {
+                "@path": "$.context.page.url"
+              },
+              "else": {
+                "@path": "$.properties.url"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "Page URL",
+                "description": "The page URL",
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "User IP address",
+          "description": "The IP address of the device sending the event.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "User IP address",
+                "description": "The IP address of the device sending the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ip"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library",
+          "type": "object",
+          "label": "Segment Library",
+          "description": "The library sending the event.",
+          "defaultValue": {
+            "@path": "$.context.library"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library": {
+                "title": "Segment Library",
+                "description": "The library sending the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "The user agent of the device sending the event.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "The user agent of the device sending the event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email address",
+          "description": "Email address of the user",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email address",
+                "description": "Email address of the user",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event properties",
+          "description": "Properties to send with the event",
+          "defaultValue": {
+            "total": {
+              "@path": "$.properties.total"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "coupon": {
+              "@path": "$.properties.coupon"
+            },
+            "num_items_purchased": {
+              "@path": "$.properties.num_items_purchased"
+            },
+            "is_new_customer": {
+              "@path": "$.properties.is_new_customer"
+            },
+            "is_subscription": {
+              "@path": "$.properties.is_subscription"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "properties": {
+                "title": "Event properties",
+                "description": "Properties to send with the event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "total": {
+                    "title": "Total Value",
+                    "description": "The total value of the order",
+                    "type": "number"
+                  },
+                  "order_id": {
+                    "title": "Order id",
+                    "description": "The order ID. A unique identifier for the order",
+                    "type": "string"
+                  },
+                  "currency": {
+                    "title": "Currency",
+                    "description": "Currency code. e.g. USD for US dollar, EUR for Euro",
+                    "type": "string"
+                  },
+                  "coupon": {
+                    "title": "Coupon",
+                    "description": "Coupon Code. A Discount code for the purchase",
+                    "type": "string"
+                  },
+                  "num_items_purchased": {
+                    "title": "Number of Items Purchased",
+                    "description": "The number of items purchased in this order",
+                    "type": "integer"
+                  },
+                  "is_new_customer": {
+                    "title": "Is New Customer",
+                    "description": "true value indicates if the user is a new customer",
+                    "type": "boolean"
+                  },
+                  "is_subscription": {
+                    "title": "Is Subscription",
+                    "description": "true value indicates a subscription",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "podscribeEvent",
+          "type": "string",
+          "label": "Podscribe event type",
+          "description": "Podscribe type of event to send",
+          "defaultValue": {
+            "@path": "$.properties.podscribeEvent"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "podscribeEvent": {
+                "title": "Podscribe event type",
+                "description": "Podscribe type of event to send",
+                "type": "string"
+              }
+            },
+            "required": [
+              "podscribeEvent"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "track",
+      "name": "Order Completed Calls",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.url"
+            },
+            "then": {
+              "@path": "$.context.page.url"
+            },
+            "else": {
+              "@path": "$.properties.url"
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "library": {
+          "@path": "$.context.library"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "properties": {
+          "total": {
+            "@path": "$.properties.total"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "coupon": {
+            "@path": "$.properties.coupon"
+          },
+          "num_items_purchased": {
+            "@path": "$.properties.num_items_purchased"
+          },
+          "is_new_customer": {
+            "@path": "$.properties.is_new_customer"
+          },
+          "is_subscription": {
+            "@path": "$.properties.is_subscription"
+          }
+        },
+        "podscribeEvent": "purchase"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "page",
+      "name": "Page Calls",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.url"
+            },
+            "then": {
+              "@path": "$.context.page.url"
+            },
+            "else": {
+              "@path": "$.properties.url"
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "library": {
+          "@path": "$.context.library"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "track",
+      "name": "Signed Up Calls",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.url"
+            },
+            "then": {
+              "@path": "$.context.page.url"
+            },
+            "else": {
+              "@path": "$.properties.url"
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "library": {
+          "@path": "$.context.library"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "properties": {
+          "total": {
+            "@path": "$.properties.total"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "coupon": {
+            "@path": "$.properties.coupon"
+          },
+          "num_items_purchased": {
+            "@path": "$.properties.num_items_purchased"
+          },
+          "is_new_customer": {
+            "@path": "$.properties.is_new_customer"
+          },
+          "is_subscription": {
+            "@path": "$.properties.is_subscription"
+          }
+        },
+        "podscribeEvent": "signup"
+      },
+      "type": "automatic"
+    }
+  ]
+}

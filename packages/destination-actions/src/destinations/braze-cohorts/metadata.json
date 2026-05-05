@@ -1,0 +1,470 @@
+{
+  "name": "Braze Cohorts",
+  "basicOptions": [
+    "client_secret",
+    "endpoint"
+  ],
+  "options": {
+    "client_secret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Data Import Key for the client whose cohort this belongs to. Also known as customer key.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Client Secret key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_secret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "endpoint": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://rest.iad-01.braze.com",
+      "description": "Your Braze REST endpoint. [See more details](https://www.braze.com/docs/api/basics/#endpoints)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "REST Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://rest.iad-01.braze.com",
+          "label": "US-01\t(https://dashboard-01.braze.com)",
+          "text": "US-01\t(https://dashboard-01.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-02.braze.com",
+          "label": "US-02\t(https://dashboard-02.braze.com)",
+          "text": "US-02\t(https://dashboard-02.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-03.braze.com",
+          "label": "US-03\t(https://dashboard-03.braze.com)",
+          "text": "US-03\t(https://dashboard-03.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-04.braze.com",
+          "label": "US-04\t(https://dashboard-04.braze.com)",
+          "text": "US-04\t(https://dashboard-04.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-05.braze.com",
+          "label": "US-05\t(https://dashboard-05.braze.com)",
+          "text": "US-05\t(https://dashboard-05.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-06.braze.com",
+          "label": "US-06\t(https://dashboard-06.braze.com)",
+          "text": "US-06\t(https://dashboard-06.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-07.braze.com",
+          "label": "US-07 (https://dashboard-07.braze.com)",
+          "text": "US-07 (https://dashboard-07.braze.com)"
+        },
+        {
+          "value": "https://rest.iad-08.braze.com",
+          "label": "US-08\t(https://dashboard-08.braze.com)",
+          "text": "US-08\t(https://dashboard-08.braze.com)"
+        },
+        {
+          "value": "https://rest.fra-01.braze.eu",
+          "label": "EU-01\t(https://dashboard-01.braze.eu)",
+          "text": "EU-01\t(https://dashboard-01.braze.eu)"
+        },
+        {
+          "value": "https://rest.fra-02.braze.eu",
+          "label": "EU-02\t(https://dashboard-02.braze.eu)",
+          "text": "EU-02\t(https://dashboard-02.braze.eu)"
+        },
+        {
+          "value": "https://rest.au-01.braze.com",
+          "label": "AU-01\t(https://dashboard.au-01.braze.com)",
+          "text": "AU-01\t(https://dashboard.au-01.braze.com)"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "syncAudiences",
+      "name": "Sync Audience",
+      "description": "Record custom events in Braze",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\" or event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External User ID",
+          "description": "The external_id serves as a unique user identifier for whom you are submitting data. This identifier should be the same as the one you set in the Braze SDK in order to avoid creating multiple profiles for the same user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External User ID",
+                "description": "The external_id serves as a unique user identifier for whom you are submitting data. This identifier should be the same as the one you set in the Braze SDK in order to avoid creating multiple profiles for the same user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_alias",
+          "type": "object",
+          "label": "User Alias Object",
+          "description": "Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_alias": {
+                "title": "User Alias Object",
+                "description": "Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "alias_name": {
+                    "title": "Alias Name",
+                    "type": "string"
+                  },
+                  "alias_label": {
+                    "title": "Alias Label",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "alias_name",
+                  "alias_label"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cohort_id",
+          "type": "string",
+          "label": "Cohort ID",
+          "description": "The Cohort Identifier",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cohort_id": {
+                "title": "Cohort ID",
+                "description": "The Cohort Identifier",
+                "type": "string"
+              }
+            },
+            "required": [
+              "cohort_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cohort_name",
+          "type": "string",
+          "label": "Cohort Name",
+          "description": "The name of Cohort",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cohort_name": {
+                "title": "Cohort Name",
+                "description": "The name of Cohort",
+                "type": "string"
+              }
+            },
+            "required": [
+              "cohort_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the Braze cohorts.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests to the Braze cohorts.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "personas_audience_key",
+          "type": "string",
+          "label": "Segment Engage Audience Key",
+          "description": "The `audience_key` of the Engage audience you want to sync to Braze Cohorts. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "personas_audience_key": {
+                "title": "Segment Engage Audience Key",
+                "description": "The `audience_key` of the Engage audience you want to sync to Braze Cohorts. This value must be a hard-coded string variable, e.g. `personas_test_audience`, in order for batching to work properly.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "personas_audience_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Displays properties of the event to add/remove users to a cohort and the traits of the specific user",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_properties": {
+                "title": "Event Properties",
+                "description": "Displays properties of the event to add/remove users to a cohort and the traits of the specific user",
+                "type": "object"
+              }
+            },
+            "required": [
+              "event_properties"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "time",
+          "type": "string",
+          "label": "Time",
+          "description": "When the event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "time": {
+                "title": "Time",
+                "description": "When the event occurred.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "cohort_name",
+            "cohort_id"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

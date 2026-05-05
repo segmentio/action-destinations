@@ -1,0 +1,1894 @@
+{
+  "name": "Cordial (Actions)",
+  "description": "Sync Segment Users, Groups and Events to Cordial",
+  "basicOptions": [
+    "apiKey",
+    "endpoint",
+    "segmentIdKey"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Cordial API Key",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "endpoint": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://integrations-ingest-svc.usw1.cordial.com",
+      "description": "Cordial API endpoint. Leave default, unless you've been provided with another one. [See more details](https://support.cordial.com/hc/en-us/sections/200553578-REST-API-Introduction-and-Overview)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The endpoint property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "segmentIdKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Cordial string unique attribute key to store Segment User ID in (e.g. `segment_id`)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "User ID attribute key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "addContactToList",
+      "name": "Add Contact to List",
+      "description": "Add contact to a list. If the list does not exist in Cordial it will be created.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "Segment group id. Required.",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "Segment group id. Required.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "groupId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "listName",
+          "type": "string",
+          "label": "List name",
+          "description": "Cordial list name. Optional. If list name is empty, the name of the list will be set to segment_[groupId].",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "listName": {
+                "title": "List name",
+                "description": "Cordial list name. Optional. If list name is empty, the name of the list will be set to segment_[groupId].",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "addProductToCart",
+      "name": "Add Product to Cart",
+      "description": "Add product to Cordial contact cart",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Added\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "productID",
+          "type": "string",
+          "label": "Product ID",
+          "description": "Internal identifier of a product",
+          "defaultValue": {
+            "@path": "$.properties.product_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "productID": {
+                "title": "Product ID",
+                "description": "Internal identifier of a product",
+                "type": "string"
+              }
+            },
+            "required": [
+              "productID"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sku",
+          "type": "string",
+          "label": "SKU",
+          "description": "SKU of a product",
+          "defaultValue": {
+            "@path": "$.properties.sku"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sku": {
+                "title": "SKU",
+                "description": "SKU of a product",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sku"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "qty",
+          "type": "integer",
+          "label": "Quantity",
+          "description": "Quantity of a product",
+          "defaultValue": {
+            "@path": "$.properties.quantity"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "qty": {
+                "title": "Quantity",
+                "description": "Quantity of a product",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "qty"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "category",
+          "type": "string",
+          "label": "Category",
+          "description": "Category of a product",
+          "defaultValue": {
+            "@path": "$.properties.category"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "title": "Category",
+                "description": "Category of a product",
+                "type": "string"
+              }
+            },
+            "required": [
+              "category"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "Name of a product",
+          "defaultValue": {
+            "@path": "$.properties.name"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "Name of a product",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "Description of a product",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "Description of a product",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemPrice",
+          "type": "number",
+          "label": "Price",
+          "description": "Price of a product",
+          "defaultValue": {
+            "@path": "$.properties.price"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemPrice": {
+                "title": "Price",
+                "description": "Price of a product",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL of a product",
+          "defaultValue": {
+            "@path": "$.properties.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL of a product",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "imageUrl",
+          "type": "string",
+          "label": "Image URL",
+          "description": "Image of a product",
+          "defaultValue": {
+            "@path": "$.properties.image_url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "imageUrl": {
+                "title": "Image URL",
+                "description": "Image of a product",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Properties of a product (e.g brand, color, size)",
+          "defaultValue": {
+            "brand": {
+              "@path": "$.properties.brand"
+            },
+            "variant": {
+              "@path": "$.properties.variant"
+            },
+            "coupon": {
+              "@path": "$.properties.coupon"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Properties of a product (e.g brand, color, size)",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createContactactivity",
+      "name": "Create Contactactivity",
+      "description": "Create a new contact activity.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action",
+          "type": "string",
+          "label": "Event name",
+          "description": "Event name. Required.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": "pageView"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "title": "Event name",
+                "description": "Event name. Required.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "time",
+          "type": "datetime",
+          "label": "Event timestamp",
+          "description": "Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used. ",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "time": {
+                "title": "Event timestamp",
+                "description": "Event timestamp. Optional. Date format is ISO 8601 standard. If empty, the request upload time will be used. ",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event properties",
+          "description": "An object of additional event attributes. Optional.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event properties",
+                "description": "An object of additional event attributes. Optional.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "Event context as it appears in Segment. Optional. We use context to capture event metadata like sender ip and device info.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "mergeContacts",
+      "name": "Merge Contacts",
+      "description": "Merge contacts in Cordial.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"alias\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "New Segment User ID",
+          "description": "New Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "New Segment User ID",
+                "description": "New Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "New Segment Anonymous ID",
+          "description": "New Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "New Segment Anonymous ID",
+                "description": "New Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "previousId",
+          "type": "string",
+          "label": "Previous Segment ID",
+          "description": "Previous Segment User or Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.previousId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "previousId": {
+                "title": "Previous Segment ID",
+                "description": "Previous Segment User or Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "previousId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeContactFromList",
+      "name": "Remove Contact from List",
+      "description": "Remove Contact from Cordial List",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "groupId",
+          "type": "string",
+          "label": "Group ID",
+          "description": "Segment group id. Required.",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupId": {
+                "title": "Group ID",
+                "description": "Segment group id. Required.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "groupId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "removeProductFromCart",
+      "name": "Remove Product from Cart",
+      "description": "Removes product from Cordial contact cart",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Removed\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "productID",
+          "type": "string",
+          "label": "Product ID",
+          "description": "Internal identifier of a product",
+          "defaultValue": {
+            "@path": "$.properties.product_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "productID": {
+                "title": "Product ID",
+                "description": "Internal identifier of a product",
+                "type": "string"
+              }
+            },
+            "required": [
+              "productID"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "qty",
+          "type": "integer",
+          "label": "Quantity",
+          "description": "Quantity of a product",
+          "defaultValue": {
+            "@path": "$.properties.quantity"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "qty": {
+                "title": "Quantity",
+                "description": "Quantity of a product",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "qty"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContact",
+      "name": "Upsert Contact",
+      "description": "Create or update a contact in Cordial.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Contact Attributes",
+          "description": "Contact attributes to update. Optional. Contact attributes must exist in Cordial prior to updating. Attributes that do not exist in Cordial will be ignored. Complex attribute types to be mapped via dot notation, for example, `cordialPerson.first_name -> traits.segmentPerson.firstName`, `cordialPerson.last_name -> traits.segmentPerson.lastName`. Segment trait address can be mapped directly to geo Cordial attribute: `geo_cordial_attribute -> traits.address`.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Contact Attributes",
+                "description": "Contact attributes to update. Optional. Contact attributes must exist in Cordial prior to updating. Attributes that do not exist in Cordial will be ignored. Complex attribute types to be mapped via dot notation, for example, `cordialPerson.first_name -> traits.segmentPerson.firstName`, `cordialPerson.last_name -> traits.segmentPerson.lastName`. Segment trait address can be mapped directly to geo Cordial attribute: `geo_cordial_attribute -> traits.address`.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertOrder",
+      "name": "Upsert Order",
+      "description": "Upserts order to Cordial",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Order Completed\" or event = \"Order Updated\" or event = \"Order Refunded\" or event = \"Order Cancelled\"",
+      "fields": [
+        {
+          "fieldKey": "segmentId",
+          "type": "string",
+          "label": "Segment User ID",
+          "description": "Segment User ID value",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segmentId": {
+                "title": "Segment User ID",
+                "description": "Segment User ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Segment Anonymous ID",
+          "description": "Segment Anonymous ID value",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Segment Anonymous ID",
+                "description": "Segment Anonymous ID value",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userIdentities",
+          "type": "object",
+          "label": "User Identities",
+          "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userIdentities": {
+                "title": "User Identities",
+                "description": "An ordered list of contact identifiers in Cordial. Each item in the list represents an identifier. For example, `channels.email.address -> userId` and/or `customerId -> traits.customerId`. If a contact is found using the identifiers it is updated, otherwise a new contact is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "orderID",
+          "type": "string",
+          "label": "Order ID",
+          "description": "Internal identifier of an order",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "orderID": {
+                "title": "Order ID",
+                "description": "Internal identifier of an order",
+                "type": "string"
+              }
+            },
+            "required": [
+              "orderID"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "purchaseDate",
+          "type": "datetime",
+          "label": "Order purchase date",
+          "description": "Order purchase date",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "purchaseDate": {
+                "title": "Order purchase date",
+                "description": "Order purchase date",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "purchaseDate"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "status",
+          "type": "string",
+          "label": "Order status",
+          "description": "Order status (e.g. completed/cancelled/returned)",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "title": "Order status",
+                "description": "Order status (e.g. completed/cancelled/returned)",
+                "type": "string"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "totalAmount",
+          "type": "number",
+          "label": "Order total",
+          "description": "Order total amount",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "totalAmount": {
+                "title": "Order total",
+                "description": "Order total amount",
+                "type": "number"
+              }
+            },
+            "required": [
+              "totalAmount"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "discountApplication",
+          "type": "object",
+          "label": "Discount application",
+          "description": "Discount application data, allowed fields: type (only 'fixed' as of now), amount (float discount amount, e.g. 10.45)",
+          "defaultValue": {
+            "type": "fixed",
+            "amount": {
+              "@path": "$.properties.discount"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "discountApplication": {
+                "title": "Discount application",
+                "description": "Discount application data, allowed fields: type (only 'fixed' as of now), amount (float discount amount, e.g. 10.45)",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "title": "Type",
+                    "description": "Type of discount applied to the order (e.g. fixed)",
+                    "type": "string",
+                    "enum": [
+                      "fixed"
+                    ]
+                  },
+                  "amount": {
+                    "title": "Amount",
+                    "description": "Amount of the discount applied to the order",
+                    "type": "number"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Order properties",
+          "description": "Additional order properties (e.g. affiliation/tax/revenue)",
+          "defaultValue": {
+            "affiliation": {
+              "@path": "$.properties.affiliation"
+            },
+            "revenue": {
+              "@path": "$.properties.revenue"
+            },
+            "shipping": {
+              "@path": "$.properties.shipping"
+            },
+            "tax": {
+              "@path": "$.properties.tax"
+            },
+            "discount": {
+              "@path": "$.properties.discount"
+            },
+            "coupon": {
+              "@path": "$.properties.coupon"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Order properties",
+                "description": "Additional order properties (e.g. affiliation/tax/revenue)",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Order items",
+          "description": "Order items",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "productID": {
+                  "@path": "$.product_id"
+                },
+                "sku": {
+                  "@path": "$.sku"
+                },
+                "category": {
+                  "@path": "$.category"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "manufacturerNname": {
+                  "@path": "$.brand"
+                },
+                "itemPrice": {
+                  "@path": "$.price"
+                },
+                "qty": {
+                  "@path": "$.quantity"
+                },
+                "url": {
+                  "@path": "$.url"
+                },
+                "imageUrl": {
+                  "@path": "$.image_url"
+                },
+                "properties": {
+                  "variant": {
+                    "@path": "$.variant"
+                  },
+                  "coupon": {
+                    "@path": "$.coupon"
+                  }
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "title": "Order items",
+                "description": "Order items",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "productID": {
+                      "title": "ID",
+                      "description": "ID of the purchased item.",
+                      "type": "string"
+                    },
+                    "sku": {
+                      "title": "SKU",
+                      "description": "SKU of the purchased item.",
+                      "type": "string"
+                    },
+                    "category": {
+                      "title": "Category",
+                      "description": "Category of the purchased item.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "description": "Name of the purchased item.",
+                      "type": "string"
+                    },
+                    "manufacturerName": {
+                      "title": "Manufacturer name",
+                      "description": "Manufacturer name of the purchased item.",
+                      "type": "string"
+                    },
+                    "itemPrice": {
+                      "title": "Price",
+                      "description": "Price of the purchased item.",
+                      "type": "number"
+                    },
+                    "qty": {
+                      "title": "Quantity",
+                      "description": "Quantity of the purchased item.",
+                      "type": "integer"
+                    },
+                    "url": {
+                      "title": "URL",
+                      "description": "URL of the purchased item.",
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "title": "Image URL",
+                      "description": "Image URL of the purchased item.",
+                      "type": "string"
+                    },
+                    "properties": {
+                      "title": "Properties",
+                      "description": "Additional properties of the purchased item.",
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "productID",
+                    "sku",
+                    "name"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

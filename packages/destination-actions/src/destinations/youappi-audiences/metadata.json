@@ -1,0 +1,406 @@
+{
+  "name": "Youappi Audiences",
+  "description": "Sync Segment Engage Audiences to Youappi",
+  "basicOptions": [
+    "api_key"
+  ],
+  "options": {
+    "api_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Youappi API key.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_key property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "sync",
+      "name": "Sync Audience",
+      "description": "Sync data to Vibe Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "idfa",
+          "type": "string",
+          "label": "iOS Advertising ID (IDFA)",
+          "description": "User's IDFA",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.idfa"
+              },
+              "then": {
+                "@path": "$.traits.idfa"
+              },
+              "else": {
+                "@path": "$.properties.idfa"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "idfa": {
+                "title": "iOS Advertising ID (IDFA)",
+                "description": "User's IDFA",
+                "type": "string"
+              }
+            },
+            "required": [
+              "idfa"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gaid",
+          "type": "string",
+          "label": "Android Advertising ID (GAID)",
+          "description": "User's GAID",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gaid"
+              },
+              "then": {
+                "@path": "$.traits.gaid"
+              },
+              "else": {
+                "@path": "$.properties.gaid"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gaid": {
+                "title": "Android Advertising ID (GAID)",
+                "description": "User's GAID",
+                "type": "string"
+              }
+            },
+            "required": [
+              "gaid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_name",
+          "type": "string",
+          "label": "Audience Name",
+          "description": "The name of the audience to which you want to add users.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_name": {
+                "title": "Audience Name",
+                "description": "The name of the audience to which you want to add users.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audience_id",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "The ID of the audience to which you want to add users.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_id": {
+                "title": "Audience ID",
+                "description": "The ID of the audience to which you want to add users.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audience_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or properties object",
+          "description": "A computed object for track and identify events. This field should not need to be edited.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or properties object",
+                "description": "A computed object for track and identify events. This field should not need to be edited.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits_or_props"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "audience_id",
+            "audience_name"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sync",
+      "name": "Sync Engage Audience",
+      "subscribe": "type = \"identify\" or type = \"track\"",
+      "mapping": {
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.idfa"
+            },
+            "then": {
+              "@path": "$.traits.idfa"
+            },
+            "else": {
+              "@path": "$.properties.idfa"
+            }
+          }
+        },
+        "gaid": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gaid"
+            },
+            "then": {
+              "@path": "$.traits.gaid"
+            },
+            "else": {
+              "@path": "$.properties.gaid"
+            }
+          }
+        },
+        "audience_name": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "batch_keys": [
+          "audience_id",
+          "audience_name"
+        ]
+      },
+      "type": "automatic"
+    }
+  ]
+}

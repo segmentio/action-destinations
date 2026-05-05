@@ -1,0 +1,338 @@
+{
+  "name": "Wisepops",
+  "basicOptions": [
+    "websiteId"
+  ],
+  "options": {
+    "websiteId": {
+      "tags": [],
+      "default": "",
+      "description": "The identifier of your Wisepops' website. You can find it in [your setup code on Wisepops](https://id.wisepops.com/r/id/workspaces/_workspaceId_/settings/setup-code).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Website Identifier",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The websiteId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "setCustomProperties",
+      "name": "Set Custom Properties",
+      "description": "Define [custom properties](https://support.wisepops.com/article/yrdyv1tfih-set-up-custom-properties) to let Wisepops target them in your scenarios.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Custom Properties",
+          "description": "The custom properties to send to Wisepops.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Custom Properties",
+                "description": "The custom properties to send to Wisepops.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "traits"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Entity ID",
+          "description": "A unique identifier. Typically, a user ID or group ID.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Entity ID",
+                "description": "A unique identifier. Typically, a user ID or group ID.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "idProperty",
+          "type": "string",
+          "label": "Property name for the entity ID",
+          "description": "How to name the entity ID among the other custom properties?",
+          "defaultValue": "userId",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "idProperty": {
+                "title": "Property name for the entity ID",
+                "description": "How to name the entity ID among the other custom properties?",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "prefix",
+          "type": "string",
+          "label": "Prefix",
+          "description": "This lets you define the properties as a nested object. If you set the property `\"name\"` with the prefix `\"group\"`, you'll access it in Wisepops as `\"group.name\"`.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "prefix": {
+                "title": "Prefix",
+                "description": "This lets you define the properties as a nested object. If you set the property `\"name\"` with the prefix `\"group\"`, you'll access it in Wisepops as `\"group.name\"`.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send a [custom event](https://support.wisepops.com/article/zbpq1z0exk-set-up-custom-events-to-trigger-popups) to Wisepops. Keep in mind that events are counted as page views in your Wisepops' monthly quota.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to send to Wisepops.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The name of the event to send to Wisepops.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "eventName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackGoal",
+      "name": "Track Goal",
+      "description": "[Track goals and revenue](https://support.wisepops.com/article/mx3z8na6yb-set-up-goal-tracking) to know which campaigns are generating the most value.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Order Completed\"",
+      "fields": [
+        {
+          "fieldKey": "goalName",
+          "type": "string",
+          "label": "Goal Identifier",
+          "description": "This is a 32-character identifier, visible when you create the JS goal in Wisepops.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "goalName": {
+                "title": "Goal Identifier",
+                "description": "This is a 32-character identifier, visible when you create the JS goal in Wisepops.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "goalRevenue",
+          "type": "string",
+          "label": "Goal Revenue",
+          "description": "The revenue associated with the goal.",
+          "defaultValue": {
+            "@path": "$.properties.revenue"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "goalRevenue": {
+                "title": "Goal Revenue",
+                "description": "The revenue associated with the goal.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPage",
+      "name": "Track Page",
+      "description": "Let Wisepops know when the visitor goes to a new page. This allows Wisepops to display campaigns at page change.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": []
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "setCustomProperties",
+      "name": "Set Group Traits as Custom Properties",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "traits": {
+          "@path": "$.traits"
+        },
+        "id": {
+          "@path": "$.groupId"
+        },
+        "idProperty": "groupId",
+        "prefix": "group"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "setCustomProperties",
+      "name": "Set User Traits as Custom Properties",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "traits": {
+          "@path": "$.traits"
+        },
+        "id": {
+          "@path": "$.userId"
+        },
+        "idProperty": "userId"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackPage",
+      "name": "Track Page",
+      "subscribe": "type = \"page\"",
+      "mapping": {},
+      "type": "automatic"
+    }
+  ]
+}

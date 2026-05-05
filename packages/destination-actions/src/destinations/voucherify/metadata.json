@@ -1,0 +1,1172 @@
+{
+  "name": "Voucherify (Actions)",
+  "basicOptions": [
+    "apiKey",
+    "secretKey",
+    "customURL"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Application ID can be found in [Voucherify dashboard](https://docs.voucherify.io/docs/authentication).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Application ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "secretKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Secret Key can be found in [Voucherify dashboard](https://docs.voucherify.io/docs/authentication).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Secret Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The secretKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "customURL": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Check your API region in [Voucherify dashboard](https://app.voucherify.io/#/login) -> Project settings -> API endpoint. For example, if you are using a project with a URL: `https://us1.api.voucherify.io`, your Custom URL will be: `https://us1.segmentio.voucherify.io`. It also works for dedicated URLs.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Custom Voucherify URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The customURL property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "upsertCustomer",
+      "name": " Upsert Customer",
+      "description": "Send the [identify event](https://segment.com/docs/connections/spec/identify/) to create or update the [customer](https://docs.voucherify.io/reference/the-customer-object)",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "source_id",
+          "type": "string",
+          "label": "Source ID",
+          "description": "The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_id": {
+                "title": "Source ID",
+                "description": "The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "First name and last name of the [customer](https://docs.voucherify.io/reference/customer-object).",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "First name and last name of the [customer](https://docs.voucherify.io/reference/customer-object).",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "first_name",
+          "type": "string",
+          "label": "First Name",
+          "description": "First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.",
+          "defaultValue": {
+            "@path": "$.traits.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "first_name": {
+                "title": "First Name",
+                "description": "First name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `last_name` to create the `name` field.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_name",
+          "type": "string",
+          "label": "Last Name",
+          "description": "Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.",
+          "defaultValue": {
+            "@path": "$.traits.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_name": {
+                "title": "Last Name",
+                "description": "Last name of the [customer](https://docs.voucherify.io/reference/customer-object). It will be merged with `first_name` to create the `name` field.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "An arbitrary string that you can attach to a [customer](https://docs.voucherify.io/reference/customer-object) object.",
+          "defaultValue": {
+            "@path": "$.traits.description"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "An arbitrary string that you can attach to a [customer](https://docs.voucherify.io/reference/customer-object) object.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "Phone number of the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "Phone number of the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "birthdate",
+          "type": "string",
+          "label": "Birthdate",
+          "description": "Birthdate of the [customer](https://docs.voucherify.io/reference/the-customer-object). You can pass data here in `date` or `datetime` format (ISO 8601).",
+          "defaultValue": {
+            "@path": "$.traits.birthdate"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birthdate": {
+                "title": "Birthdate",
+                "description": "Birthdate of the [customer](https://docs.voucherify.io/reference/the-customer-object). You can pass data here in `date` or `datetime` format (ISO 8601).",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "Address of the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+          "defaultValue": {
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "state": {
+              "@path": "$.traits.address.state"
+            },
+            "postal_code": {
+              "@path": "$.traits.address.postal_code"
+            },
+            "street": {
+              "@path": "$.traits.address.street"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "Address of the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "city": {
+                    "title": "City",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "state": {
+                    "title": "State",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "postal_code": {
+                    "title": "Postal Code",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "street": {
+                    "title": "Street",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "country": {
+                    "title": "Country",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Metadata",
+          "description": "A set of custom key/value pairs that you can attach to a customer. The metadata object stores all custom attributes assigned to the customer. It can be useful for storing additional information about the customer in a structured format.",
+          "defaultValue": {
+            "@path": "$.traits.metadata"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "description": "A set of custom key/value pairs that you can attach to a customer. The metadata object stores all custom attributes assigned to the customer. It can be useful for storing additional information about the customer in a structured format.",
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Event Type",
+                "description": "Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "addCustomEvent",
+      "name": "Add custom event",
+      "description": "Send the Track, Page or Screen event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "customer",
+          "type": "object",
+          "label": "Customer Object",
+          "description": "This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+          "defaultValue": {
+            "source_id": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer": {
+                "title": "Customer Object",
+                "description": "This is an object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "source_id": {
+                    "title": "Source ID",
+                    "description": "The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source_id"
+                ]
+              }
+            },
+            "required": [
+              "customer"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referral",
+          "type": "object",
+          "label": "Referral Object",
+          "description": "If a conversion event for a referral program is set to a [custom event](https://docs.voucherify.io/reference/custom-event-object), then you need to send the referral code in the payload to make a record of the conversion event.",
+          "defaultValue": {
+            "code": {
+              "@path": "$.properties.referral.code"
+            },
+            "referrer_id": {
+              "@path": "$.properties.referral.referrer_id"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referral": {
+                "title": "Referral Object",
+                "description": "If a conversion event for a referral program is set to a [custom event](https://docs.voucherify.io/reference/custom-event-object), then you need to send the referral code in the payload to make a record of the conversion event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "code": {
+                    "title": "code",
+                    "type": "string"
+                  },
+                  "referrer_id": {
+                    "title": "referrer_id",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "loyalty",
+          "type": "object",
+          "label": "Loyalty Object",
+          "description": "If an earning rule in a loyalty program is based on a [custom event](https://docs.voucherify.io/reference/custom-event-object). This objects allows you specify the loyalty card to which the custom event should be attributed to.",
+          "defaultValue": {
+            "code": {
+              "@path": "$.properties.loyalty.code"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "loyalty": {
+                "title": "Loyalty Object",
+                "description": "If an earning rule in a loyalty program is based on a [custom event](https://docs.voucherify.io/reference/custom-event-object). This objects allows you specify the loyalty card to which the custom event should be attributed to.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "code": {
+                    "title": "code",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metadata",
+          "type": "object",
+          "label": "Track Event Metadata",
+          "description": "The metadata object stores all custom attributes assigned to the [custom event](https://docs.voucherify.io/reference/custom-event-object). A set of key/value pairs that you can attach to an event object. It can be useful for storing additional information about the event in a structured format. Event metadata schema is defined in the Dashboard > Project Settings > Event Schema > Edit particular event > Metadata property definition.",
+          "defaultValue": {
+            "@path": "$.properties.metadata"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metadata": {
+                "title": "Track Event Metadata",
+                "description": "The metadata object stores all custom attributes assigned to the [custom event](https://docs.voucherify.io/reference/custom-event-object). A set of key/value pairs that you can attach to an event object. It can be useful for storing additional information about the event in a structured format. Event metadata schema is defined in the Dashboard > Project Settings > Event Schema > Edit particular event > Metadata property definition.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the event that will be saved as a [custom event](https://docs.voucherify.io/reference/the-custom-event-object) in Voucherify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Event Type",
+                "description": "Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "assignCustomerToGroup",
+      "name": "Assign customer to group",
+      "description": "Assign a specific group and its traits to the customer.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "customer",
+          "type": "object",
+          "label": "Customer Object",
+          "description": "Object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+          "defaultValue": {
+            "source_id": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@path": "$.email"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customer": {
+                "title": "Customer Object",
+                "description": "Object containing information about the [customer](https://docs.voucherify.io/reference/the-customer-object).",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "source_id": {
+                    "title": "Source ID",
+                    "description": "The `source_id` which identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email that identifies the [customer](https://docs.voucherify.io/reference/the-customer-object) in Voucherify.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source_id"
+                ]
+              }
+            },
+            "required": [
+              "customer"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The ID used to uniquely identify a group to which [customer](https://docs.voucherify.io/reference/the-customer-object) belongs.",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The ID used to uniquely identify a group to which [customer](https://docs.voucherify.io/reference/the-customer-object) belongs.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "group_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Group Traits",
+          "description": "Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Group Traits",
+                "description": "Traits of the group that will be created in customer [metadata](https://www.voucherify.io/glossary/metadata-custom-attributes).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "type",
+          "type": "string",
+          "label": "Event Type",
+          "description": "Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group.",
+          "defaultValue": {
+            "@path": "$.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "title": "Event Type",
+                "description": "Type of the [event](https://segment.com/docs/connections/spec/). For example: identify, track, page, screen or group.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "addCustomEvent",
+      "name": "Add Custom Event (Page Event)",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "customer": {
+          "source_id": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          }
+        },
+        "referral": {
+          "code": {
+            "@path": "$.properties.referral.code"
+          },
+          "referrer_id": {
+            "@path": "$.properties.referral.referrer_id"
+          }
+        },
+        "loyalty": {
+          "code": {
+            "@path": "$.properties.loyalty.code"
+          }
+        },
+        "metadata": {
+          "@path": "$.properties.metadata"
+        },
+        "event": {
+          "@template": "Viewed {{name}} Page"
+        },
+        "type": {
+          "@path": "$.type"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addCustomEvent",
+      "name": "Add Custom Event (Screen Event)",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "customer": {
+          "source_id": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          }
+        },
+        "referral": {
+          "code": {
+            "@path": "$.properties.referral.code"
+          },
+          "referrer_id": {
+            "@path": "$.properties.referral.referrer_id"
+          }
+        },
+        "loyalty": {
+          "code": {
+            "@path": "$.properties.loyalty.code"
+          }
+        },
+        "metadata": {
+          "@path": "$.properties.metadata"
+        },
+        "event": {
+          "@template": "Viewed {{name}} Screen"
+        },
+        "type": {
+          "@path": "$.type"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addCustomEvent",
+      "name": "Add Custom Event (Track Event)",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "customer": {
+          "source_id": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          }
+        },
+        "referral": {
+          "code": {
+            "@path": "$.properties.referral.code"
+          },
+          "referrer_id": {
+            "@path": "$.properties.referral.referrer_id"
+          }
+        },
+        "loyalty": {
+          "code": {
+            "@path": "$.properties.loyalty.code"
+          }
+        },
+        "metadata": {
+          "@path": "$.properties.metadata"
+        },
+        "event": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "assignCustomerToGroup",
+      "name": "Assign Customer To Group",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "customer": {
+          "source_id": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@path": "$.email"
+          }
+        },
+        "group_id": {
+          "@path": "$.groupId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "type": {
+          "@path": "$.type"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "upsertCustomer",
+      "name": "Create Or Update Customer",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "source_id": {
+          "@path": "$.userId"
+        },
+        "name": {
+          "@path": "$.traits.name"
+        },
+        "first_name": {
+          "@path": "$.traits.first_name"
+        },
+        "last_name": {
+          "@path": "$.traits.last_name"
+        },
+        "description": {
+          "@path": "$.traits.description"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "phone": {
+          "@path": "$.traits.phone"
+        },
+        "birthdate": {
+          "@path": "$.traits.birthdate"
+        },
+        "address": {
+          "city": {
+            "@path": "$.traits.address.city"
+          },
+          "state": {
+            "@path": "$.traits.address.state"
+          },
+          "postal_code": {
+            "@path": "$.traits.address.postal_code"
+          },
+          "street": {
+            "@path": "$.traits.address.street"
+          },
+          "country": {
+            "@path": "$.traits.address.country"
+          }
+        },
+        "metadata": {
+          "@path": "$.traits.metadata"
+        },
+        "type": {
+          "@path": "$.type"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,2446 @@
+{
+  "name": "HubSpot Cloud Mode (Actions)",
+  "basicOptions": [
+    "portalId"
+  ],
+  "options": {
+    "portalId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Hub ID of your HubSpot account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Hub ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "customEvent",
+      "name": "Custom Event V2",
+      "description": "Send Custom Events to HubSpot",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to send to Hubspot.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event to send to Hubspot.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "record_details",
+          "type": "object",
+          "label": "Associated Record Details",
+          "description": "Details of the record to associate the event with",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "record_details": {
+                "title": "Associated Record Details",
+                "description": "Details of the record to associate the event with",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "object_type": {
+                    "title": "Object Type",
+                    "description": "The type of Hubspot Object to associate the event with.",
+                    "type": "string"
+                  },
+                  "object_id": {
+                    "title": "Object ID",
+                    "description": "The numeric Object ID of the object to associate the event with. For example a contact id or a visitor id value. Works for Contacts, Companies, Deals, Tickets and Custom Objects.",
+                    "type": "number"
+                  },
+                  "email": {
+                    "title": "Email Address",
+                    "description": "The email address of the Contact to associate the event with. This field only works for Contact objects.",
+                    "type": "string",
+                    "format": "email",
+                    "default": {
+                      "@if": {
+                        "exists": {
+                          "@path": "$.properties.email"
+                        },
+                        "then": {
+                          "@path": "$.properties.email"
+                        },
+                        "else": {
+                          "@path": "$.context.traits.email"
+                        }
+                      }
+                    }
+                  },
+                  "utk": {
+                    "title": "User Token / UTK",
+                    "description": "The user token of the Contact to associate the event with.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "object_type"
+                ]
+              }
+            },
+            "required": [
+              "record_details"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "propertiesMetadata": {
+              "object_type": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              }
+            },
+            "dynamicProperties": [
+              "object_type"
+            ]
+          }
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Properties to send with the event.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Properties to send with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "occurred_at",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "The time when this event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "occurred_at": {
+                "title": "Event Timestamp",
+                "description": "The time when this event occurred.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "__segment_internal_sync_mode",
+          "type": "string",
+          "label": "Sync Mode",
+          "description": "Specify how Segment should update event schemas in Hubspot",
+          "defaultValue": "update",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create new and update existing custom event definitions",
+              "value": "upsert"
+            },
+            {
+              "label": "Create new, but do not update existing custom event definitions",
+              "value": "add"
+            },
+            {
+              "label": "Update existing, but do not create new custom event definitions",
+              "value": "update"
+            }
+          ],
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": false,
+          "dependsOn": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertObject",
+      "name": "Custom Object V2",
+      "description": "Add, create or update records of any Object type to HubSpot, and optionally assocate that record with other records of any Object type.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "object_details",
+          "type": "object",
+          "label": "Object Details",
+          "description": "Details of the object to associate the record with",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_details": {
+                "title": "Object Details",
+                "description": "Details of the object to associate the record with",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "object_type": {
+                    "title": "Object Type",
+                    "description": "The type of Hubspot Object to add/update a record for.",
+                    "type": "string"
+                  },
+                  "id_field_name": {
+                    "title": "Object ID Field Name",
+                    "description": "The name of the ID field for the record.",
+                    "type": "string"
+                  },
+                  "id_field_value": {
+                    "title": "Object ID Field Value",
+                    "description": "The ID value for the record.",
+                    "type": "string"
+                  },
+                  "property_group": {
+                    "title": "Property Group",
+                    "description": "Segment can new create properties on the object if needed. To enable this select the property group for Segment to add new properties to. To disable leave this field blank.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "object_type",
+                  "id_field_name",
+                  "id_field_value"
+                ]
+              }
+            },
+            "required": [
+              "object_details"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "propertiesMetadata": {
+              "object_type": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              },
+              "id_field_name": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              },
+              "property_group": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              }
+            },
+            "dynamicProperties": [
+              "object_type",
+              "id_field_name",
+              "property_group"
+            ]
+          }
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Properties to set on the record.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Properties to set on the record.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "sensitive_properties",
+          "type": "object",
+          "label": "Sensitive Properties",
+          "description": "Sensitive Properties to set on the record.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "sensitive_properties": {
+                "title": "Sensitive Properties",
+                "description": "Sensitive Properties to set on the record.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "dynamicProperties": [
+              "__keys__"
+            ]
+          }
+        },
+        {
+          "fieldKey": "association_sync_mode",
+          "type": "string",
+          "label": "Associated Record Sync Mode",
+          "description": "Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.",
+          "defaultValue": "upsert",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create",
+              "value": "upsert"
+            },
+            {
+              "label": "Do not create",
+              "value": "read"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "association_sync_mode": {
+                "title": "Associated Record Sync Mode",
+                "description": "Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.",
+                "type": "string",
+                "enum": [
+                  "upsert",
+                  "read"
+                ]
+              }
+            },
+            "required": [
+              "association_sync_mode"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "associations",
+          "type": "object",
+          "label": "Associations to add",
+          "description": "Associations to create between the record and other records.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "associations": {
+                "title": "Associations to add",
+                "description": "Associations to create between the record and other records.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "object_type": {
+                      "title": "To Object Type",
+                      "description": "The type of associated Hubspot Object.",
+                      "type": "string"
+                    },
+                    "association_label": {
+                      "title": "Association Label",
+                      "description": "The Association label to apply between the two records. The Association label must already exist in Hubspot.",
+                      "type": "string"
+                    },
+                    "id_field_name": {
+                      "title": "To Object ID Field Name",
+                      "description": "The name of the unique field Segment will use as an identifier when associating the record to another record. The unique field name must already exist on the Object in Hubspot.",
+                      "type": "string"
+                    },
+                    "id_field_value": {
+                      "title": "To Object ID Field Value",
+                      "description": "The value of the identifier for the record to be associated with",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "object_type",
+                    "association_label",
+                    "id_field_name"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "propertiesMetadata": {
+              "object_type": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              },
+              "association_label": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              },
+              "id_field_name": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              }
+            },
+            "dynamicProperties": [
+              "object_type",
+              "association_label",
+              "id_field_name"
+            ]
+          }
+        },
+        {
+          "fieldKey": "dissociations",
+          "type": "object",
+          "label": "Associations to remove (BETA)",
+          "description": "Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely. This feature is currently in Beta and should not be used with production data.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dissociations": {
+                "title": "Associations to remove (BETA)",
+                "description": "Remove Association Labels from an Association between two records. Removing the default association label will dissociate both records from each other completely. This feature is currently in Beta and should not be used with production data.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "object_type": {
+                      "title": "To Object Type",
+                      "description": "The type of associated Hubspot Object.",
+                      "type": "string"
+                    },
+                    "association_label": {
+                      "title": "Association Label",
+                      "description": "The Association label to remove between the two records. The Association label must already exist in Hubspot. Removing the default Association label will delete the entire Association between the two records.",
+                      "type": "string"
+                    },
+                    "id_field_name": {
+                      "title": "To Object ID Field Name",
+                      "description": "The name of the unique field Segment will use as an identifier when disassociating the record from another record. The unique field name must already exist on the Object in Hubspot.",
+                      "type": "string"
+                    },
+                    "id_field_value": {
+                      "title": "To Object ID Field Value",
+                      "description": "The value of the identifier for the record to be disassociated with",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "object_type",
+                    "association_label",
+                    "id_field_name"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "propertiesMetadata": {
+              "object_type": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              },
+              "association_label": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              },
+              "id_field_name": {
+                "disabledInputMethods": [
+                  "literal",
+                  "variable",
+                  "function",
+                  "freeform",
+                  "enrichment"
+                ]
+              }
+            },
+            "dynamicProperties": [
+              "object_type",
+              "association_label",
+              "id_field_name"
+            ]
+          }
+        },
+        {
+          "fieldKey": "list_details",
+          "type": "object",
+          "label": "List Details (BETA)",
+          "description": "Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.",
+          "defaultValue": {
+            "connected_to_engage_audience": false,
+            "should_create_list": true
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "list_details": {
+                "title": "List Details (BETA)",
+                "description": "Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "connected_to_engage_audience": {
+                    "title": "Connecting to Engage Audience",
+                    "description": "Set to true if syncing an Engage Audience to a Hubspot list, false otherwise.",
+                    "type": "boolean"
+                  },
+                  "list_name": {
+                    "title": "List Name",
+                    "description": "The name of the Hubspot List to add or remove the record from. If connecting to an Engage Audience this field can be left empty.",
+                    "type": "string"
+                  },
+                  "list_action": {
+                    "title": "List Action",
+                    "description": "Specify if the record should be added or removed from the list. true = add to list, false = remove from list. If connecting an Engage Audience this field must be left empty.",
+                    "type": "boolean"
+                  },
+                  "should_create_list": {
+                    "title": "Create List",
+                    "description": "If true, Segment will create the list in Hubspot if it does not already exist.",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "propertiesMetadata": {
+              "connected_to_engage_audience": {
+                "disabledInputMethods": [
+                  "literal",
+                  "freeform"
+                ]
+              },
+              "list_name": {
+                "disabledInputMethods": []
+              },
+              "list_action": {
+                "disabledInputMethods": [
+                  "literal",
+                  "freeform"
+                ]
+              },
+              "should_create_list": {
+                "disabledInputMethods": [
+                  "literal",
+                  "freeform"
+                ]
+              }
+            },
+            "dynamicProperties": [
+              "list_name"
+            ]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Hubspot by default",
+          "description": "By default Segment batches events to Hubspot.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Hubspot by default",
+                "description": "By default Segment batches events to Hubspot.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch.",
+          "defaultValue": 100,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "defaultValue": [
+            "list_details"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The keys to use for batching the events.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The time the event occurred. This will be used to de-duplicate the events before sending them to hubspot.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The time the event occurred. This will be used to de-duplicate the events before sending them to hubspot.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "traits or properties object",
+          "description": "Hidden field: Object which to get the traits or properties object from Engage Audience payloads.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "traits or properties object",
+                "description": "Hidden field: Object which to get the traits or properties object from Engage Audience payloads.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_key",
+          "type": "string",
+          "label": "Engage Audience Computation Key",
+          "description": "Hidden field: Engage Audience Computation Key refers to the audience slug name in an Engage Audience payload.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_key": {
+                "title": "Engage Audience Computation Key",
+                "description": "Hidden field: Engage Audience Computation Key refers to the audience slug name in an Engage Audience payload.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_class",
+          "type": "string",
+          "label": "Engage Audience Computation Class",
+          "description": "Hidden field: Engage Audience Computation Class indicates if the payload is from an Engage Audience or not.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_class": {
+                "title": "Engage Audience Computation Class",
+                "description": "Hidden field: Engage Audience Computation Class indicates if the payload is from an Engage Audience or not.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "__segment_internal_sync_mode",
+          "type": "string",
+          "label": "Sync Mode",
+          "description": "Specify how Segment should update Records in Hubspot",
+          "defaultValue": "update",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create new records, and update existing records",
+              "value": "upsert"
+            },
+            {
+              "label": "Create new records, but do not update existing records",
+              "value": "add"
+            },
+            {
+              "label": "Update existing records, but do not create new records",
+              "value": "update"
+            }
+          ],
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": false,
+          "dependsOn": null
+        }
+      ]
+    },
+    {
+      "slug": "sendCustomBehavioralEvent",
+      "name": "Send Custom Behavioral Event",
+      "description": "Send a custom behavioral event to HubSpot.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "eventName",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventName": {
+                "title": "Event Name",
+                "description": "The internal event name assigned by HubSpot. This can be found in your HubSpot account. Events must be predefined in HubSpot. Please input the full internal event name including the `pe` prefix (i.e. `pe<HubID>_event_name`). Learn how to find the internal name in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events).",
+                "type": "string"
+              }
+            },
+            "required": [
+              "eventName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "occurredAt",
+          "type": "datetime",
+          "label": "Event Timestamp",
+          "description": "The time when this event occurred. If this isn't set, the current time will be used.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "occurredAt": {
+                "title": "Event Timestamp",
+                "description": "The time when this event occurred. If this isn't set, the current time will be used.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The email of the contact associated with this event. This is required if no user token or object ID is provided.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "The email of the contact associated with this event. This is required if no user token or object ID is provided.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utk",
+          "type": "string",
+          "label": "User Token",
+          "description": "The user token (utk) of the contact associated with this event. This is required if no email or object ID is provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utk": {
+                "title": "User Token",
+                "description": "The user token (utk) of the contact associated with this event. This is required if no email or object ID is provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "objectId",
+          "type": "string",
+          "label": "Object ID",
+          "description": "The ID of the object associated with this event. This can be the HubSpot contact ID, company ID, or ID of any other object. This is required if no email or user token is provided.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "objectId": {
+                "title": "Object ID",
+                "description": "The ID of the object associated with this event. This can be the HubSpot contact ID, company ID, or ID of any other object. This is required if no email or user token is provided.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Default or custom properties that describe the event. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Default or custom properties that describe the event. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/analytics-tools/create-custom-behavioral-events#add-and-manage-event-properties).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertCompany",
+      "name": "Upsert Company",
+      "description": "Create or update a company in HubSpot.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "groupid",
+          "type": "string",
+          "label": "Unique Company Identifier",
+          "description": "A unique identifier you assign to a company. Segment creates a custom property in HubSpot to store this value for each company so it can be used as a unique search field. Segment recommends not changing this value once set to avoid creating duplicate companies.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.groupId"
+              },
+              "then": {
+                "@path": "$.groupId"
+              },
+              "else": {
+                "@path": "$.context.groupId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "groupid": {
+                "title": "Unique Company Identifier",
+                "description": "A unique identifier you assign to a company. Segment creates a custom property in HubSpot to store this value for each company so it can be used as a unique search field. Segment recommends not changing this value once set to avoid creating duplicate companies.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "groupid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "createNewCompany",
+          "type": "boolean",
+          "label": "Create Company if Not Found",
+          "description": "If true, Segment will attempt to update an existing company in HubSpot and if no company is found, Segment will create a new company. If false, Segment will only attempt to update an existing company and never create a new company. This is set to true by default.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "createNewCompany": {
+                "title": "Create Company if Not Found",
+                "description": "If true, Segment will attempt to update an existing company in HubSpot and if no company is found, Segment will create a new company. If false, Segment will only attempt to update an existing company and never create a new company. This is set to true by default.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "createNewCompany"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "associateContact",
+          "type": "boolean",
+          "label": "Associate Contact with Company",
+          "description": "If true, Segment will associate the company with the user identified in your payload. If no contact is found in HubSpot, an error is thrown and the company is not created/updated. If false, Segment will not attempt to associate a contact with the company and companies can be created/updated without requiring a contact association. This is set to true by default.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "associateContact": {
+                "title": "Associate Contact with Company",
+                "description": "If true, Segment will associate the company with the user identified in your payload. If no contact is found in HubSpot, an error is thrown and the company is not created/updated. If false, Segment will not attempt to associate a contact with the company and companies can be created/updated without requiring a contact association. This is set to true by default.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "associateContact"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "companysearchfields",
+          "type": "object",
+          "label": "Company Search Fields",
+          "description": "The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "companysearchfields": {
+                "title": "Company Search Fields",
+                "description": "The unique field(s) used to search for an existing company in HubSpot to update. By default, Segment creates a custom property to store groupId for each company and uses this property to search for companies. If a company is not found, the fields provided here are then used to search. If a company is still not found, a new one is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Company Name",
+          "description": "The name of the company.",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Company Name",
+                "description": "The name of the company.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Company Description",
+          "description": "A short statement about the company’s mission and goals.",
+          "defaultValue": {
+            "@path": "$.traits.description"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Company Description",
+                "description": "A short statement about the company’s mission and goals.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "string",
+          "label": "Street Address",
+          "description": "The street address of the company.",
+          "defaultValue": {
+            "@path": "$.traits.address.street"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Street Address",
+                "description": "The street address of the company.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "The city where the company is located.",
+          "defaultValue": {
+            "@path": "$.traits.address.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "The city where the company is located.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "The state or region where the company is located.",
+          "defaultValue": {
+            "@path": "$.traits.address.state"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "The state or region where the company is located.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "zip",
+          "type": "string",
+          "label": "Postal Code",
+          "description": "The postal or zip code of the company.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.traits.address.postal_code"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "zip": {
+                "title": "Postal Code",
+                "description": "The postal or zip code of the company.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "domain",
+          "type": "string",
+          "label": "Domain",
+          "description": "The company’s website domain.",
+          "defaultValue": {
+            "@path": "$.traits.website"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "domain": {
+                "title": "Domain",
+                "description": "The company’s website domain.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "The company’s primary phone number.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "The company’s primary phone number.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "numberofemployees",
+          "type": "integer",
+          "label": "Number of Employees",
+          "description": "The total number of people who work for the company.",
+          "defaultValue": {
+            "@path": "$.traits.employees"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "numberofemployees": {
+                "title": "Number of Employees",
+                "description": "The total number of people who work for the company.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "industry",
+          "type": "string",
+          "label": "Industry",
+          "description": "The type of business the company performs.",
+          "defaultValue": {
+            "@path": "$.traits.industry"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "industry": {
+                "title": "Industry",
+                "description": "The type of business the company performs.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lifecyclestage",
+          "type": "string",
+          "label": "Lifecycle Stage",
+          "description": "The company’s stage within the marketing/sales process. See more information on default and custom stages in [HubSpot’s documentation](https://knowledge.hubspot.com/contacts/use-lifecycle-stages). Segment supports moving status forwards or backwards.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lifecyclestage": {
+                "title": "Lifecycle Stage",
+                "description": "The company’s stage within the marketing/sales process. See more information on default and custom stages in [HubSpot’s documentation](https://knowledge.hubspot.com/contacts/use-lifecycle-stages). Segment supports moving status forwards or backwards.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Other Properties",
+          "description": "Any other default or custom company properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties). Important: Do not use ’segment_group_id’ here as it is an internal property and will result in an an error.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Other Properties",
+                "description": "Any other default or custom company properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties). Important: Do not use ’segment_group_id’ here as it is an internal property and will result in an an error.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContact",
+      "name": "Upsert Contact",
+      "description": "Create or update a contact in HubSpot.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "The contact’s email. Email is used to uniquely identify contact records in HubSpot. If an existing contact is found with this email, we will update the contact. If a contact is not found, we will create a new contact.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "The contact’s email. Email is used to uniquely identify contact records in HubSpot. If an existing contact is found with this email, we will update the contact. If a contact is not found, we will create a new contact.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company",
+          "type": "string",
+          "label": "Company Name",
+          "description": "The contact’s company.",
+          "defaultValue": {
+            "@path": "$.traits.company"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company": {
+                "title": "Company Name",
+                "description": "The contact’s company.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstname",
+          "type": "string",
+          "label": "First Name",
+          "description": "The contact’s first name.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.traits.firstName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstname": {
+                "title": "First Name",
+                "description": "The contact’s first name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastname",
+          "type": "string",
+          "label": "Last Name",
+          "description": "The contact’s last name.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.traits.lastName"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastname": {
+                "title": "Last Name",
+                "description": "The contact’s last name.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "The contact’s phone number.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "The contact’s phone number.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "string",
+          "label": "Street Address",
+          "description": "The contact's street address, including apartment or unit number.",
+          "defaultValue": {
+            "@path": "$.traits.address.street"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Street Address",
+                "description": "The contact's street address, including apartment or unit number.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "The contact's city of residence.",
+          "defaultValue": {
+            "@path": "$.traits.address.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "The contact's city of residence.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "The contact's state of residence.",
+          "defaultValue": {
+            "@path": "$.traits.address.state"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "The contact's state of residence.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The contact's country of residence.",
+          "defaultValue": {
+            "@path": "$.traits.address.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The contact's country of residence.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "zip",
+          "type": "string",
+          "label": "Postal Code",
+          "description": "The contact's zip code.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.traits.address.postal_code"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "zip": {
+                "title": "Postal Code",
+                "description": "The contact's zip code.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "website",
+          "type": "string",
+          "label": "Website",
+          "description": "The contact’s company/other website.",
+          "defaultValue": {
+            "@path": "$.traits.website"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "website": {
+                "title": "Website",
+                "description": "The contact’s company/other website.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lifecyclestage",
+          "type": "string",
+          "label": "Lifecycle Stage",
+          "description": "The contact’s stage within the marketing/sales process. See more information on default and custom stages in [HubSpot’s documentation](https://knowledge.hubspot.com/contacts/use-lifecycle-stages). Segment supports moving status forwards or backwards.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lifecyclestage": {
+                "title": "Lifecycle Stage",
+                "description": "The contact’s stage within the marketing/sales process. See more information on default and custom stages in [HubSpot’s documentation](https://knowledge.hubspot.com/contacts/use-lifecycle-stages). Segment supports moving status forwards or backwards.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Other properties",
+          "description": "Any other default or custom contact properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Other properties",
+                "description": "Any other default or custom contact properties. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Custom properties must be predefined in HubSpot. See more information in [HubSpot’s documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Send Batch Data to HubSpot",
+          "description": "If true, Segment will batch events before sending to HubSpot’s API endpoint. HubSpot accepts batches of up to 100 events. Note: Contacts created with batch endpoint can’t be associated to a Company from the UpsertCompany Action.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Send Batch Data to HubSpot",
+                "description": "If true, Segment will batch events before sending to HubSpot’s API endpoint. HubSpot accepts batches of up to 100 events. Note: Contacts created with batch endpoint can’t be associated to a Company from the UpsertCompany Action.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertCustomObjectRecord",
+      "name": "Upsert Custom Object Record",
+      "description": "Upsert records of Deals, Tickets or other Custom Objects in HubSpot.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "createNewCustomRecord",
+          "type": "boolean",
+          "label": "Create Custom Object Record if Not Found",
+          "description": "If true, Segment will attempt to update an existing custom object record in HubSpot and if no record is found, Segment will create a new custom object record. If false, Segment will only attempt to update an existing record and never create a new record. This is set to true by default.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "createNewCustomRecord": {
+                "title": "Create Custom Object Record if Not Found",
+                "description": "If true, Segment will attempt to update an existing custom object record in HubSpot and if no record is found, Segment will create a new custom object record. If false, Segment will only attempt to update an existing record and never create a new record. This is set to true by default.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customObjectSearchFields",
+          "type": "object",
+          "label": "Custom Object Search Fields",
+          "description": "The unique field(s) used to search for an existing record in HubSpot to update. The fields provided here are then used to search. If a custom object is still not found, a new one is created.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customObjectSearchFields": {
+                "title": "Custom Object Search Fields",
+                "description": "The unique field(s) used to search for an existing record in HubSpot to update. The fields provided here are then used to search. If a custom object is still not found, a new one is created.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "objectType",
+          "type": "string",
+          "label": "Object Type",
+          "description": "The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "objectType": {
+                "title": "Object Type",
+                "description": "The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).",
+                "type": "string"
+              }
+            },
+            "required": [
+              "objectType"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Properties",
+          "description": "Properties to send to HubSpot. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Please make sure to include the object’s required properties. Any custom properties must be predefined in HubSpot. More information in [HubSpot documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Properties",
+                "description": "Properties to send to HubSpot. On the left-hand side, input the internal name of the property as seen in your HubSpot account. On the right-hand side, map the Segment field that contains the value. Please make sure to include the object’s required properties. Any custom properties must be predefined in HubSpot. More information in [HubSpot documentation](https://knowledge.hubspot.com/crm-setup/manage-your-properties#create-custom-properties).",
+                "type": "object"
+              }
+            },
+            "required": [
+              "properties"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "searchFieldsToAssociateCustomObjects",
+          "type": "object",
+          "label": "Search Fields to Associate custom Object",
+          "description": "The unique field(s) used to search for an existing custom record in HubSpot to get toObjectId so that segment will associate the record with this record. If a Record is not found on the basis of data provided here in key:value format will skip the association.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "searchFieldsToAssociateCustomObjects": {
+                "title": "Search Fields to Associate custom Object",
+                "description": "The unique field(s) used to search for an existing custom record in HubSpot to get toObjectId so that segment will associate the record with this record. If a Record is not found on the basis of data provided here in key:value format will skip the association.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "toObjectType",
+          "type": "string",
+          "label": "ObjectType to associate",
+          "description": "The CRM object schema to use for associating a record. This can be a standard object (i.e. tickets, deals, contacts, companies) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "toObjectType": {
+                "title": "ObjectType to associate",
+                "description": "The CRM object schema to use for associating a record. This can be a standard object (i.e. tickets, deals, contacts, companies) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "literal",
+              "variable",
+              "function",
+              "freeform",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "associationLabel",
+          "type": "string",
+          "label": "Association Label",
+          "description": "Type of Association between two objectType",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "associationLabel": {
+                "title": "Association Label",
+                "description": "Type of Association between two objectType",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

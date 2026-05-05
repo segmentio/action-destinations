@@ -1,0 +1,414 @@
+{
+  "name": "Webhook Audiences",
+  "basicOptions": [
+    "sharedSecret",
+    "createAudienceUrl",
+    "getAudienceUrl",
+    "extras",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "sharedSecret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "If set, Segment will sign requests with an HMAC in the \"X-Signature\" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Shared Secret",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "createAudienceUrl": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "If set, Segment will send a POST request with the audienceName in the JSON to the provided URL to create the audience. The expected JSON response must have \"externalId\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "URL to send requests to create an audience",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "getAudienceUrl": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "If set, Segment will send a POST request with the externalId in the JSON to the provided URL to get the audience. The expected JSON response must have \"externalId\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "URL to send requests to get an audience",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "extras": {
+      "tags": [],
+      "default": "",
+      "description": "Extra JSON fields to pass on to every request. This must be a valid JSON string (e.g., \"{\\\"hello\\\": \\\"world\\\", \\\"foo\\\": \\\"bar\\\"}\"). The JSON will be parsed and merged into each request payload. Note: \"externalId\" and \"audienceName\" are reserved keys and cannot be used.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Extra JSON fields to pass on to every request (as a JSON string)",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "send",
+      "name": "Send",
+      "description": "Send an HTTP request.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "URL to deliver data to.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "URL to deliver data to.",
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "method",
+          "type": "string",
+          "label": "Method",
+          "description": "HTTP method to use.",
+          "defaultValue": "POST",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "POST",
+              "value": "POST"
+            },
+            {
+              "label": "PUT",
+              "value": "PUT"
+            },
+            {
+              "label": "PATCH",
+              "value": "PATCH"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "method": {
+                "title": "Method",
+                "description": "HTTP method to use.",
+                "type": "string",
+                "enum": [
+                  "POST",
+                  "PUT",
+                  "PATCH"
+                ]
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 0,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "headers",
+          "type": "object",
+          "label": "Headers",
+          "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "headers": {
+                "title": "Headers",
+                "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "Payload to deliver to webhook URL (JSON-encoded).",
+          "defaultValue": {
+            "@path": "$."
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "Payload to deliver to webhook URL (JSON-encoded).",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_keys",
+          "type": "string",
+          "label": "Batch Keys",
+          "description": "The mapping keys to batch events together by.",
+          "defaultValue": [
+            "url",
+            "method",
+            "headers"
+          ],
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_keys": {
+                "title": "Batch Keys",
+                "description": "The mapping keys to batch events together by.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "send",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "send",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "send",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "send",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

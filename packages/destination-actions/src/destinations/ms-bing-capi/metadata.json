@@ -1,0 +1,1782 @@
+{
+  "name": "Microsoft Bing CAPI (Actions)",
+  "basicOptions": [
+    "UetTag",
+    "ApiToken",
+    "adStorageConsent"
+  ],
+  "options": {
+    "UetTag": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Bing UetTag.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Bing UetTag",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The UetTag property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "ApiToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Bing API Token. API token generation is not generally available. To obtain one, you’ll need to contact Microsoft Support, or alternatively, you can [fill out this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwMZAe0PcMxHmZ0AjDaNRmxUM0o5UURRVktCRkxHNEFLTVNYQjI3NDNBUS4u) to request access.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Bing ApiToken",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The ApiToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "adStorageConsent": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "G",
+      "description": "Ad Storage Consent for GDPR compliance",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Ad Storage Consent",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "G",
+          "label": "Granted",
+          "text": "Granted"
+        },
+        {
+          "value": "D",
+          "label": "Denied",
+          "text": "Denied"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "msclkidPlugin",
+      "name": "Microsoft Bing msclkid Browser Plugin",
+      "description": "Enriches all Segment payloads with the Microsoft Bing msclkid Querystring value",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "fields": []
+    },
+    {
+      "slug": "sendEvent",
+      "name": "Send CAPI Event",
+      "description": "Send a track or page event to Microsoft Bing CAPI.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Data",
+          "description": "TODO - description for this field",
+          "defaultValue": {
+            "eventType": "custom",
+            "eventId": {
+              "@path": "$.messageId"
+            },
+            "eventTime": {
+              "@path": "$.timestamp"
+            },
+            "eventName": {
+              "@path": "$.event"
+            },
+            "eventSourceUrl": {
+              "@path": "$.context.page.url"
+            },
+            "pageLoadId": {
+              "@path": "$.properties.page_load_id"
+            },
+            "referrerUrl": {
+              "@path": "$.context.page.referrer"
+            },
+            "pageTitle": {
+              "@path": "$.context.page.title"
+            },
+            "keywords": {
+              "@path": "$.properties.keywords"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Data",
+                "description": "TODO - description for this field",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "eventType": {
+                    "title": "Event Type",
+                    "description": "The type of event being sent to the Bing API.",
+                    "type": "string",
+                    "enum": [
+                      "pageLoad",
+                      "custom"
+                    ]
+                  },
+                  "eventId": {
+                    "title": "Event ID",
+                    "description": "EventID for deduplication. Defaults to the Segment messageId.",
+                    "type": "string"
+                  },
+                  "eventName": {
+                    "title": "Event Name",
+                    "description": "Event action for custom conversion goals, if used.",
+                    "type": "string"
+                  },
+                  "eventTime": {
+                    "title": "Event Time",
+                    "description": "The time the event occurred.",
+                    "type": "string"
+                  },
+                  "eventSourceUrl": {
+                    "title": "Event Source URL",
+                    "description": "URL of the page, used for example: “destination URL” goals. Required for pageLoad events.",
+                    "type": "string"
+                  },
+                  "pageLoadId": {
+                    "title": "Page Load ID",
+                    "description": "Page load id that links to 0+ custom events from the same page. Format as a v4 UUID. ",
+                    "type": "string"
+                  },
+                  "referrerUrl": {
+                    "title": "Referrer URL",
+                    "description": "Referrer of the page, used for example: \"referral\" remarketing lists.",
+                    "type": "string"
+                  },
+                  "pageTitle": {
+                    "title": "Page Title",
+                    "description": "Title of the page.",
+                    "type": "string"
+                  },
+                  "keywords": {
+                    "title": "Keywords",
+                    "description": "Page keywords - SEO meta keyworls.",
+                    "type": "string"
+                  },
+                  "adStorageConsent": {
+                    "title": "Ad Storage Consent",
+                    "description": "Ad Storage Consent for GDPR compliance",
+                    "type": "string",
+                    "default": "G",
+                    "enum": [
+                      "G",
+                      "D"
+                    ]
+                  },
+                  "dataProvider": {
+                    "title": "Data Provider",
+                    "description": "The source of the event data.",
+                    "type": "string",
+                    "default": "SEGMENT"
+                  }
+                }
+              }
+            },
+            "required": [],
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "eventType"
+                  ],
+                  "properties": {
+                    "eventType": {
+                      "const": "pageLoad"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "required": [
+                        "eventSourceUrl"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userData",
+          "type": "object",
+          "label": "User Data",
+          "description": "A list of user identifiers associated with the event.",
+          "defaultValue": {
+            "clientUserAgent": {
+              "@path": "$.context.userAgent"
+            },
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "externalId": {
+              "@path": "$.userId"
+            },
+            "em": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "ph": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "clientIpAddress": {
+              "@path": "$.context.ip"
+            },
+            "msclkid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.msclkid"
+                },
+                "then": {
+                  "@path": "$.properties.msclkid"
+                },
+                "else": {
+                  "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userData": {
+                "title": "User Data",
+                "description": "A list of user identifiers associated with the event.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "clientUserAgent": {
+                    "title": "Client User Agent",
+                    "description": "User agent string of the client device.",
+                    "type": "string"
+                  },
+                  "anonymousId": {
+                    "title": "Anonymous ID",
+                    "description": "Guest user anonymous ID.",
+                    "type": "string"
+                  },
+                  "externalId": {
+                    "title": "External ID",
+                    "description": "Authenticated user id (anonymized) if user is logged in. Also used for ID sync",
+                    "type": "string"
+                  },
+                  "em": {
+                    "title": "Email",
+                    "description": "Email address of the user. Accepts a clear text or hashed email address. Segment will ensure the email address is hashed before sending to Bing Ads.",
+                    "type": "string"
+                  },
+                  "ph": {
+                    "title": "Phone",
+                    "description": "Phone number of the user. Accepts a clear text or hashed phone number. Segment will ensure the phone number is hashed before sending to Bing Ads.",
+                    "type": "string"
+                  },
+                  "clientIpAddress": {
+                    "title": "Client IP Address",
+                    "description": "IP address of the client device.",
+                    "type": "string"
+                  },
+                  "gaid": {
+                    "title": "Google Advertising ID",
+                    "description": "Google Advertising ID for mobile app tracking.",
+                    "type": "string"
+                  },
+                  "idfa": {
+                    "title": "IDFA",
+                    "description": "Identifier for Advertisers for iOS devices for mobile app tracking.",
+                    "type": "string"
+                  },
+                  "msclkid": {
+                    "title": "MSCLKID",
+                    "description": "Microsoft Last Click ID.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "userData"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "customData",
+          "type": "object",
+          "label": "Custom Data",
+          "description": "Custom data to be sent to the Bing API. This can include additional properties that are not covered by the standard fields.",
+          "defaultValue": {
+            "eventCategory": {
+              "@path": "$.properties.event_category"
+            },
+            "eventLabel": {
+              "@path": "$.properties.event_label"
+            },
+            "eventValue": {
+              "@path": "$.properties.value"
+            },
+            "searchTerm": {
+              "@path": "$.properties.query"
+            },
+            "transactionId": {
+              "@path": "$.properties.order_id"
+            },
+            "value": {
+              "@path": "$.properties.value"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "itemIds": {
+              "@path": "$.properties.item_ids"
+            },
+            "pageType": {
+              "@path": "$.properties.page_type"
+            },
+            "ecommTotalValue": {
+              "@path": "$.properties.ecomm_total_value"
+            },
+            "ecommCategory": {
+              "@path": "$.properties.ecomm_category"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "customData": {
+                "title": "Custom Data",
+                "description": "Custom data to be sent to the Bing API. This can include additional properties that are not covered by the standard fields.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "eventCategory": {
+                    "title": "Event Category",
+                    "description": "The category for custom conversion goals, if used.",
+                    "type": "string"
+                  },
+                  "eventLabel": {
+                    "title": "Event Label",
+                    "description": "The label for custom conversion goals.",
+                    "type": "string"
+                  },
+                  "eventValue": {
+                    "title": "Event Value",
+                    "description": "The event value for custom conversion goals.",
+                    "type": "number"
+                  },
+                  "searchTerm": {
+                    "title": "Search Term",
+                    "description": "The query used by the user for a search results page.",
+                    "type": "string"
+                  },
+                  "transactionId": {
+                    "title": "Transaction ID",
+                    "description": "The unique identifier for the transaction. Required for purchase events.",
+                    "type": "string"
+                  },
+                  "value": {
+                    "title": "Value",
+                    "description": "Revenue value (float) to report variable revenue for goals, if used",
+                    "type": "number"
+                  },
+                  "currency": {
+                    "title": "Currency",
+                    "description": "The currency of the event value, in ISO 4217 format.",
+                    "type": "string",
+                    "enum": [
+                      "AED",
+                      "AFN",
+                      "ALL",
+                      "AMD",
+                      "ANG",
+                      "AOA",
+                      "ARS",
+                      "AUD",
+                      "AWG",
+                      "AZN",
+                      "BAM",
+                      "BBD",
+                      "BDT",
+                      "BGN",
+                      "BHD",
+                      "BIF",
+                      "BMD",
+                      "BND",
+                      "BOB",
+                      "BOV",
+                      "BRL",
+                      "BSD",
+                      "BTN",
+                      "BWP",
+                      "BYN",
+                      "BZD",
+                      "CAD",
+                      "CDF",
+                      "CHE",
+                      "CHF",
+                      "CHW",
+                      "CLF",
+                      "CLP",
+                      "CNY",
+                      "COP",
+                      "COU",
+                      "CRC",
+                      "CUC",
+                      "CUP",
+                      "CVE",
+                      "CZK",
+                      "DJF",
+                      "DKK",
+                      "DOP",
+                      "DZD",
+                      "EGP",
+                      "ERN",
+                      "ETB",
+                      "EUR",
+                      "FJD",
+                      "FKP",
+                      "GBP",
+                      "GEL",
+                      "GHS",
+                      "GIP",
+                      "GMD",
+                      "GNF",
+                      "GTQ",
+                      "GYD",
+                      "HKD",
+                      "HNL",
+                      "HRK",
+                      "HTG",
+                      "HUF",
+                      "IDR",
+                      "ILS",
+                      "INR",
+                      "IQD",
+                      "IRR",
+                      "ISK",
+                      "JMD",
+                      "JOD",
+                      "JPY",
+                      "KES",
+                      "KGS",
+                      "KHR",
+                      "KMF",
+                      "KPW",
+                      "KRW",
+                      "KWD",
+                      "KYD",
+                      "KZT",
+                      "LAK",
+                      "LBP",
+                      "LKR",
+                      "LRD",
+                      "LSL",
+                      "LYD",
+                      "MAD",
+                      "MDL",
+                      "MGA",
+                      "MKD",
+                      "MMK",
+                      "MNT",
+                      "MOP",
+                      "MRU",
+                      "MUR",
+                      "MVR",
+                      "MWK",
+                      "MXN",
+                      "MXV",
+                      "MYR",
+                      "MZN",
+                      "NAD",
+                      "NGN",
+                      "NIO",
+                      "NOK",
+                      "NPR",
+                      "NZD",
+                      "OMR",
+                      "PAB",
+                      "PEN",
+                      "PGK",
+                      "PHP",
+                      "PKR",
+                      "PLN",
+                      "PYG",
+                      "QAR",
+                      "RON",
+                      "RSD",
+                      "RUB",
+                      "RWF",
+                      "SAR",
+                      "SBD",
+                      "SCR",
+                      "SDG",
+                      "SEK",
+                      "SGD",
+                      "SHP",
+                      "SLL",
+                      "SOS",
+                      "SRD",
+                      "SSP",
+                      "STN",
+                      "SVC",
+                      "SYP",
+                      "SZL",
+                      "THB",
+                      "TJS",
+                      "TMT",
+                      "TND",
+                      "TOP",
+                      "TRY",
+                      "TTD",
+                      "TWD",
+                      "TZS",
+                      "UAH",
+                      "UGX",
+                      "USD",
+                      "USN",
+                      "UYI",
+                      "UYU",
+                      "UYW",
+                      "UZS",
+                      "VES",
+                      "VND",
+                      "VUV",
+                      "WST",
+                      "XAF",
+                      "XAG",
+                      "XAU",
+                      "XBA",
+                      "XBB",
+                      "XBC",
+                      "XBD",
+                      "XCD",
+                      "XDR",
+                      "XOF",
+                      "XPD",
+                      "XPF",
+                      "XPT",
+                      "XSU",
+                      "XTS",
+                      "XUA",
+                      "XXX",
+                      "YER",
+                      "ZAR",
+                      "ZMW",
+                      "ZWC"
+                    ]
+                  },
+                  "itemIds": {
+                    "title": "Item IDs",
+                    "description": "A comma separated list of product IDs, or an array of IDs.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "pageType": {
+                    "title": "Page Type",
+                    "description": "The type of page where the event occurred.",
+                    "type": "string",
+                    "enum": [
+                      "home",
+                      "product",
+                      "category",
+                      "searchresults",
+                      "cart",
+                      "purchase",
+                      "other"
+                    ]
+                  },
+                  "ecommTotalValue": {
+                    "title": "Ecomm Total Value",
+                    "description": "Total value of the cart of purchase.",
+                    "type": "number"
+                  },
+                  "ecommCategory": {
+                    "title": "Ecomm Category",
+                    "description": "Category ID",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Items",
+          "description": "The list of items associated with the event. Must contain at least one item.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "$.id"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_price": {
+                  "@path": "$.price"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "title": "Items",
+                "description": "The list of items associated with the event. Must contain at least one item.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "title": "Item ID",
+                      "description": "The unique identifier for the item.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Item Name",
+                      "description": "The name of the item.",
+                      "type": "string"
+                    },
+                    "price": {
+                      "title": "Item Price",
+                      "description": "The price of the item, after discounts.",
+                      "type": "integer"
+                    },
+                    "quantity": {
+                      "title": "Item Quantity",
+                      "description": "The quantity of the item.",
+                      "type": "integer"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "hotelData",
+          "type": "object",
+          "label": "Hotel Data",
+          "description": "Data specific to hotel events.",
+          "defaultValue": {
+            "totalPrice": {
+              "@path": "$.properties.hotel_total_price"
+            },
+            "basePrice": {
+              "@path": "$.properties.hotel_base_price"
+            },
+            "checkInDate": {
+              "@path": "$.properties.hotel_check_in_date"
+            },
+            "checkOutDate": {
+              "@path": "$.properties.hotel_check_out_date"
+            },
+            "lengthOfStay": {
+              "@path": "$.properties.hotel_length_of_stay"
+            },
+            "partnerHotelId": {
+              "@path": "$.properties.hotel_partner_id"
+            },
+            "bookingHref": {
+              "@path": "$.properties.hotel_booking_href"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "hotelData": {
+                "title": "Hotel Data",
+                "description": "Data specific to hotel events.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "totalPrice": {
+                    "title": "Total Price",
+                    "description": "Total price of the booking, including taxes and fees.",
+                    "type": "integer"
+                  },
+                  "basePrice": {
+                    "title": "Base Price",
+                    "description": "Price of the booking, not including taxes or fees.",
+                    "type": "integer"
+                  },
+                  "checkInDate": {
+                    "title": "Check-In Date",
+                    "description": "The date of check-in for the hotel booking in the format YYYY-MM-DD",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "checkOutDate": {
+                    "title": "Check-Out Date",
+                    "description": "The date of check-out for the hotel booking in the format YYYY-MM-DD",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "lengthOfStay": {
+                    "title": "Length of Stay",
+                    "description": "The number of nights the booking is for. Not required if you specify hct_checkout_date.",
+                    "type": "integer"
+                  },
+                  "partnerHotelId": {
+                    "title": "Partner Hotel ID",
+                    "description": "The ID of the hotel as provided by the partner.",
+                    "type": "string"
+                  },
+                  "bookingHref": {
+                    "title": "Booking Href",
+                    "description": "Encrypted or obfuscated booking refrence number",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching for this action.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching for this action.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "The max number of events to include in each batch.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "The max number of events to include in each batch.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "msclkidPlugin",
+      "name": "Microsoft Bing CAPI msclkid Plugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send Cart Event",
+      "subscribe": "type = \"track\" and event = \"Add to Cart\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send Custom Event",
+      "subscribe": "type = \"track\" and event != \"Order Completed\" and event != \"Add to Cart\" and event != \"Products Searched\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send Pageload",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send Purchase Event",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "sendEvent",
+      "name": "Send Search Results",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "automatic"
+    }
+  ]
+}

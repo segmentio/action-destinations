@@ -1,0 +1,4099 @@
+{
+  "name": "Actions Customerio",
+  "basicOptions": [
+    "siteId",
+    "apiKey",
+    "accountRegion"
+  ],
+  "options": {
+    "siteId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Customer.io site ID. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Site ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The siteId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Customer.io API key. This can be found on your [API Credentials page](https://fly.customer.io/settings/api_credentials).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "accountRegion": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "US 🇺🇸",
+      "description": "Learn about [Account Regions](https://customer.io/docs/data-centers/).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Account Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US 🇺🇸",
+          "label": "US 🇺🇸",
+          "text": "US 🇺🇸"
+        },
+        {
+          "value": "EU 🇪🇺",
+          "label": "EU 🇪🇺",
+          "text": "EU 🇪🇺"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "basic",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "createUpdateDevice",
+      "name": "Create or Update Device",
+      "description": "Create or update a person's device.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Application Installed\" or event = \"Application Opened\" or event = \"Device Created or Updated\"",
+      "fields": [
+        {
+          "fieldKey": "person_id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID of the person that this mobile device belongs to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_id": {
+                "title": "Person ID",
+                "description": "The ID of the person that this mobile device belongs to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "person_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "The device token of a customer's mobile device.",
+          "defaultValue": {
+            "@path": "$.context.device.token"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "The device token of a customer's mobile device.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "device_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_version",
+          "type": "string",
+          "label": "App Version",
+          "description": "The version of the App",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_version": {
+                "title": "App Version",
+                "description": "The version of the App",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "platform",
+          "type": "string",
+          "label": "Platform",
+          "description": "The mobile device's platform. (\"ios\" or \"android\")",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "platform": {
+                "title": "Platform",
+                "description": "The mobile device's platform. (\"ios\" or \"android\")",
+                "type": "string"
+              }
+            },
+            "required": [
+              "platform"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "last_used",
+          "type": "string",
+          "label": "Last Used",
+          "description": "The timestamp for when the mobile device was last used. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "last_used": {
+                "title": "Last Used",
+                "description": "The timestamp for when the mobile device was last used. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "attributes",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "Optional data that you can reference to segment your audience, like a person's attributes, but specific to a device.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "attributes": {
+                "title": "Event Attributes",
+                "description": "Optional data that you can reference to segment your audience, like a person's attributes, but specific to a device.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdateObject",
+      "name": "Create or Update Object",
+      "description": "Create an object in Customer.io or update them if they exist.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Object ID",
+          "description": "The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Object ID",
+                "description": "The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "created_at",
+          "type": "string",
+          "label": "Created At",
+          "description": "A timestamp of when the object was created.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.created_at"
+              },
+              "then": {
+                "@path": "$.traits.created_at"
+              },
+              "else": {
+                "@path": "$.traits.createdAt"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "title": "Created At",
+                "description": "A timestamp of when the object was created.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_attributes",
+          "type": "object",
+          "label": "Object Attributes",
+          "description": "Optional attributes for the object. When updating an object, attributes are added or updated, not removed.",
+          "defaultValue": {
+            "@path": "$.traits.objectAttributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_attributes": {
+                "title": "Object Attributes",
+                "description": "Optional attributes for the object. When updating an object, attributes are added or updated, not removed.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "relationship_attributes",
+          "type": "object",
+          "label": "Relationship Attributes",
+          "description": "Optional attributes for the relationship between the object and the user. When updating an relationship, attributes are added or updated, not removed.",
+          "defaultValue": {
+            "@path": "$.traits.relationshipAttributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "relationship_attributes": {
+                "title": "Relationship Attributes",
+                "description": "Optional attributes for the relationship between the object and the user. When updating an relationship, attributes are added or updated, not removed.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID used to relate a user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The ID used to relate a user to an object in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous ID to relate to an object when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An anonymous ID to relate to an object when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "object_type_id",
+          "type": "string",
+          "label": "Object Type Id",
+          "description": "The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.object_type_id"
+              },
+              "then": {
+                "@path": "$.traits.object_type_id"
+              },
+              "else": {
+                "@path": "$.traits.objectTypeId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_type_id": {
+                "title": "Object Type Id",
+                "description": "The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "createUpdatePerson",
+      "name": "Create or Update Person",
+      "description": "Create a person in Customer.io or update them if they exist.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Person ID",
+                "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The person's email address.",
+          "defaultValue": {
+            "@template": "{{traits.email}}"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "The person's email address.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "created_at",
+          "type": "string",
+          "label": "Created At",
+          "description": "A timestamp of when the person was created.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.created_at"
+              },
+              "then": {
+                "@path": "$.traits.created_at"
+              },
+              "else": {
+                "@path": "$.traits.createdAt"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "title": "Created At",
+                "description": "A timestamp of when the person was created.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Object ID",
+          "description": "The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+          "defaultValue": {
+            "@path": "$.traits.objectId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Object ID",
+                "description": "The ID used to uniquely identify an object in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_attributes",
+          "type": "object",
+          "label": "Person Attributes",
+          "description": "Optional attributes for the person. When updating a person, attributes are added or updated, not removed.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_attributes": {
+                "title": "Person Attributes",
+                "description": "Optional attributes for the person. When updating a person, attributes are added or updated, not removed.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "relationship_attributes",
+          "type": "object",
+          "label": "Relationship Attributes",
+          "description": "Optional attributes for the relationship between the object and the user. When updating an object, attributes are added or updated, not removed.",
+          "defaultValue": {
+            "@path": "$.traits.relationshipAttributes"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "relationship_attributes": {
+                "title": "Relationship Attributes",
+                "description": "Optional attributes for the relationship between the object and the user. When updating an object, attributes are added or updated, not removed.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the person was identified. Default is current date and time. Used for ordering updates to the person.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the person was identified. Default is current date and time. Used for ordering updates to the person.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "object_type_id",
+          "type": "string",
+          "label": "Object Type Id",
+          "description": "The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.object_type_id"
+              },
+              "then": {
+                "@path": "$.traits.object_type_id"
+              },
+              "else": {
+                "@path": "$.traits.objectTypeId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_type_id": {
+                "title": "Object Type Id",
+                "description": "The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "deleteDevice",
+      "name": "Delete Device",
+      "description": "Delete a person's device.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Application Uninstalled\" or event = \"Device Deleted\"",
+      "fields": [
+        {
+          "fieldKey": "person_id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID of the person that this mobile device belongs to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_id": {
+                "title": "Person ID",
+                "description": "The ID of the person that this mobile device belongs to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "person_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "The device token of a customer's mobile device.",
+          "defaultValue": {
+            "@path": "$.context.device.token"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "The device token of a customer's mobile device.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "device_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "deleteObject",
+      "name": "Delete Object",
+      "description": "Delete an object in Customer.io.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Object Deleted\"",
+      "fields": [
+        {
+          "fieldKey": "object_id",
+          "type": "string",
+          "label": "Object ID",
+          "description": "An object ID used to identify an object.",
+          "defaultValue": {
+            "@path": "$.properties.objectId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_id": {
+                "title": "Object ID",
+                "description": "An object ID used to identify an object.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "object_type_id",
+          "type": "string",
+          "label": "Object Type ID",
+          "description": "An object ID type used to identify the type of object.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.object_type_id"
+              },
+              "then": {
+                "@path": "$.properties.object_type_id"
+              },
+              "else": {
+                "@path": "$.properties.objectTypeId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_type_id": {
+                "title": "Object Type ID",
+                "description": "An object ID type used to identify the type of object.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "deletePerson",
+      "name": "Delete Person",
+      "description": "Delete a person in Customer.io.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"User Deleted\"",
+      "fields": [
+        {
+          "fieldKey": "person_id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID of the person that this mobile device belongs to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_id": {
+                "title": "Person ID",
+                "description": "The ID of the person that this mobile device belongs to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "person_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "deleteRelationship",
+      "name": "Delete Relationship",
+      "description": "Delete a relationship between a person and an object in Customer.io.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Relationship Deleted\"",
+      "fields": [
+        {
+          "fieldKey": "person_id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID of the person that this mobile device belongs to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_id": {
+                "title": "Person ID",
+                "description": "The ID of the person that this mobile device belongs to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "person_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An optional anonymous ID. This is used to tie anonymous events to this person. [Learn more](https://customer.io/docs/anonymous-events/).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "object_id",
+          "type": "string",
+          "label": "Object ID",
+          "description": "An object ID used to identify an object.",
+          "defaultValue": {
+            "@path": "$.properties.objectId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_id": {
+                "title": "Object ID",
+                "description": "An object ID used to identify an object.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "object_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "object_type_id",
+          "type": "string",
+          "label": "Object Type ID",
+          "description": "An object ID type used to identify the type of object.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.object_type_id"
+              },
+              "then": {
+                "@path": "$.properties.object_type_id"
+              },
+              "else": {
+                "@path": "$.properties.objectTypeId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "object_type_id": {
+                "title": "Object Type ID",
+                "description": "An object ID type used to identify the type of object.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "mergePeople",
+      "name": "Merge People",
+      "description": "Merge two customer profiles together.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"alias\"",
+      "fields": [
+        {
+          "fieldKey": "primary",
+          "type": "string",
+          "label": "Primary User",
+          "description": "The person that you want to remain after the merge, identified by id, email or cio_id. This person receives information from the secondary person in the merge.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "primary": {
+                "title": "Primary User",
+                "description": "The person that you want to remain after the merge, identified by id, email or cio_id. This person receives information from the secondary person in the merge.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "primary"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "secondary",
+          "type": "string",
+          "label": "Secondary User",
+          "description": "The person that you want to delete after the merge, identified by id, email or cio_id. This person's information is merged into the primary person's profile and then it is deleted.",
+          "defaultValue": {
+            "@path": "$.previousId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "secondary": {
+                "title": "Secondary User",
+                "description": "The person that you want to delete after the merge, identified by id, email or cio_id. This person's information is merged into the primary person's profile and then it is deleted.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "secondary"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "reportContentEvent",
+      "name": "Report Content Event",
+      "description": "Report a Viewed or Clicked Content event.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Report Content Event\"",
+      "fields": [
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "ID for the anonymous user.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "ID for the anonymous user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "actionType",
+          "type": "string",
+          "label": "Action Type",
+          "description": "The type of content event.",
+          "defaultValue": {
+            "@path": "$.properties.actionType"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Viewed",
+              "value": "viewed_content"
+            },
+            {
+              "label": "Clicked",
+              "value": "clicked_content"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "actionType": {
+                "title": "Action Type",
+                "description": "The type of content event.",
+                "type": "string",
+                "enum": [
+                  "viewed_content",
+                  "clicked_content"
+                ]
+              }
+            },
+            "required": [
+              "actionType"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the event took place. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the event took place. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "Optional data to include with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Attributes",
+                "description": "Optional data to include with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "reportDeliveryEvent",
+      "name": "Report Delivery Event",
+      "description": "Report delivery metrics for a message sent from the Customer.io Journeys product.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Report Delivery Event\"",
+      "fields": [
+        {
+          "fieldKey": "delivery_id",
+          "type": "string",
+          "label": "Delivery ID",
+          "description": "The CIO-Delivery-ID from the message that you want to associate the metric with.",
+          "defaultValue": {
+            "@path": "$.properties.deliveryId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delivery_id": {
+                "title": "Delivery ID",
+                "description": "The CIO-Delivery-ID from the message that you want to associate the metric with.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "delivery_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "metric",
+          "type": "string",
+          "label": "Metric",
+          "description": "The metric you want to report back to Customer.io. Not all metrics are available for all channels. Please refer to the [documentation](https://customer.io/docs/api/track/#operation/metrics) for more information.",
+          "defaultValue": {
+            "@path": "$.properties.metric"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Delivered",
+              "value": "delivered"
+            },
+            {
+              "label": "Opened",
+              "value": "opened"
+            },
+            {
+              "label": "Clicked",
+              "value": "clicked"
+            },
+            {
+              "label": "Converted",
+              "value": "converted"
+            },
+            {
+              "label": "Marked as Spam",
+              "value": "spammed"
+            },
+            {
+              "label": "Bounced",
+              "value": "bounced"
+            },
+            {
+              "label": "Suppressed",
+              "value": "dropped"
+            },
+            {
+              "label": "Deferred",
+              "value": "deferred"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "metric": {
+                "title": "Metric",
+                "description": "The metric you want to report back to Customer.io. Not all metrics are available for all channels. Please refer to the [documentation](https://customer.io/docs/api/track/#operation/metrics) for more information.",
+                "type": "string",
+                "enum": [
+                  "delivered",
+                  "opened",
+                  "clicked",
+                  "converted",
+                  "spammed",
+                  "bounced",
+                  "dropped",
+                  "deferred"
+                ]
+              }
+            },
+            "required": [
+              "metric"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recipient",
+          "type": "string",
+          "label": "Recipient",
+          "description": "Information about who the message was delivered to. For email, SMS and mobile push this is the email address, phone number and device token, respectively.",
+          "defaultValue": {
+            "@path": "$.properties.recipient"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recipient": {
+                "title": "Recipient",
+                "description": "Information about who the message was delivered to. For email, SMS and mobile push this is the email address, phone number and device token, respectively.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "reason",
+          "type": "string",
+          "label": "Reason",
+          "description": "For metrics indicating a failure, this field provides information for the failure.",
+          "defaultValue": {
+            "@path": "$.properties.reason"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "reason": {
+                "title": "Reason",
+                "description": "For metrics indicating a failure, this field provides information for the failure.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "href",
+          "type": "string",
+          "label": "Href",
+          "description": "For click metrics, this is the link that was clicked.",
+          "defaultValue": {
+            "@path": "$.properties.href"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "href": {
+                "title": "Href",
+                "description": "For click metrics, this is the link that was clicked.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action_name",
+          "type": "string",
+          "label": "Action Name",
+          "description": "For In-App messages, this is the name of the action that was clicked.",
+          "defaultValue": {
+            "@path": "$.properties.actionName"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action_name": {
+                "title": "Action Name",
+                "description": "For In-App messages, this is the name of the action that was clicked.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "action_value",
+          "type": "string",
+          "label": "Action Value",
+          "description": "For In-App messages, this is the value of the action that was clicked.",
+          "defaultValue": {
+            "@path": "$.properties.actionValue"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action_value": {
+                "title": "Action Value",
+                "description": "For In-App messages, this is the value of the action that was clicked.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "A timestamp of when the metric event took place. Default is when the event was triggered.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the metric event took place. Default is when the event was triggered.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "suppressPerson",
+      "name": "Suppress Person",
+      "description": "Suppress a person in Customer.io. This will prevent the person from receiving any messages.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"User Suppressed\"",
+      "fields": [
+        {
+          "fieldKey": "person_id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID of the person that this mobile device belongs to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_id": {
+                "title": "Person ID",
+                "description": "The ID of the person that this mobile device belongs to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "person_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Track an event for a known or anonymous person.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "\n    type = \"track\"\n    and event != \"Application Installed\"\n    and event != \"Application Opened\"\n    and event != \"Application Uninstalled\"\n    and event != \"Device Created or Updated\"\n    and event != \"Device Deleted\"\n    and event != \"Relationship Deleted\"\n    and event != \"User Deleted\"\n    and event != \"User Suppressed\"\n    and event != \"User Unsuppressed\"\n    and event != \"Object Deleted\"\n    and event != \"Report Delivery Event\"\n    and event != \"Report Content Event\"\n  ",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Person ID",
+                "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Name",
+                "description": "The name of the event.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the event took place. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the event took place. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "Optional data to include with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Attributes",
+                "description": "Optional data to include with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPageView",
+      "name": "Track Page View",
+      "description": "Track a page view for a known or anonymous person.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Person ID",
+                "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The URL of the page visited.",
+          "defaultValue": {
+            "@path": "$.properties.url"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "Page URL",
+                "description": "The URL of the page visited.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the event took place. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the event took place. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "Optional data to include with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Attributes",
+                "description": "Optional data to include with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackScreenView",
+      "name": "Track Screen View",
+      "description": "Track a screen view for a known or anonymous person.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"screen\"",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Person ID",
+                "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An anonymous ID for when no Person ID exists. [Learn more](https://customer.io/docs/anonymous-events/).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "An optional identifier used to deduplicate events. [Learn more](https://customer.io/docs/api/#operation/track).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Screen name",
+          "description": "The name of the screen visited.",
+          "defaultValue": {
+            "@path": "$.name"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Screen name",
+                "description": "The name of the screen visited.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the event took place. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the event took place. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "Optional data to include with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Attributes",
+                "description": "Optional data to include with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "convert_timestamp",
+          "type": "boolean",
+          "label": "Convert Timestamps",
+          "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "convert_timestamp": {
+                "title": "Convert Timestamps",
+                "description": "Convert dates to Unix timestamps (seconds since Epoch).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "unsuppressPerson",
+      "name": "Unsuppress Person",
+      "description": "Unsuppress a person in Customer.io. This will allow the person to receive messages again.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"User Unsuppressed\"",
+      "fields": [
+        {
+          "fieldKey": "person_id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID of the person that this mobile device belongs to.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "person_id": {
+                "title": "Person ID",
+                "description": "The ID of the person that this mobile device belongs to.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "person_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 50,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 2,
+                "maximum": 100
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 2,
+          "maximum": 100,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "trackEvent",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "createUpdateDevice",
+      "name": "Create or Update Device",
+      "subscribe": "\n        event = \"Application Installed\"\n        or event = \"Application Opened\"\n        or event = \"Device Created or Updated\"\n      ",
+      "mapping": {
+        "person_id": {
+          "@path": "$.userId"
+        },
+        "device_id": {
+          "@path": "$.context.device.token"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "platform": {
+          "@path": "$.context.device.type"
+        },
+        "last_used": {
+          "@path": "$.timestamp"
+        },
+        "attributes": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "createUpdateObject",
+      "name": "Create or Update Object",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "id": {
+          "@path": "$.groupId"
+        },
+        "created_at": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.created_at"
+            },
+            "then": {
+              "@path": "$.traits.created_at"
+            },
+            "else": {
+              "@path": "$.traits.createdAt"
+            }
+          }
+        },
+        "custom_attributes": {
+          "@path": "$.traits.objectAttributes"
+        },
+        "relationship_attributes": {
+          "@path": "$.traits.relationshipAttributes"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "object_type_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.object_type_id"
+            },
+            "then": {
+              "@path": "$.traits.object_type_id"
+            },
+            "else": {
+              "@path": "$.traits.objectTypeId"
+            }
+          }
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "createUpdatePerson",
+      "name": "Create or Update Person",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@template": "{{traits.email}}"
+        },
+        "created_at": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.created_at"
+            },
+            "then": {
+              "@path": "$.traits.created_at"
+            },
+            "else": {
+              "@path": "$.traits.createdAt"
+            }
+          }
+        },
+        "group_id": {
+          "@path": "$.traits.objectId"
+        },
+        "custom_attributes": {
+          "@path": "$.traits"
+        },
+        "relationship_attributes": {
+          "@path": "$.traits.relationshipAttributes"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "convert_timestamp": true,
+        "object_type_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.object_type_id"
+            },
+            "then": {
+              "@path": "$.traits.object_type_id"
+            },
+            "else": {
+              "@path": "$.traits.objectTypeId"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "deleteDevice",
+      "name": "Delete Device",
+      "subscribe": "event = \"Application Uninstalled\" or event = \"Device Deleted\"",
+      "mapping": {
+        "person_id": {
+          "@path": "$.userId"
+        },
+        "device_id": {
+          "@path": "$.context.device.token"
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "deleteObject",
+      "name": "Delete Object",
+      "subscribe": "event = \"Object Deleted\"",
+      "mapping": {
+        "object_id": {
+          "@path": "$.properties.objectId"
+        },
+        "object_type_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.object_type_id"
+            },
+            "then": {
+              "@path": "$.properties.object_type_id"
+            },
+            "else": {
+              "@path": "$.properties.objectTypeId"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "deletePerson",
+      "name": "Delete Person",
+      "subscribe": "event = \"User Deleted\"",
+      "mapping": {
+        "person_id": {
+          "@path": "$.userId"
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "deleteRelationship",
+      "name": "Delete Relationship",
+      "subscribe": "event = \"Relationship Deleted\"",
+      "mapping": {
+        "person_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "object_id": {
+          "@path": "$.properties.objectId"
+        },
+        "object_type_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.object_type_id"
+            },
+            "then": {
+              "@path": "$.properties.object_type_id"
+            },
+            "else": {
+              "@path": "$.properties.objectTypeId"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Entities Audience Entered",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "partnerAction": "createUpdatePerson",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@template": "{{traits.email}}"
+        },
+        "created_at": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.created_at"
+            },
+            "then": {
+              "@path": "$.traits.created_at"
+            },
+            "else": {
+              "@path": "$.traits.createdAt"
+            }
+          }
+        },
+        "group_id": {
+          "@path": "$.traits.objectId"
+        },
+        "custom_attributes": {
+          "@path": "$.traits"
+        },
+        "relationship_attributes": {
+          "@path": "$.traits.relationshipAttributes"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "convert_timestamp": true,
+        "object_type_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.object_type_id"
+            },
+            "then": {
+              "@path": "$.traits.object_type_id"
+            },
+            "else": {
+              "@path": "$.traits.objectTypeId"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Entities Exited",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Journeys Step Transition Track",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "partnerAction": "mergePeople",
+      "name": "Merge People",
+      "subscribe": "type = \"alias\"",
+      "mapping": {
+        "primary": {
+          "@path": "$.userId"
+        },
+        "secondary": {
+          "@path": "$.previousId"
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportContentEvent",
+      "name": "Report Content Event",
+      "subscribe": "event = \"Report Content Event\"",
+      "mapping": {
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "actionType": {
+          "@path": "$.properties.actionType"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportDeliveryEvent",
+      "name": "Report Delivery Event",
+      "subscribe": "event = \"Report Delivery Event\"",
+      "mapping": {
+        "delivery_id": {
+          "@path": "$.properties.deliveryId"
+        },
+        "metric": {
+          "@path": "$.properties.metric"
+        },
+        "recipient": {
+          "@path": "$.properties.recipient"
+        },
+        "reason": {
+          "@path": "$.properties.reason"
+        },
+        "href": {
+          "@path": "$.properties.href"
+        },
+        "action_name": {
+          "@path": "$.properties.actionName"
+        },
+        "action_value": {
+          "@path": "$.properties.actionValue"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "suppressPerson",
+      "name": "Suppress Person",
+      "subscribe": "event = \"User Suppressed\"",
+      "mapping": {
+        "person_id": {
+          "@path": "$.userId"
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "\n        type = \"track\"\n        and event != \"Application Installed\"\n        and event != \"Application Opened\"\n        and event != \"Application Uninstalled\"\n        and event != \"Device Created or Updated\"\n        and event != \"Device Deleted\"\n        and event != \"Relationship Deleted\"\n        and event != \"User Deleted\"\n        and event != \"User Suppressed\"\n        and event != \"User Unsuppressed\"\n        and event != \"Object Deleted\"\n        and event != \"Report Delivery Event\"\n        and event != \"Report Content Event\"\n      ",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackPageView",
+      "name": "Track Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "url": {
+          "@path": "$.properties.url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackScreenView",
+      "name": "Track Screen View",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        },
+        "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "unsuppressPerson",
+      "name": "Unsuppress Person",
+      "subscribe": "event = \"User Unsuppressed\"",
+      "mapping": {
+        "person_id": {
+          "@path": "$.userId"
+        },
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "type": "automatic"
+    }
+  ]
+}

@@ -1,0 +1,1128 @@
+{
+  "name": "AWS S3 CSV",
+  "description": "Sync Segment event and Audience data to AWS S3.",
+  "basicOptions": [
+    "iam_role_arn",
+    "s3_aws_bucket_name",
+    "s3_aws_region",
+    "iam_external_id",
+    "s3_aws_folder_name",
+    "filename",
+    "delimiter",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "iam_role_arn": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name",
+      "encrypt": false,
+      "hidden": false,
+      "label": "IAM Role ARN",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The iam_role_arn property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_aws_bucket_name": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Name of the S3 bucket where the files will be uploaded to.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Bucket Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_aws_bucket_name property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_aws_region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Region Code (S3 only)",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The s3_aws_region property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "iam_external_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The External ID to your IAM role. Generate a secure string and treat it like a password.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "IAM External ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The iam_external_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "s3_aws_folder_name": {
+      "tags": [],
+      "default": "",
+      "description": "Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/",
+      "encrypt": false,
+      "hidden": false,
+      "label": "AWS Subfolder Name",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "filename": {
+      "tags": [],
+      "default": "",
+      "description": "Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.\n                    Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Filename prefix",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "delimiter": {
+      "tags": [],
+      "default": ",",
+      "description": "Character used to separate tokens in the resulting file.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Delimeter",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": ",",
+          "label": "comma",
+          "text": "comma"
+        },
+        {
+          "value": "|",
+          "label": "pipe",
+          "text": "pipe"
+        },
+        {
+          "value": "tab",
+          "label": "tab",
+          "text": "tab"
+        },
+        {
+          "value": ";",
+          "label": "semicolon",
+          "text": "semicolon"
+        },
+        {
+          "value": ":",
+          "label": "colon",
+          "text": "colon"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The delimiter property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "syncAudienceToCSV",
+      "name": "Upload CSV",
+      "description": "Uploads audience membership data to a CSV file in S3.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Columns",
+          "description": "Column names to write to S3 CSV file.",
+          "defaultValue": {
+            "audience_name": "audience_name",
+            "audience_id": "audience_id",
+            "audience_action": "audience_action",
+            "email": "email",
+            "user_id": "user_id",
+            "anonymous_id": "anonymous_id",
+            "timestamp": "timestamp",
+            "message_id": "message_id",
+            "space_id": "space_id",
+            "integrations_object": "integrations_object",
+            "properties_or_traits": "properties_or_traits"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "object",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "columns": {
+                "title": "Columns",
+                "description": "Column names to write to S3 CSV file.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "audience_name": {
+                    "title": "Audience Name column",
+                    "description": "Name of column for the Audience Name",
+                    "type": "string"
+                  },
+                  "audience_id": {
+                    "title": "Audience ID column",
+                    "description": "Name of column for the Audience ID",
+                    "type": "string"
+                  },
+                  "audience_action": {
+                    "title": "Audience Action column",
+                    "description": "Indicates if the user has been added or removed from the Audience. true = added, false = removed.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email column",
+                    "description": "Name of column for email address",
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "title": "User ID column",
+                    "description": "Name of column for user ID",
+                    "type": "string"
+                  },
+                  "anonymous_id": {
+                    "title": "Anonymous ID column",
+                    "description": "Name of column for anonymous ID",
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "title": "Timestamp",
+                    "description": "Name of column for timestamp for when the user was added or removed from the Audience",
+                    "type": "string"
+                  },
+                  "message_id": {
+                    "title": "Message ID",
+                    "description": "Name of column for the unique identifier for the message.",
+                    "type": "string"
+                  },
+                  "space_id": {
+                    "title": "Space ID",
+                    "description": "Name of column for the unique identifier for the Segment Engage Space that generated the event.",
+                    "type": "string"
+                  },
+                  "integrations_object": {
+                    "title": "Integrations Object",
+                    "description": "Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment",
+                    "type": "string"
+                  },
+                  "properties_or_traits": {
+                    "title": "Properties or Traits",
+                    "description": "Name of column for properties and traits. This data contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "columns"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audienceName",
+          "type": "string",
+          "label": "Audience Name Hidden Field",
+          "description": "Audience Name Hidden Field",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceName": {
+                "title": "Audience Name Hidden Field",
+                "description": "Audience Name Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audienceName"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audienceId",
+          "type": "string",
+          "label": "Audience ID Hidden Field",
+          "description": "Audience ID Hidden Field",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceId": {
+                "title": "Audience ID Hidden Field",
+                "description": "Audience ID Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audienceId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Hidden Field",
+          "description": "Email Hidden Field",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Hidden Field",
+                "description": "Email Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID Hidden Field",
+          "description": "User ID Hidden Field",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID Hidden Field",
+                "description": "User ID Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymousId",
+          "type": "string",
+          "label": "Anonymous ID Hidden Field",
+          "description": "Anonymous ID Hidden Field",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymousId": {
+                "title": "Anonymous ID Hidden Field",
+                "description": "Anonymous ID Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp Hidden Field",
+          "description": "Timestamp Hidden Field",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp Hidden Field",
+                "description": "Timestamp Hidden Field",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "messageId",
+          "type": "string",
+          "label": "Message ID Hidden Field",
+          "description": "Message ID Hidden Field",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "messageId": {
+                "title": "Message ID Hidden Field",
+                "description": "Message ID Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": [
+              "messageId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "spaceId",
+          "type": "string",
+          "label": "Space ID Hidden Field",
+          "description": "Space ID Hidden Field",
+          "defaultValue": {
+            "@path": "$.context.personas.space_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "spaceId": {
+                "title": "Space ID Hidden Field",
+                "description": "Space ID Hidden Field",
+                "type": "string"
+              }
+            },
+            "required": [
+              "spaceId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "integrationsObject",
+          "type": "object",
+          "label": "Integrations Object Hidden Field",
+          "description": "Integrations Object Hidden Field",
+          "defaultValue": {
+            "@path": "$.integrations"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "integrationsObject": {
+                "title": "Integrations Object Hidden Field",
+                "description": "Integrations Object Hidden Field",
+                "type": "object"
+              }
+            },
+            "required": [
+              "integrationsObject"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "propertiesOrTraits",
+          "type": "object",
+          "label": "Properties or Traits Hidden Field",
+          "description": "Properties or Traits Hidden Field",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "propertiesOrTraits": {
+                "title": "Properties or Traits Hidden Field",
+                "description": "Properties or Traits Hidden Field",
+                "type": "object"
+              }
+            },
+            "required": [
+              "propertiesOrTraits"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additional_identifiers_and_traits_columns",
+          "type": "object",
+          "label": "Additional Identifier and Trait Columns",
+          "description": "Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additional_identifiers_and_traits_columns": {
+                "title": "Additional Identifier and Trait Columns",
+                "description": "Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable"
+            ]
+          }
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch data",
+          "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch data",
+                "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 25000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_class",
+          "type": "string",
+          "label": "Segment Audience Computation Class",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_class": {
+                "title": "Segment Audience Computation Class",
+                "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+                "type": "string",
+                "enum": [
+                  "audience",
+                  "journey_step"
+                ]
+              }
+            },
+            "required": [
+              "computation_class"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "syncAudienceToCSV",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "syncAudienceToCSV",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "syncAudienceToCSV",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "syncAudienceToCSV",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

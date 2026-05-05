@@ -1,0 +1,535 @@
+{
+  "name": "Surveysparrow",
+  "description": "Trigger Surveys and Create Contacts in SurveySparrow",
+  "basicOptions": [
+    "apiToken"
+  ],
+  "options": {
+    "apiToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "SurveySparrow Access Token can be found in Settings > Apps and Integrations > Create a Custom app",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Access Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "createContact",
+      "name": "Create or Update Contact in SurveySparrow",
+      "description": "This Action will create a new Contact or update an existing Contact in SurveySparrow. One of Email or Mobile are mandatory when creating a Contact.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type=identify",
+      "fields": [
+        {
+          "fieldKey": "full_name",
+          "type": "string",
+          "label": "Name",
+          "description": "Full name of the Contact",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.name"
+              },
+              "then": {
+                "@path": "$.properties.name"
+              },
+              "else": {
+                "@path": "$.context.traits.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "full_name": {
+                "title": "Name",
+                "description": "Full name of the Contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "Non Mobile Phone number for the Contact. This should include + followed by Country Code. For Example, +18004810410",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "Non Mobile Phone number for the Contact. This should include + followed by Country Code. For Example, +18004810410",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mobile",
+          "type": "string",
+          "label": "Mobile",
+          "description": "Mobile number for the Contact. This should include + followed by Country Code. For Example, +18004810410",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.mobile"
+              },
+              "then": {
+                "@path": "$.properties.mobile"
+              },
+              "else": {
+                "@path": "$.context.traits.mobile"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobile": {
+                "title": "Mobile",
+                "description": "Mobile number for the Contact. This should include + followed by Country Code. For Example, +18004810410",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email Address for the Contact",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email Address for the Contact",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "job_title",
+          "type": "string",
+          "label": "Job Title",
+          "description": "Job Title for the Contact",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.job_title"
+              },
+              "then": {
+                "@path": "$.properties.job_title"
+              },
+              "else": {
+                "@path": "$.context.traits.job_title"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "job_title": {
+                "title": "Job Title",
+                "description": "Job Title for the Contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_fields",
+          "type": "object",
+          "label": "Custom Contact Properties",
+          "description": "Key:Value Custom Properties to be added to the Contact in SurveySparrow. [Contact Property](https://support.surveysparrow.com/hc/en-us/articles/7078996288925-How-to-add-custom-properties-to-your-contact) should be created in SurveySparrow in advance.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.custom_fields"
+              },
+              "then": {
+                "@path": "$.properties.custom_fields"
+              },
+              "else": {
+                "@path": "$.context.traits.custom_fields"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_fields": {
+                "title": "Custom Contact Properties",
+                "description": "Key:Value Custom Properties to be added to the Contact in SurveySparrow. [Contact Property](https://support.surveysparrow.com/hc/en-us/articles/7078996288925-How-to-add-custom-properties-to-your-contact) should be created in SurveySparrow in advance.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "triggerSurvey",
+      "name": "Trigger Survey in SurveySparrow",
+      "description": "This Action will trigger a SurveySparrow survey to a user via Email, SMS or WhatsApp. The [Survey](https://support.surveysparrow.com/hc/en-us/articles/7079412445213-How-to-create-surveys-using-SurveySparrow) and required Share [Channel](https://support.surveysparrow.com/hc/en-us/articles/7078359450269-How-to-share-surveys-across-different-channels) should be created in SurveySparrow.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type=track and event=\"Trigger Survey\"",
+      "fields": [
+        {
+          "fieldKey": "id",
+          "type": "number",
+          "label": "Channel ID",
+          "description": "Channel ID is the unique identifier for the Share Channel in SurveySparrow. This can be copied from the URL.",
+          "defaultValue": {
+            "@path": "$.properties.channel_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Channel ID",
+                "description": "Channel ID is the unique identifier for the Share Channel in SurveySparrow. This can be copied from the URL.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "share_type",
+          "type": "string",
+          "label": "Share Type",
+          "description": "Type of Survey Share to be triggered",
+          "defaultValue": {
+            "@path": "$.properties.share_type"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "SMS",
+              "value": "SMS"
+            },
+            {
+              "label": "WhatsApp",
+              "value": "WhatsApp"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "share_type": {
+                "title": "Share Type",
+                "description": "Type of Survey Share to be triggered",
+                "type": "string",
+                "enum": [
+                  "Email",
+                  "SMS",
+                  "WhatsApp"
+                ]
+              }
+            },
+            "required": [
+              "share_type"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "survey_id",
+          "type": "number",
+          "label": "Survey",
+          "description": "Select the SurveySparrow Survey you want to trigger",
+          "defaultValue": {
+            "@path": "$.properties.survey_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "survey_id": {
+                "title": "Survey",
+                "description": "Select the SurveySparrow Survey you want to trigger",
+                "type": "number"
+              }
+            },
+            "required": [
+              "survey_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "mobile",
+          "type": "string",
+          "label": "Mobile",
+          "description": "Mobile number to send Survey to for either SMS or WhatsApp. This should include + followed by Country Code. For Example, +18004810410. Mobile is required for SMS or WhatsApp Shares",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.mobile"
+              },
+              "then": {
+                "@path": "$.properties.mobile"
+              },
+              "else": {
+                "@path": "$.context.traits.mobile"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobile": {
+                "title": "Mobile",
+                "description": "Mobile number to send Survey to for either SMS or WhatsApp. This should include + followed by Country Code. For Example, +18004810410. Mobile is required for SMS or WhatsApp Shares",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "Email address to send Survey to. This is required for an Email Share.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "Email address to send Survey to. This is required for an Email Share.",
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "variables",
+          "type": "object",
+          "label": "Variables",
+          "description": "Variables you want to pass to SurveySparrow.",
+          "defaultValue": {
+            "@path": "$.properties.variables"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "variables": {
+                "title": "Variables",
+                "description": "Variables you want to pass to SurveySparrow.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

@@ -1,0 +1,1645 @@
+{
+  "name": "Roadway AI",
+  "description": "Send browser events (identify, group, track, etc.) to your RoadwayAI workspace.",
+  "basicOptions": [
+    "apiKey"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your RoadwayAI API key for authentication",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "groupUser",
+      "name": "Group User",
+      "description": "Forward group event to RoadwayAI.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to RoadwayAI",
+          "description": "When enabled, the action will use the RoadwayAI batch API.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to RoadwayAI",
+                "description": "When enabled, the action will use the RoadwayAI batch API.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The identifier of the user",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The identifier of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "Anonymous ID of the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "Anonymous ID of the user",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "ID of the group",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "ID of the group",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_name",
+          "type": "string",
+          "label": "Group Name",
+          "description": "Name of the group where user belongs to",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_name": {
+                "title": "Group Name",
+                "description": "Name of the group where user belongs to",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "The time the event occurred in UTC",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "The time the event occurred in UTC",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Group Traits",
+          "description": "Group traits",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Group Traits",
+                "description": "Group traits",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event Context",
+          "description": "Event context",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event Context",
+                "description": "Event context",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Set the user ID for a particular device ID or update user properties.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to RoadwayAI",
+          "description": "When enabled, the action will use the RoadwayAI batch API.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to RoadwayAI",
+                "description": "When enabled, the action will use the RoadwayAI batch API.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the event took place. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the event took place. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique user identifier set by you",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The unique user identifier set by you",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The generated anonymous ID for the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "The generated anonymous ID for the user",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User Properties",
+          "description": "Properties to set on the user profile",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "User Properties",
+                "description": "Properties to set on the user profile",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send an event to RoadwayAI.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to RoadwayAI",
+          "description": "When enabled, the action will use the RoadwayAI batch API.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to RoadwayAI",
+                "description": "When enabled, the action will use the RoadwayAI batch API.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The distinct ID after calling identify.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The distinct ID after calling identify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A distinct ID randomly generated prior to calling identify.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A distinct ID randomly generated prior to calling identify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group that performed this event.",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group that performed this event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "insert_id",
+          "type": "string",
+          "label": "Insert ID",
+          "description": "A random id that is unique to an event.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "insert_id": {
+                "title": "Insert ID",
+                "description": "A random id that is unique to an event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_properties": {
+                "title": "Event Properties",
+                "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event Context",
+          "description": "An object of key-value pairs that provides useful context about the event.",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event Context",
+                "description": "An object of key-value pairs that provides useful context about the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the action being performed.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the action being performed.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Original Name",
+          "description": "The Event Original Name, if applicable",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Original Name",
+                "description": "The Event Original Name, if applicable",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_properties",
+          "type": "object",
+          "label": "App Properties",
+          "description": "Application-specific properties and metadata",
+          "defaultValue": {
+            "app_name": {
+              "@path": "$.context.app.name"
+            },
+            "app_version": {
+              "@path": "$.context.app.version"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_properties": {
+                "title": "App Properties",
+                "description": "Application-specific properties and metadata",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "app_name": {
+                    "title": "App Name",
+                    "description": "The name of your application.",
+                    "type": "string"
+                  },
+                  "app_version": {
+                    "title": "App Version",
+                    "description": "The current version of your application.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "location_properties",
+          "type": "object",
+          "label": "Location Properties",
+          "description": "User location and locale information",
+          "defaultValue": {
+            "country": {
+              "@path": "$.context.location.country"
+            },
+            "region": {
+              "@path": "$.context.location.region"
+            },
+            "language": {
+              "@path": "$.context.locale"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "location_properties": {
+                "title": "Location Properties",
+                "description": "User location and locale information",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "country": {
+                    "title": "Country",
+                    "description": "The current country of the user.",
+                    "type": "string"
+                  },
+                  "region": {
+                    "title": "Region",
+                    "description": "The current region of the user.",
+                    "type": "string"
+                  },
+                  "language": {
+                    "title": "Language",
+                    "description": "The language set by the user.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "page_properties",
+          "type": "object",
+          "label": "Page Properties",
+          "description": "Web page context and navigation information",
+          "defaultValue": {
+            "url": {
+              "@path": "$.context.page.url"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "page_properties": {
+                "title": "Page Properties",
+                "description": "Web page context and navigation information",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "title": "URL",
+                    "description": "The full URL of the webpage on which the event is triggered.",
+                    "type": "string"
+                  },
+                  "referrer": {
+                    "title": "Referrer",
+                    "description": "Referrer URL",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_properties",
+          "type": "object",
+          "label": "UTM Properties",
+          "description": "UTM tracking and campaign attribution properties",
+          "defaultValue": {
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_properties": {
+                "title": "UTM Properties",
+                "description": "UTM tracking and campaign attribution properties",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "description": "The source of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "description": "The medium of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign",
+                    "description": "The name of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "description": "The term of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "description": "The content of the campaign.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPageView",
+      "name": "Track Page View",
+      "description": "Forward page view event to RoadwayAI.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to RoadwayAI",
+          "description": "When enabled, the action will use the RoadwayAI batch API.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to RoadwayAI",
+                "description": "When enabled, the action will use the RoadwayAI batch API.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_properties",
+          "type": "object",
+          "label": "UTM Properties",
+          "description": "UTM tracking and campaign attribution properties",
+          "defaultValue": {
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_properties": {
+                "title": "UTM Properties",
+                "description": "UTM tracking and campaign attribution properties",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "description": "The source of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "description": "The medium of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign",
+                    "description": "The name of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "description": "The term of the campaign.",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "description": "The content of the campaign.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "Person ID",
+          "description": "The ID used to uniquely identify a person in RoadwayAI.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Person ID",
+                "description": "The ID used to uniquely identify a person in RoadwayAI.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "An anonymous ID for when no Person ID exists.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "An anonymous ID for when no Person ID exists.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "An optional identifier used to deduplicate events.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "An optional identifier used to deduplicate events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The URL of the page visited.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "Page URL",
+                "description": "The URL of the page visited.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Page Referrer",
+          "description": "The page referrer",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.referrer"
+              },
+              "then": {
+                "@path": "$.context.page.referrer"
+              },
+              "else": {
+                "@path": "$.properties.referrer"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Page Referrer",
+                "description": "The page referrer",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "A timestamp of when the event took place. Default is current date and time.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "A timestamp of when the event took place. Default is current date and time.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Attributes",
+          "description": "Optional data to include with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Attributes",
+                "description": "Optional data to include with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "groupUser",
+      "name": "Group User",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "enable_batching": true,
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "group_id": {
+          "@path": "$.groupId"
+        },
+        "group_name": {
+          "@path": "$.traits.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "context": {
+          "@path": "$.context"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify User",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "enable_batching": true,
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "enable_batching": true,
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "batch_size": 1000,
+        "app_properties": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          }
+        },
+        "location_properties": {
+          "country": {
+            "@path": "$.context.location.country"
+          },
+          "region": {
+            "@path": "$.context.location.region"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          }
+        },
+        "page_properties": {
+          "url": {
+            "@path": "$.context.page.url"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackPageView",
+      "name": "Track Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "enable_batching": true,
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "data": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

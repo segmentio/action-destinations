@@ -1,0 +1,808 @@
+{
+  "name": "Taguchi",
+  "description": "Sync analytics events, user profile details, including Audience and Computed Trait details to Taguchi.",
+  "basicOptions": [
+    "apiKey",
+    "integrationURL",
+    "organizationId"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Taguchi API Key used to authenticate requests to the Taguchi platform.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "integrationURL": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Taguchi URL Segment will send data to. This should be created in the Taguchi User Interface by navigating to 'Taguchi Integrations' then 'Integrations Setup.'",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Integration URL",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The integrationURL property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "organizationId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The Taguchi ID of the organization to which this Subscriber belongs.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Organization ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The organizationId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "syncEvent",
+      "name": "Sync Event",
+      "description": "Sync ecommerce events to Taguchi.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "target",
+          "type": "object",
+          "label": "Event Target",
+          "description": "Target identifier / user identifier for the event. At least one identifier is required.",
+          "defaultValue": {
+            "ref": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.userId"
+                },
+                "then": {
+                  "@path": "$.userId"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "target": {
+                "title": "Event Target",
+                "description": "Target identifier / user identifier for the event. At least one identifier is required.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ref": {
+                    "title": "Reference",
+                    "description": "A unique identifier for the target.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Email address of the target.",
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "target"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventType",
+          "type": "string",
+          "label": "Event Type",
+          "description": "Type of event being sent.",
+          "defaultValue": "p",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Purchase",
+              "value": "p"
+            },
+            {
+              "label": "Transaction",
+              "value": "f"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventType": {
+                "title": "Event Type",
+                "description": "Type of event being sent.",
+                "type": "string",
+                "enum": [
+                  "p",
+                  "f"
+                ]
+              }
+            },
+            "required": [
+              "eventType"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "eventData",
+          "type": "object",
+          "label": "Event Data",
+          "description": "Ecommerce event data including total and products.",
+          "defaultValue": {
+            "total": {
+              "@path": "$.properties.total"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventData": {
+                "title": "Event Data",
+                "description": "Ecommerce event data including total and products.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "total": {
+                    "title": "Total",
+                    "description": "Total value of the transaction.",
+                    "type": "number"
+                  },
+                  "currency": {
+                    "title": "Currency",
+                    "description": "Currency code for the transaction.",
+                    "type": "string"
+                  },
+                  "order_id": {
+                    "title": "Order ID",
+                    "description": "Unique identifier for the order.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "Array of products in the transaction.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "sku": {
+                  "@path": "$.sku"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "category": {
+                  "@path": "$.category"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "Array of products in the transaction.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "sku": {
+                      "title": "SKU",
+                      "description": "Product SKU.",
+                      "type": "string"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "description": "Product price.",
+                      "type": "number"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "Product quantity.",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "title": "Product Name",
+                      "description": "Product name.",
+                      "type": "string"
+                    },
+                    "category": {
+                      "title": "Category",
+                      "description": "Product category.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "syncUserProfile",
+      "name": "Sync User Profile",
+      "description": "Sync user profile details to Taguchi, and add / remove users from Taguchi Lists.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "identifiers",
+          "type": "object",
+          "label": "Subscriber Identifiers",
+          "description": "At least one identifier is required. Any identifiers sent will then become required for future updates to that Subscriber.",
+          "defaultValue": {
+            "ref": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identifiers": {
+                "title": "Subscriber Identifiers",
+                "description": "At least one identifier is required. Any identifiers sent will then become required for future updates to that Subscriber.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ref": {
+                    "title": "Reference",
+                    "description": "A unique identifier for the Subscriber.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Email address of the Subscriber.",
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "identifiers"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Traits",
+          "description": "Standard traits for the Subscriber. All text fields. No specific formats for any of them.",
+          "defaultValue": {
+            "title": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.title"
+                },
+                "then": {
+                  "@path": "$.traits.title"
+                },
+                "else": {
+                  "@path": "$.context.traits.title"
+                }
+              }
+            },
+            "firstname": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.context.traits.first_name"
+                }
+              }
+            },
+            "lastname": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.context.traits.last_name"
+                }
+              }
+            },
+            "dob": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.birthday"
+                },
+                "then": {
+                  "@path": "$.traits.birthday"
+                },
+                "else": {
+                  "@path": "$.context.traits.birthday"
+                }
+              }
+            },
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.street"
+                },
+                "then": {
+                  "@path": "$.traits.street"
+                },
+                "else": {
+                  "@path": "$.context.traits.street"
+                }
+              }
+            },
+            "address2": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address2"
+                },
+                "then": {
+                  "@path": "$.traits.address2"
+                },
+                "else": {
+                  "@path": "$.context.traits.address2"
+                }
+              }
+            },
+            "address3": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address3"
+                },
+                "then": {
+                  "@path": "$.traits.address3"
+                },
+                "else": {
+                  "@path": "$.context.traits.address3"
+                }
+              }
+            },
+            "suburb": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.city"
+                },
+                "then": {
+                  "@path": "$.traits.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.city"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.state"
+                },
+                "then": {
+                  "@path": "$.traits.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.state"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.country"
+                },
+                "then": {
+                  "@path": "$.traits.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.country"
+                }
+              }
+            },
+            "postcode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.postal_code"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.context.traits.phone"
+                }
+              }
+            },
+            "gender": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.gender"
+                },
+                "then": {
+                  "@path": "$.traits.gender"
+                },
+                "else": {
+                  "@path": "$.context.traits.gender"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "traits": {
+                "title": "Traits",
+                "description": "Standard traits for the Subscriber. All text fields. No specific formats for any of them.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "title": {
+                    "title": "Title",
+                    "description": "Title of the Subscriber.",
+                    "type": "string"
+                  },
+                  "firstname": {
+                    "title": "First Name",
+                    "description": "First name of the Subscriber.",
+                    "type": "string"
+                  },
+                  "lastname": {
+                    "title": "Last Name",
+                    "description": "Last name of the Subscriber.",
+                    "type": "string"
+                  },
+                  "dob": {
+                    "title": "Date of Birth",
+                    "description": "Date of birth of the Subscriber in ISO 8601 format (YYYY-MM-DD).",
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "address": {
+                    "title": "Address Line 1",
+                    "description": "Primary address line for the Subscriber.",
+                    "type": "string"
+                  },
+                  "address2": {
+                    "title": "Address Line 2",
+                    "description": "Secondary address line for the Subscriber.",
+                    "type": "string"
+                  },
+                  "address3": {
+                    "title": "Address Line 3",
+                    "description": "Tertiary address line for the Subscriber.",
+                    "type": "string"
+                  },
+                  "phone": {
+                    "title": "Phone Number",
+                    "description": "Phone number of the Subscriber.",
+                    "type": "string"
+                  },
+                  "suburb": {
+                    "title": "Suburb",
+                    "description": "Suburb of the Subscriber.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "State of the Subscriber.",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "Country of the Subscriber.",
+                    "type": "string"
+                  },
+                  "postcode": {
+                    "title": "Postcode",
+                    "description": "Postcode of the Subscriber.",
+                    "type": "string"
+                  },
+                  "gender": {
+                    "title": "Gender",
+                    "description": "Gender of the Subscriber.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The timestamp of the event in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Defaults to the current time if not provided.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Defaults to the current time if not provided.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "subscribeLists",
+          "type": "number",
+          "label": "Lists to subscribe to",
+          "description": "An array of numeric Taguchi List IDs to subscribe the Subscriber to. Leave this field empty if syncing an Audience from Engage.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subscribeLists": {
+                "title": "Lists to subscribe to",
+                "description": "An array of numeric Taguchi List IDs to subscribe the Subscriber to. Leave this field empty if syncing an Audience from Engage.",
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unsubscribeLists",
+          "type": "number",
+          "label": "Lists to unsubscribe from",
+          "description": "An array of numeric Taguchi List IDs to unsubscribe the Subscriber from. Leave this field empty if syncing an Audience from Engage.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unsubscribeLists": {
+                "title": "Lists to unsubscribe from",
+                "description": "An array of numeric Taguchi List IDs to unsubscribe the Subscriber from. Leave this field empty if syncing an Audience from Engage.",
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

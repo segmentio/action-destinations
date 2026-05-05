@@ -1,0 +1,1122 @@
+{
+  "name": "SFTP",
+  "description": "Sync Segment events to SFTP",
+  "basicOptions": [
+    "auth_type",
+    "sftp_host",
+    "sftp_port",
+    "sftp_username",
+    "sftp_password",
+    "sftp_ssh_key",
+    "uploadStrategy"
+  ],
+  "options": {
+    "auth_type": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "password",
+      "description": "The type of authentication to use for the SFTP connection",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Authentication Type",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "password",
+          "label": "Username and Password",
+          "text": "Username and Password"
+        },
+        {
+          "value": "ssh_key",
+          "label": "Username and SSH Key",
+          "text": "Username and SSH Key"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The auth_type property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "sftp_host": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The hostname or IP address of the SFTP server",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SFTP Host",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The sftp_host property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "sftp_port": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": 22,
+      "description": "The port number for the SFTP connection",
+      "encrypt": false,
+      "hidden": false,
+      "label": "SFTP Port",
+      "private": true,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "sftp_username": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Username for establishing an SFTP connection",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The sftp_username property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "sftp_password": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Password for establishing an SFTP connection",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Password",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "auth_type",
+            "operator": "is",
+            "value": "password"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The sftp_password property is required."
+        ],
+        [
+          "conditional",
+          "{\"$schema\":\"http://json-schema.org/schema#\",\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"sftp_password\":{\"title\":\"Password\",\"description\":\"Password for establishing an SFTP connection\",\"type\":\"string\",\"format\":\"password\"}},\"required\":[],\"allOf\":[{\"if\":{\"required\":[\"auth_type\"],\"properties\":{\"auth_type\":{\"const\":\"password\"}}},\"then\":{\"required\":[\"sftp_password\"]}}]}"
+        ]
+      ],
+      "uIMetadata": {
+        "conditionallyRequired": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "password"
+            }
+          ]
+        }
+      }
+    },
+    "sftp_ssh_key": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "SSH Key for establishing an SFTP connection",
+      "encrypt": true,
+      "hidden": false,
+      "label": "SSH Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "auth_type",
+            "operator": "is",
+            "value": "ssh_key"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The sftp_ssh_key property is required."
+        ],
+        [
+          "conditional",
+          "{\"$schema\":\"http://json-schema.org/schema#\",\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"sftp_ssh_key\":{\"title\":\"SSH Key\",\"description\":\"SSH Key for establishing an SFTP connection\",\"type\":\"string\",\"format\":\"password\"}},\"required\":[],\"allOf\":[{\"if\":{\"required\":[\"auth_type\"],\"properties\":{\"auth_type\":{\"const\":\"ssh_key\"}}},\"then\":{\"required\":[\"sftp_ssh_key\"]}}]}"
+        ]
+      ],
+      "uIMetadata": {
+        "conditionallyRequired": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "ssh_key"
+            }
+          ]
+        }
+      }
+    },
+    "uploadStrategy": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "standard",
+      "description": "Select the upload strategy to use when uploading files to the SFTP server.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Upload Strategy",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "standard",
+          "label": "Standard [Supported by all SFTP servers]",
+          "text": "Standard [Supported by all SFTP servers]"
+        },
+        {
+          "value": "concurrent",
+          "label": "Concurrent [Improves upload time but may not be supported by all SFTP servers. Test and enable if supported.]",
+          "text": "Concurrent [Improves upload time but may not be supported by all SFTP servers. Test and enable if supported.]"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "syncEvents",
+      "name": "Sync Events",
+      "description": "Sync Segment events to SFTP. Includes predefined mappings for common Segment event fields. Additional column mappings may be added.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Columns",
+          "description": "Column headers to write to files sent to SFTP.",
+          "defaultValue": {
+            "event_name": {
+              "@path": "$.event"
+            },
+            "event_type": {
+              "@path": "$.type"
+            },
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "anonymous_id": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "properties": {
+              "@path": "$.properties"
+            },
+            "traits": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits"
+                },
+                "then": {
+                  "@path": "$.traits"
+                },
+                "else": {
+                  "@path": "$.context.traits"
+                }
+              }
+            },
+            "context": {
+              "@path": "$.context"
+            },
+            "timestamp": {
+              "@path": "$.timestamp"
+            },
+            "message_id": {
+              "@path": "$.messageId"
+            },
+            "integrations": {
+              "@path": "$.integrations"
+            },
+            "audience_name": {
+              "@path": "$.context.personas.computation_key"
+            },
+            "audience_id": {
+              "@path": "$.context.personas.computation_id"
+            },
+            "audience_space_id": {
+              "@path": "$.context.personas.space_id"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Columns",
+                "description": "Column headers to write to files sent to SFTP.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "event_name": {
+                    "title": "Event Name",
+                    "description": "Name of the event.",
+                    "type": "string"
+                  },
+                  "event_type": {
+                    "title": "Event Type",
+                    "description": "The type of event",
+                    "type": "string"
+                  },
+                  "user_id": {
+                    "title": "User ID",
+                    "description": "User ID",
+                    "type": "string"
+                  },
+                  "anonymous_id": {
+                    "title": "Anonymous ID",
+                    "description": "Anonymous ID",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "Email address",
+                    "type": "string"
+                  },
+                  "properties": {
+                    "title": "Properties",
+                    "description": "Properties of the event",
+                    "type": "object"
+                  },
+                  "traits": {
+                    "title": "Traits",
+                    "description": "User traits",
+                    "type": "object"
+                  },
+                  "context": {
+                    "title": "Context",
+                    "description": "Context of the event",
+                    "type": "object"
+                  },
+                  "timestamp": {
+                    "title": "Timestamp",
+                    "description": "Timestamp of the event",
+                    "type": "string"
+                  },
+                  "message_id": {
+                    "title": "Message ID",
+                    "description": "Name of column for the unique identifier for the message.",
+                    "type": "string"
+                  },
+                  "integrations": {
+                    "title": "Integrations Object",
+                    "description": "Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment",
+                    "type": "object"
+                  },
+                  "audience_name": {
+                    "title": "Audience Name",
+                    "description": "Name of the audience",
+                    "type": "string"
+                  },
+                  "audience_id": {
+                    "title": "Audience ID",
+                    "description": "ID of the audience",
+                    "type": "string"
+                  },
+                  "audience_space_id": {
+                    "title": "Audience Space ID",
+                    "description": "ID of the Engage Space where the Audience was generated",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "columns"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "filename_prefix",
+          "type": "string",
+          "label": "Filename prefix",
+          "description": "Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filename_prefix": {
+                "title": "Filename prefix",
+                "description": "Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "filename_prefix"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "file_extension",
+          "type": "string",
+          "label": "File Extension",
+          "description": "File extension for the uploaded file.",
+          "defaultValue": "csv",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "csv",
+              "value": "csv"
+            },
+            {
+              "label": "txt",
+              "value": "txt"
+            },
+            {
+              "label": "tsv",
+              "value": "tsv"
+            },
+            {
+              "label": "psv",
+              "value": "psv"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "file_extension": {
+                "title": "File Extension",
+                "description": "File extension for the uploaded file.",
+                "type": "string",
+                "enum": [
+                  "csv",
+                  "txt",
+                  "tsv",
+                  "psv"
+                ]
+              }
+            },
+            "required": [
+              "file_extension"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "delimiter",
+          "type": "string",
+          "label": "Delimiter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "defaultValue": ",",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "comma",
+              "value": ","
+            },
+            {
+              "label": "pipe",
+              "value": "|"
+            },
+            {
+              "label": "tab",
+              "value": "tab"
+            },
+            {
+              "label": "semicolon",
+              "value": ";"
+            },
+            {
+              "label": "colon",
+              "value": ":"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delimiter": {
+                "title": "Delimiter",
+                "description": "Character used to separate tokens in the resulting file.",
+                "type": "string",
+                "enum": [
+                  ",",
+                  "|",
+                  "tab",
+                  ";",
+                  ":"
+                ]
+              }
+            },
+            "required": [
+              "delimiter"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable"
+            ]
+          }
+        },
+        {
+          "fieldKey": "sftp_folder_path",
+          "type": "string",
+          "label": "Folder Path",
+          "description": "Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+          "defaultValue": {
+            "@template": "/"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sftp_folder_path": {
+                "title": "Folder Path",
+                "description": "Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sftp_folder_path"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable Batching Hidden Field",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable Batching Hidden Field",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 100000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 100000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size_column_name",
+          "type": "string",
+          "label": "Batch Size Column Name",
+          "description": "Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required",
+          "defaultValue": "batch_size",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size_column_name": {
+                "title": "Batch Size Column Name",
+                "description": "Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "audience_action_column_name",
+          "type": "string",
+          "label": "Audience Action Column Name",
+          "description": "Name of the column to contain the action for the audience. true if the user is in the audience, false if not.",
+          "defaultValue": "audience_action",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audience_action_column_name": {
+                "title": "Audience Action Column Name",
+                "description": "Name of the column to contain the action for the audience. true if the user is in the audience, false if not.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "enrichment"
+            ]
+          }
+        },
+        {
+          "fieldKey": "traits_or_props",
+          "type": "object",
+          "label": "Traits or Props - Hidden Field",
+          "description": "Hidden field used to retrieve Audience action value",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits_or_props": {
+                "title": "Traits or Props - Hidden Field",
+                "description": "Hidden field used to retrieve Audience action value",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "computation_key",
+          "type": "string",
+          "label": "Audience_Key - Hidden Field",
+          "description": "Hidden field used to retrieve Audience Key",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "computation_key": {
+                "title": "Audience_Key - Hidden Field",
+                "description": "Hidden field used to retrieve Audience Key",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "syncModelToSFTP",
+      "name": "Sync RETL Model",
+      "description": "Sync Reverse ETL model data to SFTP. Can also be used to sync Segment events with no predefined mappings.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "columns",
+          "type": "object",
+          "label": "Columns",
+          "description": "Column headers to write to files sent to SFTP.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "columns": {
+                "title": "Columns",
+                "description": "Column headers to write to files sent to SFTP.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "columns"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "filename_prefix",
+          "type": "string",
+          "label": "Filename prefix",
+          "description": "Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "filename_prefix": {
+                "title": "Filename prefix",
+                "description": "Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "filename_prefix"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "file_extension",
+          "type": "string",
+          "label": "File Extension",
+          "description": "File extension for the uploaded file.",
+          "defaultValue": "csv",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "csv",
+              "value": "csv"
+            },
+            {
+              "label": "txt",
+              "value": "txt"
+            },
+            {
+              "label": "tsv",
+              "value": "tsv"
+            },
+            {
+              "label": "psv",
+              "value": "psv"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "file_extension": {
+                "title": "File Extension",
+                "description": "File extension for the uploaded file.",
+                "type": "string",
+                "enum": [
+                  "csv",
+                  "txt",
+                  "tsv",
+                  "psv"
+                ]
+              }
+            },
+            "required": [
+              "file_extension"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "delimiter",
+          "type": "string",
+          "label": "Delimiter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "defaultValue": ",",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "comma",
+              "value": ","
+            },
+            {
+              "label": "pipe",
+              "value": "|"
+            },
+            {
+              "label": "tab",
+              "value": "tab"
+            },
+            {
+              "label": "semicolon",
+              "value": ";"
+            },
+            {
+              "label": "colon",
+              "value": ":"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "delimiter": {
+                "title": "Delimiter",
+                "description": "Character used to separate tokens in the resulting file.",
+                "type": "string",
+                "enum": [
+                  ",",
+                  "|",
+                  "tab",
+                  ";",
+                  ":"
+                ]
+              }
+            },
+            "required": [
+              "delimiter"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "enrichment",
+              "function",
+              "variable"
+            ]
+          }
+        },
+        {
+          "fieldKey": "sftp_folder_path",
+          "type": "string",
+          "label": "Folder Path",
+          "description": "Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+          "defaultValue": {
+            "@template": "/"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sftp_folder_path": {
+                "title": "Folder Path",
+                "description": "Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sftp_folder_path"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable Batching Hidden Field",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable Batching Hidden Field",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 100000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 100000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size_column_name",
+          "type": "string",
+          "label": "Batch Size Column Name",
+          "description": "Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required",
+          "defaultValue": "batch_size",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size_column_name": {
+                "title": "Batch Size Column Name",
+                "description": "Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "disabledInputMethods": [
+              "variable",
+              "function",
+              "enrichment"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

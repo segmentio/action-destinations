@@ -1,0 +1,550 @@
+{
+  "name": "Delivr AI Audiences",
+  "description": "Sync users to Delivr AI Audience Segmentation.",
+  "basicOptions": [
+    "client_identifier_id",
+    "placeholder",
+    "__segment_internal_engage_batch_sync"
+  ],
+  "options": {
+    "client_identifier_id": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Client Identifier is the Hashed Key that provided by Delivr AI.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Client Identifier",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The client_identifier_id property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "placeholder": {
+      "tags": [],
+      "default": true,
+      "description": "Placeholder field to allow the audience to be created. Do not change this.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Placeholder Setting",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "updateSegment",
+      "name": "Sync To Delivr AI Audience Segmentation",
+      "description": "Sync Segment Audience to Delivr AI Audience Segmentation.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\" or type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "segment_audience_id",
+          "type": "string",
+          "label": "Segment Audience Id",
+          "description": "Segment Audience Id (aud_...). Maps to \"Id\" of a Segment node in Delivr AI Audience Segment.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_audience_id": {
+                "title": "Segment Audience Id",
+                "description": "Segment Audience Id (aud_...). Maps to \"Id\" of a Segment node in Delivr AI Audience Segment.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "User Email",
+          "description": "Email address of a user. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "User Email",
+                "description": "Email address of a user. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "User Phone",
+          "description": "Phone number of a user. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "User Phone",
+                "description": "Phone number of a user. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "device_type",
+          "type": "string",
+          "label": "User Mobile Device Type",
+          "description": "User's mobile device type",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_type": {
+                "title": "User Mobile Device Type",
+                "description": "User's mobile device type",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "User Mobile Advertising ID",
+          "description": "User's mobile advertising Id.",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "User Mobile Advertising ID",
+                "description": "User's mobile advertising Id.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "segment_audience_key",
+          "type": "string",
+          "label": "Segment Audience Key",
+          "description": "Segment Audience Key. Maps to the \"Name\" of the Segment node in Delivr AI Audience Segmentation.",
+          "defaultValue": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "segment_audience_key": {
+                "title": "Segment Audience Key",
+                "description": "Segment Audience Key. Maps to the \"Name\" of the Segment node in Delivr AI Audience Segmentation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "segment_audience_key"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Delivr AI",
+          "description": "If true, batch requests to Delivr AI. Delivr AI accepts batches of up to 1000 events. If false, send each event individually.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Delivr AI",
+                "description": "If true, batch requests to Delivr AI. Delivr AI accepts batches of up to 1000 events. If false, send each event individually.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "updateSegment",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "updateSegment",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "updateSegment",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "updateSegment",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "segment_audience_id": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "segment_audience_key": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

@@ -1,0 +1,4742 @@
+{
+  "name": "Mixpanel (Actions)",
+  "basicOptions": [
+    "projectToken",
+    "apiSecret",
+    "apiRegion",
+    "sourceName",
+    "strictMode"
+  ],
+  "options": {
+    "projectToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Mixpanel project token.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Project Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The projectToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiSecret": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Mixpanel project secret.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Secret Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiSecret property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiRegion": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "US 🇺🇸",
+      "description": "Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Data Residency",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US 🇺🇸",
+          "label": "US 🇺🇸",
+          "text": "US 🇺🇸"
+        },
+        {
+          "value": "EU 🇪🇺",
+          "label": "EU 🇪🇺",
+          "text": "EU 🇪🇺"
+        },
+        {
+          "value": "IN 🇮🇳",
+          "label": "IN 🇮🇳",
+          "text": "IN 🇮🇳"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "sourceName": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Source Name",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "strictMode": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "1",
+      "description": "This value, if it's 1 (recommended), Mixpanel will validate the events you are trying to send and return errors per event that failed. Learn more about the Mixpanel [Import Events API](https://developer.mixpanel.com/reference/import-events)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Strict Mode",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "1",
+          "label": "1",
+          "text": "1"
+        },
+        {
+          "value": "0",
+          "label": "0",
+          "text": "0"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "alias",
+      "name": "Alias",
+      "description": "Create an alias to a distinct id. This action is primarily supported for the sake of customers using the legacy identity management in their Mixpanel project. For new customers or those who have [migrated](https://help.mixpanel.com/hc/en-us/articles/360039133851-Moving-to-Identity-Merge?source=segment-actions) to the [new identity management](https://help.mixpanel.com/hc/en-us/articles/360041039771-Getting-Started-with-Identity-Management?source=segment-actions) in Mixpanel should use `identify`.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "alias",
+          "type": "string",
+          "label": "Alias",
+          "description": "A new distinct id to be merged with the original distinct id. Each alias can only map to one distinct id.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "alias": {
+                "title": "Alias",
+                "description": "A new distinct id to be merged with the original distinct id. Each alias can only map to one distinct id.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "distinct_id",
+          "type": "string",
+          "label": "Distinct ID",
+          "description": "A distinct id to be merged with the alias.",
+          "defaultValue": {
+            "@path": "$.previousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "distinct_id": {
+                "title": "Distinct ID",
+                "description": "A distinct id to be merged with the alias.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "groupIdentifyUser",
+      "name": "Group Identify User",
+      "description": "Updates or adds properties to a group profile. The profile is created if it does not exist. [Learn more about Group Analytics.](https://help.mixpanel.com/hc/en-us/articles/360025333632-Group-Analytics?source=segment-actions)",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "group_key",
+          "type": "string",
+          "label": "Group Key",
+          "description": "The group key you specified in Mixpanel under Project settings. If this is not specified, it will be defaulted to \"$group_id\".",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_key": {
+                "title": "Group Key",
+                "description": "The group key you specified in Mixpanel under Project settings. If this is not specified, it will be defaulted to \"$group_id\".",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group. If there is a trait that matches the group key, it will override this value.",
+          "defaultValue": {
+            "@path": "$.groupId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group. If there is a trait that matches the group key, it will override this value.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "group_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "Group Properties",
+          "description": "The properties to set on the group profile.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "Group Properties",
+                "description": "The properties to set on the group profile.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identifyUser",
+      "name": "Identify User",
+      "description": "Set the user ID for a particular device ID or update user properties. Learn more about [User Profiles](https://help.mixpanel.com/hc/en-us/articles/115004501966?source=segment-actions) and [Identity Management](https://help.mixpanel.com/hc/en-us/articles/360041039771-Getting-Started-with-Identity-Management?source=segment-actions).",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique user identifier set by you",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The unique user identifier set by you",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The generated anonymous ID for the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "The generated anonymous ID for the user",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "traits",
+          "type": "object",
+          "label": "User Properties",
+          "description": "Properties to set on the user profile",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "traits": {
+                "title": "User Properties",
+                "description": "Properties to set on the user profile",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "incrementProperties",
+      "name": "Increment Properties",
+      "description": "Increment the value of a user profile property. [Learn More](https://developer.mixpanel.com/reference/profile-numerical-add).",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The unique user identifier set by you",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The unique user identifier set by you",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "The generated anonymous ID for the user",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "The generated anonymous ID for the user",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "increment",
+          "type": "object",
+          "label": "Increment Numerical Properties",
+          "description": "Object of properties and the values to increment or decrement. For example: `{\"purchases\": 1, \"items\": 6}}.",
+          "defaultValue": {
+            "@path": "$.properties.increment"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "increment": {
+                "title": "Increment Numerical Properties",
+                "description": "Object of properties and the values to increment or decrement. For example: `{\"purchases\": 1, \"items\": 6}}.",
+                "type": "object"
+              }
+            },
+            "required": [
+              "increment"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackEvent",
+      "name": "Track Event",
+      "description": "Send an event to Mixpanel. [Learn more about Events in Mixpanel](https://help.mixpanel.com/hc/en-us/articles/360041995352-Mixpanel-Concepts-Events?source=segment-actions)",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the action being performed.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the action being performed.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "distinct_id",
+          "type": "string",
+          "label": "Distinct ID",
+          "description": "A distinct ID specified by you.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "distinct_id": {
+                "title": "Distinct ID",
+                "description": "A distinct ID specified by you.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A distinct ID randomly generated prior to calling identify.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A distinct ID randomly generated prior to calling identify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The distinct ID after calling identify.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The distinct ID after calling identify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group that performed this event.",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group that performed this event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "insert_id",
+          "type": "string",
+          "label": "Insert ID",
+          "description": "A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "insert_id": {
+                "title": "Insert ID",
+                "description": "A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "time",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "time": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_name",
+          "type": "string",
+          "label": "App Name",
+          "description": "The name of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_name": {
+                "title": "App Name",
+                "description": "The name of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_namespace",
+          "type": "string",
+          "label": "App Namespace",
+          "description": "The namespace of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.namespace"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_namespace": {
+                "title": "App Namespace",
+                "description": "The namespace of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_build",
+          "type": "string",
+          "label": "App Build",
+          "description": "The current build of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.build"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_build": {
+                "title": "App Build",
+                "description": "The current build of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_version",
+          "type": "string",
+          "label": "App Version",
+          "description": "The current version of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_version": {
+                "title": "App Version",
+                "description": "The current version of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "os_name",
+          "type": "string",
+          "label": "OS Name",
+          "description": "The name of the mobile operating system or browser that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.os.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "os_name": {
+                "title": "OS Name",
+                "description": "The name of the mobile operating system or browser that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "os_version",
+          "type": "string",
+          "label": "OS Version",
+          "description": "The version of the mobile operating system or browser the user is using.",
+          "defaultValue": {
+            "@path": "$.context.os.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "os_version": {
+                "title": "OS Version",
+                "description": "The version of the mobile operating system or browser the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "A unique identifier for the device the user is using.",
+          "defaultValue": {
+            "@path": "$.context.device.id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "A unique identifier for the device the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_type",
+          "type": "string",
+          "label": "Device Type",
+          "description": "The type of the user's device.",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_type": {
+                "title": "Device Type",
+                "description": "The type of the user's device.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_name",
+          "type": "string",
+          "label": "Device Name",
+          "description": "The name of the user's device.",
+          "defaultValue": {
+            "@path": "$.context.device.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_name": {
+                "title": "Device Name",
+                "description": "The name of the user's device.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_manufacturer",
+          "type": "string",
+          "label": "Device Manufacturer",
+          "description": "The device manufacturer that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_manufacturer": {
+                "title": "Device Manufacturer",
+                "description": "The device manufacturer that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_model",
+          "type": "string",
+          "label": "Device Model",
+          "description": "The device model that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.device.model"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_model": {
+                "title": "Device Model",
+                "description": "The device model that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bluetooth",
+          "type": "boolean",
+          "label": "Bluetooth Enabled",
+          "description": "Whether bluetooth is enabled.",
+          "defaultValue": {
+            "@path": "$.context.network.bluetooth"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bluetooth": {
+                "title": "Bluetooth Enabled",
+                "description": "Whether bluetooth is enabled.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "carrier",
+          "type": "string",
+          "label": "Carrier",
+          "description": "The carrier that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.network.carrier"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "carrier": {
+                "title": "Carrier",
+                "description": "The carrier that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cellular",
+          "type": "boolean",
+          "label": "Cellular Enabled",
+          "description": "Whether cellular is enabled.",
+          "defaultValue": {
+            "@path": "$.context.network.cellular"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cellular": {
+                "title": "Cellular Enabled",
+                "description": "Whether cellular is enabled.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "wifi",
+          "type": "boolean",
+          "label": "Wifi",
+          "description": "Set to true if user’s device has an active, available Wifi connection, false if not.",
+          "defaultValue": {
+            "@path": "$.context.network.wifi"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "wifi": {
+                "title": "Wifi",
+                "description": "Set to true if user’s device has an active, available Wifi connection, false if not.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The current country of the user.",
+          "defaultValue": {
+            "@path": "$.context.location.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The current country of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "region",
+          "type": "string",
+          "label": "Region",
+          "description": "The current region of the user.",
+          "defaultValue": {
+            "@path": "$.context.location.region"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "region": {
+                "title": "Region",
+                "description": "The current region of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "The language set by the user.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "The language set by the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library_name",
+          "type": "string",
+          "label": "Library Name",
+          "description": "The name of the SDK used to send events.",
+          "defaultValue": {
+            "@path": "$.context.library.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library_name": {
+                "title": "Library Name",
+                "description": "The name of the SDK used to send events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library_version",
+          "type": "string",
+          "label": "Library Version",
+          "description": "The version of the SDK used to send events.",
+          "defaultValue": {
+            "@path": "$.context.library.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library_version": {
+                "title": "Library Version",
+                "description": "The version of the SDK used to send events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "idfa",
+          "type": "string",
+          "label": "Identifier For Advertiser (IDFA)",
+          "description": "Identifier for Advertiser. _(iOS)_",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "else": {
+                "@path": "$.context.device.idfa"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "idfa": {
+                "title": "Identifier For Advertiser (IDFA)",
+                "description": "Identifier for Advertiser. _(iOS)_",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The full URL of the webpage on which the event is triggered.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The full URL of the webpage on which the event is triggered.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_width",
+          "type": "number",
+          "label": "Screen width",
+          "description": "Width, in pixels, of the device screen.",
+          "defaultValue": {
+            "@path": "$.context.screen.width"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_width": {
+                "title": "Screen width",
+                "description": "Width, in pixels, of the device screen.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_height",
+          "type": "number",
+          "label": "Screen height",
+          "description": "Height, in pixels, of the device screen.",
+          "defaultValue": {
+            "@path": "$.context.screen.height"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_height": {
+                "title": "Screen height",
+                "description": "Height, in pixels, of the device screen.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_density",
+          "type": "number",
+          "label": "Screen density",
+          "description": "Pixel density of the device screen.",
+          "defaultValue": {
+            "@path": "$.context.screen.density"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_density": {
+                "title": "Screen density",
+                "description": "Pixel density of the device screen.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Referrer",
+          "description": "Referrer url",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Referrer",
+                "description": "Referrer url",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "User agent",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "Advertising ID",
+          "description": "Advertising ID",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "Advertising ID",
+                "description": "Advertising ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ad_tracking_enabled",
+          "type": "string",
+          "label": "Ad Tracking Enabled",
+          "description": "Ad Tracking Enabled (true or false)",
+          "defaultValue": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ad_tracking_enabled": {
+                "title": "Ad Tracking Enabled",
+                "description": "Ad Tracking Enabled (true or false)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The event timezone",
+          "defaultValue": {
+            "@path": "$.context.timezone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The event timezone",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_platform",
+          "type": "string",
+          "label": "App Platform",
+          "description": "The App Platform, if applicable",
+          "defaultValue": {
+            "@path": "$.context.app.platform"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_platform": {
+                "title": "App Platform",
+                "description": "The App Platform, if applicable",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Original Name",
+          "description": "The Event Original Name, if applicable",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Original Name",
+                "description": "The Event Original Name, if applicable",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_properties": {
+                "title": "Event Properties",
+                "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "An object of key-value pairs that provides useful context about the event.",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "An object of key-value pairs that provides useful context about the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_properties",
+          "type": "object",
+          "label": "UTM Properties",
+          "description": "UTM Tracking Properties",
+          "defaultValue": {
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_properties": {
+                "title": "UTM Properties",
+                "description": "UTM Tracking Properties",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Mixpanel",
+          "description": "Set as true to ensure Segment sends data to Mixpanel in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Mixpanel",
+                "description": "Set as true to ensure Segment sends data to Mixpanel in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 2000
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 2000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgentData",
+          "type": "object",
+          "label": "User Agent Data",
+          "description": "The user agent data of device sending the event",
+          "defaultValue": {
+            "mobile": {
+              "@path": "$.context.userAgentData.mobile"
+            },
+            "platform": {
+              "@path": "$.context.userAgentData.platform"
+            },
+            "architecture": {
+              "@path": "$.context.userAgentData.architecture"
+            },
+            "bitness": {
+              "@path": "$.context.userAgentData.bitness"
+            },
+            "model": {
+              "@path": "$.context.userAgentData.model"
+            },
+            "platformVersion": {
+              "@path": "$.context.userAgentData.platformVersion"
+            },
+            "uaFullVersion": {
+              "@path": "$.context.userAgentData.uaFullVersion"
+            },
+            "wow64": {
+              "@path": "$.context.userAgentData.wow64"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgentData": {
+                "title": "User Agent Data",
+                "description": "The user agent data of device sending the event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "mobile": {
+                    "title": "Mobile",
+                    "type": "boolean"
+                  },
+                  "platform": {
+                    "title": "Platform",
+                    "type": "string"
+                  },
+                  "architecture": {
+                    "title": "Architecture",
+                    "type": "string"
+                  },
+                  "bitness": {
+                    "title": "Bitness",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "type": "string"
+                  },
+                  "platformVersion": {
+                    "title": "PlatformVersion",
+                    "type": "string"
+                  },
+                  "uaFullVersion": {
+                    "title": "UaFullVersion",
+                    "type": "string"
+                  },
+                  "wow64": {
+                    "title": "wow64",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPurchase",
+      "name": "Track Purchase",
+      "description": "Send an 'Order Completed' Event to Mixpanel.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "generatePurchaseEventPerProduct",
+          "type": "boolean",
+          "label": "Generate Purchase Event Per Product",
+          "description": "When enabled, send \"Product Purchased\" with each product within the event.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "generatePurchaseEventPerProduct": {
+                "title": "Generate Purchase Event Per Product",
+                "description": "When enabled, send \"Product Purchased\" with each product within the event.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "distinct_id",
+          "type": "string",
+          "label": "Distinct ID",
+          "description": "A distinct ID specified by you.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "distinct_id": {
+                "title": "Distinct ID",
+                "description": "A distinct ID specified by you.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "anonymous_id",
+          "type": "string",
+          "label": "Anonymous ID",
+          "description": "A distinct ID randomly generated prior to calling identify.",
+          "defaultValue": {
+            "@path": "$.anonymousId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "anonymous_id": {
+                "title": "Anonymous ID",
+                "description": "A distinct ID randomly generated prior to calling identify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_id",
+          "type": "string",
+          "label": "User ID",
+          "description": "The distinct ID after calling identify.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_id": {
+                "title": "User ID",
+                "description": "The distinct ID after calling identify.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_id",
+          "type": "string",
+          "label": "Group ID",
+          "description": "The unique identifier of the group that performed this event.",
+          "defaultValue": {
+            "@path": "$.context.groupId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_id": {
+                "title": "Group ID",
+                "description": "The unique identifier of the group that performed this event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "insert_id",
+          "type": "string",
+          "label": "Insert ID",
+          "description": "A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "insert_id": {
+                "title": "Insert ID",
+                "description": "A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "time",
+          "type": "datetime",
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "time": {
+                "title": "Timestamp",
+                "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_name",
+          "type": "string",
+          "label": "App Name",
+          "description": "The name of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_name": {
+                "title": "App Name",
+                "description": "The name of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_namespace",
+          "type": "string",
+          "label": "App Namespace",
+          "description": "The namespace of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.namespace"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_namespace": {
+                "title": "App Namespace",
+                "description": "The namespace of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_build",
+          "type": "string",
+          "label": "App Build",
+          "description": "The current build of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.build"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_build": {
+                "title": "App Build",
+                "description": "The current build of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_version",
+          "type": "string",
+          "label": "App Version",
+          "description": "The current version of your application.",
+          "defaultValue": {
+            "@path": "$.context.app.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_version": {
+                "title": "App Version",
+                "description": "The current version of your application.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "os_name",
+          "type": "string",
+          "label": "OS Name",
+          "description": "The name of the mobile operating system or browser that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.os.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "os_name": {
+                "title": "OS Name",
+                "description": "The name of the mobile operating system or browser that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "os_version",
+          "type": "string",
+          "label": "OS Version",
+          "description": "The version of the mobile operating system or browser the user is using.",
+          "defaultValue": {
+            "@path": "$.context.os.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "os_version": {
+                "title": "OS Version",
+                "description": "The version of the mobile operating system or browser the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_id",
+          "type": "string",
+          "label": "Device ID",
+          "description": "A unique identifier for the device the user is using.",
+          "defaultValue": {
+            "@path": "$.context.device.id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_id": {
+                "title": "Device ID",
+                "description": "A unique identifier for the device the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_type",
+          "type": "string",
+          "label": "Device Type",
+          "description": "The type of the user's device.",
+          "defaultValue": {
+            "@path": "$.context.device.type"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_type": {
+                "title": "Device Type",
+                "description": "The type of the user's device.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_name",
+          "type": "string",
+          "label": "Device Name",
+          "description": "The name of the user's device.",
+          "defaultValue": {
+            "@path": "$.context.device.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_name": {
+                "title": "Device Name",
+                "description": "The name of the user's device.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_manufacturer",
+          "type": "string",
+          "label": "Device Manufacturer",
+          "description": "The device manufacturer that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_manufacturer": {
+                "title": "Device Manufacturer",
+                "description": "The device manufacturer that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "device_model",
+          "type": "string",
+          "label": "Device Model",
+          "description": "The device model that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.device.model"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "device_model": {
+                "title": "Device Model",
+                "description": "The device model that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "bluetooth",
+          "type": "boolean",
+          "label": "Bluetooth Enabled",
+          "description": "Whether bluetooth is enabled.",
+          "defaultValue": {
+            "@path": "$.context.network.bluetooth"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bluetooth": {
+                "title": "Bluetooth Enabled",
+                "description": "Whether bluetooth is enabled.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "carrier",
+          "type": "string",
+          "label": "Carrier",
+          "description": "The carrier that the user is using.",
+          "defaultValue": {
+            "@path": "$.context.network.carrier"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "carrier": {
+                "title": "Carrier",
+                "description": "The carrier that the user is using.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "cellular",
+          "type": "boolean",
+          "label": "Cellular Enabled",
+          "description": "Whether cellular is enabled.",
+          "defaultValue": {
+            "@path": "$.context.network.cellular"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "cellular": {
+                "title": "Cellular Enabled",
+                "description": "Whether cellular is enabled.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "wifi",
+          "type": "boolean",
+          "label": "Wifi",
+          "description": "Set to true if user’s device has an active, available Wifi connection, false if not.",
+          "defaultValue": {
+            "@path": "$.context.network.wifi"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "wifi": {
+                "title": "Wifi",
+                "description": "Set to true if user’s device has an active, available Wifi connection, false if not.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The current country of the user.",
+          "defaultValue": {
+            "@path": "$.context.location.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The current country of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "region",
+          "type": "string",
+          "label": "Region",
+          "description": "The current region of the user.",
+          "defaultValue": {
+            "@path": "$.context.location.region"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "region": {
+                "title": "Region",
+                "description": "The current region of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "language",
+          "type": "string",
+          "label": "Language",
+          "description": "The language set by the user.",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "language": {
+                "title": "Language",
+                "description": "The language set by the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library_name",
+          "type": "string",
+          "label": "Library Name",
+          "description": "The name of the SDK used to send events.",
+          "defaultValue": {
+            "@path": "$.context.library.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library_name": {
+                "title": "Library Name",
+                "description": "The name of the SDK used to send events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "library_version",
+          "type": "string",
+          "label": "Library Version",
+          "description": "The version of the SDK used to send events.",
+          "defaultValue": {
+            "@path": "$.context.library.version"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "library_version": {
+                "title": "Library Version",
+                "description": "The version of the SDK used to send events.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "idfa",
+          "type": "string",
+          "label": "Identifier For Advertiser (IDFA)",
+          "description": "Identifier for Advertiser. _(iOS)_",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "else": {
+                "@path": "$.context.device.idfa"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "idfa": {
+                "title": "Identifier For Advertiser (IDFA)",
+                "description": "Identifier for Advertiser. _(iOS)_",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "URL",
+          "description": "The full URL of the webpage on which the event is triggered.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "URL",
+                "description": "The full URL of the webpage on which the event is triggered.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_width",
+          "type": "number",
+          "label": "Screen width",
+          "description": "Width, in pixels, of the device screen.",
+          "defaultValue": {
+            "@path": "$.context.screen.width"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_width": {
+                "title": "Screen width",
+                "description": "Width, in pixels, of the device screen.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_height",
+          "type": "number",
+          "label": "Screen height",
+          "description": "Height, in pixels, of the device screen.",
+          "defaultValue": {
+            "@path": "$.context.screen.height"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_height": {
+                "title": "Screen height",
+                "description": "Height, in pixels, of the device screen.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "screen_density",
+          "type": "number",
+          "label": "Screen density",
+          "description": "Pixel density of the device screen.",
+          "defaultValue": {
+            "@path": "$.context.screen.density"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "screen_density": {
+                "title": "Screen density",
+                "description": "Pixel density of the device screen.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Referrer",
+          "description": "Referrer url",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Referrer",
+                "description": "Referrer url",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgent": {
+                "title": "User Agent",
+                "description": "User agent",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "advertising_id",
+          "type": "string",
+          "label": "Advertising ID",
+          "description": "Advertising ID",
+          "defaultValue": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "advertising_id": {
+                "title": "Advertising ID",
+                "description": "Advertising ID",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ad_tracking_enabled",
+          "type": "string",
+          "label": "Ad Tracking Enabled",
+          "description": "Ad Tracking Enabled (true or false)",
+          "defaultValue": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ad_tracking_enabled": {
+                "title": "Ad Tracking Enabled",
+                "description": "Ad Tracking Enabled (true or false)",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timezone",
+          "type": "string",
+          "label": "Timezone",
+          "description": "The event timezone",
+          "defaultValue": {
+            "@path": "$.context.timezone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timezone": {
+                "title": "Timezone",
+                "description": "The event timezone",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "app_platform",
+          "type": "string",
+          "label": "App Platform",
+          "description": "The App Platform, if applicable",
+          "defaultValue": {
+            "@path": "$.context.app.platform"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "app_platform": {
+                "title": "App Platform",
+                "description": "The App Platform, if applicable",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Original Name",
+          "description": "The Event Original Name, if applicable",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Original Name",
+                "description": "The Event Original Name, if applicable",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_properties": {
+                "title": "Event Properties",
+                "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "context",
+          "type": "object",
+          "label": "Event context",
+          "description": "An object of key-value pairs that provides useful context about the event.",
+          "defaultValue": {
+            "@path": "$.context"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "title": "Event context",
+                "description": "An object of key-value pairs that provides useful context about the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "utm_properties",
+          "type": "object",
+          "label": "UTM Properties",
+          "description": "UTM Tracking Properties",
+          "defaultValue": {
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "utm_properties": {
+                "title": "UTM Properties",
+                "description": "UTM Tracking Properties",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "utm_source": {
+                    "title": "UTM Source",
+                    "type": "string"
+                  },
+                  "utm_medium": {
+                    "title": "UTM Medium",
+                    "type": "string"
+                  },
+                  "utm_campaign": {
+                    "title": "UTM Campaign",
+                    "type": "string"
+                  },
+                  "utm_term": {
+                    "title": "UTM Term",
+                    "type": "string"
+                  },
+                  "utm_content": {
+                    "title": "UTM Content",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Batch Data to Mixpanel",
+          "description": "Set as true to ensure Segment sends data to Mixpanel in batches.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Batch Data to Mixpanel",
+                "description": "Set as true to ensure Segment sends data to Mixpanel in batches.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 1000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number",
+                "minimum": 1,
+                "maximum": 2000
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 1,
+          "maximum": 2000,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "userAgentData",
+          "type": "object",
+          "label": "User Agent Data",
+          "description": "The user agent data of device sending the event",
+          "defaultValue": {
+            "mobile": {
+              "@path": "$.context.userAgentData.mobile"
+            },
+            "platform": {
+              "@path": "$.context.userAgentData.platform"
+            },
+            "architecture": {
+              "@path": "$.context.userAgentData.architecture"
+            },
+            "bitness": {
+              "@path": "$.context.userAgentData.bitness"
+            },
+            "model": {
+              "@path": "$.context.userAgentData.model"
+            },
+            "platformVersion": {
+              "@path": "$.context.userAgentData.platformVersion"
+            },
+            "uaFullVersion": {
+              "@path": "$.context.userAgentData.uaFullVersion"
+            },
+            "wow64": {
+              "@path": "$.context.userAgentData.wow64"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userAgentData": {
+                "title": "User Agent Data",
+                "description": "The user agent data of device sending the event",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "mobile": {
+                    "title": "Mobile",
+                    "type": "boolean"
+                  },
+                  "platform": {
+                    "title": "Platform",
+                    "type": "string"
+                  },
+                  "architecture": {
+                    "title": "Architecture",
+                    "type": "string"
+                  },
+                  "bitness": {
+                    "title": "Bitness",
+                    "type": "string"
+                  },
+                  "model": {
+                    "title": "Model",
+                    "type": "string"
+                  },
+                  "platformVersion": {
+                    "title": "PlatformVersion",
+                    "type": "string"
+                  },
+                  "uaFullVersion": {
+                    "title": "UaFullVersion",
+                    "type": "string"
+                  },
+                  "wow64": {
+                    "title": "wow64",
+                    "type": "boolean"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Products",
+          "description": "Products in the order.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "product_id"
+                },
+                "sku": {
+                  "@path": "sku"
+                },
+                "category": {
+                  "@path": "category"
+                },
+                "name": {
+                  "@path": "name"
+                },
+                "brand": {
+                  "@path": "brand"
+                },
+                "variant": {
+                  "@path": "variant"
+                },
+                "price": {
+                  "@path": "price"
+                },
+                "quantity": {
+                  "@path": "quantity"
+                },
+                "coupon": {
+                  "@path": "coupon"
+                },
+                "position": {
+                  "@path": "position"
+                },
+                "url": {
+                  "@path": "url"
+                },
+                "image_url": {
+                  "@path": "image_url"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "products": {
+                "title": "Products",
+                "description": "Products in the order.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "product_id": {
+                      "title": "Product Id",
+                      "description": "Database id of the product being viewed.",
+                      "type": "string"
+                    },
+                    "sku": {
+                      "title": "SKU",
+                      "description": "Sku of the product being viewed.",
+                      "type": "string"
+                    },
+                    "category": {
+                      "title": "Category",
+                      "description": "Product category being viewed.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "description": "Name of the product being viewed.",
+                      "type": "string"
+                    },
+                    "brand": {
+                      "title": "Brand",
+                      "description": "Brand associated with the product.",
+                      "type": "string"
+                    },
+                    "variant": {
+                      "title": "Variant",
+                      "description": "Variant of the product.",
+                      "type": "string"
+                    },
+                    "price": {
+                      "title": "Price",
+                      "description": "Price ($) of the product being viewed.",
+                      "type": "number"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "Quantity of a product.",
+                      "type": "integer"
+                    },
+                    "coupon": {
+                      "title": "Coupon",
+                      "description": "Coupon code associated with a product (for example, MAY_DEALS_3).",
+                      "type": "string"
+                    },
+                    "position": {
+                      "title": "position",
+                      "description": "Position in the product list (ex. 3).",
+                      "type": "number"
+                    },
+                    "url": {
+                      "title": "url",
+                      "description": "URL of the product page.",
+                      "type": "string"
+                    },
+                    "image_url": {
+                      "title": "Image url",
+                      "description": "Image url of the product.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the action being performed.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "The name of the action being performed.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "groupIdentifyUser",
+      "name": "Group Calls",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "group_id": {
+          "@path": "$.groupId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "identifyUser",
+      "name": "Identify Calls",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackPurchase",
+      "name": "Order Completed Calls",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "generatePurchaseEventPerProduct": true,
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "product_id"
+              },
+              "sku": {
+                "@path": "sku"
+              },
+              "category": {
+                "@path": "category"
+              },
+              "name": {
+                "@path": "name"
+              },
+              "brand": {
+                "@path": "brand"
+              },
+              "variant": {
+                "@path": "variant"
+              },
+              "price": {
+                "@path": "price"
+              },
+              "quantity": {
+                "@path": "quantity"
+              },
+              "coupon": {
+                "@path": "coupon"
+              },
+              "position": {
+                "@path": "position"
+              },
+              "url": {
+                "@path": "url"
+              },
+              "image_url": {
+                "@path": "image_url"
+              }
+            }
+          ]
+        },
+        "event": {
+          "@path": "$.event"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Page Calls",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event": {
+          "@template": "Viewed {{name}}"
+        },
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Screen Calls",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "event": {
+          "@template": "Viewed {{name}}"
+        },
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackEvent",
+      "name": "Track Calls",
+      "subscribe": "type = \"track\" and event != \"Order Completed\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

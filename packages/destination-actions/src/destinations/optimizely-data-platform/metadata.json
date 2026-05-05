@@ -1,0 +1,2276 @@
+{
+  "name": "Optimizely Data Platform",
+  "description": "Sync Segment analytics events and user profile data to Optimizely Data Platform",
+  "basicOptions": [
+    "apiKey",
+    "region"
+  ],
+  "options": {
+    "apiKey": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Api Key used for Optimizely API authorization when sending events",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Api Key",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The apiKey property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "US",
+      "description": "Optimizely Region to sync data to. Default is US",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "US",
+          "label": "US",
+          "text": "US"
+        },
+        {
+          "value": "EU",
+          "label": "Europe",
+          "text": "Europe"
+        },
+        {
+          "value": "AU",
+          "label": "Australia",
+          "text": "Australia"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "nonEcommCustomEvent",
+      "name": "Custom Event",
+      "description": "Send Segment custom track() events to Optimizely Data Platform",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "user_identifiers",
+          "type": "object",
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "defaultValue": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_identifiers": {
+                "title": "User identifiers",
+                "description": "User identifier details to send to Optimizely. ",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "anonymousId": {
+                    "title": "Segment Anonymous ID",
+                    "description": "Segment Anonymous ID",
+                    "type": "string"
+                  },
+                  "userId": {
+                    "title": "Segment User ID",
+                    "description": "Segment User ID",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "User Email address",
+                    "type": "string"
+                  },
+                  "optimizely_vuid": {
+                    "title": "Optimizely VUID",
+                    "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+                    "type": "string"
+                  },
+                  "fs_user_id": {
+                    "title": "Feature Experimentation ID",
+                    "description": "Feature Experimentation user ID",
+                    "type": "string"
+                  },
+                  "web_user_id": {
+                    "title": "Web Experimentation ID",
+                    "description": "Web User ID",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "user_identifiers"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "Optimizely Event Type",
+          "description": "The Optimizely Event Type. Defaults to \"custom\" if not provided",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "Optimizely Event Type",
+                "description": "The Optimizely Event Type. Defaults to \"custom\" if not provided",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_action",
+          "type": "string",
+          "label": "Optimizely Event Action",
+          "description": "The name of the Optimizely Event Action.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_action": {
+                "title": "Optimizely Event Action",
+                "description": "The name of the Optimizely Event Action.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "data",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Additional information to send with your custom event",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "data": {
+                "title": "Event Properties",
+                "description": "Additional information to send with your custom event",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Event timestamp",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Event timestamp",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of event data to Optimizely.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "integer",
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "defaultValue": 100,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Number of events to batch before sending to Optimizely.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "customEvent",
+      "name": "Ecommerce Event",
+      "description": "Send Segment Ecommerce track() events to Optimizely Data Platform",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "user_identifiers",
+          "type": "object",
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "defaultValue": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_identifiers": {
+                "title": "User identifiers",
+                "description": "User identifier details to send to Optimizely. ",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "anonymousId": {
+                    "title": "Segment Anonymous ID",
+                    "description": "Segment Anonymous ID",
+                    "type": "string"
+                  },
+                  "userId": {
+                    "title": "Segment User ID",
+                    "description": "Segment User ID",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "User Email address",
+                    "type": "string"
+                  },
+                  "optimizely_vuid": {
+                    "title": "Optimizely VUID",
+                    "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+                    "type": "string"
+                  },
+                  "fs_user_id": {
+                    "title": "Feature Experimentation ID",
+                    "description": "Feature Experimentation user ID",
+                    "type": "string"
+                  },
+                  "web_user_id": {
+                    "title": "Web Experimentation ID",
+                    "description": "Web User ID",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "user_identifiers"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_type",
+          "type": "string",
+          "label": "Optimizely Event Type",
+          "description": "The Optimizely Event Type. Defaults to \"custom\" if not provided",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_type": {
+                "title": "Optimizely Event Type",
+                "description": "The Optimizely Event Type. Defaults to \"custom\" if not provided",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_action",
+          "type": "string",
+          "label": "Optimizely Event Action",
+          "description": "The name of the Optimizely Event Action.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_action": {
+                "title": "Optimizely Event Action",
+                "description": "The name of the Optimizely Event Action.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "products",
+          "type": "object",
+          "label": "Product details",
+          "description": "Product details to associate with the event. Product ID field is required for each product",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                },
+                "qty": {
+                  "@path": "$.quantity"
+                }
+              }
+            ]
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "products": {
+                "title": "Product details",
+                "description": "Product details to associate with the event. Product ID field is required for each product",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "product_id": {
+                      "title": "Product ID",
+                      "description": "Identifier for the product",
+                      "type": "string"
+                    },
+                    "qty": {
+                      "title": "Quantity",
+                      "description": "Quantity of the product",
+                      "type": "number"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "order_id",
+          "type": "string",
+          "label": "Order ID",
+          "description": "Identifier for the order",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "order_id": {
+                "title": "Order ID",
+                "description": "Identifier for the order",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "total",
+          "type": "string",
+          "label": "Order Total",
+          "description": "Total value of the order",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "total": {
+                "title": "Order Total",
+                "description": "Total value of the order",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Event timestamp",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Event timestamp",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of event data to Optimizely.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "integer",
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "defaultValue": 100,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Number of events to batch before sending to Optimizely.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "emailEvent",
+      "name": "Email Event",
+      "description": "Send email related Segment track() events to Optimizely Data Platform",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "user_identifiers",
+          "type": "object",
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "defaultValue": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.context.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_identifiers": {
+                "title": "User identifiers",
+                "description": "User identifier details to send to Optimizely. ",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "anonymousId": {
+                    "title": "Segment Anonymous ID",
+                    "description": "Segment Anonymous ID",
+                    "type": "string"
+                  },
+                  "userId": {
+                    "title": "Segment User ID",
+                    "description": "Segment User ID",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "User Email address. This is a required field",
+                    "type": "string"
+                  },
+                  "optimizely_vuid": {
+                    "title": "Optimizely VUID",
+                    "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+                    "type": "string"
+                  },
+                  "fs_user_id": {
+                    "title": "Feature Experimentation ID",
+                    "description": "Feature Experimentation user ID",
+                    "type": "string"
+                  },
+                  "web_user_id": {
+                    "title": "Web Experimentation ID",
+                    "description": "Web User ID",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            },
+            "required": [
+              "user_identifiers"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_action",
+          "type": "string",
+          "label": "Optimizely Event Action",
+          "description": "The name of the Optimizely Event Action.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_action": {
+                "title": "Optimizely Event Action",
+                "description": "The name of the Optimizely Event Action.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_action"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign",
+          "type": "string",
+          "label": "Campaign Name",
+          "description": "The campaign name",
+          "defaultValue": {
+            "@path": "$.properties.campaign_name"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign": {
+                "title": "Campaign Name",
+                "description": "The campaign name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "campaign"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "campaign_id",
+          "type": "string",
+          "label": "Campaign ID",
+          "description": "The campaign unique identifier",
+          "defaultValue": {
+            "@path": "$.properties.campaign_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "campaign_id": {
+                "title": "Campaign ID",
+                "description": "The campaign unique identifier",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "link_url",
+          "type": "string",
+          "label": "Link URL",
+          "description": "URL of the link which was clicked",
+          "defaultValue": {
+            "@path": "$.properties.link_url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "link_url": {
+                "title": "Link URL",
+                "description": "URL of the link which was clicked",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "Event timestamp",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "Event timestamp",
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of event data to Optimizely.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "integer",
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "defaultValue": 100,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Number of events to batch before sending to Optimizely.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContact",
+      "name": "Upsert Contact",
+      "description": "Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimzely Data Platform",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "user_identifiers",
+          "type": "object",
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "defaultValue": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_identifiers": {
+                "title": "User identifiers",
+                "description": "User identifier details to send to Optimizely. ",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "anonymousId": {
+                    "title": "Segment Anonymous ID",
+                    "description": "Segment Anonymous ID",
+                    "type": "string"
+                  },
+                  "userId": {
+                    "title": "Segment User ID",
+                    "description": "Segment User ID",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "User Email address",
+                    "type": "string"
+                  },
+                  "optimizely_vuid": {
+                    "title": "Optimizely VUID",
+                    "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+                    "type": "string"
+                  },
+                  "fs_user_id": {
+                    "title": "Feature Experimentation ID",
+                    "description": "Feature Experimentation user ID",
+                    "type": "string"
+                  },
+                  "web_user_id": {
+                    "title": "Web Experimentation ID",
+                    "description": "Web User ID",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": [
+              "user_identifiers"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company",
+          "type": "string",
+          "label": "Company Name",
+          "description": "The name of the company associated with the Contact",
+          "defaultValue": {
+            "@path": "$.traits.company"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company": {
+                "title": "Company Name",
+                "description": "The name of the company associated with the Contact",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "title",
+          "type": "string",
+          "label": "Title",
+          "description": "The Contact's Title",
+          "defaultValue": {
+            "@path": "$.traits.title"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "title": "Title",
+                "description": "The Contact's Title",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Name",
+          "description": "Contact's full name",
+          "defaultValue": {
+            "@path": "$.traits.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "Contact's full name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "firstname",
+          "type": "string",
+          "label": "First Name",
+          "description": "Contact's first name",
+          "defaultValue": {
+            "@path": "$.traits.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstname": {
+                "title": "First Name",
+                "description": "Contact's first name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lastname",
+          "type": "string",
+          "label": "Last Name",
+          "description": "Contact's last name",
+          "defaultValue": {
+            "@path": "$.traits.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastname": {
+                "title": "Last Name",
+                "description": "Contact's last name",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "gender",
+          "type": "string",
+          "label": "Gender",
+          "description": "Contact's gender",
+          "defaultValue": {
+            "@path": "$.traits.gender"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gender": {
+                "title": "Gender",
+                "description": "Contact's gender",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "DOB",
+          "type": "datetime",
+          "label": "Birthday",
+          "description": "Contact's birthday. The format should be datetime",
+          "defaultValue": {
+            "@path": "$.traits.birthday"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "DOB": {
+                "title": "Birthday",
+                "description": "Contact's birthday. The format should be datetime",
+                "type": [
+                  "string",
+                  "number"
+                ],
+                "format": "date-like"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "Contact's phone number.",
+          "defaultValue": {
+            "@path": "$.traits.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "Contact's phone number.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "age",
+          "type": "number",
+          "label": "Age",
+          "description": "Contact's age.",
+          "defaultValue": {
+            "@path": "$.traits.age"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "age": {
+                "title": "Age",
+                "description": "Contact's age.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "object",
+          "label": "Address",
+          "description": "Address details object",
+          "defaultValue": {
+            "street": {
+              "@path": "$.traits.address.street"
+            },
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "state": {
+              "@path": "$.traits.address.state"
+            },
+            "zip": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "Address details object",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "street": {
+                    "title": "Street",
+                    "description": "The user's street.",
+                    "type": "string"
+                  },
+                  "city": {
+                    "title": "City",
+                    "description": "The user's city.",
+                    "type": "string"
+                  },
+                  "state": {
+                    "title": "State",
+                    "description": "The user's state or region.",
+                    "type": "string"
+                  },
+                  "zip": {
+                    "title": "Zip code",
+                    "description": "Zip or postal code",
+                    "type": "string"
+                  },
+                  "country": {
+                    "title": "Country",
+                    "description": "The user's country.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "avatar",
+          "type": "string",
+          "label": "avatar",
+          "description": "The user's avatar image URL.",
+          "defaultValue": {
+            "@path": "$.traits.avatar"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "avatar": {
+                "title": "avatar",
+                "description": "The user's avatar image URL.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additional_traits",
+          "type": "object",
+          "label": "Addition User Traits",
+          "description": "Additional user profile details",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additional_traits": {
+                "title": "Addition User Traits",
+                "description": "Additional user profile details",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "defaultValue": true,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of event data to Optimizely.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "integer",
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "defaultValue": 100,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Number of events to batch before sending to Optimizely.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "emailEvent",
+      "name": "Email Link Clicked",
+      "subscribe": "type = \"track\" and event = \"Email Link Clicked\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "click"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "emailEvent",
+      "name": "Email Marked as Spam",
+      "subscribe": "type = \"track\" and event = \"Email Marked as Spam\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "spam_report"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "emailEvent",
+      "name": "Email Opened",
+      "subscribe": "type = \"track\" and event = \"Email Opened\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "open"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "emailEvent",
+      "name": "Email Sent",
+      "subscribe": "type = \"track\" and event = \"Email Sent\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "sent"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "customEvent",
+      "name": "Order Completed",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "order",
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "purchase"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "customEvent",
+      "name": "Product Added",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "product",
+        "products": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "add_to_cart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "customEvent",
+      "name": "Product Removed",
+      "subscribe": "type = \"track\" and event = \"Product Removed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "product",
+        "products": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "remove_from_cart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "customEvent",
+      "name": "Product Viewed",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "product",
+        "products": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "detail"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "emailEvent",
+      "name": "Unsubscribed",
+      "subscribe": "type = \"track\" and event = \"Unsubscribed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "unsubscribe"
+      },
+      "type": "automatic"
+    }
+  ]
+}

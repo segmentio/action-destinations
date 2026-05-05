@@ -1,0 +1,575 @@
+{
+  "name": "Hubspot Web (Actions)",
+  "basicOptions": [
+    "portalId",
+    "enableEuropeanDataCenter",
+    "flushIdentifyImmediately",
+    "formatCustomBehavioralEventNames",
+    "loadFormsSDK"
+  ],
+  "options": {
+    "portalId": {
+      "tags": [],
+      "default": "",
+      "description": "The Hub ID of your HubSpot account.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Hub ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The portalId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "enableEuropeanDataCenter": {
+      "tags": [],
+      "default": false,
+      "description": "Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable the European Data Center SDK.",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "flushIdentifyImmediately": {
+      "tags": [],
+      "default": false,
+      "description": "Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Flush Identify Calls Immediately",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "formatCustomBehavioralEventNames": {
+      "tags": [],
+      "default": true,
+      "description": "Format the event names for custom behavioral event automatically to standard HubSpot format (`pe<HubID>_event_name`).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Format Custom Behavioral Event Names",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "loadFormsSDK": {
+      "tags": [],
+      "default": false,
+      "description": "Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Load Forms SDK",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "trackCustomBehavioralEvent",
+      "name": "Track Custom Behavioral Event",
+      "description": "Send a custom behavioral event to HubSpot.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The internal event name assigned by HubSpot. This can be found in your HubSpot account. If the \"Format Custom Behavioral Event Names\" setting is enabled, Segment will automatically convert your Segment event name into the expected HubSpot internal event name format.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Event Name",
+                "description": "The internal event name assigned by HubSpot. This can be found in your HubSpot account. If the \"Format Custom Behavioral Event Names\" setting is enabled, Segment will automatically convert your Segment event name into the expected HubSpot internal event name format.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "A list of key-value pairs that describe the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "A list of key-value pairs that describe the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPageView",
+      "name": "Track Page View",
+      "description": "Track the page view for the current page in HubSpot.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "path",
+          "type": "string",
+          "label": "Path String",
+          "description": "The path of the current page. The set path will be treated as relative to the current domain being viewed.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "title": "Path String",
+                "description": "The path of the current page. The set path will be treated as relative to the current domain being viewed.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContact",
+      "name": "Upsert Contact",
+      "description": "Create or update a contact in HubSpot.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email Address",
+          "description": "The contact’s email. Email is used to uniquely identify contact records in HubSpot and create or update the contact accordingly.",
+          "defaultValue": {
+            "@path": "$.traits.email"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email Address",
+                "description": "The contact’s email. Email is used to uniquely identify contact records in HubSpot and create or update the contact accordingly.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "id",
+          "type": "string",
+          "label": "External ID",
+          "description": "A custom external ID that identifies the visitor.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "External ID",
+                "description": "A custom external ID that identifies the visitor.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "custom_properties",
+          "type": "object",
+          "label": "Custom Properties",
+          "description": "A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.",
+          "defaultValue": {
+            "@path": "$.traits"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "custom_properties": {
+                "title": "Custom Properties",
+                "description": "A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "company",
+          "type": "string",
+          "label": "Company Name",
+          "description": "The name of the company the contact is associated with.",
+          "defaultValue": {
+            "@path": "$.traits.company.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "company": {
+                "title": "Company Name",
+                "description": "The name of the company the contact is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "The name of the country the contact is associated with.",
+          "defaultValue": {
+            "@path": "$.traits.address.country"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "The name of the country the contact is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "The name of the state the contact is associated with.",
+          "defaultValue": {
+            "@path": "$.traits.address.state"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "The name of the state the contact is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "The name of the city the contact is associated with.",
+          "defaultValue": {
+            "@path": "$.traits.address.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "The name of the city the contact is associated with.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "address",
+          "type": "string",
+          "label": "Street Address",
+          "description": "The street address of the contact.",
+          "defaultValue": {
+            "@path": "$.traits.address.street"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Street Address",
+                "description": "The street address of the contact.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "zip",
+          "type": "string",
+          "label": "Postal Code",
+          "description": "The postal code of the contact.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.traits.address.postal_code"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "zip": {
+                "title": "Postal Code",
+                "description": "The postal code of the contact.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "trackCustomBehavioralEvent",
+      "name": "Track Custom Behavioral Event",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "trackPageView",
+      "name": "Track Page View",
+      "subscribe": "type = \"page\"",
+      "mapping": {},
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "upsertContact",
+      "name": "Upsert Contact",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "id": {
+          "@path": "$.userId"
+        },
+        "custom_properties": {
+          "@path": "$.traits"
+        },
+        "company": {
+          "@path": "$.traits.company.name"
+        },
+        "country": {
+          "@path": "$.traits.address.country"
+        },
+        "state": {
+          "@path": "$.traits.address.state"
+        },
+        "city": {
+          "@path": "$.traits.address.city"
+        },
+        "address": {
+          "@path": "$.traits.address.street"
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "then": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "else": {
+              "@path": "$.traits.address.postal_code"
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

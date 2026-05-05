@@ -1,0 +1,1556 @@
+{
+  "name": "Facebook Custom Audiences (Actions)",
+  "description": "The Facebook Custom Audiences destination.",
+  "basicOptions": [
+    "retlAdAccountId",
+    "engageAdAccountId",
+    "audienceDescription",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "retlAdAccountId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named \"Advertiser Account ID\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The retlAdAccountId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "engageAdAccountId": {
+      "tags": [],
+      "default": "",
+      "description": "Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named \"Advertiser Account ID\".",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser Account ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "audienceDescription": {
+      "tags": [],
+      "default": "",
+      "description": "A brief description about your audience.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Description",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The audienceDescription property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "sync",
+      "name": "Sync Audience",
+      "description": "Sync data to Facebook Custom Audiences.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" or type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "externalId",
+          "type": "string",
+          "label": "External ID",
+          "description": "Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalId": {
+                "title": "External ID",
+                "description": "Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "externalId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "User’s email (ex: foo@bar.com). If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "User’s email (ex: foo@bar.com). If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "User’s phone number, including country code. Punctuation and spaces are ok (ex: 1-234-567-8910 or +44 844 412 4653). If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "User’s phone number, including country code. Punctuation and spaces are ok (ex: 1-234-567-8910 or +44 844 412 4653). If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "birth",
+          "type": "object",
+          "label": "Date of Birth",
+          "description": "User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD). If not hashed, Segment will hash this value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "birth": {
+                "title": "Date of Birth",
+                "description": "User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD). If not hashed, Segment will hash this value.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "year": {
+                    "title": "Year",
+                    "type": "string"
+                  },
+                  "month": {
+                    "title": "Month",
+                    "type": "string"
+                  },
+                  "day": {
+                    "title": "Day",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "name",
+          "type": "object",
+          "label": "Name",
+          "description": "User’s name. Include as many fields as possible for better match rates. Use a-z only. No punctuation. Special characters in UTF-8 format. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "first": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "title": "Name",
+                "description": "User’s name. Include as many fields as possible for better match rates. Use a-z only. No punctuation. Special characters in UTF-8 format. If not hashed, Segment will hash this value.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "first": {
+                    "title": "First Name",
+                    "type": "string"
+                  },
+                  "last": {
+                    "title": "Last Name",
+                    "type": "string"
+                  },
+                  "firstInitial": {
+                    "title": "First Initial",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "gender",
+          "type": "string",
+          "label": "Gender",
+          "description": "User’s gender (m for male, f for female). If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "gender": {
+                "title": "Gender",
+                "description": "User’s gender (m for male, f for female). If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "User’s city. Use a-z only. No punctuation. No special characters. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.city"
+              },
+              "then": {
+                "@path": "$.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "User’s city. Use a-z only. No punctuation. No special characters. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "User’s state. Use the 2-character ANSI abbreviation code, Normalize states outside the US with no punctuation and no special characters. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.state"
+              },
+              "then": {
+                "@path": "$.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "User’s state. Use the 2-character ANSI abbreviation code, Normalize states outside the US with no punctuation and no special characters. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "zip",
+          "type": "string",
+          "label": "Postal Code",
+          "description": "User’s postal code. For the US, use only the first 5 digits. For the UK, use the Area/District/Sector format. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.postal_code"
+              },
+              "else": {
+                "@path": "$.properties.postal_code"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "zip": {
+                "title": "Postal Code",
+                "description": "User’s postal code. For the US, use only the first 5 digits. For the UK, use the Area/District/Sector format. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "country",
+          "type": "string",
+          "label": "Country",
+          "description": "User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.country"
+              },
+              "then": {
+                "@path": "$.traits.country"
+              },
+              "else": {
+                "@path": "$.properties.country"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "title": "Country",
+                "description": "User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "mobileAdId",
+          "type": "string",
+          "label": "Mobile Advertising ID",
+          "description": "User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123). If not hashed, Segment will hash this value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mobileAdId": {
+                "title": "Mobile Advertising ID",
+                "description": "User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123). If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "appId",
+          "type": "string",
+          "label": "App ID",
+          "description": "The app ID of the user. If not hashed, Segment will hash this value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "appId": {
+                "title": "App ID",
+                "description": "The app ID of the user. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "pageId",
+          "type": "string",
+          "label": "Page ID",
+          "description": "The page ID of the user. If not hashed, Segment will hash this value.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "pageId": {
+                "title": "Page ID",
+                "description": "The page ID of the user. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "igAccountIds",
+          "type": "string",
+          "label": "Instagram Account IDs",
+          "description": "The Instagram account ID of the user.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "igAccountIds": {
+                "title": "Instagram Account IDs",
+                "description": "The Instagram account ID of the user.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_audience_id",
+          "type": "string",
+          "label": "Facebook List ID",
+          "description": "The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_audience_id": {
+                "title": "Facebook List ID",
+                "description": "The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "Enable batching of requests.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "defaultValue": 10000,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "batch_size"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "operation",
+          "type": "string",
+          "label": "Create a new custom audience or connect to an existing one?",
+          "description": "Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.",
+          "defaultValue": "create",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "Create New Audience",
+              "value": "create"
+            },
+            {
+              "label": "Connect to Existing Audience",
+              "value": "existing"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation": {
+                "title": "Create a new custom audience or connect to an existing one?",
+                "description": "Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.",
+                "type": "string",
+                "enum": [
+                  "create",
+                  "existing"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "audienceName",
+          "type": "string",
+          "label": "Audience Creation Name",
+          "description": "The name of the audience in Facebook.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceName": {
+                "title": "Audience Creation Name",
+                "description": "The name of the audience in Facebook.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "existingAudienceId",
+          "type": "string",
+          "label": "Existing Audience ID",
+          "description": "The ID of the audience in Facebook.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "existingAudienceId": {
+                "title": "Existing Audience ID",
+                "description": "The ID of the audience in Facebook.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": {
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "existing"
+              }
+            ]
+          },
+          "hookInputFieldType": "retlOnMappingSave",
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "retlOnMappingSave",
+          "type": "object",
+          "label": "Select or create an audience in Facebook",
+          "description": "When saving this mapping, Segment will either create a new audience in Facebook or connect to an existing one. To create a new audience, enter the name of the audience. To connect to an existing audience, select the audience ID from the dropdown.",
+          "defaultValue": null,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": false,
+          "readOnly": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "retlOnMappingSave": {
+                "title": "Select or create an audience in Facebook",
+                "description": "When saving this mapping, Segment will either create a new audience in Facebook or connect to an existing one. To create a new audience, enter the name of the audience. To connect to an existing audience, select the audience ID from the dropdown.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "audienceName": {
+                    "title": "Audience Name",
+                    "description": "The name of the audience in Facebook this mapping is connected to.",
+                    "type": "string"
+                  },
+                  "audienceId": {
+                    "title": "Audience ID",
+                    "description": "The ID of the audience in Facebook.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "audienceName",
+                  "audienceId"
+                ]
+              }
+            },
+            "required": []
+          },
+          "hookInputFieldType": "retlOnMappingSave"
+        },
+        {
+          "fieldKey": "__segment_internal_sync_mode",
+          "type": "string",
+          "label": "Sync Mode",
+          "description": "Define how the records will be synced to Facebook Custom Audiences.",
+          "defaultValue": "mirror",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "value": "mirror",
+              "label": "Mirror"
+            },
+            {
+              "value": "upsert",
+              "label": "Upsert"
+            },
+            {
+              "value": "delete",
+              "label": "Delete"
+            }
+          ],
+          "dynamic": false,
+          "allowNull": false,
+          "hidden": true,
+          "readOnly": false,
+          "dependsOn": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "sync",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "sync",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "sync",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "sync",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

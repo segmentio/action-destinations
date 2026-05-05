@@ -1,0 +1,3063 @@
+{
+  "name": "Tiktok Conversions Sandbox",
+  "basicOptions": [
+    "accessToken",
+    "pixelCode"
+  ],
+  "options": {
+    "accessToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Access Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The accessToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "pixelCode": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your TikTok Pixel ID. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to find this value.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Pixel Code",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The pixelCode property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "reportWebEvent",
+      "name": "Report Web Event",
+      "description": "Report Web events directly to TikTok. Data shared can power TikTok solutions like dynamic product ads, custom targeting, campaign optimization and attribution.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "event",
+          "type": "string",
+          "label": "Event Name",
+          "description": "Conversion event name. Please refer to the \"Supported Web Events\" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event": {
+                "title": "Event Name",
+                "description": "Conversion event name. Please refer to the \"Supported Web Events\" section on in TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for accepted event names.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_id",
+          "type": "string",
+          "label": "Event ID",
+          "description": "Any hashed ID that can identify a unique user/session.",
+          "defaultValue": {
+            "@path": "$.messageId"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_id": {
+                "title": "Event ID",
+                "description": "Any hashed ID that can identify a unique user/session.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Event Timestamp",
+          "description": "Timestamp that the event took place, in ISO 8601 format.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Event Timestamp",
+                "description": "Timestamp that the event took place, in ISO 8601 format.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "phone_number",
+          "type": "string",
+          "label": "Phone Number",
+          "description": "A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone_number": {
+                "title": "Phone Number",
+                "description": "A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. e.g. +14150000000. Segment will hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "A single email address or an array of email addresses. Segment will hash this value before sending to TikTok.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "A single email address or an array of email addresses. Segment will hash this value before sending to TikTok.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "order_id",
+          "type": "string",
+          "label": "Order ID",
+          "description": "Order ID of the transaction.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "order_id": {
+                "title": "Order ID",
+                "description": "Order ID of the transaction.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "shop_id",
+          "type": "string",
+          "label": "Shop ID",
+          "description": "Shop ID of the transaction.",
+          "defaultValue": {
+            "@path": "$.properties.shop_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "shop_id": {
+                "title": "Shop ID",
+                "description": "Shop ID of the transaction.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "external_id",
+          "type": "string",
+          "label": "External ID",
+          "description": "Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending external ID(s).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "external_id": {
+                "title": "External ID",
+                "description": "Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Conversions Destination supports both string and string[] types for sending external ID(s).",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ttclid",
+          "type": "string",
+          "label": "TikTok Click ID",
+          "description": "The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.ttclid"
+              },
+              "then": {
+                "@path": "$.properties.ttclid"
+              },
+              "else": {
+                "@path": "$.integrations.TikTok Conversions.ttclid"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ttclid": {
+                "title": "TikTok Click ID",
+                "description": "The value of the ttclid used to match website visitor events with TikTok ads. The ttclid is valid for 7 days. See [Set up ttclid](https://ads.tiktok.com/marketing_api/docs?rid=4eezrhr6lg4&id=1681728034437121) for details.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ttp",
+          "type": "string",
+          "label": "TikTok Cookie ID",
+          "description": "TikTok Cookie ID. If you also use Pixel SDK and have enabled cookies, Pixel SDK automatically saves a unique identifier in the `_ttp` cookie. The value of `_ttp` is used to match website visitor events with TikTok ads. You can extract the value of `_ttp` and attach the value here. To learn more about the `ttp` parameter, refer to [Events API 2.0 - Send TikTok Cookie](https://ads.tiktok.com/marketing_api/docs?id=%201771100936446977) (`_ttp`).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.ttp"
+              },
+              "then": {
+                "@path": "$.properties.ttp"
+              },
+              "else": {
+                "@path": "$.integrations.TikTok Conversions.ttp"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ttp": {
+                "title": "TikTok Cookie ID",
+                "description": "TikTok Cookie ID. If you also use Pixel SDK and have enabled cookies, Pixel SDK automatically saves a unique identifier in the `_ttp` cookie. The value of `_ttp` is used to match website visitor events with TikTok ads. You can extract the value of `_ttp` and attach the value here. To learn more about the `ttp` parameter, refer to [Events API 2.0 - Send TikTok Cookie](https://ads.tiktok.com/marketing_api/docs?id=%201771100936446977) (`_ttp`).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "lead_id",
+          "type": "string",
+          "label": "TikTok Lead ID",
+          "description": "ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability",
+          "defaultValue": {
+            "@path": "$.properties.lead_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lead_id": {
+                "title": "TikTok Lead ID",
+                "description": "ID of TikTok leads. Every lead will have its own lead_id when exported from TikTok. This feature is in Beta. Please contact your TikTok representative to inquire regarding availability",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "locale",
+          "type": "string",
+          "label": "Locale",
+          "description": "The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).",
+          "defaultValue": {
+            "@path": "$.context.locale"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "locale": {
+                "title": "Locale",
+                "description": "The BCP 47 language identifier. For reference, refer to the [IETF BCP 47 standardized code](https://www.rfc-editor.org/rfc/bcp/bcp47.txt).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "url",
+          "type": "string",
+          "label": "Page URL",
+          "description": "The page URL where the conversion event took place.",
+          "defaultValue": {
+            "@path": "$.context.page.url"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "url": {
+                "title": "Page URL",
+                "description": "The page URL where the conversion event took place.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "referrer",
+          "type": "string",
+          "label": "Page Referrer",
+          "description": "The page referrer.",
+          "defaultValue": {
+            "@path": "$.context.page.referrer"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "referrer": {
+                "title": "Page Referrer",
+                "description": "The page referrer.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "ip",
+          "type": "string",
+          "label": "IP Address",
+          "description": "IP address of the browser.",
+          "defaultValue": {
+            "@path": "$.context.ip"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ip": {
+                "title": "IP Address",
+                "description": "IP address of the browser.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_agent",
+          "type": "string",
+          "label": "User Agent",
+          "description": "User agent from the user’s device.",
+          "defaultValue": {
+            "@path": "$.context.userAgent"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_agent": {
+                "title": "User Agent",
+                "description": "User agent from the user’s device.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "contents",
+          "type": "object",
+          "label": "Contents",
+          "description": "Related item details for the event.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contents": {
+                "title": "Contents",
+                "description": "Related item details for the event.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "price": {
+                      "title": "Price",
+                      "description": "Price of the item.",
+                      "type": "number"
+                    },
+                    "quantity": {
+                      "title": "Quantity",
+                      "description": "Number of items.",
+                      "type": "number"
+                    },
+                    "content_category": {
+                      "title": "Content Category",
+                      "description": "Category of the product item.",
+                      "type": "string"
+                    },
+                    "content_id": {
+                      "title": "Content ID",
+                      "description": "ID of the product item.",
+                      "type": "string"
+                    },
+                    "content_name": {
+                      "title": "Content Name",
+                      "description": "Name of the product item.",
+                      "type": "string"
+                    },
+                    "brand": {
+                      "title": "Brand",
+                      "description": "Brand name of the product item.",
+                      "type": "string"
+                    }
+                  },
+                  "required": []
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "content_type",
+          "type": "string",
+          "label": "Content Type",
+          "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
+          "defaultValue": "product",
+          "required": false,
+          "multiple": false,
+          "choices": [
+            {
+              "label": "product",
+              "value": "product"
+            },
+            {
+              "label": "product_group",
+              "value": "product_group"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "content_type": {
+                "title": "Content Type",
+                "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
+                "type": "string",
+                "enum": [
+                  "product",
+                  "product_group"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "currency",
+          "type": "string",
+          "label": "Currency",
+          "description": "Currency for the value specified as ISO 4217 code.",
+          "defaultValue": {
+            "@path": "$.properties.currency"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "title": "Currency",
+                "description": "Currency for the value specified as ISO 4217 code.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "value",
+          "type": "number",
+          "label": "Value",
+          "description": "Value of the order or items sold.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.value"
+              },
+              "then": {
+                "@path": "$.properties.value"
+              },
+              "else": {
+                "@path": "$.properties.revenue"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "title": "Value",
+                "description": "Value of the order or items sold.",
+                "type": "number"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "description",
+          "type": "string",
+          "label": "Description",
+          "description": "A string description of the web event.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "title": "Description",
+                "description": "A string description of the web event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "query",
+          "type": "string",
+          "label": "Query",
+          "description": "The text string that was searched for.",
+          "defaultValue": {
+            "@path": "$.properties.query"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "query": {
+                "title": "Query",
+                "description": "The text string that was searched for.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "limited_data_use",
+          "type": "boolean",
+          "label": "Limited Data Use",
+          "description": "Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).",
+          "defaultValue": {
+            "@path": "$.properties.limited_data_use"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "limited_data_use": {
+                "title": "Limited Data Use",
+                "description": "Use this field to flag an event for limited data processing. TikTok will recognize this parameter as a request for limited data processing, and will limit its processing activities accordingly if the event shared occurred in an eligible location. To learn more about the Limited Data Use feature, refer to [Events API 2.0 - Limited Data Use](https://ads.tiktok.com/marketing_api/docs?id=1771101204435970).",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "test_event_code",
+          "type": "string",
+          "label": "Test Event Code",
+          "description": "Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your TikTok Events Manager under the \"Test Event\" tab. You'll want to remove your Test Event Code when sending real traffic through this integration.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "test_event_code": {
+                "title": "Test Event Code",
+                "description": "Use this field to specify that events should be test events rather than actual traffic. You can find your Test Event Code in your TikTok Events Manager under the \"Test Event\" tab. You'll want to remove your Test Event Code when sending real traffic through this integration.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add Payment Info",
+      "subscribe": "event = \"Payment Info Entered\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "AddPaymentInfo"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add to Cart",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "AddToCart"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Add to Wishlist",
+      "subscribe": "event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "AddToWishlist"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Click Button",
+      "subscribe": "event = \"Product Clicked\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "ClickButton"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Complete Payment",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "CompletePayment"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Complete Registration",
+      "subscribe": "event = \"Signed Up\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "event": "CompleteRegistration"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Contact",
+      "subscribe": "event = \"Callback Started\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "event": "Contact"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Download",
+      "subscribe": "event = \"Download Link Clicked\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "event": "Download"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Initiate Checkout",
+      "subscribe": "event = \"Checkout Started\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "InitiateCheckout"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Page View",
+      "subscribe": "type=\"page\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "PageView"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Place an Order",
+      "subscribe": "event = \"Order Placed\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "PlaceAnOrder"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Search",
+      "subscribe": "event = \"Products Searched\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "Search"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Submit Form",
+      "subscribe": "event = \"Form Submitted\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "event": "SubmitForm"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "Subscribe",
+      "subscribe": "event = \"Subscription Created\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "event": "Subscribe"
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "reportWebEvent",
+      "name": "View Content",
+      "subscribe": "event = \"Product Viewed\"",
+      "mapping": {
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shop_id": {
+          "@path": "$.properties.shop_id"
+        },
+        "external_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "ttclid": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttclid"
+            },
+            "then": {
+              "@path": "$.properties.ttclid"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttclid"
+            }
+          }
+        },
+        "ttp": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.ttp"
+            },
+            "then": {
+              "@path": "$.properties.ttp"
+            },
+            "else": {
+              "@path": "$.integrations.TikTok Conversions.ttp"
+            }
+          }
+        },
+        "lead_id": {
+          "@path": "$.properties.lead_id"
+        },
+        "locale": {
+          "@path": "$.context.locale"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_agent": {
+          "@path": "$.context.userAgent"
+        },
+        "content_type": "product",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.value"
+            },
+            "then": {
+              "@path": "$.properties.value"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "query": {
+          "@path": "$.properties.query"
+        },
+        "limited_data_use": {
+          "@path": "$.properties.limited_data_use"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "content_category": {
+                "@path": "$.category"
+              },
+              "content_id": {
+                "@path": "$.product_id"
+              },
+              "content_name": {
+                "@path": "$.name"
+              },
+              "brand": {
+                "@path": "$.brand"
+              }
+            }
+          ]
+        },
+        "event": "ViewContent"
+      },
+      "type": "automatic"
+    }
+  ]
+}

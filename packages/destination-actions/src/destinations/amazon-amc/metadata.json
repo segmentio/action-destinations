@@ -1,0 +1,1135 @@
+{
+  "name": "Amazon Ads DSP and AMC",
+  "basicOptions": [
+    "region",
+    "description",
+    "countryCode",
+    "externalAudienceId",
+    "cpmCents",
+    "currency",
+    "ttl",
+    "advertiserId",
+    "__segment_internal_engage_batch_sync",
+    "__segment_internal_engage_support_audience_functions"
+  ],
+  "options": {
+    "region": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://advertising-api.amazon.com",
+      "description": "Region for API Endpoint, either NA, EU, FE.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://advertising-api.amazon.com",
+          "label": "North America (NA)",
+          "text": "North America (NA)"
+        },
+        {
+          "value": "https://advertising-api-eu.amazon.com",
+          "label": "Europe (EU)",
+          "text": "Europe (EU)"
+        },
+        {
+          "value": "https://advertising-api-fe.amazon.com",
+          "label": "Far East (FE)",
+          "text": "Far East (FE)"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The region property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "description": {
+      "tags": [],
+      "default": "",
+      "description": "The audience description. Must be an alphanumeric, non-null string between 0 to 1000 characters in length.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Description",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The description property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "countryCode": {
+      "tags": [],
+      "default": "",
+      "description": "A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Country Code",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The countryCode property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "externalAudienceId": {
+      "tags": [],
+      "default": "",
+      "description": "The user-defined audience identifier.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "External Audience Id",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The externalAudienceId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "cpmCents": {
+      "tags": [],
+      "default": 0,
+      "description": "Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "CPM Cents",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "currency": {
+      "tags": [],
+      "default": "",
+      "description": "Currency code for the CPM value.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Currency",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "USD",
+          "label": "USD",
+          "text": "USD"
+        },
+        {
+          "value": "CAD",
+          "label": "CAD",
+          "text": "CAD"
+        },
+        {
+          "value": "JPY",
+          "label": "JPY",
+          "text": "JPY"
+        },
+        {
+          "value": "GBP",
+          "label": "GBP",
+          "text": "GBP"
+        },
+        {
+          "value": "EUR",
+          "label": "EUR",
+          "text": "EUR"
+        },
+        {
+          "value": "SAR",
+          "label": "SAR",
+          "text": "SAR"
+        },
+        {
+          "value": "AUD",
+          "label": "AUD",
+          "text": "AUD"
+        },
+        {
+          "value": "AED",
+          "label": "AED",
+          "text": "AED"
+        },
+        {
+          "value": "CNY",
+          "label": "CNY",
+          "text": "CNY"
+        },
+        {
+          "value": "MXN",
+          "label": "MXN",
+          "text": "MXN"
+        },
+        {
+          "value": "INR",
+          "label": "INR",
+          "text": "INR"
+        },
+        {
+          "value": "SEK",
+          "label": "SEK",
+          "text": "SEK"
+        },
+        {
+          "value": "TRY",
+          "label": "TRY",
+          "text": "TRY"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ttl": {
+      "tags": [],
+      "default": 0,
+      "description": "Time-to-live in seconds. The amount of time the record is associated with the audience.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Time-to-live",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "advertiserId": {
+      "tags": [],
+      "default": "",
+      "description": "Advertiser Id",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": false,
+      "scope": "audience_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "oauth": {
+      "default": {},
+      "description": "Authorizes Segment to OAuth to the Destination API",
+      "encrypt": false,
+      "hidden": true,
+      "label": "OAuth",
+      "private": true,
+      "scope": "event_destination",
+      "type": "oauth",
+      "fields": [
+        {
+          "access-token": {
+            "description": "The (legacy) access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "access_token": {
+            "description": "The access token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "appId": {
+            "description": "The App ID, retrieved via Destination API post-auth.",
+            "type": "string"
+          },
+          "appName": {
+            "description": "The authorized user App, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "createdAt": {
+            "description": "Date of OAuth connection.",
+            "type": "string"
+          },
+          "createdBy": {
+            "description": "Email address of segment user who connected OAuth.",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The authorized user, retrieved via Destination API on settings view load.",
+            "type": "string"
+          },
+          "refresh_token": {
+            "description": "The refresh token provided by Destination API after the OAuth handshake.",
+            "type": "string"
+          },
+          "token_type": {
+            "description": "",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "__segment_internal_engage_batch_sync": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Indicates that this is a batched (or synced) destination on some schedule",
+      "type": "boolean",
+      "description": "Indicates that this is a batched (or synced) destination on some schedule",
+      "default": true,
+      "scope": "event_destination"
+    },
+    "__segment_internal_engage_support_audience_functions": {
+      "private": true,
+      "hidden": true,
+      "encrypt": false,
+      "readOnly": true,
+      "validators": [],
+      "label": "Supports Audience Functions (getAudience/createAudience)",
+      "type": "boolean",
+      "description": "Supports Audience Functions (getAudience/createAudience)",
+      "default": true,
+      "scope": "event_destination"
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "oauth2",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": true,
+  "actions": [
+    {
+      "slug": "syncAudiencesToDSP",
+      "name": "Sync Audiences to DSP",
+      "description": "Sync audiences from Segment to Amazon Ads Audience.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "event = \"Audience Entered\" or event = \"Audience Exited\"",
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the current Segment event.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "externalUserId",
+          "type": "string",
+          "label": "External User ID",
+          "description": "This is an external user identifier defined by data providers.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "externalUserId": {
+                "title": "External User ID",
+                "description": "This is an external user identifier defined by data providers.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "externalUserId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "email",
+          "type": "string",
+          "label": "Email",
+          "description": "User email address. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "title": "Email",
+                "description": "User email address. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "firstName",
+          "type": "string",
+          "label": "First name",
+          "description": "User first name. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.first_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "firstName": {
+                "title": "First name",
+                "description": "User first name. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "lastName",
+          "type": "string",
+          "label": "Last name",
+          "description": "User Last name. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.last_name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "lastName": {
+                "title": "Last name",
+                "description": "User Last name. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "phone",
+          "type": "string",
+          "label": "Phone",
+          "description": "Phone Number. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.phone"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "phone": {
+                "title": "Phone",
+                "description": "Phone Number. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "postal",
+          "type": "string",
+          "label": "Postal",
+          "description": "Postal Code. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.postal"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "postal": {
+                "title": "Postal",
+                "description": "Postal Code. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "state",
+          "type": "string",
+          "label": "State",
+          "description": "State Code. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.state"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "title": "State",
+                "description": "State Code. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "city",
+          "type": "string",
+          "label": "City",
+          "description": "City name. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.city"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "city": {
+                "title": "City",
+                "description": "City name. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "address",
+          "type": "string",
+          "label": "Address",
+          "description": "Address Code. If not hashed, Segment will hash this value.",
+          "defaultValue": {
+            "@path": "$.properties.address"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "title": "Address",
+                "description": "Address Code. If not hashed, Segment will hash this value.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": {
+            "category": "hashedPII"
+          }
+        },
+        {
+          "fieldKey": "audienceId",
+          "type": "string",
+          "label": "Audience ID",
+          "description": "A number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.",
+          "defaultValue": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "hidden": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "audienceId": {
+                "title": "Audience ID",
+                "description": "A number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "audienceId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "consent",
+          "type": "object",
+          "label": "Consent",
+          "description": "Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.",
+          "defaultValue": {
+            "ipAddress": {
+              "@path": "$.properties.ip"
+            },
+            "amznAdStorage": {
+              "@path": "$.properties.amznAdStorage"
+            },
+            "amznUserData": {
+              "@path": "$.properties.amznUserData"
+            },
+            "tcf": {
+              "@path": "$.properties.tcf"
+            },
+            "gpp": {
+              "@path": "$.properties.gpp"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "consent": {
+                "title": "Consent",
+                "description": "Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "ipAddress": {
+                    "title": "Geographic Consent: IP Address",
+                    "description": "Captures the user's geographic information (IP address) for consent checking.",
+                    "type": "string"
+                  },
+                  "amznAdStorage": {
+                    "title": "Ad Storage Consent",
+                    "description": "Amazon Consent Format: Captures whether the user has consented to cookie based tracking.",
+                    "type": "string",
+                    "enum": [
+                      "GRANTED",
+                      "DENIED"
+                    ]
+                  },
+                  "amznUserData": {
+                    "title": "User Data Consent",
+                    "description": "Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.",
+                    "type": "string",
+                    "enum": [
+                      "GRANTED",
+                      "DENIED"
+                    ]
+                  },
+                  "tcf": {
+                    "title": "TCF String",
+                    "description": "An encoded Transparency and Consent Framework (TCF) string describing user consent choices.",
+                    "type": "string"
+                  },
+                  "gpp": {
+                    "title": "GPP String",
+                    "description": "An encoded Global Privacy Platform (GPP) string describing user privacy preferences.",
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching",
+          "description": "When enabled,segment will send data in batching",
+          "defaultValue": true,
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enable_batching": {
+                "title": "Enable Batching",
+                "description": "When enabled,segment will send data in batching",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enable_batching"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "batch_size",
+          "type": "number",
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Minimum value is 1500 and maximum is 10000.",
+          "defaultValue": 10000,
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "batch_size": {
+                "title": "Batch Size",
+                "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Minimum value is 1500 and maximum is 10000.",
+                "type": "number",
+                "minimum": 1500,
+                "maximum": 10000
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "minimum": 1500,
+          "maximum": 10000,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "syncAudiencesToDSP",
+      "name": "Associated Entity Added",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "partnerAction": "syncAudiencesToDSP",
+      "name": "Associated Entity Removed",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "partnerAction": "syncAudiencesToDSP",
+      "name": "Entities Audience Membership Changed",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "partnerAction": "syncAudiencesToDSP",
+      "name": "Journeys Step Entered",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "type": "specificEvent",
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

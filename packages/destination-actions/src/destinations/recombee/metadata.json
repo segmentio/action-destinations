@@ -1,0 +1,3223 @@
+{
+  "name": "Recombee",
+  "basicOptions": [
+    "databaseId",
+    "privateToken",
+    "databaseRegion",
+    "apiUri"
+  ],
+  "options": {
+    "databaseId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The ID of the Recombee Database into which the interactions will be sent.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Database ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The databaseId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "privateToken": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "The private token for the Recombee Database used.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "Private Token",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The privateToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "databaseRegion": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "eu-west",
+      "description": "The Recombee cluster where your Database is located. [Learn more](https://docs.recombee.com/regions)",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Database Region",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "eu-west",
+          "label": "EU",
+          "text": "EU"
+        },
+        {
+          "value": "ca-east",
+          "label": "Canada (East Coast)",
+          "text": "Canada (East Coast)"
+        },
+        {
+          "value": "ap-se",
+          "label": "Australia",
+          "text": "Australia"
+        },
+        {
+          "value": "us-west",
+          "label": "US (West Coast)",
+          "text": "US (West Coast)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom",
+          "text": "Custom"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The databaseRegion property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "apiUri": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "URI of the Recombee API that should be used. *Keep this field empty unless you are calling the Recombee cluster based in a specific region or you were assigned a custom URI by the Recombee Support team.*",
+      "encrypt": false,
+      "hidden": false,
+      "label": "API URI",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "databaseRegion",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "addBookmark",
+      "name": "Add Bookmark",
+      "description": "Adds a bookmark of the given item made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who bookmarked the item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who bookmarked the item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The bookmarked item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The bookmarked item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the bookmark event occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the bookmark event occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the bookmark is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the bookmark is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the bookmark.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the bookmark.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the bookmark. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the bookmark. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "addCartAddition",
+      "name": "Add Cart Addition",
+      "description": "Adds a cart addition of the given item made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Added\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who added the item to the cart.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who added the item to the cart.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "item",
+          "type": "object",
+          "label": "Item",
+          "description": "The item that was added to the cart.",
+          "defaultValue": {
+            "itemId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.product_id"
+                },
+                "then": {
+                  "@path": "$.properties.product_id"
+                },
+                "else": {
+                  "@path": "$.properties.sku"
+                }
+              }
+            },
+            "amount": {
+              "@path": "$.properties.quantity"
+            },
+            "price": {
+              "@path": "$.properties.price"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "item": {
+                "title": "Item",
+                "description": "The item that was added to the cart.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "itemId": {
+                    "title": "Item ID",
+                    "description": "ID of the item.",
+                    "type": "string"
+                  },
+                  "amount": {
+                    "title": "Amount",
+                    "description": "The amount (number) of the item added to the cart.",
+                    "type": "number",
+                    "default": 1
+                  },
+                  "price": {
+                    "title": "Price (per item)",
+                    "description": "The price of the added item. If `amount` is greater than 1, the price of one item should be given.",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "itemId"
+                ]
+              }
+            },
+            "required": [
+              "item"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the cart addition occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the cart addition occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the cart addition is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the cart addition is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the cart addition.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the cart addition.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the cart addition. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the cart addition. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "addDetailView",
+      "name": "Add Detail View",
+      "description": "Adds a detail view of the given item made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who viewed the item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who viewed the item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The viewed item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The viewed item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the view occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the view occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "duration",
+          "type": "integer",
+          "label": "Duration",
+          "description": "The duration of the view in seconds.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "duration": {
+                "title": "Duration",
+                "description": "The duration of the view in seconds.",
+                "type": "integer"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the view is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the view is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the view.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the view.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the view. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the view. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "addPurchase",
+      "name": "Add Purchase",
+      "description": "Adds a purchase of the given item(s) made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who purchased the item(s).",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who purchased the item(s).",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "items",
+          "type": "object",
+          "label": "Items",
+          "description": "The items that were purchased.",
+          "defaultValue": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "itemId": {
+                  "@if": {
+                    "exists": {
+                      "@path": "$.product_id"
+                    },
+                    "then": {
+                      "@path": "$.product_id"
+                    },
+                    "else": {
+                      "@path": "$.sku"
+                    }
+                  }
+                },
+                "amount": {
+                  "@path": "$.quantity"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "profit": {
+                  "@path": "$.profit"
+                }
+              }
+            ]
+          },
+          "required": true,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "title": "Items",
+                "description": "The items that were purchased.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "itemId": {
+                      "title": "Item ID",
+                      "description": "ID of the item.",
+                      "type": "string"
+                    },
+                    "amount": {
+                      "title": "Amount",
+                      "description": "The amount (number) of the item purchased.",
+                      "type": "number",
+                      "default": 1
+                    },
+                    "price": {
+                      "title": "Price (per item)",
+                      "description": "The price of the purchased item. If `amount` is greater than 1, the price of one item should be given.",
+                      "type": "number"
+                    },
+                    "profit": {
+                      "title": "Profit (per item)",
+                      "description": "The profit of the purchased item. If `amount` is greater than 1, the profit per one item should be given.",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "itemId"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the purchase occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the purchase occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the purchase is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the purchase is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the purchase.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the purchase.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the purchase. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the purchase. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "addRating",
+      "name": "Add Rating",
+      "description": "Adds a rating of the given item made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who submitted the rating.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who submitted the rating.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The rated item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The rated item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the rating occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the rating occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "rating",
+          "type": "number",
+          "label": "Rating",
+          "description": "The rating of the item rescaled to interval [-1.0,1.0], where -1.0 means the worst rating possible, 0.0 means neutral, and 1.0 means absolutely positive rating. For example, in the case of 5-star evaluations, rating = (numStars-3)/2 formula may be used for the conversion.",
+          "defaultValue": {
+            "@path": "$.properties.rating"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "rating": {
+                "title": "Rating",
+                "description": "The rating of the item rescaled to interval [-1.0,1.0], where -1.0 means the worst rating possible, 0.0 means neutral, and 1.0 means absolutely positive rating. For example, in the case of 5-star evaluations, rating = (numStars-3)/2 formula may be used for the conversion.",
+                "type": "number"
+              }
+            },
+            "required": [
+              "rating"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the rating is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the rating is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the rating.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the rating.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the rating. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the rating. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "deleteBookmark",
+      "name": "Delete Bookmark",
+      "description": "Deletes a bookmark of the given item made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Removed from Wishlist\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who bookmarked the item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who bookmarked the item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The item that was bookmarked.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The item that was bookmarked.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the bookmark occurred. If the timestamp is omitted, then all the bookmarks with the given `userId` and `itemId` are deleted.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the bookmark occurred. If the timestamp is omitted, then all the bookmarks with the given `userId` and `itemId` are deleted.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "deleteCartAddition",
+      "name": "Delete Cart Addition",
+      "description": "Deletes a cart addition of the given item made by the given user.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\" and event = \"Product Removed\"",
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who added the item to the cart.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who added the item to the cart.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The item that was added to the cart.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The item that was added to the cart.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the cart addition occurred. If the timestamp is omitted, then all the cart additions with the given `userId` and `itemId` are deleted.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the cart addition occurred. If the timestamp is omitted, then all the cart additions with the given `userId` and `itemId` are deleted.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "mergeUsers",
+      "name": "Merge Users",
+      "description": "Merges interactions (purchases, ratings, bookmarks, detail views, ...) of two different users under a single user ID.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": "type = \"alias\"",
+      "fields": [
+        {
+          "fieldKey": "targetUserId",
+          "type": "string",
+          "label": "Target User ID",
+          "description": "The ID of the target user that will be **kept** after the merge.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "targetUserId": {
+                "title": "Target User ID",
+                "description": "The ID of the target user that will be **kept** after the merge.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "targetUserId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sourceUserId",
+          "type": "string",
+          "label": "Source User ID",
+          "description": "The ID of the source user that will be **deleted** after the merge.",
+          "defaultValue": {
+            "@path": "$.previousId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sourceUserId": {
+                "title": "Source User ID",
+                "description": "The ID of the source user that will be **deleted** after the merge.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sourceUserId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "setViewPortion",
+      "name": "Set View Portion",
+      "description": "Sets the viewed portion of a given item (e.g. a video or article) by the given user. **Use this action when you have the viewed portion as a number between 0 and 1.**",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who viewed a portion of the item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who viewed a portion of the item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The viewed item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The viewed item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the view portion occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the view portion occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "portion",
+          "type": "number",
+          "label": "Portion",
+          "description": "The viewed portion of the item as a number in the interval [0.0,1.0], where 0.0 means the user viewed nothing and 1.0 means the full item was viewed. It should be the actual viewed part of the item, no matter the seeking. For example, if the user seeked immediately to half of the item and then viewed 10% of the item, the `portion` should still be `0.1`.",
+          "defaultValue": {
+            "@path": "$.properties.portion"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "portion": {
+                "title": "Portion",
+                "description": "The viewed portion of the item as a number in the interval [0.0,1.0], where 0.0 means the user viewed nothing and 1.0 means the full item was viewed. It should be the actual viewed part of the item, no matter the seeking. For example, if the user seeked immediately to half of the item and then viewed 10% of the item, the `portion` should still be `0.1`.",
+                "type": "number",
+                "maximum": 1
+              }
+            },
+            "required": [
+              "portion"
+            ]
+          },
+          "dependsOn": null,
+          "minimum": 0,
+          "maximum": 1,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sessionId",
+          "type": "string",
+          "label": "Session ID",
+          "description": "The ID of the session in which the user viewed the item.",
+          "defaultValue": {
+            "@path": "$.properties.session"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "title": "Session ID",
+                "description": "The ID of the session in which the user viewed the item.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the view portion is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the view portion is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the view portion.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the view portion.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the view portion. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the view portion. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "setViewPortionFromWatchTime",
+      "name": "Set View Portion from Watch Time",
+      "description": "Sets the viewed portion of a given item (e.g. a video or article) by the given user. **Use this action when you have the watch time of the item (e.g. in seconds) instead of the portion watched.**",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "userId",
+          "type": "string",
+          "label": "User ID",
+          "description": "The ID of the user who viewed a portion of the item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "userId": {
+                "title": "User ID",
+                "description": "The ID of the user who viewed a portion of the item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "userId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "itemId",
+          "type": "string",
+          "label": "Item ID",
+          "description": "The viewed item.",
+          "defaultValue": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "itemId": {
+                "title": "Item ID",
+                "description": "The viewed item.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "itemId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "timestamp",
+          "type": "string",
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the view portion occurred.",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "timestamp": {
+                "title": "Timestamp",
+                "description": "The UTC timestamp of when the view portion occurred.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "portion",
+          "type": "object",
+          "label": "Portion",
+          "description": "The portion of the item that the user viewed.",
+          "defaultValue": {
+            "totalLength": {
+              "@path": "$.properties.total_length"
+            },
+            "watchTime": {
+              "@path": "$.properties.position"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "portion": {
+                "title": "Portion",
+                "description": "The portion of the item that the user viewed.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "totalLength": {
+                    "title": "Total Length",
+                    "description": "The total length of the item that the user can view (for example, in seconds or minutes).",
+                    "type": "number"
+                  },
+                  "watchTime": {
+                    "title": "Watch Time",
+                    "description": "The user's watched time of the item (measured in the same units as Total Length).",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "totalLength",
+                  "watchTime"
+                ]
+              }
+            },
+            "required": [
+              "portion"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sessionId",
+          "type": "string",
+          "label": "Session ID",
+          "description": "The ID of the session in which the user viewed the item.",
+          "defaultValue": {
+            "@path": "$.properties.session"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "title": "Session ID",
+                "description": "The ID of the session in which the user viewed the item.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "recommId",
+          "type": "string",
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the view portion is based on a recommendation request).",
+          "defaultValue": {
+            "@path": "$.properties.recomm_id"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommId": {
+                "title": "Recommendation ID",
+                "description": "The ID of the clicked recommendation (if the view portion is based on a recommendation request).",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "internalAdditionalData",
+          "type": "object",
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the view portion.",
+          "defaultValue": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "hidden": true,
+          "readOnly": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "internalAdditionalData": {
+                "title": "Internal Additional Data",
+                "description": "Internal additional data to be stored with the view portion.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "additionalData",
+          "type": "object",
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the view portion. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "additionalData": {
+                "title": "Additional Data",
+                "description": "Additional data to be stored with the view portion. *Keep this field empty unless instructed by the Recombee Support team.*",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "mergeUsers",
+      "name": "Alias",
+      "subscribe": "type = \"alias\"",
+      "mapping": {
+        "targetUserId": {
+          "@path": "$.userId"
+        },
+        "sourceUserId": {
+          "@path": "$.previousId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addPurchase",
+      "name": "Ecommerce - Order Completed",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "itemId": {
+                "@if": {
+                  "exists": {
+                    "@path": "$.product_id"
+                  },
+                  "then": {
+                    "@path": "$.product_id"
+                  },
+                  "else": {
+                    "@path": "$.sku"
+                  }
+                }
+              },
+              "amount": {
+                "@path": "$.quantity"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "profit": {
+                "@path": "$.profit"
+              }
+            }
+          ]
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addCartAddition",
+      "name": "Ecommerce - Product Added",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "item": {
+          "itemId": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.sku"
+              }
+            }
+          },
+          "amount": {
+            "@path": "$.properties.quantity"
+          },
+          "price": {
+            "@path": "$.properties.price"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addBookmark",
+      "name": "Ecommerce - Product Added to Wishlist",
+      "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "deleteCartAddition",
+      "name": "Ecommerce - Product Removed",
+      "subscribe": "type = \"track\" and event = \"Product Removed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "deleteBookmark",
+      "name": "Ecommerce - Product Removed from Wishlist",
+      "subscribe": "type = \"track\" and event = \"Product Removed from Wishlist\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addBookmark",
+      "name": "Ecommerce - Product Shared",
+      "subscribe": "type = \"track\" and event = \"Product Shared\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addDetailView",
+      "name": "Ecommerce - Product Viewed",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addDetailView",
+      "name": "Page - Viewed",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@path": "$.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "addDetailView",
+      "name": "Screen - Viewed",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@path": "$.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "setViewPortionFromWatchTime",
+      "name": "Video - Content Playing",
+      "subscribe": "type = \"track\" and event = \"Video Content Playing\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "then": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "else": {
+              "@path": "$.properties.content_asset_ids[0]"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": {
+          "totalLength": {
+            "@path": "$.properties.total_length"
+          },
+          "watchTime": {
+            "@path": "$.properties.position"
+          }
+        },
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "setViewPortion",
+      "name": "Video - Playback Completed",
+      "subscribe": "type = \"track\" and event = \"Video Playback Completed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "then": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "else": {
+              "@path": "$.properties.content_asset_ids[0]"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": 1,
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "setViewPortionFromWatchTime",
+      "name": "Video - Playback Paused",
+      "subscribe": "type = \"track\" and event = \"Video Playback Paused\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@path": "$.properties.content_asset_id"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": {
+          "totalLength": {
+            "@path": "$.properties.total_length"
+          },
+          "watchTime": {
+            "@path": "$.properties.position"
+          }
+        },
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "setViewPortion",
+      "name": "Video - Playback Started",
+      "subscribe": "type = \"track\" and event = \"Video Playback Started\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "then": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "else": {
+              "@path": "$.properties.content_asset_ids[0]"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": 0,
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}

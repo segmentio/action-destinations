@@ -1,0 +1,550 @@
+{
+  "name": "Emarsys (Actions)",
+  "basicOptions": [
+    "api_user",
+    "api_password"
+  ],
+  "options": {
+    "api_user": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Emarsys API username",
+      "encrypt": false,
+      "hidden": false,
+      "label": "API username",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_user property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "api_password": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "Your Emarsys API password.",
+      "encrypt": true,
+      "hidden": false,
+      "label": "API password",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_password property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "addToContactList",
+      "name": "Add to Contact List",
+      "description": "Add a contact to a contact list. The contact must exist before it can be added.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "contactlistid",
+          "type": "integer",
+          "label": "Id of the contact list",
+          "description": "The Id of the contactlist",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactlistid": {
+                "title": "Id of the contact list",
+                "description": "The Id of the contactlist",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "contactlistid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_field",
+          "type": "string",
+          "label": "Key field",
+          "description": "The field to use to find the contact",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_field": {
+                "title": "Key field",
+                "description": "The field to use to find the contact",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_value",
+          "type": "string",
+          "label": "Key value",
+          "description": "Value for the key field used to find the contact. E.g. the email address  ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_value": {
+                "title": "Key value",
+                "description": "Value for the key field used to find the contact. E.g. the email address  ",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_value"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "removeFromContactList",
+      "name": "Remove from Contact List",
+      "description": "Remove a contact from a contact list.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "contactlistid",
+          "type": "integer",
+          "label": "Id of the contact list",
+          "description": "The Id of the contactlist",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactlistid": {
+                "title": "Id of the contact list",
+                "description": "The Id of the contactlist",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "contactlistid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_field",
+          "type": "string",
+          "label": "Key field",
+          "description": "The field to use to find the contact",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_field": {
+                "title": "Key field",
+                "description": "The field to use to find the contact",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_value",
+          "type": "string",
+          "label": "Key value",
+          "description": "Value for the key field used to find the contact. E.g. the email address  ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_value": {
+                "title": "Key value",
+                "description": "Value for the key field used to find the contact. E.g. the email address  ",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_value"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "triggerEvent",
+      "name": "Trigger Event",
+      "description": "Trigger an external event on the Emarsys platform to launch automation programs. Note: You can only pass objects to event_payload (no literals, no arrays).",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "eventid",
+          "type": "integer",
+          "label": "Id of the external event",
+          "description": "The Id of the external event",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "eventid": {
+                "title": "Id of the external event",
+                "description": "The Id of the external event",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "eventid"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_field",
+          "type": "string",
+          "label": "Key field",
+          "description": "The field to use to find the contact",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_field": {
+                "title": "Key field",
+                "description": "The field to use to find the contact",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_value",
+          "type": "string",
+          "label": "Key value",
+          "description": "Value for the key field used to find the contact. E.g. the email address ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_value": {
+                "title": "Key value",
+                "description": "Value for the key field used to find the contact. E.g. the email address ",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_value"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "event_payload",
+          "type": "object",
+          "label": "Event payload",
+          "description": "A JSON object that will be passed to the Emarsys template engine and can be used for personalization",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": true,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "event_payload": {
+                "title": "Event payload",
+                "description": "A JSON object that will be passed to the Emarsys template engine and can be used for personalization",
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    },
+    {
+      "slug": "upsertContact",
+      "name": "Upsert Contact",
+      "description": "Insert or update a contact on the Emarsys platform",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "key_field",
+          "type": "string",
+          "label": "Key field",
+          "description": "The field to use to find the contact",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": true,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_field": {
+                "title": "Key field",
+                "description": "The field to use to find the contact",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "key_value",
+          "type": "string",
+          "label": "Key value",
+          "description": "Value for the key field used to find the contact. E.g. the email address ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key_value": {
+                "title": "Key value",
+                "description": "Value for the key field used to find the contact. E.g. the email address ",
+                "type": "string"
+              }
+            },
+            "required": [
+              "key_value"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "write_field",
+          "type": "object",
+          "label": "Fields to write",
+          "description": "Use the emarsys field id (number) as key and set a value (string) (static, function or event variable)",
+          "defaultValue": {
+            "1": {
+              "@path": "$.traits.firstName"
+            },
+            "2": {
+              "@path": "$.traits.lastName"
+            },
+            "3": {
+              "@path": "$.traits.email"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "write_field": {
+                "title": "Fields to write",
+                "description": "Use the emarsys field id (number) as key and set a value (string) (static, function or event variable)",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {},
+                "required": []
+              }
+            },
+            "required": [
+              "write_field"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enable_batching",
+          "type": "boolean",
+          "label": "Enable Batching?",
+          "description": "When enabled, Segment will send events in batches.",
+          "defaultValue": false,
+          "required": false,
+          "multiple": false,
+          "dynamic": false,
+          "allowNull": false,
+          "choices": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

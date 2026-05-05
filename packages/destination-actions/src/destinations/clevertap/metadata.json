@@ -1,0 +1,293 @@
+{
+  "name": "CleverTap (Actions)",
+  "description": "CleverTap is a customer engagement and retention platform that provides the functionality to integrate app analytics and marketing. The platform helps customers increase user engagement in three ways: 1) Tracks actions users are taking and analyzes how people use the product. 2) [Segment](https://docs.clevertap.com/docs/segments) users based on their actions and run targeted [campaigns](https://docs.clevertap.com/docs/intro-to-campaigns) to these  segments. 3) [Analyze](https://docs.clevertap.com/docs/intro-to-reports) each campaign to understand its effect on user engagement and business metrics",
+  "basicOptions": [
+    "clevertapAccountId",
+    "clevertapPasscode",
+    "clevertapEndpoint"
+  ],
+  "options": {
+    "clevertapAccountId": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "CleverTap Account Id. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "CleverTap Account ID",
+      "private": true,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The clevertapAccountId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "clevertapPasscode": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "",
+      "description": "CleverTap Passcode. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
+      "encrypt": true,
+      "hidden": false,
+      "label": "CleverTap Account Passcode",
+      "private": true,
+      "scope": "event_destination",
+      "type": "password",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The clevertapPasscode property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "clevertapEndpoint": {
+      "tags": [
+        "authentication:test"
+      ],
+      "default": "https://sk1.api.clevertap.com",
+      "description": "Learn More about [Account regions](https://docs.clevertap.com/docs/build-segment-destination#set-up-segment-destination-action).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "REST Endpoint",
+      "private": true,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "https://sk1.api.clevertap.com",
+          "label": "SK",
+          "text": "SK"
+        },
+        {
+          "value": "https://eu1.api.clevertap.com",
+          "label": "EU",
+          "text": "EU"
+        },
+        {
+          "value": "https://us1.api.clevertap.com",
+          "label": "US",
+          "text": "US"
+        },
+        {
+          "value": "https://sg1.api.clevertap.com",
+          "label": "SG",
+          "text": "SG"
+        },
+        {
+          "value": "https://in1.api.clevertap.com",
+          "label": "IN",
+          "text": "IN"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The clevertapEndpoint property is required."
+        ]
+      ],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": true,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "authenticationScheme": "custom",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "userDelete",
+      "name": "User Delete",
+      "description": "The User Delete Action enables you to remove user profiles in CleverTap.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "identity",
+          "type": "string",
+          "label": "Identity",
+          "description": "The ID of the profile which you want to delete",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identity": {
+                "title": "Identity",
+                "description": "The ID of the profile which you want to delete",
+                "type": "string"
+              }
+            },
+            "required": [
+              "identity"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "userUpload",
+      "name": "User Upload",
+      "description": "The User Upload Action enables you to create or update user profiles in CleverTap.",
+      "platform": "cloud",
+      "hidden": false,
+      "defaultTrigger": null,
+      "fields": [
+        {
+          "fieldKey": "ts",
+          "type": "string",
+          "label": "Created At",
+          "description": "A timestamp when the person was created",
+          "defaultValue": {
+            "@path": "$.timestamp"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ts": {
+                "title": "Created At",
+                "description": "A timestamp when the person was created",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "profileData",
+          "type": "object",
+          "label": "Person Attributes",
+          "description": "Optional attributes for the person. When updating a person attributes added or updated, not removed",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "profileData": {
+                "title": "Person Attributes",
+                "description": "Optional attributes for the person. When updating a person attributes added or updated, not removed",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "identity",
+          "type": "string",
+          "label": "Identity",
+          "description": "The Id used to uniquely identify a person in CleverTap",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "identity": {
+                "title": "Identity",
+                "description": "The Id used to uniquely identify a person in CleverTap",
+                "type": "string"
+              }
+            },
+            "required": [
+              "identity"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "userDelete",
+      "name": "Event Name is Delete User",
+      "subscribe": "event = \"Delete User\"",
+      "mapping": {
+        "identity": {
+          "@path": "$.userId"
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "userUpload",
+      "name": "Event Type is Identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "ts": {
+          "@path": "$.timestamp"
+        },
+        "profileData": {
+          "@path": "$.properties"
+        },
+        "identity": {
+          "@path": "$.userId"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}
