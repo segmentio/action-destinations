@@ -10,7 +10,7 @@ import {
   ErrorCodes,
   StatsContext
 } from '@segment/actions-core'
-import { API_URL, REVISION_DATE } from './config'
+import { API_URL, REVISION_DATE, MAX_EXTERNAL_ID_LENGTH } from './config'
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -39,6 +39,12 @@ import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
+
+export function validateExternalId(externalId: string | undefined): void {
+  if (externalId && externalId.length > MAX_EXTERNAL_ID_LENGTH) {
+    throw new PayloadValidationError(`Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`)
+  }
+}
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -100,6 +106,7 @@ export async function createProfile(
   additionalAttributes: AdditionalAttributes
 ) {
   try {
+    validateExternalId(external_id)
     const profileData: ProfileData = {
       data: {
         type: 'profile',
@@ -586,6 +593,15 @@ function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload
     return response
   }
 
+  if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
+    }
+    return response
+  }
+
   if (phone_number) {
     const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
     if (!validPhoneNumber) {
@@ -612,6 +628,15 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
     }
     return response
   }
@@ -774,6 +799,15 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       delete payload?.profile?.country_code
     }
 
+    if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
+      })
+      return
+    }
+
     const profileToAdd = constructBulkCreateEventPayload(payload)
     filteredPayloads.push(profileToAdd as JSONLikeObject)
     validPayloadIndicesBitmap.push(originalBatchIndex)
@@ -916,6 +950,15 @@ export function validateProfilePayload(payload: Payload): validateProfilePayload
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (payload.external_id && payload.external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
     }
     return response
   }
