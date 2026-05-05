@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze",
-  "version": "1.112.1-staging-4d70996cd.0",
+  "version": "1.112.1-staging-695895e04.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
