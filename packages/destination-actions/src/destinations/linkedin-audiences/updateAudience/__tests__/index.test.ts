@@ -877,6 +877,7 @@ describe('LinkedinAudiences.updateAudience - API Version Feature Flag', () => {
   it('should use stable API version by default', async () => {
     nock(`${BASE_URL}/dmpSegments`)
       .get(/.*/)
+      .matchHeader('LinkedIn-Version', LINKEDIN_API_VERSION)
       .query(() => true)
       .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
 
@@ -906,6 +907,7 @@ describe('LinkedinAudiences.updateAudience - API Version Feature Flag', () => {
   it('should use canary API version when feature flag is enabled', async () => {
     nock(`${BASE_URL}/dmpSegments`)
       .get(/.*/)
+      .matchHeader('LinkedIn-Version', LINKEDIN_CANARY_API_VERSION)
       .query(() => true)
       .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
 
