@@ -9,6 +9,10 @@ import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { BrazeDestinationClient } from './braze-types'
+import { DESTINATION_API_VERSION } from './versioning-info'
+
+// Re-export for tests
+export { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
 
 declare global {
   interface Window {
@@ -18,7 +22,9 @@ declare global {
   }
 }
 
-const defaultVersion = '6.1'
+// Default version for new installations (stable)
+// Customers can explicitly select DESTINATION_CANARY_API_VERSION (6.5) from settings
+const defaultVersion = DESTINATION_API_VERSION
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -109,6 +115,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         {
           value: '6.1',
           label: '6.1'
+        },
+        {
+          value: '6.5',
+          label: '6.5'
         }
       ],
       default: defaultVersion,
