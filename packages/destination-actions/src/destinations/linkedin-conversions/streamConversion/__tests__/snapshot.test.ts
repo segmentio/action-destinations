@@ -7,6 +7,13 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'streamConversion'
 const destinationSlug = 'LinkedinConversions'
 const seedName = `${destinationSlug}#${actionSlug}`
+
+// Mock Date.now so the 90-day timestamp validation is deterministic
+const FIXED_NOW = 1714900000000 // 2024-05-05T11:06:40Z
+global.Date.now = jest.fn(() => FIXED_NOW)
+// A timestamp within 90 days of FIXED_NOW
+const VALID_TIMESTAMP = (FIXED_NOW - 1000 * 60 * 60 * 24).toString() // 1 day ago
+
 const action = destination.actions[actionSlug]
 const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
@@ -17,7 +24,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     eventData.email = 'nick@twilio.com'
-    eventData.timestamp = 'NaN'
+    eventData.timestamp = VALID_TIMESTAMP
 
     const event = createTestEvent({
       properties: eventData
@@ -61,7 +68,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     eventData.email = 'nick@twilio.com'
-    eventData.timestamp = 'NaN'
+    eventData.timestamp = VALID_TIMESTAMP
     eventData.first_name = 'mike'
     eventData.last_name = 'smith'
     eventData.title = 'software engineer'
