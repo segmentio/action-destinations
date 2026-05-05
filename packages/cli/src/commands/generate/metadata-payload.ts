@@ -633,6 +633,8 @@ function resolveSourceDir(entryPath: string): string | null {
   return null
 }
 
+export { generateDestinationPayload, resolveSourceDir }
+
 // ---- Command ----
 
 export default class GenerateMetadataPayload extends Command {
