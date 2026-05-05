@@ -8,16 +8,20 @@ const actionSlug = 'streamConversion'
 const destinationSlug = 'LinkedinConversions'
 const seedName = `${destinationSlug}#${actionSlug}`
 
-// Mock Date.now so the 90-day timestamp validation is deterministic
-const FIXED_NOW = 1714900000000 // 2024-05-05T11:06:40Z
-global.Date.now = jest.fn(() => FIXED_NOW)
-// A timestamp within 90 days of FIXED_NOW
-const VALID_TIMESTAMP = (FIXED_NOW - 1000 * 60 * 60 * 24).toString() // 1 day ago
+const FIXED_NOW = 1714900000000
+const VALID_TIMESTAMP = (FIXED_NOW - 1000 * 60 * 60 * 24).toString()
 
 const action = destination.actions[actionSlug]
 const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+  beforeAll(() => {
+    jest.spyOn(Date, 'now').mockReturnValue(FIXED_NOW)
+  })
+
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
   it('required fields', async () => {
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
