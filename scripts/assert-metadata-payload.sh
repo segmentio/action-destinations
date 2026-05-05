@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 echo "Checking if metadata payloads are up-to-date"
 

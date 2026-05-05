@@ -236,7 +236,7 @@ function getOptions(definition: DestinationDefinition): DestinationMetadataOptio
       throw new Error(`Schema contains a field definition that uses a reserved name: ${fieldKey}`)
     }
 
-    if (schema.required) {
+    if (schema.required === true) {
       validators.push(['required', `The ${fieldKey} property is required.`])
     }
 
