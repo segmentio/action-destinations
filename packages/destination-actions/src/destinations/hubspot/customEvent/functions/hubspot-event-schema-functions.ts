@@ -23,7 +23,7 @@ export async function getSchemaFromHubspot(
       const { name, fullyQualifiedName, properties: hsProperties, archived } = response.data
 
       if (archived) {
-        return undefined
+        return undefined 
       }
 
       const cacheableSchema: CachableSchema = {
