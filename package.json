@@ -36,7 +36,7 @@
     "typecheck": "lerna run typecheck --stream",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
-    "push-payloads": "./bin/run generate:push-payload"
+    "generate:metadata-payload": "./bin/run generate:metadata-payload"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",

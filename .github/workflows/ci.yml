@@ -130,8 +130,8 @@ jobs:
       - name: Assert generated types are up-to-date
         run: bash scripts/assert-types-updated.sh
 
-      - name: Assert push-payloads are up-to-date
-        run: bash scripts/assert-push-payloads-updated.sh
+      - name: Assert metadata payloads are up-to-date
+        run: bash scripts/assert-metadata-payload.sh
 
   browser-destination-bundle-qa:
     name: Browser Destination Bundle QA

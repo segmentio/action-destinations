@@ -635,12 +635,15 @@ function resolveSourceDir(entryPath: string): string | null {
 
 // ---- Command ----
 
-export default class GeneratePushPayload extends Command {
+export default class GenerateMetadataPayload extends Command {
   private spinner: ora.Ora = ora()
 
-  static description = `Generates a payload.json file inside each destination's source folder. The payload represents the body that would be sent to the Segment control plane during a push operation. Intended for use in CI/CD pipelines.`
+  static description = `Generates a metadata.json file inside each destination's source folder containing the destination's configuration metadata. Intended for use in CI/CD pipelines.`
 
-  static examples = [`$ ./bin/run generate:push-payload`, `$ ./bin/run generate:push-payload --slug=actions-amplitude`]
+  static examples = [
+    `$ ./bin/run generate:metadata-payload`,
+    `$ ./bin/run generate:metadata-payload --slug=actions-amplitude`
+  ]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static flags: flags.Input<any> = {
@@ -655,7 +658,7 @@ export default class GeneratePushPayload extends Command {
   static args = []
 
   async run() {
-    const { flags: parsedFlags } = this.parse(GeneratePushPayload)
+    const { flags: parsedFlags } = this.parse(GenerateMetadataPayload)
     const filterSlugs: string[] | undefined = parsedFlags['slug']
 
     this.spinner.start('Loading destination manifest...')

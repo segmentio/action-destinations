@@ -1,4 +1,4 @@
-name: Generate Push Payloads
+name: Generate Metadata Payloads
 
 on:
   pull_request:
@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       slug:
-        description: 'Destination slug to generate payload for (leave empty for all)'
+        description: 'Destination slug to generate metadata for (leave empty for all)'
         required: false
         type: string
 
 jobs:
   generate:
-    name: Generate push payload JSON files
+    name: Generate metadata.json files
     runs-on: ubuntu-22.04
     timeout-minutes: 20
 
@@ -43,15 +43,15 @@ jobs:
       - name: Build
         run: NODE_ENV=production yarn build
 
-      - name: Generate push payloads (all destinations)
+      - name: Generate metadata payloads (all destinations)
         if: ${{ !inputs.slug }}
-        run: yarn push-payloads
+        run: yarn generate:metadata-payload
 
-      - name: Generate push payloads (specific destination)
+      - name: Generate metadata payloads (specific destination)
         if: ${{ inputs.slug }}
         env:
           DESTINATION_SLUG: ${{ inputs.slug }}
-        run: yarn push-payloads --slug="$DESTINATION_SLUG"
+        run: yarn generate:metadata-payload --slug="$DESTINATION_SLUG"
 
-      - name: Assert push-payloads are up-to-date
-        run: bash scripts/assert-push-payloads-updated.sh
+      - name: Assert metadata payloads are up-to-date
+        run: bash scripts/assert-metadata-payload.sh
