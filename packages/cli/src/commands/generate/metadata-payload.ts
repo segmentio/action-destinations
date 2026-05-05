@@ -382,7 +382,7 @@ function buildActionFields(action: any): ActionFieldPayload[] {
       required: processedField.required === true ?? false,
       multiple: processedField.multiple ?? false,
       choices,
-      dynamic: processedField.dynamic ?? false,
+      dynamic: typeof processedField.dynamic === 'function' ? true : processedField.dynamic ?? false,
       placeholder: processedField.placeholder ?? '',
       allowNull: processedField.allowNull ?? false,
       defaultObjectUI: processedField.defaultObjectUI,
