@@ -1,0 +1,756 @@
+{
+  "name": "Google Tag for Campaign Manager",
+  "basicOptions": [
+    "advertiserId",
+    "allowAdPersonalizationSignals",
+    "conversionLinker",
+    "enableConsentMode",
+    "adUserDataConsentState",
+    "adPersonalizationConsentState",
+    "defaultAdsStorageConsentState",
+    "defaultAnalyticsStorageConsentState"
+  ],
+  "options": {
+    "advertiserId": {
+      "tags": [],
+      "default": "DC-",
+      "description": "In Campaign Manager, go to Floodlight -> Configuration, and Advertiser ID is located under the Configuration heading.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Advertiser ID",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The advertiserId property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "allowAdPersonalizationSignals": {
+      "tags": [],
+      "default": true,
+      "description": "This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Allow Ad Personalization Signals",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The allowAdPersonalizationSignals property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "conversionLinker": {
+      "tags": [],
+      "default": true,
+      "description": "This feature can be disabled if you do not want the global site tag to set first party cookies on your site domain.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Conversion Linker",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The conversionLinker property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "enableConsentMode": {
+      "tags": [],
+      "default": false,
+      "description": "Set to true to enable Google’s [Consent Mode](https://support.google.com/analytics/answer/9976101?hl=en). Set to false by default.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Enable Consent Mode",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "adUserDataConsentState": {
+      "tags": [],
+      "default": "",
+      "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Ad User Data Consent State",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "granted",
+          "label": "Granted",
+          "text": "Granted"
+        },
+        {
+          "value": "denied",
+          "label": "Denied",
+          "text": "Denied"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "enableConsentMode",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "adPersonalizationConsentState": {
+      "tags": [],
+      "default": "",
+      "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Ad Personalization Consent State",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "granted",
+          "label": "Granted",
+          "text": "Granted"
+        },
+        {
+          "value": "denied",
+          "label": "Denied",
+          "text": "Denied"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "enableConsentMode",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "defaultAdsStorageConsentState": {
+      "tags": [],
+      "default": "",
+      "description": "The default value for ad cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Default Ads Storage Consent State",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "granted",
+          "label": "Granted",
+          "text": "Granted"
+        },
+        {
+          "value": "denied",
+          "label": "Denied",
+          "text": "Denied"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "enableConsentMode",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "defaultAnalyticsStorageConsentState": {
+      "tags": [],
+      "default": "",
+      "description": "The default value for analytics cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Default Analytics Storage Consent State",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "granted",
+          "label": "Granted",
+          "text": "Granted"
+        },
+        {
+          "value": "denied",
+          "label": "Denied",
+          "text": "Denied"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "enableConsentMode",
+            "operator": "is",
+            "value": true
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "counterActivity",
+      "name": "Counter Activity",
+      "description": "Record non-monetary conversion data such as unique users, conversions, and session length.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "activityGroupTagString",
+          "type": "string",
+          "label": "Activity Group Tag String",
+          "description": "An identifier for the Floodlight activity group associated with this activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "activityGroupTagString": {
+                "title": "Activity Group Tag String",
+                "description": "An identifier for the Floodlight activity group associated with this activity, which appears as a parameter in your tags. This value is case sensitive.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "activityGroupTagString"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "activityTagString",
+          "type": "string",
+          "label": "Activity Tag String",
+          "description": "An identifier for your Floodlight activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "activityTagString": {
+                "title": "Activity Tag String",
+                "description": "An identifier for your Floodlight activity, which appears as a parameter in your tags. This value is case sensitive.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "activityTagString"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enableDynamicTags",
+          "type": "boolean",
+          "label": "Enable Dynamic Tags",
+          "description": "In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enableDynamicTags": {
+                "title": "Enable Dynamic Tags",
+                "description": "In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "countingMethod",
+          "type": "string",
+          "label": "Counting Method",
+          "description": "Specifies how conversions will be counted for this Floodlight activity.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "unique",
+              "label": "Unique"
+            },
+            {
+              "value": "per_session",
+              "label": "Per Session"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countingMethod": {
+                "title": "Counting Method",
+                "description": "Specifies how conversions will be counted for this Floodlight activity.",
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "unique",
+                  "per_session"
+                ]
+              }
+            },
+            "required": [
+              "countingMethod"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "sessionId",
+          "type": "string",
+          "label": "Session ID",
+          "description": "Use this field to insert a unique session ID if you’re using counter tags with a per session counting methodology. The session ID tells Campaign Manager 360 to count only one event per session on your site.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "title": "Session ID",
+                "description": "Use this field to insert a unique session ID if you’re using counter tags with a per session counting methodology. The session ID tells Campaign Manager 360 to count only one event per session on your site.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "uVariables",
+          "type": "object",
+          "label": "U Variables",
+          "description": "Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "uVariables": {
+                "title": "U Variables",
+                "description": "Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dcCustomParams",
+          "type": "object",
+          "label": "Custom Parameters",
+          "description": "You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dcCustomParams": {
+                "title": "Custom Parameters",
+                "description": "You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "salesActivity",
+      "name": "Sales Activity",
+      "description": "Record monetary data for conversions, such as cost and the number of items sold.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "activityGroupTagString",
+          "type": "string",
+          "label": "Activity Group Tag String",
+          "description": "An identifier for the Floodlight activity group associated with this activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "activityGroupTagString": {
+                "title": "Activity Group Tag String",
+                "description": "An identifier for the Floodlight activity group associated with this activity, which appears as a parameter in your tags. This value is case sensitive.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "activityGroupTagString"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "activityTagString",
+          "type": "string",
+          "label": "Activity Tag String",
+          "description": "An identifier for your Floodlight activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "activityTagString": {
+                "title": "Activity Tag String",
+                "description": "An identifier for your Floodlight activity, which appears as a parameter in your tags. This value is case sensitive.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "activityTagString"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "enableDynamicTags",
+          "type": "boolean",
+          "label": "Enable Dynamic Tags",
+          "description": "In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enableDynamicTags": {
+                "title": "Enable Dynamic Tags",
+                "description": "In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.",
+                "type": "boolean"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "countingMethod",
+          "type": "string",
+          "label": "Counting Method",
+          "description": "Specifies how conversions will be counted for this Floodlight activity.",
+          "required": true,
+          "multiple": false,
+          "choices": [
+            {
+              "value": "transactions",
+              "label": "Transactions"
+            },
+            {
+              "value": "items_sold",
+              "label": "Items Sold"
+            }
+          ],
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "countingMethod": {
+                "title": "Counting Method",
+                "description": "Specifies how conversions will be counted for this Floodlight activity.",
+                "type": "string",
+                "enum": [
+                  "transactions",
+                  "items_sold"
+                ]
+              }
+            },
+            "required": [
+              "countingMethod"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "transactionId",
+          "type": "string",
+          "label": "Transaction ID",
+          "description": "Use this field to insert a unique numerical identifier for each transaction.  Can be alphanumeric.",
+          "defaultValue": {
+            "@path": "$.properties.order_id"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "transactionId": {
+                "title": "Transaction ID",
+                "description": "Use this field to insert a unique numerical identifier for each transaction.  Can be alphanumeric.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "transactionId"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "value",
+          "type": "string",
+          "label": "Value",
+          "description": "Use this field to pass the revenue generated by a transaction. Typically the purchase price and value does not include taxes or shipping.",
+          "defaultValue": {
+            "@path": "$.properties.total"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "title": "Value",
+                "description": "Use this field to pass the revenue generated by a transaction. Typically the purchase price and value does not include taxes or shipping.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "quantity",
+          "type": "integer",
+          "label": "Quantity",
+          "description": "\n      Use this field to pass the number of items sold during a transaction:\n      - If you're counting each transaction as a single conversion, the value is 1.\n      - If you're counting each item sold during a single transaction as a separate conversion, insert the number of items sold as part of each transaction as the value.\n      - The value must be an integer greater than zero.\n      ",
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "quantity": {
+                "title": "Quantity",
+                "description": "\n      Use this field to pass the number of items sold during a transaction:\n      - If you're counting each transaction as a single conversion, the value is 1.\n      - If you're counting each item sold during a single transaction as a separate conversion, insert the number of items sold as part of each transaction as the value.\n      - The value must be an integer greater than zero.\n      ",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "quantity"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "uVariables",
+          "type": "object",
+          "label": "U Variables",
+          "description": "Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "uVariables": {
+                "title": "U Variables",
+                "description": "Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "dcCustomParams",
+          "type": "object",
+          "label": "Custom Parameters",
+          "description": "You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "dcCustomParams": {
+                "title": "Custom Parameters",
+                "description": "You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": []
+}

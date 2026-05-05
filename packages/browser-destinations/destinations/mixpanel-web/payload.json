@@ -1,0 +1,1872 @@
+{
+  "name": "Mixpanel Web (actions)",
+  "basicOptions": [
+    "projectToken",
+    "name",
+    "api_host",
+    "autocapture",
+    "pageview",
+    "click",
+    "dead_click",
+    "input",
+    "rage_click",
+    "scroll",
+    "submit",
+    "capture_text_content",
+    "cross_subdomain_cookie",
+    "persistence",
+    "track_marketing",
+    "cookie_expiration",
+    "disable_persistence",
+    "ip",
+    "record_block_class",
+    "record_block_selector",
+    "record_canvas",
+    "record_heatmap_data",
+    "record_idle_timeout_ms",
+    "record_mask_text_class",
+    "record_mask_text_selector",
+    "record_max_ms",
+    "record_min_ms",
+    "record_sessions_percent"
+  ],
+  "options": {
+    "projectToken": {
+      "tags": [],
+      "default": "",
+      "description": "Your Mixpanel project token.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Project Token",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The projectToken property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "name": {
+      "tags": [],
+      "default": "",
+      "description": "The name for the new mixpanel instance that you want created.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Mixpanel Instance Name",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "api_host": {
+      "tags": [],
+      "default": "https://api-js.mixpanel.com",
+      "description": "The Mixpanel API host to send data to.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "API Host",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [
+        [
+          "required",
+          "The api_host property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "autocapture": {
+      "tags": [],
+      "default": "enabled",
+      "description": "Enable or disable Mixpanel autocapture functionality. Select \"Custom\" to specify fine grained control over which events are autocaptured.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "enabled",
+          "label": "Enabled",
+          "text": "Enabled"
+        },
+        {
+          "value": "disabled",
+          "label": "Disabled",
+          "text": "Disabled"
+        },
+        {
+          "value": "custom",
+          "label": "Custom",
+          "text": "Custom"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "pageview": {
+      "tags": [],
+      "default": "full-url",
+      "description": "Capture pageview events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Pageview",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "full-url",
+          "label": "Full URL",
+          "text": "Full URL"
+        },
+        {
+          "value": "url-with-path-and-query-string",
+          "label": "URL with Path and Query String",
+          "text": "URL with Path and Query String"
+        },
+        {
+          "value": "url-with-path",
+          "label": "URL with Path",
+          "text": "URL with Path"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The pageview property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "click": {
+      "tags": [],
+      "default": true,
+      "description": "Capture click events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Click",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The click property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "dead_click": {
+      "tags": [],
+      "default": true,
+      "description": "Capture dead click events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Dead Click",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The dead_click property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "input": {
+      "tags": [],
+      "default": true,
+      "description": "Capture input events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Input",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The input property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "rage_click": {
+      "tags": [],
+      "default": true,
+      "description": "Capture rage click events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Rage Click",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The rage_click property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "scroll": {
+      "tags": [],
+      "default": true,
+      "description": "Capture scroll events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Scroll",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The scroll property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "submit": {
+      "tags": [],
+      "default": true,
+      "description": "Capture form submit events automatically",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Submit",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [],
+      "uIMetadata": null
+    },
+    "capture_text_content": {
+      "tags": [],
+      "default": false,
+      "description": "Capture text content of elements in autocaptured events",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Autocapture Capture Text Content",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": {
+        "conditions": [
+          {
+            "fieldKey": "autocapture",
+            "operator": "is",
+            "value": "custom"
+          }
+        ]
+      },
+      "validators": [
+        [
+          "required",
+          "The capture_text_content property is required."
+        ]
+      ],
+      "uIMetadata": null
+    },
+    "cross_subdomain_cookie": {
+      "tags": [],
+      "default": true,
+      "description": "Enable or disable cross subdomain cookies for Mixpanel.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Cross Subdomain Cookie",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "persistence": {
+      "tags": [],
+      "default": "cookie",
+      "description": "Set the persistence method for Mixpanel (cookie or localStorage).",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Persistence Method",
+      "private": false,
+      "scope": "event_destination",
+      "type": "select",
+      "options": [
+        {
+          "value": "cookie",
+          "label": "Cookie",
+          "text": "Cookie"
+        },
+        {
+          "value": "localStorage",
+          "label": "Local Storage",
+          "text": "Local Storage"
+        }
+      ],
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "track_marketing": {
+      "tags": [],
+      "default": true,
+      "description": "Enable or disable tracking of marketing campaigns in Mixpanel. Includes UTM parameters and click identifiers for various ad platforms.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Track Marketing Campaigns",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "cookie_expiration": {
+      "tags": [],
+      "default": 365,
+      "description": "Set the cookie expiration time in days for Mixpanel cookies.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Cookie Expiration (days)",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "disable_persistence": {
+      "tags": [],
+      "default": false,
+      "description": "Disable all persistence mechanisms for Mixpanel.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Disable Persistence",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "ip": {
+      "tags": [],
+      "default": true,
+      "description": "Enable or disable sending IP address information to Mixpanel.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Send IP Address",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_block_class": {
+      "tags": [],
+      "default": "mp-block",
+      "description": "CSS class to block elements from being recorded in session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Block Class",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_block_selector": {
+      "tags": [],
+      "default": "img, video, audio",
+      "description": "CSS selector to block elements from being recorded in session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Block Selector",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_canvas": {
+      "tags": [],
+      "default": false,
+      "description": "Enable or disable recording of canvas elements in session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Canvas",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_heatmap_data": {
+      "tags": [],
+      "default": false,
+      "description": "Enable or disable tracking of heatmap events in session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Heatmap Data",
+      "private": false,
+      "scope": "event_destination",
+      "type": "boolean",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_idle_timeout_ms": {
+      "tags": [],
+      "default": 180000,
+      "description": "Idle timeout in milliseconds for session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Idle Timeout (ms)",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_mask_text_class": {
+      "tags": [],
+      "default": "mp-mask",
+      "description": "CSS class to mask text elements in session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Mask Text Class",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_mask_text_selector": {
+      "tags": [],
+      "default": "*",
+      "description": "CSS selector to mask text elements in session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Mask Text Selector",
+      "private": false,
+      "scope": "event_destination",
+      "type": "string",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_max_ms": {
+      "tags": [],
+      "default": 86400000,
+      "description": "Maximum recording time in milliseconds for session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Max (ms)",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_min_ms": {
+      "tags": [],
+      "default": 0,
+      "description": "Minimum recording time in milliseconds for session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Min (ms)",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    },
+    "record_sessions_percent": {
+      "tags": [],
+      "default": 0,
+      "description": "Percentage of sessions to record for session recordings.",
+      "encrypt": false,
+      "hidden": false,
+      "label": "Record Sessions Percent",
+      "private": false,
+      "scope": "event_destination",
+      "type": "number",
+      "readOnly": false,
+      "dependsOn": null,
+      "validators": [],
+      "uIMetadata": null
+    }
+  },
+  "platforms": {
+    "browser": true,
+    "server": false,
+    "mobile": false,
+    "warehouse": false,
+    "cloudAppObject": false
+  },
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "supportsAudiences": false,
+  "actions": [
+    {
+      "slug": "alias",
+      "name": "Alias",
+      "description": "Sync alias data to Mixpanel. Use this to replace a Unique ID with a new one.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"alias\"",
+      "fields": [
+        {
+          "fieldKey": "alias",
+          "type": "string",
+          "label": "Alias ID",
+          "description": "The new ID to associate with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "alias": {
+                "title": "Alias ID",
+                "description": "The new ID to associate with the user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "alias"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "original",
+          "type": "string",
+          "label": "Original ID",
+          "description": "The original ID to associate with the user.",
+          "defaultValue": {
+            "@path": "$.previousId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "original": {
+                "title": "Original ID",
+                "description": "The original ID to associate with the user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "original"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "group",
+      "name": "Group",
+      "description": "Sync Group data to Mixpanel.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"group\"",
+      "fields": [
+        {
+          "fieldKey": "group_details",
+          "type": "object",
+          "label": "Group Details",
+          "description": "Details for the group to be created or updated in Mixpanel.",
+          "defaultValue": {
+            "group_key": {
+              "@path": "$.traits.group_key"
+            },
+            "group_id": {
+              "@path": "$.groupId"
+            }
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_details": {
+                "title": "Group Details",
+                "description": "Details for the group to be created or updated in Mixpanel.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "group_key": {
+                    "title": "Group Key",
+                    "description": "The Group Key / type of group to associate with the user. This group key should already be defined in your Mixpanel project.",
+                    "type": "string"
+                  },
+                  "group_id": {
+                    "title": "Group ID",
+                    "description": "The unique ID to associate with the group.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "group_key",
+                  "group_id"
+                ]
+              }
+            },
+            "required": [
+              "group_details"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_set",
+          "type": "object",
+          "label": "Group properties to Set",
+          "description": "Group Profile Properties to set on the group in Mixpanel.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_set": {
+                "title": "Group properties to Set",
+                "description": "Group Profile Properties to set on the group in Mixpanel.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_set_once",
+          "type": "object",
+          "label": "Group properties to set once",
+          "description": "Group Profile Properties to set once on the group profile in Mixpanel. Values which get set once cannot be overwritten later.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_set_once": {
+                "title": "Group properties to set once",
+                "description": "Group Profile Properties to set once on the group profile in Mixpanel. Values which get set once cannot be overwritten later.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_union",
+          "type": "object",
+          "label": "Group list properties to union",
+          "description": "Merge a list into a list group property. Duplicates will be removed.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_union": {
+                "title": "Group list properties to union",
+                "description": "Merge a list into a list group property. Duplicates will be removed.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "list_name": {
+                      "title": "List Name",
+                      "description": "The name of the list property to union values into.",
+                      "type": "string"
+                    },
+                    "string_values": {
+                      "title": "Values",
+                      "description": "An array of string values to merge into the list. Non string lists cannot be updated. Duplicates will be removed.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "list_name",
+                    "string_values"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "identify",
+      "name": "Identify",
+      "description": "Sync user profile data to Mixpanel.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"identify\"",
+      "fields": [
+        {
+          "fieldKey": "unique_id",
+          "type": "string",
+          "label": "Unique ID",
+          "description": "The unique ID to associate with the user.",
+          "defaultValue": {
+            "@path": "$.userId"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unique_id": {
+                "title": "Unique ID",
+                "description": "The unique ID to associate with the user.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "unique_id"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_set",
+          "type": "object",
+          "label": "User Profile Properties to Set",
+          "description": "User Profile Properties to set on the user profile in Mixpanel.",
+          "defaultValue": {
+            "name": {
+              "@path": "$.traits.name"
+            },
+            "first_name": {
+              "@path": "$.traits.first_name"
+            },
+            "last_name": {
+              "@path": "$.traits.last_name"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "phone": {
+              "@path": "$.traits.phone"
+            },
+            "avatar": {
+              "@path": "$.traits.avatar"
+            },
+            "created": {
+              "@path": "$.traits.created"
+            }
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "user_profile_properties_to_set": {
+                "title": "User Profile Properties to Set",
+                "description": "User Profile Properties to set on the user profile in Mixpanel.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the user.",
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "The first name of the user.",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "The last name of the user.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email of the user.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The phone number of the user.",
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "title": "Avatar",
+                    "description": "The avatar URL of the user.",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "created": {
+                    "title": "Created",
+                    "description": "The creation date of the user profile.",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_set_once",
+          "type": "object",
+          "label": "User Profile Properties to Set Once",
+          "description": "User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_profile_properties_to_set_once": {
+                "title": "User Profile Properties to Set Once",
+                "description": "User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_increment",
+          "type": "object",
+          "label": "User Profile Properties to Increment",
+          "description": "User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_profile_properties_to_increment": {
+                "title": "User Profile Properties to Increment",
+                "description": "User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "track",
+      "name": "Track",
+      "description": "Sync Segment track events to Mixpanel.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"track\"",
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to track in Mixpanel.",
+          "defaultValue": {
+            "@path": "$.event"
+          },
+          "required": true,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event to track in Mixpanel.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "event_name"
+            ]
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Properties to associate with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Properties to associate with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unique_id",
+          "type": "string",
+          "label": "Unique ID",
+          "description": "The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the track event is sent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unique_id": {
+                "title": "Unique ID",
+                "description": "The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the track event is sent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_set",
+          "type": "object",
+          "label": "User Profile Properties to Set",
+          "description": "User Profile Properties to set on the user profile in Mixpanel.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "user_profile_properties_to_set": {
+                "title": "User Profile Properties to Set",
+                "description": "User Profile Properties to set on the user profile in Mixpanel.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the user.",
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "The first name of the user.",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "The last name of the user.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email of the user.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The phone number of the user.",
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "title": "Avatar",
+                    "description": "The avatar URL of the user.",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "created": {
+                    "title": "Created",
+                    "description": "The creation date of the user profile.",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_set_once",
+          "type": "object",
+          "label": "User Profile Properties to Set Once",
+          "description": "User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_profile_properties_to_set_once": {
+                "title": "User Profile Properties to Set Once",
+                "description": "User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_increment",
+          "type": "object",
+          "label": "User Profile Properties to Increment",
+          "description": "User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_profile_properties_to_increment": {
+                "title": "User Profile Properties to Increment",
+                "description": "User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_details",
+          "type": "object",
+          "label": "Group Details",
+          "description": "Details for the group to be created or updated in Mixpanel. Setting this value will trigger a Mixpanel set_group call before the track event is sent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_details": {
+                "title": "Group Details",
+                "description": "Details for the group to be created or updated in Mixpanel. Setting this value will trigger a Mixpanel set_group call before the track event is sent.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "group_key": {
+                    "title": "Group Key",
+                    "description": "The Group Key / type of group to associate with the user. This group key should already be defined in your Mixpanel project.",
+                    "type": "string"
+                  },
+                  "group_id": {
+                    "title": "Group ID",
+                    "description": "The unique ID to associate with the group.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "group_key",
+                  "group_id"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_set",
+          "type": "object",
+          "label": "Group properties to Set",
+          "description": "Group Profile Properties to set on the group in Mixpanel.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_set": {
+                "title": "Group properties to Set",
+                "description": "Group Profile Properties to set on the group in Mixpanel.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_set_once",
+          "type": "object",
+          "label": "Group properties to set once",
+          "description": "Group Profile Properties to set once on the group profile in Mixpanel. Values which get set once cannot be overwritten later.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_set_once": {
+                "title": "Group properties to set once",
+                "description": "Group Profile Properties to set once on the group profile in Mixpanel. Values which get set once cannot be overwritten later.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_union",
+          "type": "object",
+          "label": "Group list properties to union",
+          "description": "Merge a list into a list group property. Duplicates will be removed.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_union": {
+                "title": "Group list properties to union",
+                "description": "Merge a list into a list group property. Duplicates will be removed.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "list_name": {
+                      "title": "List Name",
+                      "description": "The name of the list property to union values into.",
+                      "type": "string"
+                    },
+                    "string_values": {
+                      "title": "Values",
+                      "description": "An array of string values to merge into the list. Non string lists cannot be updated. Duplicates will be removed.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "list_name",
+                    "string_values"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    },
+    {
+      "slug": "trackPageView",
+      "name": "Track Page View",
+      "description": "Sync Segment page events to Mixpanel.",
+      "platform": "web",
+      "hidden": false,
+      "defaultTrigger": "type = \"page\"",
+      "fields": [
+        {
+          "fieldKey": "event_name",
+          "type": "string",
+          "label": "Event Name",
+          "description": "The name of the event to track in Mixpanel.",
+          "defaultValue": {
+            "@path": "$.name"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "event_name": {
+                "title": "Event Name",
+                "description": "The name of the event to track in Mixpanel.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "properties",
+          "type": "object",
+          "label": "Event Properties",
+          "description": "Properties to associate with the event.",
+          "defaultValue": {
+            "@path": "$.properties"
+          },
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "properties": {
+                "title": "Event Properties",
+                "description": "Properties to associate with the event.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "unique_id",
+          "type": "string",
+          "label": "Unique ID",
+          "description": "The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the page event is sent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "unique_id": {
+                "title": "Unique ID",
+                "description": "The unique ID to associate with the user. Settings this value will trigger a Mixpanel identify call before immediately the page event is sent.",
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_set",
+          "type": "object",
+          "label": "User Profile Properties to Set",
+          "description": "User Profile Properties to set on the user profile in Mixpanel.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "user_profile_properties_to_set": {
+                "title": "User Profile Properties to Set",
+                "description": "User Profile Properties to set on the user profile in Mixpanel.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": true,
+                "properties": {
+                  "name": {
+                    "title": "Name",
+                    "description": "The name of the user.",
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "title": "First Name",
+                    "description": "The first name of the user.",
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "title": "Last Name",
+                    "description": "The last name of the user.",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "description": "The email of the user.",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "title": "Phone",
+                    "description": "The phone number of the user.",
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "title": "Avatar",
+                    "description": "The avatar URL of the user.",
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "created": {
+                    "title": "Created",
+                    "description": "The creation date of the user profile.",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": []
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_set_once",
+          "type": "object",
+          "label": "User Profile Properties to Set Once",
+          "description": "User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_profile_properties_to_set_once": {
+                "title": "User Profile Properties to Set Once",
+                "description": "User Profile Properties to set once on the user profile in Mixpanel. Values which get set once cannot be overwritten later.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "user_profile_properties_to_increment",
+          "type": "object",
+          "label": "User Profile Properties to Increment",
+          "description": "User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "user_profile_properties_to_increment": {
+                "title": "User Profile Properties to Increment",
+                "description": "User Profile Properties to increment on the user profile in Mixpanel. Values must be numeric.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_details",
+          "type": "object",
+          "label": "Group Details",
+          "description": "Details for the group to be created or updated in Mixpanel. Setting this value will trigger a Mixpanel set_group call before the page event is sent.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue:only",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_details": {
+                "title": "Group Details",
+                "description": "Details for the group to be created or updated in Mixpanel. Setting this value will trigger a Mixpanel set_group call before the page event is sent.",
+                "type": "object",
+                "$schema": "http://json-schema.org/schema#",
+                "additionalProperties": false,
+                "properties": {
+                  "group_key": {
+                    "title": "Group Key",
+                    "description": "The Group Key / type of group to associate with the user. This group key should already be defined in your Mixpanel project.",
+                    "type": "string"
+                  },
+                  "group_id": {
+                    "title": "Group ID",
+                    "description": "The unique ID to associate with the group.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "group_key",
+                  "group_id"
+                ]
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_set",
+          "type": "object",
+          "label": "Group properties to Set",
+          "description": "Group Profile Properties to set on the group in Mixpanel.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_set": {
+                "title": "Group properties to Set",
+                "description": "Group Profile Properties to set on the group in Mixpanel.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_set_once",
+          "type": "object",
+          "label": "Group properties to set once",
+          "description": "Group Profile Properties to set once on the group profile in Mixpanel. Values which get set once cannot be overwritten later.",
+          "required": false,
+          "multiple": false,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "keyvalue",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_set_once": {
+                "title": "Group properties to set once",
+                "description": "Group Profile Properties to set once on the group profile in Mixpanel. Values which get set once cannot be overwritten later.",
+                "type": "object"
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        },
+        {
+          "fieldKey": "group_profile_properties_to_union",
+          "type": "object",
+          "label": "Group list properties to union",
+          "description": "Merge a list into a list group property. Duplicates will be removed.",
+          "required": false,
+          "multiple": true,
+          "choices": null,
+          "dynamic": false,
+          "placeholder": "",
+          "allowNull": false,
+          "defaultObjectUI": "arrayeditor",
+          "fieldSchema": {
+            "$schema": "http://json-schema.org/schema#",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "group_profile_properties_to_union": {
+                "title": "Group list properties to union",
+                "description": "Merge a list into a list group property. Duplicates will be removed.",
+                "type": "array",
+                "items": {
+                  "$schema": "http://json-schema.org/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "list_name": {
+                      "title": "List Name",
+                      "description": "The name of the list property to union values into.",
+                      "type": "string"
+                    },
+                    "string_values": {
+                      "title": "Values",
+                      "description": "An array of string values to merge into the list. Non string lists cannot be updated. Duplicates will be removed.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "list_name",
+                    "string_values"
+                  ]
+                }
+              }
+            },
+            "required": []
+          },
+          "dependsOn": null,
+          "displayMetadata": null
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "partnerAction": "identify",
+      "name": "Identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "unique_id": {
+          "@path": "$.userId"
+        },
+        "user_profile_properties_to_set": {
+          "name": {
+            "@path": "$.traits.name"
+          },
+          "first_name": {
+            "@path": "$.traits.first_name"
+          },
+          "last_name": {
+            "@path": "$.traits.last_name"
+          },
+          "email": {
+            "@path": "$.traits.email"
+          },
+          "phone": {
+            "@path": "$.traits.phone"
+          },
+          "avatar": {
+            "@path": "$.traits.avatar"
+          },
+          "created": {
+            "@path": "$.traits.created"
+          }
+        }
+      },
+      "type": "automatic"
+    },
+    {
+      "partnerAction": "track",
+      "name": "Track",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "type": "automatic"
+    }
+  ]
+}
