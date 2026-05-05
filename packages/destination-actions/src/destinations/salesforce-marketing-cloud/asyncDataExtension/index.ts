@@ -6,7 +6,9 @@ import { getDataExtensionFields, asyncUpsertRowsV2 } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
-  description: 'Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.',
+  description: `Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.
+  
+    Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future`,
   fields: {
     keys: { ...keys, required: true, dynamic: true },
     values: { ...values_dataExtensionFields, dynamic: true },
