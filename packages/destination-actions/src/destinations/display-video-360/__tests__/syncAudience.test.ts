@@ -172,6 +172,22 @@ describe('syncAudience action — perform', () => {
       })
     ).rejects.toThrow(PayloadValidationError)
   })
+
+  it('calls syncAudience with wrapped payload and membership for a single event', async () => {
+    const event = makeEngageEvent(true)
+
+    await testDestination.testAction('syncAudience', {
+      event,
+      mapping: baseMapping
+    })
+
+    expect(syncAudienceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      [expect.objectContaining({ external_audience_id: EXTERNAL_AUDIENCE_ID })],
+      expect.anything(),
+      [true]
+    )
+  })
 })
 
 describe('syncAudience action — performBatch', () => {

@@ -245,10 +245,9 @@ export const syncAudience = async (
   const removePayloads: SyncPayload[] = []
 
   payload.forEach((p, index) => {
-    if(audienceMemberships?.[index] === true) {
+    if (audienceMemberships?.[index] === true) {
       addPayloads.push(p)
-    }
-    else if (audienceMemberships?.[index] === false){  
+    } else if (audienceMemberships?.[index] === false) {
       removePayloads.push(p)
     }
   })
@@ -257,13 +256,13 @@ export const syncAudience = async (
 
   if (addRequest && addRequest.ops.length > 0) {
     await sendUpdateRequest(request, addRequest, statsName, statsContext)
-  } 
+  }
 
   const deleteRequest = removePayloads.length > 0 ? createUpdateRequest(removePayloads, 'remove') : undefined
 
   if (deleteRequest && deleteRequest.ops.length > 0) {
     await sendUpdateRequest(request, deleteRequest, statsName, statsContext)
-  } 
+  }
 
   if ((!addRequest || addRequest.ops.length === 0) && (!deleteRequest || deleteRequest.ops.length === 0)) {
     statsContext?.statsClient.incr(`${statsName}.discard`, 1, statsContext?.tags)
@@ -275,10 +274,10 @@ export const syncAudience = async (
 }
 
 export const validateMembership = (payloads: SyncPayload[], audienceMemberships: AudienceMembership[] | undefined) => {
-  if(!Array.isArray(audienceMemberships)){
+  if (!Array.isArray(audienceMemberships)) {
     throw new PayloadValidationError('Audience Memberships must be an array')
   }
-  if(audienceMemberships.length !== payloads.length){
+  if (audienceMemberships.length !== payloads.length) {
     throw new PayloadValidationError('Audience Memberships length must match payloads length')
   }
   if (audienceMemberships.some((membership) => typeof membership !== 'boolean')) {
