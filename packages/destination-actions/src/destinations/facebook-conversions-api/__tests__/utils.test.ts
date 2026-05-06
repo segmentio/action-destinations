@@ -1,5 +1,5 @@
 import { get_api_version } from '../utils'
-import { API_VERSION, CANARY_API_VERSION } from '../constants'
+import { API_VERSION, CANARY_API_VERSION } from '../shared/constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
 describe('FacebookConversionsApi', () => {
