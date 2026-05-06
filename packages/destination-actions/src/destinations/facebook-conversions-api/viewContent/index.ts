@@ -11,7 +11,7 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track" and event = "Product Viewed"',
   fields: viewContentFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-    return send(request, payload, settings, getViewContentEventData, EventType.ViewContent, features, statsContext)    
+    return send(request, payload, settings, getViewContentEventData, EventType.ViewContent, features, statsContext)
   }
 }
 

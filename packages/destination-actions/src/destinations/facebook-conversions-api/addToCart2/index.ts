@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (syncMode === 'add') {
       return send(request, payload, settings, getAddToCartEventData, EventType.AddToCart, features, statsContext)
     } else {
-      throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Misconfigured required field', 400)
+      throw new IntegrationError(`Sync mode ${syncMode} is not supported`, 'Misconfigured sync mode', 400)
     }
   }
 }

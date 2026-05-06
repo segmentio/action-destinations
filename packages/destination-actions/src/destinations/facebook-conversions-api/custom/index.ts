@@ -10,7 +10,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send a custom event',
   fields: customFields,
   perform: (request, { payload, settings, features, statsContext }) => {
-      return send(request, payload, settings, getCustomEventData, EventType.Custom, features, statsContext)    
+    return send(request, payload, settings, getCustomEventData, EventType.Custom, features, statsContext)
   }
 }
 
