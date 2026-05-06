@@ -18,21 +18,16 @@ describe('Braze.mergeUsers', () => {
   it('should merge users with external_id identifiers', async () => {
     nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
 
-    const event = createTestEvent({
-      type: 'track',
-      userId: 'user-to-keep-123'
-    })
+    const event = createTestEvent({ type: 'alias' })
 
     const responses = await testDestination.testAction('mergeUsers', {
       event,
       settings,
       mapping: {
-        identifier_to_merge: {
-          external_id: 'user-to-merge-456'
-        },
-        identifier_to_keep: {
-          external_id: 'user-to-keep-123'
-        }
+        previousIdType: 'external_id',
+        previousIdValue: 'user-to-merge-456',
+        keepIdType: 'external_id',
+        keepIdValue: 'user-to-keep-123'
       }
     })
 
@@ -42,12 +37,8 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: {
-            external_id: 'user-to-merge-456'
-          },
-          identifier_to_keep: {
-            external_id: 'user-to-keep-123'
-          }
+          identifier_to_merge: { external_id: 'user-to-merge-456' },
+          identifier_to_keep: { external_id: 'user-to-keep-123' }
         }
       ]
     })
@@ -56,26 +47,16 @@ describe('Braze.mergeUsers', () => {
   it('should merge users with user_alias identifiers', async () => {
     nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
 
-    const event = createTestEvent({
-      type: 'track'
-    })
+    const event = createTestEvent({ type: 'alias' })
 
     const responses = await testDestination.testAction('mergeUsers', {
       event,
       settings,
       mapping: {
-        identifier_to_merge: {
-          user_alias: {
-            alias_name: 'merge-alias',
-            alias_label: 'segment'
-          }
-        },
-        identifier_to_keep: {
-          user_alias: {
-            alias_name: 'keep-alias',
-            alias_label: 'segment'
-          }
-        }
+        previousIdType: 'user_alias',
+        previousAliasIdValue: { alias_name: 'merge-alias', alias_label: 'segment' },
+        keepIdType: 'user_alias',
+        keepAliasIdValue: { alias_name: 'keep-alias', alias_label: 'segment' }
       }
     })
 
@@ -84,18 +65,8 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: {
-            user_alias: {
-              alias_name: 'merge-alias',
-              alias_label: 'segment'
-            }
-          },
-          identifier_to_keep: {
-            user_alias: {
-              alias_name: 'keep-alias',
-              alias_label: 'segment'
-            }
-          }
+          identifier_to_merge: { user_alias: { alias_name: 'merge-alias', alias_label: 'segment' } },
+          identifier_to_keep: { user_alias: { alias_name: 'keep-alias', alias_label: 'segment' } }
         }
       ]
     })
@@ -104,20 +75,18 @@ describe('Braze.mergeUsers', () => {
   it('should merge users with email identifiers', async () => {
     nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
 
-    const event = createTestEvent({
-      type: 'track'
-    })
+    const event = createTestEvent({ type: 'alias' })
 
     const responses = await testDestination.testAction('mergeUsers', {
       event,
       settings,
       mapping: {
-        identifier_to_merge: {
-          email: 'merge@example.com'
-        },
-        identifier_to_keep: {
-          email: 'keep@example.com'
-        }
+        previousIdType: 'email',
+        previousIdValue: 'merge@example.com',
+        previousIdPrioritization: 'identified',
+        keepIdType: 'email',
+        keepIdValue: 'keep@example.com',
+        keepIdPrioritization: 'identified'
       }
     })
 
@@ -126,48 +95,8 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: {
-            email: 'merge@example.com'
-          },
-          identifier_to_keep: {
-            email: 'keep@example.com'
-          }
-        }
-      ]
-    })
-  })
-
-  it('should merge users with braze_id identifiers', async () => {
-    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
-
-    const event = createTestEvent({
-      type: 'track'
-    })
-
-    const responses = await testDestination.testAction('mergeUsers', {
-      event,
-      settings,
-      mapping: {
-        identifier_to_merge: {
-          braze_id: 'braze-merge-id-123'
-        },
-        identifier_to_keep: {
-          braze_id: 'braze-keep-id-456'
-        }
-      }
-    })
-
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    expect(responses[0].options.json).toMatchObject({
-      merge_updates: [
-        {
-          identifier_to_merge: {
-            braze_id: 'braze-merge-id-123'
-          },
-          identifier_to_keep: {
-            braze_id: 'braze-keep-id-456'
-          }
+          identifier_to_merge: { email: 'merge@example.com' },
+          identifier_to_keep: { email: 'keep@example.com' }
         }
       ]
     })
@@ -176,20 +105,18 @@ describe('Braze.mergeUsers', () => {
   it('should merge users with phone identifiers', async () => {
     nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
 
-    const event = createTestEvent({
-      type: 'track'
-    })
+    const event = createTestEvent({ type: 'alias' })
 
     const responses = await testDestination.testAction('mergeUsers', {
       event,
       settings,
       mapping: {
-        identifier_to_merge: {
-          phone: '+14155551234'
-        },
-        identifier_to_keep: {
-          phone: '+14155555678'
-        }
+        previousIdType: 'phone',
+        previousIdValue: '+14155551234',
+        previousIdPrioritization: 'identified',
+        keepIdType: 'phone',
+        keepIdValue: '+14155555678',
+        keepIdPrioritization: 'identified'
       }
     })
 
@@ -198,12 +125,8 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: {
-            phone: '+14155551234'
-          },
-          identifier_to_keep: {
-            phone: '+14155555678'
-          }
+          identifier_to_merge: { phone: '+14155551234' },
+          identifier_to_keep: { phone: '+14155555678' }
         }
       ]
     })
@@ -212,21 +135,17 @@ describe('Braze.mergeUsers', () => {
   it('should merge users with mixed identifier types', async () => {
     nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
 
-    const event = createTestEvent({
-      type: 'track',
-      userId: 'user-to-keep-123'
-    })
+    const event = createTestEvent({ type: 'alias' })
 
     const responses = await testDestination.testAction('mergeUsers', {
       event,
       settings,
       mapping: {
-        identifier_to_merge: {
-          email: 'merge@example.com'
-        },
-        identifier_to_keep: {
-          external_id: 'user-to-keep-123'
-        }
+        previousIdType: 'email',
+        previousIdValue: 'merge@example.com',
+        previousIdPrioritization: 'identified',
+        keepIdType: 'external_id',
+        keepIdValue: 'user-to-keep-123'
       }
     })
 
@@ -235,105 +154,26 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: {
-            email: 'merge@example.com'
-          },
-          identifier_to_keep: {
-            external_id: 'user-to-keep-123'
-          }
+          identifier_to_merge: { email: 'merge@example.com' },
+          identifier_to_keep: { external_id: 'user-to-keep-123' }
         }
       ]
     })
   })
 
-  it('should throw error when identifier_to_merge has no valid identifier', async () => {
-    const event = createTestEvent({
-      type: 'track'
-    })
-
-    await expect(
-      testDestination.testAction('mergeUsers', {
-        event,
-        settings,
-        mapping: {
-          identifier_to_merge: {},
-          identifier_to_keep: {
-            external_id: 'user-to-keep-123'
-          }
-        }
-      })
-    ).rejects.toThrowError(
-      'Identifier to Merge must specify one of: external_id, user_alias, braze_id, email, or phone.'
-    )
-  })
-
-  it('should throw error when identifier_to_keep has no valid identifier', async () => {
-    const event = createTestEvent({
-      type: 'track'
-    })
-
-    await expect(
-      testDestination.testAction('mergeUsers', {
-        event,
-        settings,
-        mapping: {
-          identifier_to_merge: {
-            external_id: 'user-to-merge-456'
-          },
-          identifier_to_keep: {}
-        }
-      })
-    ).rejects.toThrowError(
-      'Identifier to Keep must specify one of: external_id, user_alias, braze_id, email, or phone.'
-    )
-  })
-
-  it('should handle incomplete user_alias (missing required fields)', async () => {
-    const event = createTestEvent({
-      type: 'track'
-    })
-
-    await expect(
-      testDestination.testAction('mergeUsers', {
-        event,
-        settings,
-        mapping: {
-          identifier_to_merge: {
-            user_alias: {
-              alias_name: 'test'
-              // missing alias_label
-            }
-          },
-          identifier_to_keep: {
-            external_id: 'user-to-keep-123'
-          }
-        }
-      })
-    ).rejects.toThrowError(
-      'Identifier to Merge must specify one of: external_id, user_alias, braze_id, email, or phone.'
-    )
-  })
-
-  it('should use default mapping from userId for identifier_to_keep', async () => {
+  it('should merge users with user_alias to merge and external_id to keep', async () => {
     nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
 
-    const event = createTestEvent({
-      type: 'track',
-      userId: 'user-to-keep-123'
-    })
+    const event = createTestEvent({ type: 'alias' })
 
     const responses = await testDestination.testAction('mergeUsers', {
       event,
       settings,
       mapping: {
-        identifier_to_merge: {
-          external_id: 'user-to-merge-456'
-        },
-        identifier_to_keep: {
-          external_id: {
-            '@path': '$.userId'
-          }
-        }
+        previousIdType: 'user_alias',
+        previousAliasIdValue: { alias_name: 'anon-alias', alias_label: 'segment' },
+        keepIdType: 'external_id',
+        keepIdValue: 'known-user-123'
       }
     })
 
@@ -342,12 +182,102 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: {
-            external_id: 'user-to-merge-456'
-          },
-          identifier_to_keep: {
-            external_id: 'user-to-keep-123'
-          }
+          identifier_to_merge: { user_alias: { alias_name: 'anon-alias', alias_label: 'segment' } },
+          identifier_to_keep: { external_id: 'known-user-123' }
+        }
+      ]
+    })
+  })
+
+  it('should throw error when previousIdValue is missing for a non-alias type', async () => {
+    const event = createTestEvent({ type: 'alias' })
+
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'external_id',
+          keepIdType: 'external_id',
+          keepIdValue: 'user-to-keep-123'
+        }
+      })
+    ).rejects.toThrowError("missing the required field 'previousIdValue'")
+  })
+
+  it('should throw error when keepIdValue is missing for a non-alias type', async () => {
+    const event = createTestEvent({ type: 'alias' })
+
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'external_id',
+          previousIdValue: 'user-to-merge-456',
+          keepIdType: 'external_id'
+        }
+      })
+    ).rejects.toThrowError("missing the required field 'keepIdValue'")
+  })
+
+  it('should throw error when previousAliasIdValue is incomplete (missing alias_label)', async () => {
+    const event = createTestEvent({ type: 'alias' })
+
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'user_alias',
+          previousAliasIdValue: { alias_name: 'merge-alias' },
+          keepIdType: 'external_id',
+          keepIdValue: 'user-to-keep-123'
+        }
+      })
+    ).rejects.toThrowError("missing the required field 'alias_label'")
+  })
+
+  it('should throw error when keepAliasIdValue is incomplete (missing alias_name)', async () => {
+    const event = createTestEvent({ type: 'alias' })
+
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'external_id',
+          previousIdValue: 'user-to-merge-456',
+          keepIdType: 'user_alias',
+          keepAliasIdValue: { alias_label: 'segment' }
+        }
+      })
+    ).rejects.toThrowError("missing the required field 'alias_name'")
+  })
+
+  it('should use userId from event as keepIdValue via path mapping', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const event = createTestEvent({ type: 'alias', userId: 'user-to-keep-123' })
+
+    const responses = await testDestination.testAction('mergeUsers', {
+      event,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: 'user-to-merge-456',
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { external_id: 'user-to-merge-456' },
+          identifier_to_keep: { external_id: 'user-to-keep-123' }
         }
       ]
     })
