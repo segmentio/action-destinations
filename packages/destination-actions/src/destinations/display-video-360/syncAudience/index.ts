@@ -12,8 +12,8 @@ import {
 } from '../properties'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
-  title: 'Sync Audience',
-  description: 'Sync users to a Display & Video 360 audience.',
+  title: 'Sync Audience [Beta]',
+  description: 'Sync users to a Display & Video 360 audience. This action is currently in beta.',
   defaultSubscription: 'type = "track"',
   fields: {
     enable_batching: { ...enable_batching },
