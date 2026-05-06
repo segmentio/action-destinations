@@ -193,9 +193,9 @@ Our Braze web destination uses the following SDK features:
 
 1. **index.ts**
 
-   - Update `defaultVersion` from `'6.1'` to `'6.5'`
-   - Add `'6.5'` to the `sdkVersion` choices list
-   - No other changes required
+   - Keep `defaultVersion` as `'6.1'`
+   - Add `'6.5'` to the `sdkVersion` choices list as an opt-in version
+   - No other `index.ts` changes required
 
 2. **Tests**
 
@@ -222,18 +222,18 @@ Our Braze web destination uses the following SDK features:
 
 ### Mitigation Strategy
 
-1. **Feature Flag**: Deploy behind `braze-web-canary-version` flag
-2. **Gradual Rollout**: Enable for internal testing first
+1. **Opt-In Model**: Version 6.5 is available as an explicit customer choice in the settings dropdown
+2. **Safe Default**: New installations default to 6.1 (stable)
 3. **Comprehensive Testing**: All existing tests must pass
-4. **Instant Rollback**: Feature flag allows immediate revert if issues arise
+4. **Instant Rollback**: Customers can switch back to 6.1 in settings at any time
 5. **Low Impact**: Browser-mode destination changes don't affect server infrastructure
 
 ## Recommendations
 
 1. **Proceed with Upgrade**: No blocking issues identified
 2. **Add v6.5 to Version Choices**: Update UI to include v6.5.0 option
-3. **Update Default Version**: Change default from 6.1 to 6.5 for new installations
-4. **Monitor Rollout**: Watch for any unexpected behavior during gradual rollout
+3. **Keep Default at 6.1**: Maintain 6.1 as the safe default; consider updating to 6.5 in a follow-up PR once adoption is validated
+4. **Monitor Rollout**: Watch for any unexpected behavior from customers who opt in to 6.5
 5. **Consider Future Enhancement**: The new `cookieExpiryInDays` parameter could be exposed to customers in a future release if there's demand
 
 ## Additional Notes
