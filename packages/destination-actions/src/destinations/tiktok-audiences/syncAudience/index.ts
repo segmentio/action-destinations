@@ -15,8 +15,8 @@ import {
 } from '../properties'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
-  title: 'Sync Audience',
-  description: 'Sync an Engage Audience to a TikTok Audience Segment.',
+  title: 'Sync Audience [Beta]',
+  description: 'Sync an Engage Audience to a TikTok Audience Segment. This action is currently in beta.',
   defaultSubscription: 'type = "track"',
   fields: {
     event_name : { ...event_name},
