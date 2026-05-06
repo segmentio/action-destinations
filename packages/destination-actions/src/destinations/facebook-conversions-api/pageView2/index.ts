@@ -22,7 +22,6 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: pageFields,
   perform: (request, { payload, settings, features, statsContext, syncMode }) => {
     if (syncMode === 'add') {
-
       if (features && features[FEATURE_FLAG_PAGE_VIEW]) {
         return send(request, payload, settings, getPageViewEventData, EventType.PageView, features, statsContext)
       }

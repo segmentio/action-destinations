@@ -2,8 +2,9 @@
 import { createHash } from 'crypto'
 import { IntegrationError, RetryableError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
+import { CRITEO_AUDIENCES_API_VERSION } from './versioning-info'
 
-const BASE_API_URL = 'https://api.criteo.com/2023-10'
+const BASE_API_URL = `https://api.criteo.com/${CRITEO_AUDIENCES_API_VERSION}`
 
 export const hash = (value: string | undefined): string | undefined => {
   if (value === undefined) return

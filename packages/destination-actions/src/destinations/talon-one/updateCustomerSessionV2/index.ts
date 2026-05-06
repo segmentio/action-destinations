@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { attribute, cartItems, customerProfileId, identifier } from '../t1-properties'
+import { TALON_ONE_API_VERSION } from '../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update customer session',
@@ -97,7 +98,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
-    let requestUrl = `https://integration.talon.one/segment/v2/customer_sessions/${payload.customerSessionId}`
+    let requestUrl = `https://integration.talon.one/segment/${TALON_ONE_API_VERSION}/customer_sessions/${payload.customerSessionId}`
     if (payload.skipNonExistingAttributes) {
       requestUrl += '?skipNonExistingAttributes=true'
     }
