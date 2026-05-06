@@ -218,7 +218,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const request_objects: CallConversionRequestObjectInterface[] = await Promise.all(
       payload.map(async (payloadItem) => {
         const request_object: CallConversionRequestObjectInterface = {
-          conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+          conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
           callerId: payloadItem.caller_id,
           callStartDateTime: convertTimestamp(payloadItem.call_timestamp),
           conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
@@ -257,9 +257,10 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadCallConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(
+        features,
+        statsContext
+      )}/customers/${customerId}:uploadCallConversions`,
       {
         method: 'post',
         headers: {
