@@ -36,3 +36,19 @@ Object {
   ],
 }
 `;
+
+exports[`Testing snapshot for Braze's mergeUsers destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 8$QYsxcxpjIn)Y",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
