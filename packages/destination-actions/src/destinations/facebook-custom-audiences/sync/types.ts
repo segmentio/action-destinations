@@ -6,7 +6,6 @@ export type RawData = {
   context?: {
     personas?: {
       computation_class?: string
-      computation_key?: string
     }
   }
   properties?: Record<string, unknown>
