@@ -5,16 +5,17 @@ Object {
   "merge_updates": Array [
     Object {
       "identifier_to_keep": Object {
-        "user_alias": Object {
-          "alias_label": "segment",
-          "alias_name": "keep-alias",
-        },
+        "email": "keep@example.com",
+        "prioritization": Array [
+          "unidentified",
+        ],
       },
       "identifier_to_merge": Object {
-        "user_alias": Object {
-          "alias_label": "segment",
-          "alias_name": "merge-alias",
-        },
+        "email": "merge@example.com",
+        "prioritization": Array [
+          "identified",
+          "most_recently_updated",
+        ],
       },
     },
   ],

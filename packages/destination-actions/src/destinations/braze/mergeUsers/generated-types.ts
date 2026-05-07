@@ -2,15 +2,15 @@
 
 export interface Payload {
   /**
-   * The type of identifier for the user to be merged. One of: external_id, user_alias, braze_id, email, or phone.
+   * The type of identifier for the user to be merged. One of: external_id, user_alias, email, or phone.
    */
   previousIdType: string
   /**
-   * The value of the identifier for the user to be merged.
+   * The value of the user identifier to be merged.
    */
   previousIdValue?: string
   /**
-   * The value of the user alias identifier for the user to be merged. Required if the previous identifier type is user_alias.
+   * The value of the user alias identifier to be merged. Required if the previous identifier type is user_alias.
    */
   previousAliasIdValue?: {
     /**
@@ -23,11 +23,11 @@ export interface Payload {
     alias_name: string
   }
   /**
-   * The type of identifier for the user to be kept. One of: external_id, user_alias, braze_id, email, or phone.
+   * The type of the user identifier to be kept. One of: external_id, user_alias, email, or phone.
    */
   keepIdType: string
   /**
-   * The value of the identifier for the user to be kept.
+   * The value of the user identifier to be kept.
    */
   keepIdValue?: string
   /**
@@ -35,12 +35,20 @@ export interface Payload {
    */
   keepAliasIdValue?: {
     /**
-     * The label of the user alias for the user to be kept.
+     * The label of the user alias to be kept.
      */
     alias_label: string
     /**
-     * The name of the user alias for the user to be kept.
+     * The name of the user alias to be kept.
      */
     alias_name: string
   }
+  /**
+   * Rule determining which user to merge if multiple users are found.
+   */
+  keepIdPrioritization?: string | null
+  /**
+   * Rule determining which user to merge if multiple users are found.
+   */
+  previousIdPrioritization?: string | null
 }

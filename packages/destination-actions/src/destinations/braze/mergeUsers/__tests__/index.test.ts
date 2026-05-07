@@ -95,8 +95,8 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: { email: 'merge@example.com' },
-          identifier_to_keep: { email: 'keep@example.com' }
+          identifier_to_merge: { email: 'merge@example.com', prioritization: ['identified'] },
+          identifier_to_keep: { email: 'keep@example.com', prioritization: ['identified'] }
         }
       ]
     })
@@ -125,8 +125,8 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: { phone: '+14155551234' },
-          identifier_to_keep: { phone: '+14155555678' }
+          identifier_to_merge: { phone: '+14155551234', prioritization: ['identified'] },
+          identifier_to_keep: { phone: '+14155555678', prioritization: ['identified'] }
         }
       ]
     })
@@ -154,7 +154,7 @@ describe('Braze.mergeUsers', () => {
     expect(responses[0].options.json).toMatchObject({
       merge_updates: [
         {
-          identifier_to_merge: { email: 'merge@example.com' },
+          identifier_to_merge: { email: 'merge@example.com', prioritization: ['identified'] },
           identifier_to_keep: { external_id: 'user-to-keep-123' }
         }
       ]
@@ -281,5 +281,84 @@ describe('Braze.mergeUsers', () => {
         }
       ]
     })
+  })
+
+  it('should include multi-value prioritization array', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const event = createTestEvent({ type: 'alias' })
+
+    const responses = await testDestination.testAction('mergeUsers', {
+      event,
+      settings,
+      mapping: {
+        previousIdType: 'email',
+        previousIdValue: 'merge@example.com',
+        previousIdPrioritization: 'identified,most_recently_updated',
+        keepIdType: 'email',
+        keepIdValue: 'keep@example.com',
+        keepIdPrioritization: 'unidentified,least_recently_updated'
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { email: 'merge@example.com', prioritization: ['identified', 'most_recently_updated'] },
+          identifier_to_keep: { email: 'keep@example.com', prioritization: ['unidentified', 'least_recently_updated'] }
+        }
+      ]
+    })
+  })
+
+  it('should not include prioritization when value is null', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const event = createTestEvent({ type: 'alias' })
+
+    const responses = await testDestination.testAction('mergeUsers', {
+      event,
+      settings,
+      mapping: {
+        previousIdType: 'email',
+        previousIdValue: 'merge@example.com',
+        previousIdPrioritization: null,
+        keepIdType: 'email',
+        keepIdValue: 'keep@example.com',
+        keepIdPrioritization: null
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const json = responses[0].options.json as Record<string, unknown>
+    const mergeUpdates = (json.merge_updates as Array<Record<string, Record<string, unknown>>>)[0]
+    expect(mergeUpdates.identifier_to_merge).not.toHaveProperty('prioritization')
+    expect(mergeUpdates.identifier_to_keep).not.toHaveProperty('prioritization')
+  })
+
+  it('should not include prioritization for external_id identifiers', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const event = createTestEvent({ type: 'alias' })
+
+    const responses = await testDestination.testAction('mergeUsers', {
+      event,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: 'user-to-merge-456',
+        keepIdType: 'external_id',
+        keepIdValue: 'user-to-keep-123'
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    const json = responses[0].options.json as Record<string, unknown>
+    const mergeUpdates = (json.merge_updates as Array<Record<string, Record<string, unknown>>>)[0]
+    expect(mergeUpdates.identifier_to_merge).not.toHaveProperty('prioritization')
+    expect(mergeUpdates.identifier_to_keep).not.toHaveProperty('prioritization')
   })
 })

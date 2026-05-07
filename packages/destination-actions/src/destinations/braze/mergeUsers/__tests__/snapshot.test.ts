@@ -58,12 +58,12 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event,
       mapping: {
-        previousIdType: 'user_alias',
-        previousAliasIdValue: { alias_name: 'merge-alias', alias_label: 'segment' },
-        previousIdPrioritization: 'identified',
-        keepIdType: 'user_alias',
-        keepAliasIdValue: { alias_name: 'keep-alias', alias_label: 'segment' },
-        keepIdPrioritization: 'identified'
+        previousIdType: 'email',
+        previousIdValue: 'merge@example.com',
+        previousIdPrioritization: 'identified,most_recently_updated',
+        keepIdType: 'email',
+        keepIdValue: 'keep@example.com',
+        keepIdPrioritization: 'unidentified'
       },
       settings: settingsData,
       auth: undefined
@@ -75,7 +75,6 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     try {
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot()
-      return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
     }
