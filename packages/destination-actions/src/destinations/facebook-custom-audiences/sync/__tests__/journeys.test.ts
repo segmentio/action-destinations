@@ -98,6 +98,16 @@ describe('getJourneysMemberships', () => {
     const result = getJourneysMemberships(rawDatas)
     expect(result).toEqual([true])
   })
+
+  it('returns all true even when properties[computation_key] is a boolean', () => {
+    const rawDatas: RawData[] = [
+      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: true } },
+      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: false } },
+      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: true } }
+    ]
+    const result = getJourneysMemberships(rawDatas)
+    expect(result).toEqual([true, true, true])
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -136,6 +146,77 @@ describe('FacebookCustomAudiences.sync - journey_step with feature flag', () => 
     expect(responses).toBeDefined()
     const successResponses = responses.filter((r: any) => r.status === 200)
     expect(successResponses).toHaveLength(2)
+  })
+
+  it('should not override audienceMemberships when properties[computation_key] is already a boolean', async () => {
+    const events = [
+      createTestEvent({
+        type: 'track',
+        event: 'Journey Step Entered',
+        userId: 'user-1',
+        properties: {
+          email: 'user1@test.com',
+          [AUDIENCE_KEY]: true
+        },
+        context: {
+          personas: {
+            external_audience_id: AUDIENCE_ID,
+            computation_class: 'journey_step',
+            computation_key: AUDIENCE_KEY
+          }
+        }
+      }),
+      createTestEvent({
+        type: 'track',
+        event: 'Journey Step Entered',
+        userId: 'user-2',
+        properties: {
+          email: 'user2@test.com',
+          [AUDIENCE_KEY]: false
+        },
+        context: {
+          personas: {
+            external_audience_id: AUDIENCE_ID,
+            computation_class: 'journey_step',
+            computation_key: AUDIENCE_KEY
+          }
+        }
+      })
+    ]
+
+    const addNock = nock(BASE_URL)
+      .post(new RegExp(`/${AUDIENCE_ID}/users`))
+      .reply(200, {
+        audience_id: AUDIENCE_ID,
+        session_id: '111',
+        num_received: 1,
+        num_invalid_entries: 0,
+        invalid_entry_samples: {}
+      })
+
+    const deleteNock = nock(BASE_URL)
+      .delete(new RegExp(`/${AUDIENCE_ID}/users`))
+      .reply(200, {
+        audience_id: AUDIENCE_ID,
+        session_id: '222',
+        num_received: 1,
+        num_invalid_entries: 0,
+        invalid_entry_samples: {}
+      })
+
+    const responses = await testDestination.executeBatch('sync', {
+      events,
+      settings,
+      mapping: journeyMapping,
+      auth,
+      features: { [FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]: true }
+    })
+
+    expect(responses).toBeDefined()
+    const successResponses = responses.filter((r: any) => r.status === 200)
+    expect(successResponses).toHaveLength(2)
+    expect(addNock.isDone()).toBe(true)
+    expect(deleteNock.isDone()).toBe(true)
   })
 
   it('should fail with missing membership details when feature flag is disabled', async () => {
