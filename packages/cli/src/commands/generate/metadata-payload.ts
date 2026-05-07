@@ -319,7 +319,7 @@ export default class GenerateMetadataPayload extends Command {
       }
 
       try {
-        const payload = generateDestinationPayload(slug, definition)
+        const payload = generatePublicMetadata(slug, definition)
         const filePath = path.join(sourceDir, 'metadata.json')
         await fs.writeJson(filePath, payload, { spaces: 2 })
         generated++
