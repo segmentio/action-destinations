@@ -1856,15 +1856,21 @@ describe('Memora.upsertProfile', () => {
         })) as DynamicFieldResponse
 
         expect(result).toBeDefined()
-        // Should exclude identifiers (traits with idTypePromotion) and non-STRING traits
+        // Should exclude identifiers (traits with idTypePromotion) but include all non-identifier traits regardless of dataType
         // All trait groups use traitGroupName.$.traitName format
         expect(result.choices).toEqual([
           { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
           { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
+          { label: 'Contact.age', value: 'Contact.$.age', description: 'User age' },
           {
             label: 'PurchaseHistory.Last Purchase Date',
             value: 'PurchaseHistory.$.lastPurchaseDate',
             description: 'Date of last purchase'
+          },
+          {
+            label: 'PurchaseHistory.Total Spent',
+            value: 'PurchaseHistory.$.totalSpent',
+            description: 'Total amount spent'
           },
           {
             label: 'PurchaseHistory.Favorite Category',
