@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -360,5 +360,219 @@ describe('Braze.mergeUsers', () => {
     const mergeUpdates = (json.merge_updates as Array<Record<string, Record<string, unknown>>>)[0]
     expect(mergeUpdates.identifier_to_merge).not.toHaveProperty('prioritization')
     expect(mergeUpdates.identifier_to_keep).not.toHaveProperty('prioritization')
+  })
+})
+
+describe('Braze.mergeUsers batch', () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+
+  it('should batch multiple merge operations into a single request', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' }),
+      createTestEvent({ type: 'alias', userId: 'keep-2', previousId: 'merge-2' }),
+      createTestEvent({ type: 'alias', userId: 'keep-3', previousId: 'merge-3' })
+    ]
+
+    const responses = await testDestination.testBatchAction('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: { '@path': '$.previousId' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { external_id: 'merge-1' },
+          identifier_to_keep: { external_id: 'keep-1' }
+        },
+        {
+          identifier_to_merge: { external_id: 'merge-2' },
+          identifier_to_keep: { external_id: 'keep-2' }
+        },
+        {
+          identifier_to_merge: { external_id: 'merge-3' },
+          identifier_to_keep: { external_id: 'keep-3' }
+        }
+      ]
+    })
+  })
+
+  it('should batch with mixed identifier types', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-ext-1', previousId: 'merge-ext-1' }),
+      createTestEvent({ type: 'alias', userId: 'keep-ext-2', previousId: 'merge-ext-2' })
+    ]
+
+    const responses = await testDestination.testBatchAction('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'email',
+        previousIdValue: { '@path': '$.previousId' },
+        previousIdPrioritization: 'identified',
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { email: 'merge-ext-1', prioritization: ['identified'] },
+          identifier_to_keep: { external_id: 'keep-ext-1' }
+        },
+        {
+          identifier_to_merge: { email: 'merge-ext-2', prioritization: ['identified'] },
+          identifier_to_keep: { external_id: 'keep-ext-2' }
+        }
+      ]
+    })
+  })
+
+  it('should batch with user_alias identifiers', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1' }),
+      createTestEvent({ type: 'alias', userId: 'keep-2' })
+    ]
+
+    const responses = await testDestination.testBatchAction('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'user_alias',
+        previousAliasIdValue: { alias_name: 'anon-alias', alias_label: 'segment' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { user_alias: { alias_name: 'anon-alias', alias_label: 'segment' } },
+          identifier_to_keep: { external_id: 'keep-1' }
+        },
+        {
+          identifier_to_merge: { user_alias: { alias_name: 'anon-alias', alias_label: 'segment' } },
+          identifier_to_keep: { external_id: 'keep-2' }
+        }
+      ]
+    })
+  })
+
+  it('should batch with a single event', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' })]
+
+    const responses = await testDestination.testBatchAction('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: { '@path': '$.previousId' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { external_id: 'merge-1' },
+          identifier_to_keep: { external_id: 'keep-1' }
+        }
+      ]
+    })
+  })
+
+  it('should batch with multi-value prioritization', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', previousId: 'merge1@example.com' }),
+      createTestEvent({ type: 'alias', previousId: 'merge2@example.com' })
+    ]
+
+    const responses = await testDestination.testBatchAction('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'email',
+        previousIdValue: { '@path': '$.previousId' },
+        previousIdPrioritization: 'identified,most_recently_updated',
+        keepIdType: 'phone',
+        keepIdValue: '+14155551234',
+        keepIdPrioritization: 'unidentified,least_recently_updated'
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      merge_updates: [
+        {
+          identifier_to_merge: { email: 'merge1@example.com', prioritization: ['identified', 'most_recently_updated'] },
+          identifier_to_keep: { phone: '+14155551234', prioritization: ['unidentified', 'least_recently_updated'] }
+        },
+        {
+          identifier_to_merge: { email: 'merge2@example.com', prioritization: ['identified', 'most_recently_updated'] },
+          identifier_to_keep: { phone: '+14155551234', prioritization: ['unidentified', 'least_recently_updated'] }
+        }
+      ]
+    })
+  })
+
+  it('should batch without prioritization when not provided', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' }),
+      createTestEvent({ type: 'alias', userId: 'keep-2', previousId: 'merge-2' })
+    ]
+
+    const responses = await testDestination.testBatchAction('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'email',
+        previousIdValue: { '@path': '$.previousId' },
+        previousIdPrioritization: null,
+        keepIdType: 'email',
+        keepIdValue: { '@path': '$.userId' },
+        keepIdPrioritization: null
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const json = responses[0].options.json as Record<string, unknown>
+    const mergeUpdates = json.merge_updates as Array<Record<string, Record<string, unknown>>>
+    expect(mergeUpdates).toHaveLength(2)
+    expect(mergeUpdates[0].identifier_to_merge).not.toHaveProperty('prioritization')
+    expect(mergeUpdates[0].identifier_to_keep).not.toHaveProperty('prioritization')
+    expect(mergeUpdates[1].identifier_to_merge).not.toHaveProperty('prioritization')
+    expect(mergeUpdates[1].identifier_to_keep).not.toHaveProperty('prioritization')
   })
 })

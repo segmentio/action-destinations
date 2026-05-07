@@ -4,9 +4,9 @@ import type { Payload } from './generated-types'
 import { mergeUsers, getPrioritizationChoices, getSupportedIdentifierChoices } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Merge Users',
+  title: 'Merge Users [Beta]',
   description:
-    'Merge one identified user into another identified user. The merge will occur asynchronously and can take between 5-10 minutes.',
+    'Merge one identified user into another identified user. The merge will occur asynchronously and can take between 5-10 minutes. This Action is in Public Beta.',
   defaultSubscription: 'type = "alias"',
   fields: {
     previousIdType: {
@@ -203,11 +203,22 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      default: 50,
+      maximum: 50,
+      minimum: 1
     }
   },
   perform: (request, { settings, payload }) => {
+    return mergeUsers(request, settings, [payload])
+  },
+  performBatch: (request, { settings, payload }) => {
     return mergeUsers(request, settings, payload)
-  }
+  }, 
 }
 
 export default action

@@ -1,10 +1,21 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload as MergeUsersPayload } from '../mergeUsers/generated-types'
-import { MergeUsersJSON, MergeIdentifierType, Prioritization } from '../mergeUsers/types'
+import { MergeUsersItem, MergeUsersJSON, MergeIdentifierType, Prioritization } from '../mergeUsers/types'
 import { UserAlias } from '../userAlias'
 
-export function mergeUsers(request: RequestClient, settings: Settings, payload: MergeUsersPayload) {
+export function mergeUsers(request: RequestClient, settings: Settings, payloads: MergeUsersPayload[]) {
+  const items: MergeUsersJSON = {
+    merge_updates: payloads.map(getJsonItem)
+  }
+
+  return request(`${settings.endpoint}/users/merge`, {
+    method: 'post',
+    json: items
+  })
+}
+
+function getJsonItem(payload: MergeUsersPayload): MergeUsersItem {
   const {
     previousIdType,
     previousIdValue,
@@ -27,25 +38,18 @@ export function mergeUsers(request: RequestClient, settings: Settings, payload: 
   const previousIdPri = toPrioritization(previousIdPrioritization)
   const keepIdPri = toPrioritization(keepIdPrioritization)
 
-  const json: MergeUsersJSON = {
-    merge_updates: [
-      {
-        identifier_to_merge: {
-          [previousIdType]: previousId,
-          ...(Array.isArray(previousIdPri) ? { prioritization: previousIdPri } : {})
-        },
-        identifier_to_keep: {
-          [keepIdType]: keepId,
-          ...(Array.isArray(keepIdPri) ? { prioritization: keepIdPri } : {})
-        }
-      }
-    ]
+  const item: MergeUsersItem = {
+    identifier_to_merge: {
+      [previousIdType]: previousId,
+      ...(Array.isArray(previousIdPri) ? { prioritization: previousIdPri } : {})
+    },
+    identifier_to_keep: {
+      [keepIdType]: keepId,
+      ...(Array.isArray(keepIdPri) ? { prioritization: keepIdPri } : {})
+    }
   }
 
-  return request(`${settings.endpoint}/users/merge`, {
-    method: 'post',
-    json
-  })
+  return item
 }
 
 function getMergeIdentifier(
