@@ -127,6 +127,15 @@ describe('generatePublicMetadata() — authentication fields', () => {
     expect(authentication?.fields.sdkKey.required).toBe(true)
   })
 
+  it('is null when destination has no auth fields or settings', () => {
+    const noAuthDef = {
+      name: 'No Auth',
+      mode: 'cloud',
+      actions: { act: { title: 'Act', description: '', fields: {}, perform: () => undefined } }
+    } as unknown as DestinationDefinition
+    expect(generatePublicMetadata('no-auth', noAuthDef).authentication).toBeNull()
+  })
+
   it('normalizes string choices to {label, value} objects', () => {
     const defWithChoices = {
       ...cloudDef,
@@ -184,6 +193,40 @@ describe('generatePublicMetadata() — action fields', () => {
   it('sets platform=cloud for cloud actions', () => {
     const { actions } = generatePublicMetadata('actions-cloud', cloudDef)
     expect(actions.trackEvent.platform).toBe('cloud')
+  })
+
+  it('normalizes dynamic function to true', () => {
+    const def = {
+      ...cloudDef,
+      actions: {
+        dynAction: {
+          title: 'Dyn',
+          description: '',
+          fields: {
+            dynField: { label: 'X', description: 'X', type: 'string', dynamic: () => ['a', 'b'] }
+          },
+          perform: () => undefined
+        }
+      }
+    } as unknown as DestinationDefinition
+    expect(generatePublicMetadata('slug', def).actions.dynAction.fields.dynField.dynamic).toBe(true)
+  })
+
+  it('passes through boolean dynamic values as-is', () => {
+    const def = {
+      ...cloudDef,
+      actions: {
+        dynAction: {
+          title: 'Dyn',
+          description: '',
+          fields: {
+            staticField: { label: 'X', description: 'X', type: 'string', dynamic: false }
+          },
+          perform: () => undefined
+        }
+      }
+    } as unknown as DestinationDefinition
+    expect(generatePublicMetadata('slug', def).actions.dynAction.fields.staticField.dynamic).toBe(false)
   })
 })
 
@@ -417,7 +460,7 @@ describe('GenerateMetadataPayload command', () => {
 
   const validEntry = {
     path: '/repo/packages/destination-actions/dist/destinations/test-dest/index.js',
-    definition: cloudDef
+    definition: { ...cloudDef, slug: 'test-dest' }
   }
 
   beforeEach(() => {
@@ -430,7 +473,7 @@ describe('GenerateMetadataPayload command', () => {
     await GenerateMetadataPayload.run([])
     expect(mockWriteJson).toHaveBeenCalledWith(
       '/repo/packages/destination-actions/src/destinations/test-dest/metadata.json',
-      expect.objectContaining({ name: 'Cloud Dest', slug: expect.any(String) }),
+      expect.objectContaining({ name: 'Cloud Dest', slug: 'test-dest' }),
       { spaces: 2 }
     )
   })
