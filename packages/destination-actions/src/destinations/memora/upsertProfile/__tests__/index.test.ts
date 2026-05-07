@@ -1844,6 +1844,13 @@ describe('Memora.upsertProfile', () => {
                     displayName: 'age',
                     idTypePromotion: null,
                     validationRule: null
+                  },
+                  isSubscribed: {
+                    dataType: 'BOOLEAN',
+                    description: 'Email subscription status',
+                    displayName: 'Is Subscribed',
+                    idTypePromotion: null,
+                    validationRule: null
                   }
                 },
                 version: 1
@@ -1891,6 +1898,7 @@ describe('Memora.upsertProfile', () => {
           { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
           { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
           { label: 'Contact.age', value: 'Contact.$.age', description: 'User age' },
+          { label: 'Contact.Is Subscribed', value: 'Contact.$.isSubscribed', description: 'Email subscription status' },
           {
             label: 'PurchaseHistory.Last Purchase Date',
             value: 'PurchaseHistory.$.lastPurchaseDate',
