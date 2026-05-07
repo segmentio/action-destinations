@@ -468,7 +468,7 @@ async function fetchMemoraStores(request: RequestClient, settings: Settings) {
 
     // This is not the most efficient way to get store details, but the Control Plane API does not currently provide an endpoint to list stores with their details in a single call.
     // We need to make individual calls to get store details in order to display more information in the dropdown (e.g. store name).
-    // Fortunately, most accounts will have a small number of stores (max 5), so this should not be a major performance issue. If we find that this is causing performance problems, we can consider caching store details or adding an endpoint to the Control Plane API to list stores with their details.
+    // Fortunately, most accounts will have a small number of stores (max 5), so this should not be a major performance issue. If we find that this is causing performance problems, we can consider caching store details or adding an endpoint to the Control Plane API to list stores with their detail.
     const memoraStores = await Promise.all(
       stores.map((storeId: string) => {
         return request<MemoraStoreDetails>(`${BASE_URL}/${API_VERSION}/ControlPlane/Stores/${storeId}`, {
