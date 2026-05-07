@@ -66,7 +66,7 @@ export interface PublicPreset {
 export interface PublicDestinationMetadata {
   slug: string
   name: string
-  mode: string
+  mode: 'cloud' | 'device' | 'warehouse'
   description: string | undefined
   authentication: { scheme: string; fields: Record<string, PublicAuthField> } | null
   audienceConfig: { mode: unknown; audienceFields: Record<string, PublicAuthField> } | null
