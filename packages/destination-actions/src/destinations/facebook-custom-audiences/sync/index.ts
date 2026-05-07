@@ -46,13 +46,21 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { payload, audienceMembership, hookOutputs, features, statsContext, rawData }: ExecuteInputRaw<Settings, Payload, RawData, unknown, AudienceMembership>
   ) => {
-    return await send(request, [payload], false, [audienceMembership], hookOutputs, features, statsContext, rawData ? [rawData] : undefined)
+    return await send(
+      request, [payload], false, [audienceMembership],
+      hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
+      features, statsContext, rawData ? [rawData] : undefined
+    )
   },
   performBatch: async (
     request,
     { payload, audienceMembership, hookOutputs, features, statsContext, rawData }: ExecuteInputRaw<Settings, Payload[], RawData[], unknown, AudienceMembership[]>
   ) => {
-    return await send(request, payload, true, audienceMembership, hookOutputs, features, statsContext, rawData)
+    return await send(
+      request, payload, true, audienceMembership,
+      hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
+      features, statsContext, rawData
+    )
   }
 }
 
