@@ -51,4 +51,8 @@ export interface Payload {
    * Rule determining which user to merge if multiple users are found.
    */
   previousIdPrioritization?: string | null
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }
