@@ -4,11 +4,10 @@ import type {
   DestinationDefinition as CloudDestinationDefinition
 } from '@segment/actions-core'
 import { hookTypeStrings } from '@segment/actions-core/destination-kit'
-import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
-import { getManifest, DestinationDefinition, hasOauthAuthentication } from '../../lib/destinations'
+import { getManifest, DestinationDefinition } from '../../lib/destinations'
 
 // ---- Public output interfaces ----
 
@@ -75,216 +74,32 @@ export interface PublicDestinationMetadata {
   presets: PublicPreset[]
 }
 
-// ---- Payload generation helpers (ported from action-cli/src/lib/cmd/push.ts) ----
+// ---- Serialization helpers ----
 
-function getFieldPropertySchema(fieldKey: string, field: MinimalInputField): JSONSchema4 {
-  const tmp: Record<string, MinimalInputField> = {}
-  const { default: _def, ...fieldWODefault } = field as any
-  tmp[fieldKey] = fieldWODefault
-  if (field.type === 'object') {
-    return fieldsToJsonSchema(tmp, { additionalProperties: (field as any)?.additionalProperties || false })
-  }
-  return fieldsToJsonSchema(tmp)
+export function normalizeChoices(choices: unknown): Array<{ label: string; value: unknown }> | null {
+  if (!Array.isArray(choices) || choices.length === 0) return null
+  return choices.map((c: string | { label: string; value: unknown }) =>
+    typeof c === 'string' ? { label: c, value: c } : c
+  )
 }
 
-function getFieldPropertySchemaForHookDefinition(
-  hookKey: string,
-  hook: ActionHookDefinition<any, any, any, any, any>
-): JSONSchema4 {
-  const outputs = (hook as any).outputTypes ?? {}
-  const hookSchema: MinimalInputField = {
-    type: 'object',
-    required: false,
-    label: hook.label,
-    description: hook.description,
-    properties: { ...outputs }
+export function serializeAuthField(schema: any): PublicAuthField {
+  return {
+    label: schema.label,
+    description: schema.description,
+    type: schema.type,
+    required: schema.required === true,
+    choices: normalizeChoices(schema.choices),
+    default: schema.default ?? null
   }
-  return fieldsToJsonSchema({ [hookKey]: hookSchema })
 }
 
-function getDisplayMetadata(field: any, fieldKey: string, action: any): JSONSchema4 | null {
-  const displayMetadata: any = {}
-
-  if (field.category) {
-    displayMetadata.category = field.category
+export function serializeAuthFields(fields: Record<string, any>): Record<string, PublicAuthField> {
+  const result: Record<string, PublicAuthField> = {}
+  for (const [key, schema] of Object.entries(fields)) {
+    result[key] = serializeAuthField(schema)
   }
-  if (field.displayMode) {
-    displayMetadata.displayMode = field.displayMode
-  }
-  if (field.disabledInputMethods) {
-    displayMetadata.disabledInputMethods = field.disabledInputMethods
-  }
-  if (typeof field.required === 'object') {
-    displayMetadata.conditionallyRequired = field.required
-  }
-
-  if (field.type === 'object') {
-    let dynamicProperties: string[] = []
-    if (field.properties) {
-      dynamicProperties = Object.keys(field.properties).filter((key: string) => field.properties[key].dynamic)
-      const propertiesMetadata: any = {}
-      for (const propertyKey of Object.keys(field.properties)) {
-        const propertyDef = field.properties[propertyKey]
-        if (propertyDef.disabledInputMethods) {
-          propertiesMetadata[propertyKey] = {
-            ...propertiesMetadata[propertyKey],
-            disabledInputMethods: propertyDef.disabledInputMethods
-          }
-        }
-      }
-      if (Object.keys(propertiesMetadata).length > 0) {
-        displayMetadata.propertiesMetadata = propertiesMetadata
-      }
-    }
-    if (field.dynamic) {
-      action.dynamicFields?.[fieldKey]?.__keys__ && dynamicProperties.push('__keys__')
-      action.dynamicFields?.[fieldKey]?.__values__ && dynamicProperties.push('__values__')
-    }
-    if (dynamicProperties.length > 0) {
-      displayMetadata.dynamicProperties = dynamicProperties
-    }
-  }
-
-  return Object.keys(displayMetadata).length === 0 ? null : displayMetadata
-}
-
-function getUIMetadataForTopLevelSetting(field: MinimalInputField): any {
-  const uiMetadata: any = {}
-  if (field.required && typeof field.required === 'object') {
-    uiMetadata.conditionallyRequired = field.required
-  }
-  return Object.keys(uiMetadata).length === 0 ? null : uiMetadata
-}
-
-function getOptions(definition: DestinationDefinition): DestinationMetadataOptions {
-  const options: DestinationMetadataOptions = {}
-
-  const publicSettings = (definition as BrowserDestinationDefinition).settings
-  const authFields = (definition as CloudDestinationDefinition).authentication?.fields
-  const audienceFields = (definition as AudienceDestinationDefinition).audienceFields
-
-  const settings: Record<string, any> = {
-    ...publicSettings,
-    ...authFields,
-    ...audienceFields
-  }
-
-  for (const [fieldKey, schema] of Object.entries(settings)) {
-    const validators: string[][] = []
-
-    const scope = audienceFields && fieldKey in audienceFields ? 'audience_destination' : 'event_destination'
-
-    if (RESERVED_FIELD_NAMES.includes(fieldKey.toLowerCase()) && hasOauthAuthentication(definition)) {
-      throw new Error(`Schema contains a field definition that uses a reserved name: ${fieldKey}`)
-    }
-
-    if (schema.required === true) {
-      validators.push(['required', `The ${fieldKey} property is required.`])
-    }
-
-    if (schema.required && typeof schema.required === 'object') {
-      const baseSchema = fieldsToJsonSchema({ [fieldKey]: { ...schema, default: undefined } })
-      const conditionalSchema = conditionsToJsonSchema({ [fieldKey]: schema.required })
-      validators.push(['conditional', JSON.stringify({ ...baseSchema, ...conditionalSchema })])
-    }
-
-    const isAuth = typeof authFields === 'object' && fieldKey in authFields
-    const isPrivateSetting = isAuth
-
-    let type: string = schema.type
-    if (Array.isArray(schema.choices)) {
-      type = 'select'
-    }
-    if (schema.multiple) {
-      type = 'array'
-    }
-
-    const defaultValues: Record<string, unknown> = { number: 0, boolean: false, string: '', password: '' }
-
-    const tags: string[] = []
-    if (isAuth) {
-      tags.push('authentication:test')
-    }
-
-    options[fieldKey] = {
-      tags,
-      default: schema.default ?? defaultValues[schema.type],
-      description: schema.description,
-      encrypt: schema.type === 'password',
-      hidden: false,
-      label: schema.label,
-      private: isPrivateSetting,
-      scope,
-      type,
-      options: schema.choices?.map((choice: any) => ({
-        value: choice.value,
-        label: choice.label,
-        text: choice.label
-      })),
-      readOnly: false,
-      dependsOn: schema.depends_on ?? null,
-      validators,
-      uIMetadata: getUIMetadataForTopLevelSetting(schema)
-    }
-  }
-
-  if (hasOauthAuthentication(definition)) {
-    options['oauth'] = OAUTH_OPTIONS
-  }
-
-  const audienceConfig = (definition as AudienceDestinationDefinition).audienceConfig
-  if (audienceConfig) {
-    const defaultAttributes = { private: true, hidden: true, encrypt: false, readOnly: false, validators: [] }
-    if (audienceConfig.mode.type === 'synced') {
-      options['__segment_internal_engage_batch_sync'] = {
-        ...defaultAttributes,
-        label: 'Indicates that this is a batched (or synced) destination on some schedule',
-        type: 'boolean',
-        description: 'Indicates that this is a batched (or synced) destination on some schedule',
-        default: true,
-        scope: 'event_destination',
-        readOnly: true
-      }
-      if (audienceConfig.mode.full_audience_sync) {
-        options['__segment_internal_engage_force_full_sync'] = {
-          ...defaultAttributes,
-          label: 'Perform a full audience sync if true',
-          type: 'boolean',
-          description: 'Perform a full audience sync if true',
-          default: audienceConfig.mode.full_audience_sync,
-          scope: 'event_destination',
-          readOnly: true
-        }
-      }
-    }
-
-    const instanceOfWithCreateGet = (obj: any): boolean => 'createAudience' in obj && 'getAudience' in obj
-    if (instanceOfWithCreateGet(audienceConfig)) {
-      options['__segment_internal_engage_support_audience_functions'] = {
-        ...defaultAttributes,
-        label: 'Supports Audience Functions (getAudience/createAudience)',
-        type: 'boolean',
-        description: 'Supports Audience Functions (getAudience/createAudience)',
-        default: true,
-        scope: 'event_destination',
-        readOnly: true
-      }
-    }
-  }
-
-  if (Object.keys(options).length === 0) {
-    options['required_hidden_token'] = {
-      label: 'Required Hidden Token',
-      type: 'string',
-      description: 'This token is hidden because it is unused and destinations must have one setting.',
-      default: '',
-      private: true,
-      hidden: true,
-      scope: 'event_destination'
-    }
-  }
-
-  return options
+  return result
 }
 
 function buildActionFields(action: any): ActionFieldPayload[] {
