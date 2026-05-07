@@ -1,5 +1,5 @@
 export type MergeUsersJSON = {
-  merge_updates:Array<MergeUsersItem>
+  merge_updates: Array<MergeUsersItem>
 }
 
 export type MergeUsersItem = {

@@ -1,7 +1,7 @@
 import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { Payload as MergeUsersPayload } from '../mergeUsers/generated-types'
-import { MergeUsersItem, MergeUsersJSON, MergeIdentifierType, Prioritization } from '../mergeUsers/types'
+import { Payload as MergeUsersPayload } from './generated-types'
+import { MergeUsersItem, MergeUsersJSON, MergeIdentifierType, Prioritization } from './types'
 import { UserAlias } from '../userAlias'
 
 export function mergeUsers(request: RequestClient, settings: Settings, payloads: MergeUsersPayload[]) {
@@ -11,6 +11,7 @@ export function mergeUsers(request: RequestClient, settings: Settings, payloads:
 
   return request(`${settings.endpoint}/users/merge`, {
     method: 'post',
+    ...(payloads.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
     json: items
   })
 }
@@ -77,7 +78,10 @@ function getMergeIdentifier(
 
 function toPrioritization(value: string | undefined | null): Prioritization | undefined {
   if (!value) return undefined
-  const parts = value.split(',').filter(Boolean)
+  const parts = value
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean)
   if (parts.length === 0) return undefined
   return parts as Prioritization
 }

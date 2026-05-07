@@ -218,7 +218,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { settings, payload }) => {
     return mergeUsers(request, settings, payload)
-  }, 
+  }
 }
 
 export default action
