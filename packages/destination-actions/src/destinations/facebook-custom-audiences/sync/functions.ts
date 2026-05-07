@@ -188,8 +188,6 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
 
 export function validate(payloads: Payload[], audienceId: unknown, audienceMemberships?: AudienceMembership[]): string | undefined {
   
-  // TODO handle journey step entered 
-
   if(!Array.isArray(audienceMemberships)){
     return 'Audience membership details for batch missing.'
   }
