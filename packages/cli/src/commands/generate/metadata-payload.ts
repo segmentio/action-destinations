@@ -163,74 +163,57 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
   }
 }
 
-function generateDestinationPayload(slug: string, definition: DestinationDefinition): DestinationPayload {
-  const warehouseSupportDestinations = ['actions-segment', 'actions-segment-profiles']
-  const supportWarehouse = warehouseSupportDestinations.includes(slug)
-  const supportCloudAppObject = slug === 'actions-segment-profiles'
+export function generatePublicMetadata(slug: string, definition: DestinationDefinition): PublicDestinationMetadata {
+  const cloudDef = definition as CloudDestinationDefinition
+  const browserDef = definition as any // BrowserDestinationDefinition
+  const audienceDef = definition as AudienceDestinationDefinition
 
-  const hasBrowserActions =
-    !supportWarehouse && Object.values(definition.actions).some((a: any) => a.platform === 'web')
-  const hasCloudActions =
-    !supportWarehouse && Object.values(definition.actions).some((a: any) => !a.platform || a.platform === 'cloud')
-
-  const platforms = {
-    browser: hasBrowserActions || hasCloudActions,
-    server: hasCloudActions,
-    mobile: false,
-    warehouse: supportWarehouse,
-    cloudAppObject: supportCloudAppObject
+  // Authentication fields: cloud uses authentication.fields, browser uses settings
+  let authentication: PublicDestinationMetadata['authentication'] = null
+  const authFields = cloudDef.authentication?.fields
+  const browserSettings = browserDef.settings
+  const rawFields = authFields ?? browserSettings
+  if (rawFields && Object.keys(rawFields).length > 0) {
+    authentication = {
+      scheme: cloudDef.authentication?.scheme ?? 'custom',
+      fields: serializeAuthFields(rawFields)
+    }
   }
 
-  const options = getOptions(definition)
-  const basicOptions = Object.keys(options).filter((k) => k !== 'oauth')
-
-  const audienceConfig = (definition as AudienceDestinationDefinition).audienceConfig
-  let supportsAudiences = !!audienceConfig
-  if (slug === 'actions-liveramp-audiences') {
-    supportsAudiences = true
+  // audienceConfig: strip functions, keep mode + audienceFields
+  let audienceConfig: PublicDestinationMetadata['audienceConfig'] = null
+  if (audienceDef.audienceConfig) {
+    audienceConfig = {
+      mode: audienceDef.audienceConfig.mode,
+      audienceFields: serializeAuthFields(audienceDef.audienceFields ?? {})
+    }
   }
 
-  const actions: ActionPayload[] = sortBy(
-    Object.entries(definition.actions).map(([actionKey, action]: [string, any]) => {
-      const platform = action.platform ?? 'cloud'
-      const fields = buildActionFields(action)
+  // Actions: keyed object
+  const actions: Record<string, PublicAction> = {}
+  for (const [actionKey, action] of Object.entries(definition.actions as Record<string, any>)) {
+    actions[actionKey] = serializeAction(actionKey, action)
+  }
 
-      return {
-        slug: actionKey,
-        name: action.title ?? 'Unnamed Action',
-        description: action.description ?? '',
-        platform,
-        hidden: action.hidden ?? false,
-        defaultTrigger: action.defaultSubscription ?? null,
-        fields
-      }
-    }),
-    'name'
-  )
+  // Presets: pass through
+  const presets: PublicPreset[] = ((definition as any).presets ?? []).map((preset: any) => ({
+    name: preset.name,
+    type: preset.type,
+    partnerAction: preset.partnerAction,
+    subscribe: preset.subscribe,
+    mapping: preset.mapping ?? {},
+    eventSlug: preset.eventSlug ?? null
+  }))
 
-  const presets = sortBy(
-    ((definition as any).presets ?? []).map((preset: any) => ({
-      partnerAction: preset.partnerAction,
-      name: preset.name,
-      subscribe: preset.subscribe,
-      mapping: preset.mapping ?? {},
-      type: preset.type,
-      eventSlug: preset.eventSlug
-    })),
-    'name'
-  )
-
-  const authScheme = (definition as CloudDestinationDefinition).authentication?.scheme
+  const mode = ((definition as any).mode ?? 'cloud') as 'cloud' | 'device' | 'warehouse'
 
   return {
+    slug,
     name: definition.name,
+    mode,
     description: definition.description,
-    basicOptions,
-    options,
-    platforms,
-    authenticationScheme: authScheme,
-    supportedRegions: ['us-west-2', 'eu-west-1'],
-    supportsAudiences,
+    authentication,
+    audienceConfig,
     actions,
     presets
   }
@@ -273,7 +256,7 @@ function resolveSourceDir(entryPath: string): string | null {
   return null
 }
 
-export { generateDestinationPayload, resolveSourceDir }
+export { resolveSourceDir }
 
 // ---- Command ----
 
