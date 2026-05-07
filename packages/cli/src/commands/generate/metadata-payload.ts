@@ -299,6 +299,7 @@ export default class GenerateMetadataPayload extends Command {
     const entries = Object.entries(manifest)
     let generated = 0
     let skipped = 0
+    let failed = 0
 
     for (const [metadataId, entry] of entries) {
       const definition = entry.definition as DestinationDefinition
@@ -326,10 +327,19 @@ export default class GenerateMetadataPayload extends Command {
         this.spinner.succeed(`${definition.name} → ${filePath}`)
       } catch (err) {
         this.spinner.fail(`Failed for ${slug}: ${(err as Error).message}`)
+        failed++
       }
     }
 
-    this.log(`\nDone. Generated ${generated} payload files.${skipped > 0 ? ` (${skipped} skipped)` : ''}`)
+    this.log(
+      `\nDone. Generated ${generated} payload files.${skipped > 0 ? ` (${skipped} skipped)` : ''}${
+        failed > 0 ? ` (${failed} failed)` : ''
+      }`
+    )
+
+    if (failed > 0) {
+      throw new Error(`${failed} destination(s) failed to generate metadata. See above for details.`)
+    }
   }
 
   async catch(error: unknown) {

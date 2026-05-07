@@ -536,7 +536,7 @@ describe('GenerateMetadataPayload command', () => {
         definition: { ...cloudDef, slug: 'good-dest' }
       } as any
     })
-    await expect(GenerateMetadataPayload.run([])).resolves.not.toThrow()
+    await expect(GenerateMetadataPayload.run([])).rejects.toThrow('1 destination(s) failed to generate metadata')
     expect(mockWriteJson).toHaveBeenCalledTimes(1)
   })
 })
