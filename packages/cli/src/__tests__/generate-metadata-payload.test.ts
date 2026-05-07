@@ -5,39 +5,32 @@ jest.mock('../lib/destinations', () => ({
 
 jest.mock('fs-extra', () => ({
   __esModule: true,
-  default: {
-    writeJson: jest.fn().mockResolvedValue(undefined)
-  }
+  default: { writeJson: jest.fn().mockResolvedValue(undefined) }
 }))
 
 import fs from 'fs-extra'
-import { generateDestinationPayload, resolveSourceDir } from '../commands/generate/metadata-payload'
+import { generatePublicMetadata } from '../commands/generate/metadata-payload'
+import { resolveSourceDir } from '../commands/generate/metadata-payload'
 import GenerateMetadataPayload from '../commands/generate/metadata-payload'
 import { getManifest } from '../lib/destinations'
 import type { DestinationDefinition } from '../lib/destinations'
 
-// ---------------------------------------------------------------------------
-// Fixtures
-// ---------------------------------------------------------------------------
+// ---- Fixtures ----
 
-const basicAuthDefinition: DestinationDefinition = {
-  name: 'Test Basic Destination',
+const cloudDef: DestinationDefinition = {
+  name: 'Cloud Dest',
   mode: 'cloud',
-  description: 'A test destination',
+  description: 'A cloud destination.',
   authentication: {
-    scheme: 'basic',
+    scheme: 'custom',
     fields: {
-      apiKey: {
-        label: 'API Key',
-        description: 'Your API key.',
+      apiKey: { label: 'API Key', description: 'Your key.', type: 'password', required: true },
+      region: { label: 'Region', description: 'Your region.', type: 'string', required: false },
+      modeField: {
+        label: 'Mode',
+        description: 'Select mode.',
         type: 'string',
-        required: true
-      },
-      region: {
-        label: 'Region',
-        description: 'Your region.',
-        type: 'string',
-        required: false
+        required: { conditions: [{ fieldKey: 'x', operator: 'is', value: 'y' }] }
       }
     },
     testAuthentication: () => Promise.resolve()
@@ -45,21 +38,24 @@ const basicAuthDefinition: DestinationDefinition = {
   actions: {
     trackEvent: {
       title: 'Track Event',
-      description: 'Send a track event.',
+      description: 'Send track.',
       defaultSubscription: 'type = "track"',
       fields: {
         userId: {
           label: 'User ID',
-          description: 'The user identifier.',
+          description: 'ID.',
           type: 'string',
           required: true,
           default: { '@path': '$.userId' }
         },
-        eventName: {
-          label: 'Event Name',
-          description: 'Name of the event.',
-          type: 'string',
-          required: false
+        props: {
+          label: 'Props',
+          description: 'Properties.',
+          type: 'object',
+          required: false,
+          properties: {
+            color: { label: 'Color', description: 'A color.', type: 'string' }
+          }
         }
       },
       perform: () => undefined
@@ -67,74 +63,16 @@ const basicAuthDefinition: DestinationDefinition = {
   }
 } as unknown as DestinationDefinition
 
-const conditionalRequiredDefinition: DestinationDefinition = {
-  name: 'Test Conditional Destination',
-  mode: 'cloud',
-  authentication: {
-    scheme: 'custom',
-    fields: {
-      conditionalField: {
-        label: 'Conditional Field',
-        description: 'Only required when mode is advanced.',
-        type: 'string',
-        required: {
-          conditions: [{ fieldKey: 'mode', operator: 'is', value: 'advanced' }]
-        }
-      },
-      alwaysRequired: {
-        label: 'Always Required',
-        description: 'This is always required.',
-        type: 'string',
-        required: true
-      }
-    },
-    testAuthentication: () => Promise.resolve()
-  },
-  actions: {
-    doSomething: {
-      title: 'Do Something',
-      description: 'Does something.',
-      fields: {
-        payload: { label: 'Payload', description: 'The payload.', type: 'string' }
-      },
-      perform: () => undefined
-    }
-  }
-} as unknown as DestinationDefinition
-
-const multiActionDefinition: DestinationDefinition = {
-  name: 'Test Multi Action',
-  mode: 'cloud',
-  authentication: {
-    scheme: 'custom',
-    fields: {
-      token: { label: 'Token', description: 'Auth token.', type: 'password', required: true }
-    },
-    testAuthentication: () => Promise.resolve()
-  },
-  actions: {
-    zebra: {
-      title: 'Zebra Action',
-      description: 'Runs last alphabetically.',
-      fields: {},
-      perform: () => undefined
-    },
-    apple: {
-      title: 'Apple Action',
-      description: 'Runs first alphabetically.',
-      fields: {},
-      perform: () => undefined
-    }
-  }
-} as unknown as DestinationDefinition
-
-const browserActionDefinition: DestinationDefinition = {
-  name: 'Test Browser Destination',
+const browserDef: DestinationDefinition = {
+  name: 'Browser Dest',
   mode: 'device',
+  settings: {
+    sdkKey: { label: 'SDK Key', description: 'Key.', type: 'string', required: true }
+  },
   actions: {
     webAction: {
       title: 'Web Action',
-      description: 'Runs in browser.',
+      description: 'Does web stuff.',
       platform: 'web',
       fields: {},
       perform: () => undefined
@@ -142,370 +80,300 @@ const browserActionDefinition: DestinationDefinition = {
   }
 } as unknown as DestinationDefinition
 
-const badArrayPathDefinition: DestinationDefinition = {
-  name: 'Bad ArrayPath Destination',
-  mode: 'cloud',
-  authentication: {
-    scheme: 'custom',
-    fields: {
-      apiKey: { label: 'Key', description: 'Key', type: 'string', required: false }
-    },
-    testAuthentication: () => Promise.resolve()
-  },
-  actions: {
-    badAction: {
-      title: 'Bad Action',
-      description: 'Has invalid object default.',
-      fields: {
-        items: {
-          label: 'Items',
-          description: 'An object field with an array default.',
-          type: 'object',
-          multiple: false,
-          default: { '@arrayPath': ['$.properties.items', { id: { '@path': '$.id' } }] }
-        }
-      },
-      perform: () => undefined
-    }
-  }
-} as unknown as DestinationDefinition
+// ---- Top-level shape ----
 
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — top-level shape
-// ---------------------------------------------------------------------------
-
-describe('generateDestinationPayload() — top-level shape', () => {
-  it('returns all required top-level keys', () => {
-    const payload = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(payload).toMatchObject({
-      name: 'Test Basic Destination',
-      description: 'A test destination',
-      authenticationScheme: 'basic',
-      supportedRegions: ['us-west-2', 'eu-west-1'],
-      supportsAudiences: false
+describe('generatePublicMetadata() — top-level shape', () => {
+  it('includes slug, name, mode, description', () => {
+    const result = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(result).toMatchObject({
+      slug: 'actions-cloud',
+      name: 'Cloud Dest',
+      mode: 'cloud',
+      description: 'A cloud destination.'
     })
-    expect(Array.isArray(payload.basicOptions)).toBe(true)
-    expect(typeof payload.options).toBe('object')
-    expect(Array.isArray(payload.actions)).toBe(true)
-    expect(Array.isArray(payload.presets)).toBe(true)
   })
 
-  it('excludes oauth from basicOptions but includes it in options', () => {
-    const oauthDef = {
-      ...basicAuthDefinition,
+  it('has authentication, audienceConfig, actions, presets keys', () => {
+    const result = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(result).toHaveProperty('authentication')
+    expect(result).toHaveProperty('audienceConfig')
+    expect(result).toHaveProperty('actions')
+    expect(result).toHaveProperty('presets')
+  })
+})
+
+// ---- Auth fields ----
+
+describe('generatePublicMetadata() — authentication fields', () => {
+  it('serializes cloud auth fields under authentication.fields', () => {
+    const { authentication } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(authentication?.scheme).toBe('custom')
+    expect(authentication?.fields).toHaveProperty('apiKey')
+    expect(authentication?.fields.apiKey).toMatchObject({
+      label: 'API Key',
+      type: 'password',
+      required: true
+    })
+  })
+
+  it('flattens conditional required to false', () => {
+    const { authentication } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(authentication?.fields.modeField.required).toBe(false)
+  })
+
+  it('uses browser settings as auth fields for device-mode destinations', () => {
+    const { authentication } = generatePublicMetadata('actions-browser', browserDef)
+    expect(authentication?.fields).toHaveProperty('sdkKey')
+    expect(authentication?.fields.sdkKey.required).toBe(true)
+  })
+
+  it('normalizes string choices to {label, value} objects', () => {
+    const defWithChoices = {
+      ...cloudDef,
       authentication: {
-        scheme: 'oauth2',
+        scheme: 'custom',
         fields: {
-          clientId: {
-            label: 'Client ID',
-            description: 'OAuth client ID.',
-            type: 'string',
-            required: true
-          }
-        },
-        testAuthentication: () => Promise.resolve()
+          env: { label: 'Env', description: 'Env.', type: 'string', choices: ['prod', 'staging'] }
+        }
       }
     } as unknown as DestinationDefinition
-    const payload = generateDestinationPayload('test-oauth', oauthDef)
-    expect(payload.basicOptions).not.toContain('oauth')
-    expect(payload.options).toHaveProperty('oauth')
-  })
-
-  it('returns empty presets array when definition has none', () => {
-    const payload = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(payload.presets).toHaveLength(0)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — platforms
-// ---------------------------------------------------------------------------
-
-describe('generateDestinationPayload() — platforms', () => {
-  it('sets browser=true and server=true for a cloud action', () => {
-    const { platforms } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(platforms).toMatchObject({ browser: true, server: true, mobile: false, warehouse: false })
-  })
-
-  it('sets browser=true and server=false for a web-platform action', () => {
-    const { platforms } = generateDestinationPayload('test-browser', browserActionDefinition)
-    expect(platforms.browser).toBe(true)
-    expect(platforms.server).toBe(false)
-  })
-
-  it('sets warehouse=true and browser/server=false for actions-segment slug', () => {
-    const { platforms } = generateDestinationPayload('actions-segment', basicAuthDefinition)
-    expect(platforms).toMatchObject({ warehouse: true, browser: false, server: false })
-  })
-
-  it('sets cloudAppObject=true only for actions-segment-profiles', () => {
-    const profiles = generateDestinationPayload('actions-segment-profiles', basicAuthDefinition)
-    const other = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(profiles.platforms.cloudAppObject).toBe(true)
-    expect(other.platforms.cloudAppObject).toBe(false)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — options / validators
-// ---------------------------------------------------------------------------
-
-describe('generateDestinationPayload() — options validators', () => {
-  it('adds required validator for auth fields with required === true', () => {
-    const { options } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(options['apiKey'].validators).toContainEqual(['required', 'The apiKey property is required.'])
-  })
-
-  it('does NOT add required validator for auth fields with required === false', () => {
-    const { options } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    const hasRequired = options['region'].validators?.some((v: string[]) => v[0] === 'required')
-    expect(hasRequired).toBe(false)
-  })
-
-  it('adds conditional validator for conditionally-required fields', () => {
-    const { options } = generateDestinationPayload('test-cond', conditionalRequiredDefinition)
-    const hasConditional = options['conditionalField'].validators?.some((v: string[]) => v[0] === 'conditional')
-    expect(hasConditional).toBe(true)
-  })
-
-  it('does NOT add required validator for conditionally-required fields', () => {
-    const { options } = generateDestinationPayload('test-cond', conditionalRequiredDefinition)
-    const hasRequired = options['conditionalField'].validators?.some((v: string[]) => v[0] === 'required')
-    expect(hasRequired).toBe(false)
-  })
-
-  it('adds required validator for the always-required field in the same definition', () => {
-    const { options } = generateDestinationPayload('test-cond', conditionalRequiredDefinition)
-    expect(options['alwaysRequired'].validators).toContainEqual([
-      'required',
-      'The alwaysRequired property is required.'
+    const { authentication } = generatePublicMetadata('slug', defWithChoices)
+    expect(authentication?.fields.env.choices).toEqual([
+      { label: 'prod', value: 'prod' },
+      { label: 'staging', value: 'staging' }
     ])
   })
-
-  it('marks auth fields private and tags them with authentication:test', () => {
-    const { options } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(options['apiKey'].private).toBe(true)
-    expect(options['apiKey'].tags).toContain('authentication:test')
-  })
-
-  it('sets encrypt=true for password-type fields', () => {
-    const { options } = generateDestinationPayload('test-multi', multiActionDefinition)
-    expect(options['token'].encrypt).toBe(true)
-  })
-
-  it('injects required_hidden_token fallback when definition has no settings', () => {
-    const noSettingsDef = {
-      name: 'No Settings',
-      mode: 'cloud',
-      actions: {
-        act: { title: 'Act', description: 'Acts.', fields: {}, perform: () => undefined }
-      }
-    } as unknown as DestinationDefinition
-    const { options, basicOptions } = generateDestinationPayload('no-settings', noSettingsDef)
-    expect(options).toHaveProperty('required_hidden_token')
-    expect(basicOptions).toContain('required_hidden_token')
-  })
 })
 
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — actions
-// ---------------------------------------------------------------------------
+// ---- Action fields ----
 
-describe('generateDestinationPayload() — actions', () => {
-  it('maps action slug/name/description/defaultTrigger/platform correctly', () => {
-    const { actions } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    expect(actions).toHaveLength(1)
-    expect(actions[0]).toMatchObject({
-      slug: 'trackEvent',
-      name: 'Track Event',
-      description: 'Send a track event.',
-      defaultTrigger: 'type = "track"',
-      platform: 'cloud',
-      hidden: false
-    })
+describe('generatePublicMetadata() — action fields', () => {
+  it('actions is a keyed object (not an array)', () => {
+    const { actions } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(Array.isArray(actions)).toBe(false)
+    expect(actions).toHaveProperty('trackEvent')
   })
 
-  it('sorts actions alphabetically by name', () => {
-    const { actions } = generateDestinationPayload('test-multi', multiActionDefinition)
-    expect(actions[0].name).toBe('Apple Action')
-    expect(actions[1].name).toBe('Zebra Action')
+  it('fields within an action is a keyed object', () => {
+    const { actions } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(Array.isArray(actions.trackEvent.fields)).toBe(false)
+    expect(actions.trackEvent.fields).toHaveProperty('userId')
   })
 
-  it('defaults defaultTrigger to null when action has no defaultSubscription', () => {
-    const { actions } = generateDestinationPayload('test-multi', multiActionDefinition)
-    expect(actions[0].defaultTrigger).toBeNull()
-  })
-})
-
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — action fields
-// ---------------------------------------------------------------------------
-
-describe('generateDestinationPayload() — action fields', () => {
-  it('maps action fields with correct shape', () => {
-    const { actions } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    const userIdField = actions[0].fields.find((f) => f.fieldKey === 'userId')
-    expect(userIdField).toMatchObject({
-      fieldKey: 'userId',
+  it('serializes action field properties correctly', () => {
+    const { actions } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(actions.trackEvent.fields.userId).toMatchObject({
       label: 'User ID',
       type: 'string',
       required: true,
-      defaultValue: { '@path': '$.userId' }
+      default: { '@path': '$.userId' }
     })
   })
 
-  it('sets required=false for action fields without required: true', () => {
-    const { actions } = generateDestinationPayload('test-basic', basicAuthDefinition)
-    const eventNameField = actions[0].fields.find((f) => f.fieldKey === 'eventName')
-    expect(eventNameField?.required).toBe(false)
+  it('serializes nested properties for object fields', () => {
+    const { actions } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(actions.trackEvent.fields.props.properties).toHaveProperty('color')
+    expect(actions.trackEvent.fields.props.properties?.color.type).toBe('string')
   })
 
-  it('throws for an object field with non-multiple @arrayPath default', () => {
-    expect(() => generateDestinationPayload('bad-slug', badArrayPathDefinition)).toThrow(
-      'The field key "items" is an object field with an incompatible default value.'
-    )
+  it('sets platform=web for web actions', () => {
+    const { actions } = generatePublicMetadata('actions-browser', browserDef)
+    expect(actions.webAction.platform).toBe('web')
   })
 
-  it('auto-injects enable_batching when performBatch is defined and not declared', () => {
-    const batchDef = {
-      name: 'Batch Dest',
-      mode: 'cloud',
+  it('sets platform=cloud for cloud actions', () => {
+    const { actions } = generatePublicMetadata('actions-cloud', cloudDef)
+    expect(actions.trackEvent.platform).toBe('cloud')
+  })
+})
+
+// ---- hasPerformBatch ----
+
+describe('generatePublicMetadata() — hasPerformBatch', () => {
+  it('is true when performBatch is defined', () => {
+    const def = {
+      ...cloudDef,
       actions: {
         batchAction: {
-          title: 'Batch Action',
-          description: 'A batch action.',
+          title: 'Batch',
+          description: 'Batches.',
           fields: {},
           perform: () => undefined,
           performBatch: () => undefined
         }
       }
     } as unknown as DestinationDefinition
-    const { actions } = generateDestinationPayload('batch-dest', batchDef)
-    const batchField = actions[0].fields.find((f) => f.fieldKey === 'enable_batching')
-    expect(batchField).toBeDefined()
-    expect(batchField?.type).toBe('boolean')
-    expect(batchField?.defaultValue).toBe(false)
+    expect(generatePublicMetadata('slug', def).actions.batchAction.hasPerformBatch).toBe(true)
   })
 
-  it('does NOT duplicate enable_batching when already declared on the action', () => {
-    const batchDef = {
-      name: 'Batch Dest With Field',
-      mode: 'cloud',
+  it('is false when performBatch is not defined', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.hasPerformBatch).toBe(false)
+  })
+})
+
+// ---- syncMode ----
+
+describe('generatePublicMetadata() — syncMode', () => {
+  it('is null when action has no syncMode', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.syncMode).toBeNull()
+  })
+
+  it('serializes syncMode with default and supportedModes', () => {
+    const def = {
+      ...cloudDef,
+      actions: {
+        syncAction: {
+          title: 'Sync',
+          description: 'Syncs.',
+          fields: {},
+          syncMode: {
+            default: 'add',
+            label: 'Sync Mode',
+            description: 'How to sync.',
+            choices: [
+              { label: 'Add', value: 'add' },
+              { label: 'Delete', value: 'delete' }
+            ]
+          },
+          perform: () => undefined
+        }
+      }
+    } as unknown as DestinationDefinition
+    const { syncMode } = generatePublicMetadata('slug', def).actions.syncAction
+    expect(syncMode).toEqual({ default: 'add', supportedModes: ['add', 'delete'] })
+  })
+})
+
+// ---- hooks ----
+
+describe('generatePublicMetadata() — hooks', () => {
+  it('is empty array when action has no hooks', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.hooks).toEqual([])
+  })
+
+  it('lists valid hook type names present on the action', () => {
+    const def = {
+      ...cloudDef,
+      actions: {
+        hookAction: {
+          title: 'Hook',
+          description: 'Has hooks.',
+          fields: {},
+          hooks: {
+            onMappingSave: { label: 'On Save', description: 'Fires on save.', inputFields: {} }
+          },
+          perform: () => undefined
+        }
+      }
+    } as unknown as DestinationDefinition
+    expect(generatePublicMetadata('slug', def).actions.hookAction.hooks).toEqual(['onMappingSave'])
+  })
+})
+
+// ---- audienceConfig ----
+
+describe('generatePublicMetadata() — audienceConfig', () => {
+  it('is null when no audienceConfig is present', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).audienceConfig).toBeNull()
+  })
+
+  it('serializes audienceConfig mode and audienceFields, strips functions', () => {
+    const def = {
+      ...cloudDef,
+      audienceConfig: {
+        mode: { type: 'realtime' },
+        createAudience: () => Promise.resolve({ externalId: '1' }),
+        getAudience: () => Promise.resolve({ externalId: '1' })
+      },
+      audienceFields: {
+        listId: { label: 'List ID', description: 'The list.', type: 'string', required: true }
+      }
+    } as unknown as DestinationDefinition
+    const { audienceConfig } = generatePublicMetadata('slug', def)
+    expect(audienceConfig).not.toBeNull()
+    expect(audienceConfig?.mode).toEqual({ type: 'realtime' })
+    expect(audienceConfig?.audienceFields).toHaveProperty('listId')
+    expect(typeof (audienceConfig as any)?.createAudience).toBe('undefined')
+  })
+})
+
+// ---- presets ----
+
+describe('generatePublicMetadata() — presets', () => {
+  it('passes through presets with all required fields', () => {
+    const def = {
+      ...cloudDef,
+      presets: [
+        {
+          name: 'Track',
+          type: 'automatic',
+          partnerAction: 'trackEvent',
+          subscribe: 'type = "track"',
+          mapping: { a: 1 }
+        }
+      ]
+    } as unknown as DestinationDefinition
+    const { presets } = generatePublicMetadata('slug', def)
+    expect(presets).toHaveLength(1)
+    expect(presets[0]).toMatchObject({
+      name: 'Track',
+      type: 'automatic',
+      partnerAction: 'trackEvent',
+      subscribe: 'type = "track"',
+      mapping: { a: 1 },
+      eventSlug: null
+    })
+  })
+
+  it('returns empty array when no presets defined', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).presets).toEqual([])
+  })
+})
+
+// ---- no auto-injected fields ----
+
+describe('generatePublicMetadata() — no auto-injected fields', () => {
+  it('does not inject enable_batching', () => {
+    const def = {
+      ...cloudDef,
       actions: {
         batchAction: {
-          title: 'Batch Action',
-          description: 'A batch action.',
-          fields: {
-            enable_batching: {
-              label: 'Enable Batching?',
-              description: 'Custom batching field.',
-              type: 'boolean',
-              default: true
-            }
-          },
+          title: 'Batch',
+          description: '',
+          fields: {},
           perform: () => undefined,
           performBatch: () => undefined
         }
       }
     } as unknown as DestinationDefinition
-    const { actions } = generateDestinationPayload('batch-with-field', batchDef)
-    expect(actions[0].fields.filter((f) => f.fieldKey === 'enable_batching')).toHaveLength(1)
+    const { actions } = generatePublicMetadata('slug', def)
+    expect(actions.batchAction.fields).not.toHaveProperty('enable_batching')
   })
 
-  it('appends hashing notice to hashedPII field descriptions', () => {
-    const hashedDef = {
-      name: 'Hashed Dest',
-      mode: 'cloud',
+  it('does not inject __segment_internal_sync_mode', () => {
+    const def = {
+      ...cloudDef,
       actions: {
-        hashAction: {
-          title: 'Hash Action',
-          description: 'Hashes PII.',
-          fields: {
-            email: {
-              label: 'Email',
-              description: 'The user email',
-              type: 'string',
-              category: 'hashedPII'
-            }
+        syncAction: {
+          title: 'Sync',
+          description: '',
+          fields: {},
+          syncMode: {
+            default: 'add',
+            label: '',
+            description: '',
+            choices: [{ label: 'Add', value: 'add' }]
           },
           perform: () => undefined
         }
       }
     } as unknown as DestinationDefinition
-    const { actions } = generateDestinationPayload('hashed-dest', hashedDef)
-    const emailField = actions[0].fields.find((f) => f.fieldKey === 'email')
-    expect(emailField?.description).toContain('If not hashed, Segment will hash this value.')
-  })
-
-  it('maps string choices to { label, value } objects', () => {
-    const choicesDef = {
-      name: 'Choices Dest',
-      mode: 'cloud',
-      actions: {
-        choiceAction: {
-          title: 'Choice Action',
-          description: 'Has choices.',
-          fields: {
-            mode: { label: 'Mode', description: 'Select mode.', type: 'string', choices: ['fast', 'slow'] }
-          },
-          perform: () => undefined
-        }
-      }
-    } as unknown as DestinationDefinition
-    const { actions } = generateDestinationPayload('choices-dest', choicesDef)
-    const modeField = actions[0].fields.find((f) => f.fieldKey === 'mode')
-    expect(modeField?.choices).toEqual([
-      { label: 'fast', value: 'fast' },
-      { label: 'slow', value: 'slow' }
-    ])
+    const { actions } = generatePublicMetadata('slug', def)
+    expect(actions.syncAction.fields).not.toHaveProperty('__segment_internal_sync_mode')
   })
 })
 
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — presets
-// ---------------------------------------------------------------------------
-
-describe('generateDestinationPayload() — presets', () => {
-  it('sorts presets alphabetically by name', () => {
-    const presetDef = {
-      ...basicAuthDefinition,
-      presets: [
-        { partnerAction: 'trackEvent', name: 'Zebra Preset', subscribe: 'type = "track"', mapping: {} },
-        { partnerAction: 'trackEvent', name: 'Apple Preset', subscribe: 'type = "identify"', mapping: {} }
-      ]
-    } as unknown as DestinationDefinition
-    const { presets } = generateDestinationPayload('test-presets', presetDef)
-    expect((presets[0] as any).name).toBe('Apple Preset')
-    expect((presets[1] as any).name).toBe('Zebra Preset')
-  })
-
-  it('normalizes undefined preset mapping to empty object', () => {
-    const presetDef = {
-      ...basicAuthDefinition,
-      presets: [{ partnerAction: 'trackEvent', name: 'No Mapping Preset', subscribe: 'type = "track"' }]
-    } as unknown as DestinationDefinition
-    const { presets } = generateDestinationPayload('test-presets', presetDef)
-    expect((presets[0] as any).mapping).toEqual({})
-  })
-})
-
-// ---------------------------------------------------------------------------
-// generateDestinationPayload — supportsAudiences
-// ---------------------------------------------------------------------------
-
-describe('generateDestinationPayload() — supportsAudiences', () => {
-  it('is false when no audienceConfig is present', () => {
-    expect(generateDestinationPayload('test-basic', basicAuthDefinition).supportsAudiences).toBe(false)
-  })
-
-  it('is true for actions-liveramp-audiences regardless of audienceConfig', () => {
-    expect(generateDestinationPayload('actions-liveramp-audiences', basicAuthDefinition).supportsAudiences).toBe(true)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// resolveSourceDir
-// ---------------------------------------------------------------------------
+// ---- resolveSourceDir ----
 
 describe('resolveSourceDir()', () => {
   it('resolves compiled cloud dist path to src directory', () => {
@@ -541,9 +409,7 @@ describe('resolveSourceDir()', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Command end-to-end
-// ---------------------------------------------------------------------------
+// ---- Command E2E ----
 
 describe('GenerateMetadataPayload command', () => {
   const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
@@ -551,7 +417,7 @@ describe('GenerateMetadataPayload command', () => {
 
   const validEntry = {
     path: '/repo/packages/destination-actions/dist/destinations/test-dest/index.js',
-    definition: basicAuthDefinition
+    definition: cloudDef
   }
 
   beforeEach(() => {
@@ -564,14 +430,14 @@ describe('GenerateMetadataPayload command', () => {
     await GenerateMetadataPayload.run([])
     expect(mockWriteJson).toHaveBeenCalledWith(
       '/repo/packages/destination-actions/src/destinations/test-dest/metadata.json',
-      expect.objectContaining({ name: 'Test Basic Destination', authenticationScheme: 'basic' }),
+      expect.objectContaining({ name: 'Cloud Dest', slug: expect.any(String) }),
       { spaces: 2 }
     )
   })
 
   it('skips entries where resolveSourceDir returns null', async () => {
     mockGetManifest.mockReturnValue({
-      'meta-bad': { path: '/some/unrecognizable/path/index.js', definition: basicAuthDefinition } as any
+      'meta-bad': { path: '/some/unrecognizable/path/index.js', definition: cloudDef } as any
     })
     await GenerateMetadataPayload.run([])
     expect(mockWriteJson).not.toHaveBeenCalled()
@@ -582,7 +448,7 @@ describe('GenerateMetadataPayload command', () => {
       'meta-1': validEntry as any,
       'meta-2': {
         path: '/repo/packages/destination-actions/dist/destinations/second-dest/index.js',
-        definition: { ...basicAuthDefinition, name: 'Second Dest' }
+        definition: { ...cloudDef, name: 'Second Dest' }
       } as any
     })
     await GenerateMetadataPayload.run([])
@@ -593,11 +459,11 @@ describe('GenerateMetadataPayload command', () => {
     mockGetManifest.mockReturnValue({
       'meta-alpha': {
         path: '/repo/packages/destination-actions/dist/destinations/alpha-dest/index.js',
-        definition: { ...basicAuthDefinition, slug: 'alpha-dest' }
+        definition: { ...cloudDef, slug: 'alpha-dest' }
       } as any,
       'meta-beta': {
         path: '/repo/packages/destination-actions/dist/destinations/beta-dest/index.js',
-        definition: { ...basicAuthDefinition, slug: 'beta-dest', name: 'Beta Dest' }
+        definition: { ...cloudDef, slug: 'beta-dest', name: 'Beta' }
       } as any
     })
     await GenerateMetadataPayload.run(['--slug=alpha-dest'])
@@ -609,37 +475,25 @@ describe('GenerateMetadataPayload command', () => {
     )
   })
 
-  it('accepts multiple --slug values', async () => {
-    const makeEntry = (slug: string, name: string) => ({
-      path: `/repo/packages/destination-actions/dist/destinations/${slug}/index.js`,
-      definition: { ...basicAuthDefinition, slug, name }
-    })
-    mockGetManifest.mockReturnValue({
-      'meta-alpha': makeEntry('alpha-dest', 'Alpha') as any,
-      'meta-beta': makeEntry('beta-dest', 'Beta') as any,
-      'meta-gamma': makeEntry('gamma-dest', 'Gamma') as any
-    })
-    await GenerateMetadataPayload.run(['--slug=alpha-dest', '--slug=beta-dest'])
-    expect(mockWriteJson).toHaveBeenCalledTimes(2)
-  })
-
   it('continues processing remaining entries when one fails', async () => {
+    const failDef = {
+      ...cloudDef,
+      slug: 'bad-dest',
+      get actions() {
+        throw new Error('boom')
+      }
+    }
     mockGetManifest.mockReturnValue({
       'meta-bad': {
         path: '/repo/packages/destination-actions/dist/destinations/bad-dest/index.js',
-        definition: { ...badArrayPathDefinition, slug: 'bad-dest' }
+        definition: failDef
       } as any,
       'meta-good': {
         path: '/repo/packages/destination-actions/dist/destinations/good-dest/index.js',
-        definition: { ...basicAuthDefinition, slug: 'good-dest' }
+        definition: { ...cloudDef, slug: 'good-dest' }
       } as any
     })
     await expect(GenerateMetadataPayload.run([])).resolves.not.toThrow()
     expect(mockWriteJson).toHaveBeenCalledTimes(1)
-    expect(mockWriteJson).toHaveBeenCalledWith(
-      '/repo/packages/destination-actions/src/destinations/good-dest/metadata.json',
-      expect.any(Object),
-      { spaces: 2 }
-    )
   })
 })
