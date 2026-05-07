@@ -16,8 +16,8 @@ export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unkno
   Settings,
   Payload,
   AudienceSettings,
-  any,
-  any,
+  unknown,
+  unknown,
   AudienceMembershipType
 > & { rawData?: RawData }
 

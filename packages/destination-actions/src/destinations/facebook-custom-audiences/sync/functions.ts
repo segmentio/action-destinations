@@ -5,14 +5,15 @@ import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow, RawData } from './types'
-import { BASE_URL } from '../constants'
+import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
 /* 
- * Temporary function to handle journey step membership
- * when preset journeys_step_entered_track is in use.
- * All users will be added to the audience (no removals) 
+ * Temporary function to handle audience membership when preset journeys_step_entered_track is in use.
+ * All users will be added to the audience (no removals). 
+ * This function will be removed once the Journeys team have migrated customers off of the  
+ * journeys_step_entered_track preset. 
  */ 
 export function getJourneysMemberships(
   rawDatas: RawData[] | undefined
@@ -47,10 +48,14 @@ export async function send(
   rawData?: RawData[]
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
-  const journeyMemberships = getJourneysMemberships(rawData)
-  if(Array.isArray(journeyMemberships) && journeyMemberships.length>0){
-    audienceMemberships = journeyMemberships
+  
+  if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
+    const journeyMemberships = getJourneysMemberships(rawData)
+    if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
+      audienceMemberships = journeyMemberships
+    }
   }
+
   const audienceId = getAudienceId(payloads[0], hookOutputs)
   const errorMessage = validate(payloads, audienceId, audienceMemberships)
 
