@@ -1,136 +1,78 @@
 import { Command, flags } from '@oclif/command'
 import type {
   AudienceDestinationDefinition,
-  DestinationDefinition as CloudDestinationDefinition,
-  MinimalInputField,
-  SyncModeDefinition
+  DestinationDefinition as CloudDestinationDefinition
 } from '@segment/actions-core'
-import { fieldsToJsonSchema } from '@segment/actions-core'
-import { conditionsToJsonSchema } from '@segment/actions-core/destination-kit/fields-to-jsonschema'
-import type { ActionHookDefinition, ActionHookType } from '@segment/actions-core/destination-kit'
 import { hookTypeStrings } from '@segment/actions-core/destination-kit'
 import type { BrowserDestinationDefinition } from '@segment/destinations-manifest'
-import type { JSONSchema4 } from 'json-schema'
-import { sortBy } from 'lodash'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
 import { getManifest, DestinationDefinition, hasOauthAuthentication } from '../../lib/destinations'
-import { RESERVED_FIELD_NAMES } from '../../constants'
 
-// ---- Types (mirroring control-plane-service shapes without the actual client) ----
+// ---- Public output interfaces ----
 
-interface DestinationMetadataOption {
-  default?: unknown
-  description?: string
-  encrypt?: boolean
-  hidden?: boolean
-  label?: string
-  private?: boolean
-  scope?: string
-  type?: string
-  options?: Array<{ value: unknown; label: string; text: string }>
-  readOnly?: boolean
-  dependsOn?: unknown
-  validators?: string[][]
-  tags?: string[]
-  uIMetadata?: unknown
-  fields?: unknown
-}
-
-type DestinationMetadataOptions = Record<string, DestinationMetadataOption>
-
-interface ActionFieldPayload {
-  fieldKey: string
+export interface PublicAuthField {
+  label: string | undefined
+  description: string | undefined
   type: string
-  label?: string
-  description?: string
-  defaultValue?: unknown
-  required?: boolean
-  multiple?: boolean
-  choices?: Array<{ label: string; value: unknown }> | null
-  dynamic?: boolean
-  placeholder?: string
-  allowNull?: boolean
-  defaultObjectUI?: string
-  hidden?: boolean
-  readOnly?: boolean
-  fieldSchema?: JSONSchema4
-  dependsOn?: unknown
-  minimum?: number
-  maximum?: number
-  displayMetadata?: JSONSchema4 | null
-  hookInputFieldType?: string
+  required: boolean
+  choices: Array<{ label: string; value: unknown }> | null
+  default: unknown
 }
 
-interface ActionPayload {
+export interface PublicActionField {
+  label: string | undefined
+  description: string | undefined
+  type: string
+  required: boolean
+  multiple: boolean
+  allowNull: boolean
+  dynamic: boolean
+  default: unknown
+  choices: Array<{ label: string; value: unknown }> | null
+  placeholder: string | null
+  properties: Record<string, PublicActionField> | null
+  category: string | null
+  depends_on: unknown
+  readOnly: boolean
+  hidden: boolean
+  minimum: number | null
+  maximum: number | null
+  defaultObjectUI: string | null
+  disabledInputMethods: string[] | null
+}
+
+export interface PublicAction {
+  title: string
+  description: string
+  platform: 'cloud' | 'web'
+  defaultSubscription: string | null
+  hidden: boolean
+  hasPerformBatch: boolean
+  syncMode: { default: string; supportedModes: string[] } | null
+  hooks: string[]
+  fields: Record<string, PublicActionField>
+}
+
+export interface PublicPreset {
+  name: string
+  type: string | undefined
+  partnerAction: string
+  subscribe: string
+  mapping: Record<string, unknown>
+  eventSlug: string | null
+}
+
+export interface PublicDestinationMetadata {
   slug: string
   name: string
-  description: string
-  platform: string
-  hidden: boolean
-  defaultTrigger: string | null
-  fields: ActionFieldPayload[]
-}
-
-interface DestinationPayload {
-  name: string
-  description?: string
-  basicOptions: string[]
-  options: DestinationMetadataOptions
-  platforms: {
-    browser: boolean
-    server: boolean
-    mobile: boolean
-    warehouse: boolean
-    cloudAppObject?: boolean
-  }
-  authenticationScheme?: string
-  supportedRegions: string[]
-  supportsAudiences: boolean
-  actions: ActionPayload[]
-  presets: unknown[]
-}
-
-// ---- OAUTH constant (matches action-cli) ----
-
-const OAUTH_OPTIONS: DestinationMetadataOption = {
-  default: {},
-  description: 'Authorizes Segment to OAuth to the Destination API',
-  encrypt: false,
-  hidden: true,
-  label: 'OAuth',
-  private: true,
-  scope: 'event_destination',
-  type: 'oauth',
-  fields: [
-    {
-      'access-token': {
-        description: 'The (legacy) access token provided by Destination API after the OAuth handshake.',
-        type: 'string'
-      },
-      access_token: {
-        description: 'The access token provided by Destination API after the OAuth handshake.',
-        type: 'string'
-      },
-      appId: { description: 'The App ID, retrieved via Destination API post-auth.', type: 'string' },
-      appName: {
-        description: 'The authorized user App, retrieved via Destination API on settings view load.',
-        type: 'string'
-      },
-      createdAt: { description: 'Date of OAuth connection.', type: 'string' },
-      createdBy: { description: 'Email address of segment user who connected OAuth.', type: 'string' },
-      displayName: {
-        description: 'The authorized user, retrieved via Destination API on settings view load.',
-        type: 'string'
-      },
-      refresh_token: {
-        description: 'The refresh token provided by Destination API after the OAuth handshake.',
-        type: 'string'
-      },
-      token_type: { description: '', type: 'string' }
-    }
-  ]
+  mode: string
+  description: string | undefined
+  authentication: { scheme: string; fields: Record<string, PublicAuthField> } | null
+  audienceConfig: { mode: unknown; audienceFields: Record<string, PublicAuthField> } | null
+  actions: Record<string, PublicAction>
+  presets: PublicPreset[]
 }
 
 // ---- Payload generation helpers (ported from action-cli/src/lib/cmd/push.ts) ----
@@ -406,7 +348,7 @@ function buildActionFields(action: any): ActionFieldPayload[] {
       const castedHook = hook as ActionHookDefinition<any, any, any, any, any>
       const hookInputFields = castedHook.inputFields ?? {}
 
-      for (const [hookInputFieldKey, hookInputField] of Object.entries(hookInputFields) as [string, any][]) {
+      for (const [hookInputFieldKey, hookInputField] of Object.entries(hookInputFields)) {
         let choices: ActionFieldPayload['choices'] = null
         if (Array.isArray(hookInputField.choices) && hookInputField.choices.length > 0) {
           choices = hookInputField.choices.map((choice: string | { label: string; value: string }) => {
