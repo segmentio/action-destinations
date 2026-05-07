@@ -77,6 +77,14 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size: number
+  /**
+   * The keys to use for batching events.
+   */
+  batch_keys?: string[]
+  /**
+   * The Engage computation class. Used to determine if the event is a generaed from the journeys_step_entered_track preset
+   */
+  computation_class?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 

@@ -1,5 +1,25 @@
 import { SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
+import { ExecuteInput } from '@segment/actions-core'
+
+export type RawData = {
+  context?: {
+    personas?: {
+      computation_class?: string
+      computation_key?: string
+    }
+  }
+  properties?: Record<string, unknown>
+}
+
+export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown, AudienceMembershipType = unknown> = ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings,
+  any,
+  any,
+  AudienceMembershipType
+> & { rawData?: RawData }
 
 export type PayloadMap = Map<number, Payload> 
 
