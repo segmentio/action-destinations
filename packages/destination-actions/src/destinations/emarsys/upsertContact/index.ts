@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   getFields,
-  API_BASE,
+  getAuthHeader,
   ContactData,
   ContactsApiPayload,
   BufferBatchContacts,
@@ -44,11 +44,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    key_field: async (request) => {
-      return getFields(request)
+    key_field: async (request, data) => {
+      return getFields(request, data.settings)
     }
   },
   perform: async (request, data) => {
+    const authHeader = await getAuthHeader(request, data.settings)
     const contact: ContactData = {}
 
     contact[data.payload.key_field] = data.payload.key_value
@@ -57,9 +58,10 @@ const action: ActionDefinition<Settings, Payload> = {
       key_id: data.payload.key_field,
       contacts: [contact]
     }
-    const response = await request(`${API_BASE}contact/?create_if_not_exists=1`, {
+    const response = await request(`${data.settings.apiBaseUrl}contact/?create_if_not_exists=1`, {
       method: 'put',
       json: payload,
+      headers: authHeader,
       throwHttpErrors: false
     })
 
@@ -83,6 +85,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     if (data && data.payload && Array.isArray(data.payload)) {
+      const authHeader = await getAuthHeader(request, data.settings)
       const batches: BufferBatchContacts = {}
       data.payload.forEach((payload: Payload) => {
         if (!batches[`${payload.key_field}`]) {
@@ -104,9 +107,10 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           contacts: batch.contacts
         }
-        const response = request(`${API_BASE}contact/?create_if_not_exists=1`, {
+        const response = request(`${data.settings.apiBaseUrl}contact/?create_if_not_exists=1`, {
           method: 'put',
           json: payload,
+          headers: authHeader,
           throwHttpErrors: false
         })
         requests.push(response)

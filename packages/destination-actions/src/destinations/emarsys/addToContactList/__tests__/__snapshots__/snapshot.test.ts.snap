@@ -9,11 +9,23 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for Emarsys's addToContactList destination action: required fields 1`] = `
-Object {
-  "external_ids": Array [
-    "RIiSIeEZflwbfBVGmj@^",
-  ],
-  "key_id": "RIiSIeEZflwbfBVGmj@^",
+exports[`Testing snapshot for Emarsys's addToContactList destination action: required fields 1`] = `"grant_type=client_credentials"`;
+
+exports[`Testing snapshot for Emarsys's addToContactList destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "Content-Type": Array [
+      "application/x-www-form-urlencoded;charset=UTF-8",
+    ],
+    "accept": Array [
+      "application/json",
+    ],
+    "authorization": Array [
+      "Basic dGVzdGNsaWVudDpzdXBlcnNlY3JldA==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

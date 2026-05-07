@@ -1,12 +1,43 @@
 import type { Settings } from './generated-types'
 import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-// eslint-disable-next-line no-restricted-syntax
-import { randomBytes, createHash } from 'crypto'
+import getAccessToken from './auth'
 
-export const API_HOST = 'https://api.emarsys.net'
-export const API_PATH = '/api/v2/'
-export const API_BASE = `${API_HOST}${API_PATH}`
+interface CachedToken {
+  accessToken: string
+  expiresAt: number // Unix timestamp in ms
+}
+
+const tokenCache = new Map<string, CachedToken>()
+const TOKEN_EXPIRY_BUFFER_MS = 60 * 1000 // 60 seconds
+
+function getCacheKey(settings: Settings): string {
+  return `${settings.apiAuthEndpoint}::${settings.apiClientId}`
+}
+
+export const getAuthHeader = async (request: RequestClient, settings: Settings): Promise<{ Authorization: string }> => {
+  const cacheKey = getCacheKey(settings)
+  const cached = tokenCache.get(cacheKey)
+  const now = Date.now()
+
+  if (cached && cached.expiresAt - now > TOKEN_EXPIRY_BUFFER_MS) {
+    return { Authorization: `Bearer ${cached.accessToken}` }
+  }
+
+  const { accessToken, expiresIn } = await getAccessToken(
+    request,
+    settings.apiAuthEndpoint,
+    settings.apiClientId,
+    settings.apiClientSecret
+  )
+
+  tokenCache.set(cacheKey, {
+    accessToken,
+    expiresAt: now + expiresIn * 1000
+  })
+
+  return { Authorization: `Bearer ${accessToken}` }
+}
 
 /**
  * Types triggerEvent
@@ -82,40 +113,9 @@ export interface ContactsApiPayload {
   contacts: ContactData[]
 }
 
-export const createWsseHeader = (settings: Settings): string => {
-  const nonce = randomBytes(16).toString('hex')
-  const hash = createHash('sha1')
-  const ts = new Date().toISOString()
-  const secret = nonce + ts + settings.api_password
-  const secret_hash = Buffer.from(hash.update(secret).digest('hex')).toString('base64')
-  const auth_header = `UsernameToken Username="${settings.api_user}", PasswordDigest="${secret_hash}", Nonce="${nonce}", Created="${ts}"`
-  return auth_header
-}
-
-export const getEvents = async (request: RequestClient): Promise<DynamicFieldResponse> => {
-  const data = await request(`${API_BASE}event`)
-  const choices = []
-  if (data && data.content) {
-    const api_data = JSON.parse(data.content)
-    if (api_data && api_data.replyCode !== undefined && api_data.replyCode == 0) {
-      if (api_data.data && Array.isArray(api_data.data) && api_data.data.length > 0) {
-        for (let a = 0; a < api_data.data.length; a++) {
-          choices.push({
-            label: api_data.data[a].name,
-            value: api_data.data[a].id
-          })
-        }
-      }
-    }
-  }
-  const events = {
-    choices: choices
-  }
-  return events
-}
-
-export const getFields = async (request: RequestClient): Promise<DynamicFieldResponse> => {
-  const data = await request(`${API_BASE}field/translate/en`)
+export const getEvents = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
+  const authHeader = await getAuthHeader(request, settings)
+  const data = await request(`${settings.apiBaseUrl}event`, { headers: authHeader })
   const choices = []
   if (data && data.content) {
     const api_data = JSON.parse(data.content)
@@ -136,8 +136,14 @@ export const getFields = async (request: RequestClient): Promise<DynamicFieldRes
   return fields
 }
 
-export const getContactLists = async (request: RequestClient): Promise<DynamicFieldResponse> => {
-  const data = await request(`${API_BASE}contactlist`)
+export const getFields = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
+  const authHeader = await getAuthHeader(request, settings)
+  let data
+  try {
+    data = await request(`${settings.apiBaseUrl}field/translate/en`, { headers: authHeader })
+  } catch (err) {
+    return { choices: [] }
+  }
   const choices = []
   if (data && data.content) {
     const api_data = JSON.parse(data.content)
@@ -152,8 +158,31 @@ export const getContactLists = async (request: RequestClient): Promise<DynamicFi
       }
     }
   }
-  const lists = {
+  const fields = {
     choices: choices
   }
-  return lists
+  return fields
+}
+
+export const getContactLists = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
+  const authHeader = await getAuthHeader(request, settings)
+  const data = await request(`${settings.apiBaseUrl}contactlist`, { headers: authHeader })
+  const choices = []
+  if (data && data.content) {
+    const api_data = JSON.parse(data.content)
+    if (api_data && api_data.replyCode !== undefined && api_data.replyCode == 0) {
+      if (api_data.data && Array.isArray(api_data.data) && api_data.data.length > 0) {
+        for (let a = 0; a < api_data.data.length; a++) {
+          choices.push({
+            label: api_data.data[a].name,
+            value: api_data.data[a].id
+          })
+        }
+      }
+    }
+  }
+  const fields = {
+    choices: choices
+  }
+  return fields
 }

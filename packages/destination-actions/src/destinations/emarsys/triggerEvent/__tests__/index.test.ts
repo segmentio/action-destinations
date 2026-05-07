@@ -1,16 +1,19 @@
 import nock from 'nock'
-import { APIError, createTestIntegration } from '@segment/actions-core'
+import { APIError, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
-import { API_HOST, API_PATH } from '../../emarsys-helper'
-import { RetryableError } from '@segment/actions-core'
-// import { IntegrationError } from '@segment/actions-core'
-// import { RetryableError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
 
+const AUTH_HOST = 'https://auth.example.com'
+const AUTH_PATH = '/oauth/token'
+const API_HOST = 'https://api.example.com'
+const API_BASE_PATH = '/api/'
+
 const SETTINGS = {
-  api_user: 'testuser001',
-  api_password: 'supersecret'
+  apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
+  apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
+  apiClientId: 'testclient',
+  apiClientSecret: 'supersecret'
 }
 
 const TESTPAYLOAD = {
@@ -22,7 +25,11 @@ const TESTPAYLOAD = {
   }
 }
 
-const regex = new RegExp(`${API_PATH}event/[0-9]+/trigger$`, 'g')
+const regex = new RegExp(`${API_BASE_PATH}event/[0-9]+/trigger$`, 'g')
+
+function mockAuth() {
+  nock(AUTH_HOST).post(AUTH_PATH).reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
+}
 
 beforeEach(() => {
   nock.cleanAll()
@@ -30,6 +37,7 @@ beforeEach(() => {
 
 describe('Emarsys.triggerEvent', () => {
   it('should get a replyCode=0', async () => {
+    mockAuth()
     nock(`${API_HOST}`)
       .post(regex)
       .reply(
@@ -55,6 +63,7 @@ describe('Emarsys.triggerEvent', () => {
   })
 
   it('should throw an error because the value in key_field was not found', async () => {
+    mockAuth()
     nock(`${API_HOST}`)
       .post(regex)
       .reply(
@@ -75,6 +84,7 @@ describe('Emarsys.triggerEvent', () => {
   })
 
   it('should throw an RetryableError if the API responds with a server error', async () => {
+    mockAuth()
     nock(`${API_HOST}`).post(regex).reply(500, 'Internal server error')
     await expect(
       testDestination.testAction('triggerEvent', {
@@ -85,6 +95,7 @@ describe('Emarsys.triggerEvent', () => {
   })
 
   it('should throw an RetryableError if the rate limit was reached', async () => {
+    mockAuth()
     nock(`${API_HOST}`).post(regex).reply(429, 'Too many requests')
     await expect(
       testDestination.testAction('triggerEvent', {

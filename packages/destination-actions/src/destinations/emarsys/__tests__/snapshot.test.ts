@@ -6,23 +6,37 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-emarsys'
 
+const AUTH_HOST = 'https://auth.example.com'
+const AUTH_PATH = '/oauth/token'
+const API_HOST = 'https://api.example.com'
+const API_BASE_PATH = '/api/'
+
+const settingsData = {
+  apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
+  apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
+  apiClientId: 'testclient',
+  apiClientSecret: 'supersecret'
+}
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
+      const [eventData] = generateTestData(seedName, destination, action, true)
 
+      nock(AUTH_HOST)
+        .persist()
+        .post(AUTH_PATH)
+        .reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
       nock(/.*/).persist().get(/.*/).reply(200, { replyCode: 0 })
       nock(/.*/).persist().post(/.*/).reply(200, { replyCode: 0 })
       nock(/.*/).persist().put(/.*/).reply(200, { replyCode: 0 })
 
-      const event = createTestEvent({
-        properties: eventData
-      })
+      const event = createTestEvent({ properties: eventData })
 
       const responses = await testDestination.testAction(actionSlug, {
-        event: event,
+        event,
         mapping: event.properties,
         settings: settingsData,
         auth: undefined
@@ -45,18 +59,20 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
     it(`${actionSlug} action - all fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
       const action = destination.actions[actionSlug]
-      const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
+      const [eventData] = generateTestData(seedName, destination, action, false)
 
+      nock(AUTH_HOST)
+        .persist()
+        .post(AUTH_PATH)
+        .reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
       nock(/.*/).persist().get(/.*/).reply(200, { replyCode: 0 })
       nock(/.*/).persist().post(/.*/).reply(200, { replyCode: 0 })
       nock(/.*/).persist().put(/.*/).reply(200, { replyCode: 0 })
 
-      const event = createTestEvent({
-        properties: eventData
-      })
+      const event = createTestEvent({ properties: eventData })
 
       const responses = await testDestination.testAction(actionSlug, {
-        event: event,
+        event,
         mapping: event.properties,
         settings: settingsData,
         auth: undefined

@@ -4,7 +4,7 @@ import addToContactList from './addToContactList'
 import removeFromContactList from './removeFromContactList'
 import triggerEvent from './triggerEvent'
 import upsertContact from './upsertContact'
-import { createWsseHeader, API_BASE } from './emarsys-helper'
+import getAccessToken from './auth'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Emarsys (Actions)',
@@ -14,32 +14,49 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      api_user: {
-        label: 'API username',
-        description: 'Your Emarsys API username',
+      apiAuthEndpoint: {
+        label: 'Auth endpoint',
+        description: 'Authentication endpoint URL',
+        type: 'string',
+        required: true,
+        default: 'https://auth.emarsys.net/oauth2/token'
+      },
+      apiBaseUrl: {
+        label: 'API base URL',
+        description: 'The base URL for API requests',
+        type: 'string',
+        required: true,
+        default: 'https://api.emarsys.net/api/v3/'
+      },
+      apiClientId: {
+        label: 'API ClientId',
+        description: 'The ClientId for API authentication',
         type: 'string',
         required: true
       },
-      api_password: {
-        label: 'API password',
-        description: 'Your Emarsys API password.',
+      apiClientSecret: {
+        label: 'API Client Secret',
+        description: 'The Client Secret for API authentication',
         type: 'password',
         required: true
       }
     },
-    testAuthentication: async (request) => {
-      const data = await request(`${API_BASE}settings`)
-      if (data && data.content) {
-        const api_data = JSON.parse(data.content)
-        if (api_data && api_data.replyCode !== undefined && api_data.replyCode == 0) {
-          if (api_data.data && api_data.data.id) {
-            if (api_data.data.id > 0) {
-              return true
-            }
-          }
-        }
+    testAuthentication: async (request, { settings }) => {
+      if (!settings.apiAuthEndpoint) {
+        throw new Error('The authentication endpoint URL is required')
       }
-      throw new Error('Authentication failed')
+      if (!settings.apiBaseUrl) {
+        throw new Error('The base URL is required')
+      }
+      const { accessToken } = await getAccessToken(
+        request,
+        settings.apiAuthEndpoint,
+        settings.apiClientId,
+        settings.apiClientSecret
+      )
+      if (!accessToken) {
+        throw new Error('Authentication failed')
+      }
     }
   },
 
@@ -48,13 +65,6 @@ const destination: DestinationDefinition<Settings> = {
     addToContactList,
     removeFromContactList,
     triggerEvent
-  },
-
-  extendRequest: ({ settings }) => {
-    return {
-      headers: { 'X-WSSE': createWsseHeader(settings) },
-      responseType: 'json'
-    }
   }
 }
 

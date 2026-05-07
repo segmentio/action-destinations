@@ -2,11 +2,19 @@
 
 export interface Settings {
   /**
-   * Your Emarsys API username
+   * Authentication endpoint URL
    */
-  api_user: string
+  apiAuthEndpoint: string
   /**
-   * Your Emarsys API password.
+   * The base URL for API requests
    */
-  api_password: string
+  apiBaseUrl: string
+  /**
+   * The ClientId for API authentication
+   */
+  apiClientId: string
+  /**
+   * The Client Secret for API authentication
+   */
+  apiClientSecret: string
 }

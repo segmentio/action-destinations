@@ -67,13 +67,23 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-emarsys destination: upsertContact action - required fields 1`] = `
-Object {
-  "contacts": Array [
-    Object {
-      "ADOas@%XS83LqVu9": "ADOas@%XS83LqVu9",
-    },
-  ],
-  "key_id": "ADOas@%XS83LqVu9",
+exports[`Testing snapshot for actions-emarsys destination: upsertContact action - required fields 1`] = `"grant_type=client_credentials"`;
+
+exports[`Testing snapshot for actions-emarsys destination: upsertContact action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "Content-Type": Array [
+      "application/x-www-form-urlencoded;charset=UTF-8",
+    ],
+    "accept": Array [
+      "application/json",
+    ],
+    "authorization": Array [
+      "Basic dGVzdGNsaWVudDpzdXBlcnNlY3JldA==",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;

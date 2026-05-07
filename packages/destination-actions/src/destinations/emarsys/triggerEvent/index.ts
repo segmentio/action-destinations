@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import {
   getEvents,
   getFields,
-  API_BASE,
+  getAuthHeader,
   BufferBatchTriggerEvent,
   BufferBatchTriggerEventItem,
   TriggerEventData,
@@ -49,26 +49,28 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    eventid: async (request) => {
-      return getEvents(request)
+    eventid: async (request, data) => {
+      return getEvents(request, data.settings)
     },
-    key_field: async (request) => {
-      return getFields(request)
+    key_field: async (request, data) => {
+      return getFields(request, data.settings)
     }
   },
   perform: async (request, data) => {
     data.payload.eventid = parseInt(data.payload.eventid.toString().replace(/[^0-9]/g, ''))
 
     if (data.payload.eventid > 0) {
+      const authHeader = await getAuthHeader(request, data.settings)
       const payload: TriggerEventApiPayload = {
         key_id: data.payload.key_field,
         external_id: data.payload.key_value,
         data: <TriggerEventData>data.payload.event_payload ?? null
       }
 
-      const response = await request(`${API_BASE}event/${data.payload.eventid}/trigger`, {
+      const response = await request(`${data.settings.apiBaseUrl}event/${data.payload.eventid}/trigger`, {
         method: 'post',
         json: payload,
+        headers: authHeader,
         throwHttpErrors: false
       })
 
@@ -86,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
             throw new APIError('Invalid JSON response', 400)
           }
         case 400:
-          throw new APIError('The event could not be triggered', 400)
+          throw new APIError('The event could not be triggered (event not connected to a program?)', 400)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
@@ -98,6 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     if (data && data.payload && Array.isArray(data.payload)) {
+      const authHeader = await getAuthHeader(request, data.settings)
       const batches: BufferBatchTriggerEvent = {}
       data.payload.forEach((payload: Payload) => {
         if (!batches[`${payload.eventid}-${payload.key_field}`]) {
@@ -120,9 +123,10 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           contacts: batch.keys
         }
-        const response = request(`${API_BASE}event/${batch.event_id}/trigger`, {
+        const response = request(`${data.settings.apiBaseUrl}event/${batch.event_id}/trigger`, {
           method: 'post',
           json: payload,
+          headers: authHeader,
           throwHttpErrors: false
         })
         requests.push(response)

@@ -1,33 +1,22 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
-import { API_HOST, API_PATH } from '../emarsys-helper'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
 
+const AUTH_HOST = 'https://auth.example.com'
+const AUTH_PATH = '/oauth/token'
+
 describe('Emarsys', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
-      nock(`${API_HOST}`)
-        .get(`${API_PATH}settings`)
-        .reply(200, {
-          replyCode: 0,
-          replyText: 'OK',
-          data: {
-            id: 123456,
-            environment: 'suitex.emarys.net',
-            timezone: 'Europe/Vienna',
-            name: 'segment_test_account',
-            password_history_queue_size: 3,
-            country: '',
-            totalContacts: '1319053'
-          }
-        })
+      nock(AUTH_HOST).post(AUTH_PATH).reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
 
-      // This should match your authentication.fields
       const authData = {
-        api_user: 'test001',
-        api_password: 'test_secret'
+        apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
+        apiBaseUrl: 'https://api.example.com/api/',
+        apiClientId: 'testclient',
+        apiClientSecret: 'supersecret'
       }
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
