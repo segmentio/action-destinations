@@ -52,7 +52,10 @@ export async function send(
   if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
     const journeyMemberships = getJourneysMemberships(rawData)
     if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
-      audienceMemberships = journeyMemberships
+      if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
+        // The above check is to ensure that the future JourneysVs preset will be able to add + remove users from the audience. 
+        audienceMemberships = journeyMemberships
+      }
     }
   }
 
