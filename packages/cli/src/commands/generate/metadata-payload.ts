@@ -3,6 +3,7 @@ import type {
   AudienceDestinationDefinition,
   DestinationDefinition as CloudDestinationDefinition
 } from '@segment/actions-core'
+import { hookTypeStrings } from '@segment/actions-core/destination-kit'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
@@ -130,6 +131,35 @@ export function serializeActionField(field: any): PublicActionField {
     maximum: field.maximum ?? null,
     defaultObjectUI: field.defaultObjectUI ?? null,
     disabledInputMethods: field.disabledInputMethods ?? null
+  }
+}
+
+export function serializeAction(actionKey: string, action: any): PublicAction {
+  const fields: Record<string, PublicActionField> = {}
+  for (const [fieldKey, fieldDef] of Object.entries(action.fields ?? ({} as Record<string, any>))) {
+    fields[fieldKey] = serializeActionField(fieldDef as any)
+  }
+
+  let syncMode: PublicAction['syncMode'] = null
+  if (action.syncMode) {
+    syncMode = {
+      default: action.syncMode.default,
+      supportedModes: (action.syncMode.choices ?? []).map((c: { value: string }) => c.value)
+    }
+  }
+
+  const hooks: string[] = Object.keys(action.hooks ?? {}).filter((k) => hookTypeStrings.includes(k as any))
+
+  return {
+    title: action.title ?? actionKey,
+    description: action.description ?? '',
+    platform: action.platform === 'web' ? 'web' : 'cloud',
+    defaultSubscription: action.defaultSubscription ?? null,
+    hidden: action.hidden ?? false,
+    hasPerformBatch: typeof action.performBatch === 'function',
+    syncMode,
+    hooks,
+    fields
   }
 }
 
