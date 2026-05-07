@@ -3,7 +3,6 @@ import type {
   AudienceDestinationDefinition,
   DestinationDefinition as CloudDestinationDefinition
 } from '@segment/actions-core'
-import { hookTypeStrings } from '@segment/actions-core/destination-kit'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
@@ -102,182 +101,36 @@ export function serializeAuthFields(fields: Record<string, any>): Record<string,
   return result
 }
 
-function buildActionFields(action: any): ActionFieldPayload[] {
-  const fields: ActionFieldPayload[] = []
-
-  for (const fieldKey of Object.keys(action.fields)) {
-    const field = action.fields[fieldKey]
-
-    let choices: ActionFieldPayload['choices'] = null
-    if (Array.isArray(field.choices) && field.choices.length > 0) {
-      choices = field.choices.map((choice: string | { label: string; value: string }) => {
-        if (typeof choice === 'string') return { label: choice, value: choice }
-        return choice
-      })
-    }
-
-    if (field?.default && field.type === 'object') {
-      if (!field?.multiple && field?.default?.['@arrayPath']) {
-        throw new Error(`The field key "${fieldKey}" is an object field with an incompatible default value.`)
-      }
-    }
-
-    const processedField = { ...field }
-    if (processedField.category === 'hashedPII') {
-      const hasPeriod = processedField.description?.at(-1) === '.'
-      processedField.description = `${processedField.description}${
-        hasPeriod ? '' : '.'
-      } If not hashed, Segment will hash this value.`
-    }
-
-    fields.push({
-      fieldKey,
-      type: processedField.type,
-      label: processedField.label,
-      description: processedField.description,
-      defaultValue: processedField.default,
-      required: processedField.required === true ?? false,
-      multiple: processedField.multiple ?? false,
-      choices,
-      dynamic: typeof processedField.dynamic === 'function' ? true : processedField.dynamic ?? false,
-      placeholder: processedField.placeholder ?? '',
-      allowNull: processedField.allowNull ?? false,
-      defaultObjectUI: processedField.defaultObjectUI,
-      hidden: processedField.unsafe_hidden,
-      readOnly: processedField.readOnly,
-      fieldSchema: getFieldPropertySchema(fieldKey, processedField),
-      dependsOn: processedField.depends_on ?? null,
-      minimum: processedField.minimum,
-      maximum: processedField.maximum,
-      displayMetadata: getDisplayMetadata(processedField, fieldKey, action)
-    })
-  }
-
-  // Hook fields
-  if (action.hooks) {
-    for (const [hookKey, hook] of Object.entries(action.hooks)) {
-      if (!hookTypeStrings.includes(hookKey as ActionHookType)) {
-        throw new Error(`Invalid actions hook: ${hookKey}. Valid hooks are: ${hookTypeStrings.join(', ')}`)
-      }
-
-      const castedHook = hook as ActionHookDefinition<any, any, any, any, any>
-      const hookInputFields = castedHook.inputFields ?? {}
-
-      for (const [hookInputFieldKey, hookInputField] of Object.entries(hookInputFields)) {
-        let choices: ActionFieldPayload['choices'] = null
-        if (Array.isArray(hookInputField.choices) && hookInputField.choices.length > 0) {
-          choices = hookInputField.choices.map((choice: string | { label: string; value: string }) => {
-            if (typeof choice === 'string') return { label: choice, value: choice }
-            return choice
-          })
-        }
-
-        fields.push({
-          fieldKey: hookInputFieldKey,
-          type: hookInputField.type,
-          label: hookInputField.label,
-          description: hookInputField.description,
-          defaultValue: hookInputField.default,
-          required: hookInputField.required === true ?? false,
-          multiple: hookInputField.multiple ?? false,
-          choices,
-          dynamic: typeof hookInputField.dynamic === 'function' ? true : false,
-          placeholder: hookInputField.placeholder ?? '',
-          allowNull: hookInputField.allowNull ?? false,
-          defaultObjectUI: hookInputField.defaultObjectUI,
-          hidden: hookInputField.unsafe_hidden,
-          readOnly: hookInputField.readOnly,
-          fieldSchema: getFieldPropertySchema(hookInputFieldKey, hookInputField as MinimalInputField),
-          dependsOn: hookInputField.depends_on ?? null,
-          hookInputFieldType: hookKey,
-          displayMetadata: getDisplayMetadata(hookInputField, hookInputFieldKey, action)
-        })
-      }
-
-      const hookSchema = getFieldPropertySchemaForHookDefinition(hookKey, castedHook)
-      fields.push({
-        fieldKey: hookKey,
-        type: 'object',
-        label: castedHook.label,
-        description: castedHook.description,
-        defaultValue: null,
-        required: false,
-        multiple: false,
-        choices: null,
-        dynamic: false,
-        allowNull: false,
-        hidden: false,
-        readOnly: false,
-        fieldSchema: hookSchema,
-        hookInputFieldType: hookKey
-      })
+export function serializeActionField(field: any): PublicActionField {
+  let properties: Record<string, PublicActionField> | null = null
+  if (field.type === 'object' && field.properties && typeof field.properties === 'object') {
+    properties = {}
+    for (const [propKey, propSchema] of Object.entries(field.properties as Record<string, any>)) {
+      properties[propKey] = serializeActionField(propSchema)
     }
   }
 
-  // Sync mode field
-  if (action.syncMode) {
-    const syncMode = action.syncMode as SyncModeDefinition
-    fields.push({
-      fieldKey: '__segment_internal_sync_mode',
-      type: 'string',
-      label: syncMode.label,
-      description: syncMode.description,
-      defaultValue: syncMode.default,
-      required: false,
-      multiple: false,
-      choices: syncMode.choices,
-      dynamic: false,
-      allowNull: false,
-      hidden: true,
-      readOnly: false,
-      dependsOn: null
-    })
+  return {
+    label: field.label,
+    description: field.description,
+    type: field.type,
+    required: field.required === true,
+    multiple: field.multiple ?? false,
+    allowNull: field.allowNull ?? false,
+    dynamic: typeof field.dynamic === 'function' ? true : field.dynamic ?? false,
+    default: field.default ?? null,
+    choices: normalizeChoices(field.choices),
+    placeholder: field.placeholder ?? null,
+    properties,
+    category: field.category ?? null,
+    depends_on: field.depends_on ?? null,
+    readOnly: field.readOnly ?? false,
+    hidden: field.unsafe_hidden ?? false,
+    minimum: field.minimum ?? null,
+    maximum: field.maximum ?? null,
+    defaultObjectUI: field.defaultObjectUI ?? null,
+    disabledInputMethods: field.disabledInputMethods ?? null
   }
-
-  // Identifier matching field
-  const identifierFields = Object.keys(action.fields).filter(
-    (fieldKey: string) => action.fields[fieldKey].category === 'identifier'
-  )
-  if (identifierFields.length > 0) {
-    fields.push({
-      fieldKey: '__segment_internal_matching_key',
-      type: 'string',
-      label: 'Record Matching',
-      description: 'Select the field used to match incoming event data to existing records in the destination.',
-      required: false,
-      multiple: false,
-      choices: identifierFields.map((fieldKey: string) => ({
-        label: action.fields[fieldKey].label,
-        value: fieldKey
-      })),
-      dynamic: false,
-      allowNull: false,
-      hidden: true,
-      readOnly: false,
-      dependsOn: null
-    })
-  }
-
-  // Auto batching field
-  const builderDefinedBatchingField = fields.find((f) => f.fieldKey === 'enable_batching')
-  const isBatchingDestination = typeof action.performBatch === 'function'
-
-  if (isBatchingDestination && !builderDefinedBatchingField) {
-    fields.push({
-      fieldKey: 'enable_batching',
-      type: 'boolean',
-      label: 'Enable Batching?',
-      description: 'When enabled, Segment will send events in batches.',
-      defaultValue: false,
-      required: false,
-      multiple: false,
-      dynamic: false,
-      allowNull: false,
-      choices: null
-    })
-  }
-
-  return fields
 }
 
 function generateDestinationPayload(slug: string, definition: DestinationDefinition): DestinationPayload {
