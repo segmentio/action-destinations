@@ -42,11 +42,15 @@ function getJsonItem(payload: MergeUsersPayload): MergeUsersItem {
   const item: MergeUsersItem = {
     identifier_to_merge: {
       [previousIdType]: previousId,
-      ...(Array.isArray(previousIdPri) ? { prioritization: previousIdPri } : {})
+      ...(Array.isArray(previousIdPri) && (previousIdType === 'email' || previousIdType === 'phone')
+        ? { prioritization: previousIdPri }
+        : {})
     },
     identifier_to_keep: {
       [keepIdType]: keepId,
-      ...(Array.isArray(keepIdPri) ? { prioritization: keepIdPri } : {})
+      ...(Array.isArray(keepIdPri) && (keepIdType === 'email' || keepIdType === 'phone')
+        ? { prioritization: keepIdPri }
+        : {})
     }
   }
 

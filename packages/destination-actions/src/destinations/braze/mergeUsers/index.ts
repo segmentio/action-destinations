@@ -161,7 +161,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     keepIdPrioritization: {
-      label: 'Rule Prioritization',
+      label: 'Rule Prioritization (ID to keep)',
       description: 'Rule determining which user to merge if multiple users are found.',
       type: 'string',
       allowNull: true,
@@ -183,7 +183,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     previousIdPrioritization: {
-      label: 'Rule Prioritization',
+      label: 'Rule Prioritization (ID to merge)',
       description: 'Rule determining which user to merge if multiple users are found.',
       type: 'string',
       allowNull: true,
