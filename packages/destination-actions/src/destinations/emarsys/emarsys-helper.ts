@@ -1,34 +1,77 @@
+import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RequestClient } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import getAccessToken from './auth'
+import { randomBytes } from 'crypto'
+import { processHashing } from '../../lib/hashing-utils'
+
+export const LEGACY_API_BASE = 'https://api.emarsys.net/api/v2/'
 
 interface CachedToken {
   accessToken: string
   expiresAt: number // Unix timestamp in ms
 }
 
-const tokenCache = new Map<string, CachedToken>()
+export const tokenCache = new Map<string, CachedToken>()
 const TOKEN_EXPIRY_BUFFER_MS = 60 * 1000 // 60 seconds
 
 function getCacheKey(settings: Settings): string {
   return `${settings.apiAuthEndpoint}::${settings.apiClientId}`
 }
 
-export const getAuthHeader = async (request: RequestClient, settings: Settings): Promise<{ Authorization: string }> => {
+export const isLegacyAuth = (settings: Settings): boolean => {
+  return Boolean(settings.api_user && settings.api_password)
+}
+
+export const getApiBaseUrl = (settings: Settings): string => {
+  if (isLegacyAuth(settings)) return LEGACY_API_BASE
+  if (!settings.apiBaseUrl) {
+    throw new IntegrationError('API base URL is required', 'MISSING_API_BASE_URL', 400)
+  }
+  return settings.apiBaseUrl.endsWith('/') ? settings.apiBaseUrl : `${settings.apiBaseUrl}/`
+}
+
+export const createWsseHeader = (settings: Settings): string => {
+  if (!settings.api_user || !settings.api_password) {
+    throw new IntegrationError('Username and password must be specified.', 'MISSING_CREDENTIALS', 400)
+  }
+  const nonce = randomBytes(16).toString('hex')
+  const ts = new Date().toISOString()
+  const secret = nonce + ts + settings.api_password
+  const secretHex = processHashing(secret, 'sha1', 'hex')
+  const secret_hash = Buffer.from(secretHex, 'utf8').toString('base64')
+  return `UsernameToken Username="${settings.api_user}", PasswordDigest="${secret_hash}", Nonce="${nonce}", Created="${ts}"`
+}
+
+export const getAuthHeader = async (
+  request: RequestClient,
+  settings: Settings
+): Promise<{ Authorization: string } | { 'X-WSSE': string }> => {
+  if (isLegacyAuth(settings)) {
+    return { 'X-WSSE': createWsseHeader(settings) }
+  }
+
   const cacheKey = getCacheKey(settings)
   const cached = tokenCache.get(cacheKey)
   const now = Date.now()
 
-  if (cached && cached.expiresAt - now > TOKEN_EXPIRY_BUFFER_MS) {
-    return { Authorization: `Bearer ${cached.accessToken}` }
+  if (cached) {
+    if (cached.expiresAt - now > TOKEN_EXPIRY_BUFFER_MS) {
+      return { Authorization: `Bearer ${cached.accessToken}` }
+    }
+    tokenCache.delete(cacheKey)
+  }
+
+  if (!settings.apiAuthEndpoint) {
+    throw new IntegrationError('Auth endpoint is required', 'MISSING_AUTH_ENDPOINT', 400)
   }
 
   const { accessToken, expiresIn } = await getAccessToken(
     request,
-    settings.apiAuthEndpoint,
-    settings.apiClientId,
-    settings.apiClientSecret
+    settings.apiAuthEndpoint.replace(/\/$/, ''),
+    settings.apiClientId as string,
+    settings.apiClientSecret as string
   )
 
   tokenCache.set(cacheKey, {
@@ -115,7 +158,7 @@ export interface ContactsApiPayload {
 
 export const getEvents = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
   const authHeader = await getAuthHeader(request, settings)
-  const data = await request(`${settings.apiBaseUrl}event`, { headers: authHeader })
+  const data = await request(`${getApiBaseUrl(settings)}event`, { headers: authHeader })
   const choices = []
   if (data && data.content) {
     const api_data = JSON.parse(data.content)
@@ -140,7 +183,7 @@ export const getFields = async (request: RequestClient, settings: Settings): Pro
   const authHeader = await getAuthHeader(request, settings)
   let data
   try {
-    data = await request(`${settings.apiBaseUrl}field/translate/en`, { headers: authHeader })
+    data = await request(`${getApiBaseUrl(settings)}field/translate/en`, { headers: authHeader })
   } catch (err) {
     return { choices: [] }
   }
@@ -166,7 +209,7 @@ export const getFields = async (request: RequestClient, settings: Settings): Pro
 
 export const getContactLists = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
   const authHeader = await getAuthHeader(request, settings)
-  const data = await request(`${settings.apiBaseUrl}contactlist`, { headers: authHeader })
+  const data = await request(`${getApiBaseUrl(settings)}contactlist`, { headers: authHeader })
   const choices = []
   if (data && data.content) {
     const api_data = JSON.parse(data.content)

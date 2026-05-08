@@ -2,6 +2,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
 import nock from 'nock'
+import { tokenCache } from '../../emarsys-helper'
 
 const testDestination = createTestIntegration(destination)
 const actionSlug = 'addToContactList'
@@ -13,39 +14,40 @@ const AUTH_PATH = '/oauth/token'
 const API_HOST = 'https://api.example.com'
 const API_BASE_PATH = '/api/'
 
+const settingsData = {
+  apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
+  apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
+  apiClientId: 'testclient',
+  apiClientSecret: 'supersecret'
+}
+
+beforeEach(() => {
+  nock.cleanAll()
+  tokenCache.clear()
+})
+
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData] = generateTestData(seedName, destination, action, true)
 
-    const settingsData = {
-      apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
-      apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
-      apiClientId: 'testclient',
-      apiClientSecret: 'supersecret'
-    }
+    nock(AUTH_HOST).post(AUTH_PATH).reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
+    nock(API_HOST).persist().get(/.*/).reply(200, { replyCode: 0 })
+    nock(API_HOST).persist().post(/.*/).reply(200, { replyCode: 0 })
+    nock(API_HOST).persist().put(/.*/).reply(200, { replyCode: 0 })
 
-    nock(AUTH_HOST)
-      .persist()
-      .post(AUTH_PATH)
-      .reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
-    nock(/.*/).persist().get(/.*/).reply(200, { replyCode: 0 })
-    nock(/.*/).persist().post(/.*/).reply(200, { replyCode: 0 })
-    nock(/.*/).persist().put(/.*/).reply(200, { replyCode: 0 })
-
-    const event = createTestEvent({
-      properties: eventData
-    })
+    const event = createTestEvent({ properties: eventData })
 
     const responses = await testDestination.testAction(actionSlug, {
-      event: event,
+      event,
       mapping: event.properties,
       settings: settingsData,
       auth: undefined
     })
 
-    const request = responses[0].request
-    const rawBody = await request.text()
+    const apiResponse = responses.find((r) => new URL(r.request.url).host === new URL(API_HOST).host)
+    if (!apiResponse) throw new Error('No Emarsys API response found')
+    const rawBody = await apiResponse.request.text()
 
     try {
       const json = JSON.parse(rawBody)
@@ -55,41 +57,30 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       expect(rawBody).toMatchSnapshot()
     }
 
-    expect(request.headers).toMatchSnapshot()
+    expect(Object.fromEntries(apiResponse.request.headers)).toMatchSnapshot()
   })
 
   it('all fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData] = generateTestData(seedName, destination, action, false)
 
-    const settingsData = {
-      apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
-      apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
-      apiClientId: 'testclient',
-      apiClientSecret: 'supersecret'
-    }
+    nock(AUTH_HOST).post(AUTH_PATH).reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
+    nock(API_HOST).persist().get(/.*/).reply(200, { replyCode: 0 })
+    nock(API_HOST).persist().post(/.*/).reply(200, { replyCode: 0 })
+    nock(API_HOST).persist().put(/.*/).reply(200, { replyCode: 0 })
 
-    nock(AUTH_HOST)
-      .persist()
-      .post(AUTH_PATH)
-      .reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
-    nock(/.*/).persist().get(/.*/).reply(200, { replyCode: 0 })
-    nock(/.*/).persist().post(/.*/).reply(200, { replyCode: 0 })
-    nock(/.*/).persist().put(/.*/).reply(200, { replyCode: 0 })
-
-    const event = createTestEvent({
-      properties: eventData
-    })
+    const event = createTestEvent({ properties: eventData })
 
     const responses = await testDestination.testAction(actionSlug, {
-      event: event,
+      event,
       mapping: event.properties,
       settings: settingsData,
       auth: undefined
     })
 
-    const request = responses[0].request
-    const rawBody = await request.text()
+    const apiResponse = responses.find((r) => new URL(r.request.url).host === new URL(API_HOST).host)
+    if (!apiResponse) throw new Error('No Emarsys API response found')
+    const rawBody = await apiResponse.request.text()
 
     try {
       const json = JSON.parse(rawBody)

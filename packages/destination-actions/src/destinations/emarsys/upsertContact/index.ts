@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import {
   getFields,
   getAuthHeader,
+  getApiBaseUrl,
   ContactData,
   ContactsApiPayload,
   BufferBatchContacts,
@@ -58,7 +59,7 @@ const action: ActionDefinition<Settings, Payload> = {
       key_id: data.payload.key_field,
       contacts: [contact]
     }
-    const response = await request(`${data.settings.apiBaseUrl}contact/?create_if_not_exists=1`, {
+    const response = await request(`${getApiBaseUrl(data.settings)}contact/?create_if_not_exists=1`, {
       method: 'put',
       json: payload,
       headers: authHeader,
@@ -107,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           contacts: batch.contacts
         }
-        const response = request(`${data.settings.apiBaseUrl}contact/?create_if_not_exists=1`, {
+        const response = request(`${getApiBaseUrl(data.settings)}contact/?create_if_not_exists=1`, {
           method: 'put',
           json: payload,
           headers: authHeader,

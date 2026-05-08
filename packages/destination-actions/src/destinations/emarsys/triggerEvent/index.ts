@@ -5,6 +5,7 @@ import {
   getEvents,
   getFields,
   getAuthHeader,
+  getApiBaseUrl,
   BufferBatchTriggerEvent,
   BufferBatchTriggerEventItem,
   TriggerEventData,
@@ -67,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
         data: <TriggerEventData>data.payload.event_payload ?? null
       }
 
-      const response = await request(`${data.settings.apiBaseUrl}event/${data.payload.eventid}/trigger`, {
+      const response = await request(`${getApiBaseUrl(data.settings)}event/${data.payload.eventid}/trigger`, {
         method: 'post',
         json: payload,
         headers: authHeader,
@@ -123,7 +124,7 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           contacts: batch.keys
         }
-        const response = request(`${data.settings.apiBaseUrl}event/${batch.event_id}/trigger`, {
+        const response = request(`${getApiBaseUrl(data.settings)}event/${batch.event_id}/trigger`, {
           method: 'post',
           json: payload,
           headers: authHeader,

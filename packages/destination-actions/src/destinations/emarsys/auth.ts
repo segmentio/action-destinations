@@ -1,9 +1,10 @@
 import { RequestClient } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 
 export interface AccessTokenResponse {
   token_type: string
-  access_token: string
-  expires_in: number
+  access_token?: string
+  expires_in?: number
 }
 
 export interface AccessTokenResult {
@@ -32,8 +33,12 @@ export default async function getAccessToken(
     headers: requestHeaders
   })
 
+  if (!res.data.access_token) {
+    throw new IntegrationError('Authentication failed: no access token in response', 'INVALID_AUTH_RESPONSE', 401)
+  }
+
   return {
     accessToken: res.data.access_token,
-    expiresIn: res.data.expires_in
+    expiresIn: res.data.expires_in ?? 3600
   }
 }

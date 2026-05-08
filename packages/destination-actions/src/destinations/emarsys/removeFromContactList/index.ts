@@ -5,6 +5,7 @@ import {
   getContactLists,
   getFields,
   getAuthHeader,
+  getApiBaseUrl,
   ContactListApiPayload,
   BufferBatchContactList,
   BufferBatchContactListItem
@@ -55,12 +56,15 @@ const action: ActionDefinition<Settings, Payload> = {
         external_ids: [data.payload.key_value]
       }
 
-      const response = await request(`${data.settings.apiBaseUrl}contactlist/${data.payload.contactlistid}/delete`, {
-        method: 'post',
-        json: payload,
-        headers: authHeader,
-        throwHttpErrors: false
-      })
+      const response = await request(
+        `${getApiBaseUrl(data.settings)}contactlist/${data.payload.contactlistid}/delete`,
+        {
+          method: 'post',
+          json: payload,
+          headers: authHeader,
+          throwHttpErrors: false
+        }
+      )
 
       switch (response?.status) {
         case 200:
@@ -108,7 +112,7 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           external_ids: batch.external_ids
         }
-        const response = request(`${data.settings.apiBaseUrl}contactlist/${batch.contactlistid}/delete`, {
+        const response = request(`${getApiBaseUrl(data.settings)}contactlist/${batch.contactlistid}/delete`, {
           method: 'post',
           json: payload,
           headers: authHeader,

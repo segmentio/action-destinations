@@ -1,1 +1,1 @@
-export const USER_AGENT_HEADER = 'segment-destination/1.0'
+export const USER_AGENT_HEADER = 'segmentio-emarsys/1.5'

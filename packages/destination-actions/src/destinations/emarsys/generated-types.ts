@@ -2,19 +2,27 @@
 
 export interface Settings {
   /**
-   * Authentication endpoint URL
+   * Your Emarsys API username. Set this together with API password to use legacy X-WSSE authentication against the v2 API.
    */
-  apiAuthEndpoint: string
+  api_user?: string
   /**
-   * The base URL for API requests
+   * Your Emarsys API password. Set this together with API username to use legacy X-WSSE authentication against the v2 API.
    */
-  apiBaseUrl: string
+  api_password?: string
   /**
-   * The ClientId for API authentication
+   * Authentication endpoint URL. Required when not using legacy API username/password.
    */
-  apiClientId: string
+  apiAuthEndpoint?: string
   /**
-   * The Client Secret for API authentication
+   * The base URL for API requests. Required when not using legacy API username/password.
    */
-  apiClientSecret: string
+  apiBaseUrl?: string
+  /**
+   * The ClientId for API authentication. Required when not using legacy API username/password.
+   */
+  apiClientId?: string
+  /**
+   * The Client Secret for API authentication. Required when not using legacy API username/password.
+   */
+  apiClientSecret?: string
 }

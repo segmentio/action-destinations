@@ -5,6 +5,7 @@ import {
   getContactLists,
   getFields,
   getAuthHeader,
+  getApiBaseUrl,
   ContactListApiPayload,
   BufferBatchContactList,
   BufferBatchContactListItem
@@ -53,7 +54,7 @@ const action: ActionDefinition<Settings, Payload> = {
         key_id: data.payload.key_field,
         external_ids: [data.payload.key_value]
       }
-      const response = await request(`${data.settings.apiBaseUrl}contactlist/${data.payload.contactlistid}/add`, {
+      const response = await request(`${getApiBaseUrl(data.settings)}contactlist/${data.payload.contactlistid}/add`, {
         method: 'post',
         json: payload,
         headers: authHeader,
@@ -108,7 +109,7 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           external_ids: batch.external_ids
         }
-        const response = request(`${data.settings.apiBaseUrl}contactlist/${batch.contactlistid}/add`, {
+        const response = request(`${getApiBaseUrl(data.settings)}contactlist/${batch.contactlistid}/add`, {
           method: 'post',
           json: payload,
           headers: authHeader,

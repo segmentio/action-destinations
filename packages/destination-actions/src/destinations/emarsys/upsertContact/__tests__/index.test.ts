@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
+import { tokenCache } from '../../emarsys-helper'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -30,6 +31,7 @@ function mockAuth() {
 
 beforeEach(() => {
   nock.cleanAll()
+  tokenCache.clear()
 })
 
 describe('Emarsys.upsertContact', () => {
