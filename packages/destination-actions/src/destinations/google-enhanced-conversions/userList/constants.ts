@@ -1,0 +1,1 @@
+export const GOOGLE_ENHANCED_CONVERSIONS_AUDIENCE_JOURNEYS_FLAGON = 'google-enhanced-conversions-actions-journeys-support'

@@ -11,6 +11,8 @@ import {
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
+import type { RawData } from './types'
+import { updateMembershipIfJourneys } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
@@ -303,8 +305,12 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features }) => {
+  perform: async (request, data) => {
+    const { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features } = data
+    const rawData = (data as unknown as { rawData?: RawData }).rawData
     settings.customerId = verifyCustomerId(settings.customerId)
+
+    const resolvedMembership = updateMembershipIfJourneys(features, [audienceMembership], rawData ? [rawData] : undefined)
 
     return await handleUpdate(
       request,
@@ -314,16 +320,18 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
-      audienceMembership,
+      resolvedMembership?.[0],
       features,
       statsContext
     )
   },
-  performBatch: async (
-    request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features }
-  ) => {
+  performBatch: async (request, data) => {
+    const { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features } = data
+    const rawData = (data as unknown as { rawData?: RawData[] }).rawData
     settings.customerId = verifyCustomerId(settings.customerId)
+
+    const resolvedMembership = updateMembershipIfJourneys(features, audienceMembership, rawData)
+
     return await processBatchPayload(
       request,
       settings,
@@ -332,7 +340,7 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
-      audienceMembership,
+      resolvedMembership,
       features,
       statsContext
     )
