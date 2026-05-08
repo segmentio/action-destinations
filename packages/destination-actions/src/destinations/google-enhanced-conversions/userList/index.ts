@@ -1,4 +1,5 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -9,7 +10,6 @@ import {
   processBatchPayload,
   verifyCustomerId
 } from '../functions'
-import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 import type { RawData } from './types'
 import { updateMembershipIfJourneys } from './functions'
@@ -310,7 +310,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const rawData = (data as unknown as { rawData?: RawData }).rawData
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    const resolvedMembership = updateMembershipIfJourneys(features, [audienceMembership], rawData ? [rawData] : undefined)
+    const { resolvedMembership } = updateMembershipIfJourneys(false, [payload], features, [audienceMembership], rawData ? [rawData] : undefined)
 
     return await handleUpdate(
       request,
@@ -330,7 +330,11 @@ const action: ActionDefinition<Settings, Payload> = {
     const rawData = (data as unknown as { rawData?: RawData[] }).rawData
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    const resolvedMembership = updateMembershipIfJourneys(features, audienceMembership, rawData)
+    const { resolvedMembership, multiStatusResponse } = updateMembershipIfJourneys(true, payload, features, audienceMembership, rawData)
+
+    if (multiStatusResponse) {
+      return multiStatusResponse
+    }
 
     return await processBatchPayload(
       request,

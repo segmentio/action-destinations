@@ -1,3 +1,5 @@
+import type { AudienceMembership, MultiStatusResponse } from '@segment/actions-core'
+
 export type RawData = {
   context?: {
     personas?: {
@@ -5,4 +7,14 @@ export type RawData = {
     }
   }
   properties?: Record<string, unknown>
+}
+
+export interface JourneysMembershipsResult {
+  journeyMemberships?: boolean[]
+  multiStatusResponse?: MultiStatusResponse
+}
+
+export interface MembershipResult {
+  resolvedMembership?: AudienceMembership[]
+  multiStatusResponse?: MultiStatusResponse
 }
