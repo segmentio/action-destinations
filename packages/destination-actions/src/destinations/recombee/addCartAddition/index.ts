@@ -80,8 +80,13 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-function payloadToCartAddition({ item, ...rest }: Payload): AddCartAddition {
-  return new AddCartAddition({ ...item, ...rest })
+function payloadToCartAddition({ item: { amount, price, ...itemRest }, ...rest }: Payload): AddCartAddition {
+  return new AddCartAddition({
+    ...itemRest,
+    amount,
+    price: amount !== undefined && price !== undefined ? amount * price : price,
+    ...rest
+  })
 }
 
 export default action

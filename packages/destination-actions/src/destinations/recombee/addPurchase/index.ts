@@ -101,7 +101,15 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function payloadToPurchases({ items, ...rest }: Payload): AddPurchase[] {
-  return items.map((item) => new AddPurchase({ ...item, ...rest }))
+  return items.map(({ amount, price, profit, ...item }) => {
+    return new AddPurchase({
+      ...item,
+      amount,
+      price: amount !== undefined && price !== undefined ? amount * price : price,
+      profit: amount !== undefined && profit !== undefined ? amount * profit : profit,
+      ...rest
+    })
+  })
 }
 
 export default action

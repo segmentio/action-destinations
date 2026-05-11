@@ -32,7 +32,6 @@ describe('addPurchase', () => {
         products: [
           {
             product_id: 'item-1',
-            quantity: 1,
             price: 100
           },
           {
@@ -61,7 +60,6 @@ describe('addPurchase', () => {
             itemId: 'item-1',
             timestamp: '2021-09-01T00:00:00.000Z',
             cascadeCreate: true,
-            amount: 1,
             price: 100
           }
         },
@@ -74,7 +72,7 @@ describe('addPurchase', () => {
             timestamp: '2021-09-01T00:00:00.000Z',
             cascadeCreate: true,
             amount: 2,
-            price: 200
+            price: 400
           }
         }
       ]
@@ -161,8 +159,8 @@ describe('addPurchase', () => {
             timestamp: '2021-09-01T00:00:00.000Z',
             cascadeCreate: true,
             amount: 2,
-            price: 200,
-            profit: 40,
+            price: 400,
+            profit: 80,
             recommId,
             additionalData: {
               region: 'region'
