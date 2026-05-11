@@ -8,7 +8,7 @@ Object {
   "cascadeCreate": true,
   "itemId": "7(iq3vwM",
   "recommId": "7(iq3vwM",
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": 1612137600,
   "userId": "7(iq3vwM",
 }
 `;
@@ -32,7 +32,7 @@ Object {
   "itemId": "fSK%!$(3gz2peZ!&@L@D",
   "price": 7.301767317929464e+27,
   "recommId": "fSK%!$(3gz2peZ!&@L@D",
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": 1612137600,
   "userId": "fSK%!$(3gz2peZ!&@L@D",
 }
 `;
@@ -55,7 +55,7 @@ Object {
   "duration": 4043918945550336,
   "itemId": "VhiOfa#s6#B[CQDV",
   "recommId": "VhiOfa#s6#B[CQDV",
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": 1612137600,
   "userId": "VhiOfa#s6#B[CQDV",
 }
 `;
@@ -84,7 +84,7 @@ Object {
         "price": 1.0995978718921334e+25,
         "profit": 1.0995978718921334e+25,
         "recommId": "!D2A1H%v%jv&r",
-        "timestamp": "2021-02-01T00:00:00.000Z",
+        "timestamp": 1612137600,
         "userId": "!D2A1H%v%jv&r",
       },
       "path": "/purchases/",
@@ -119,7 +119,7 @@ Object {
   "itemId": "X9m9Urlsqof(&*PN!s",
   "rating": 63040185947914.24,
   "recommId": "X9m9Urlsqof(&*PN!s",
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": 1612137600,
   "userId": "X9m9Urlsqof(&*PN!s",
 }
 `;
@@ -178,7 +178,7 @@ Object {
   "portion": 0.2614,
   "recommId": "D9^z[P*Zv",
   "sessionId": "D9^z[P*Zv",
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": 1612137600,
   "userId": "D9^z[P*Zv",
 }
 `;
@@ -203,7 +203,7 @@ Object {
   "portion": 0.9848557610530407,
   "recommId": "gpLV6!FLD#$6^LR77nTN",
   "sessionId": "gpLV6!FLD#$6^LR77nTN",
-  "timestamp": "2021-02-01T00:00:00.000Z",
+  "timestamp": 1612137600,
   "userId": "gpLV6!FLD#$6^LR77nTN",
 }
 `;

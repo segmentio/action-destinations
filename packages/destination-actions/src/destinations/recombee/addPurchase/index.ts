@@ -8,7 +8,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Purchase',
   description: 'Adds a purchase of the given item(s) made by the given user.',
   fields: {
-    userId: userIdField({ description: 'The ID of the user who purchased the item(s).' }),
+    userId: userIdField('The ID of the user who purchased the item(s).'),
     items: {
       label: 'Items',
       description: 'The items that were purchased.',

@@ -8,8 +8,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Rating',
   description: 'Adds a rating of the given item made by the given user.',
   fields: {
-    userId: userIdField({ description: 'The ID of the user who submitted the rating.' }),
-    itemId: itemIdField({ description: 'The ID of the item that was rated.' }),
+    userId: userIdField('The ID of the user who submitted the rating.'),
+    itemId: itemIdField('The ID of the item that was rated.'),
     timestamp: interactionTimestampField('rating'),
     rating: {
       label: 'Rating',

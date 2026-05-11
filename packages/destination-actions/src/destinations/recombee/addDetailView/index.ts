@@ -8,8 +8,8 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Detail View',
   description: 'Adds a detail view of the given item made by the given user.',
   fields: {
-    userId: userIdField({ description: 'The ID of the user who viewed the item.' }),
-    itemId: itemIdField({ description: 'The ID of the item that was viewed.' }),
+    userId: userIdField('The ID of the user who viewed the item.'),
+    itemId: itemIdField('The ID of the item that was viewed.'),
     timestamp: interactionTimestampField('view'),
     duration: {
       label: 'Duration',

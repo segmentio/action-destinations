@@ -58,7 +58,7 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-1',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             price: 100
           }
@@ -69,7 +69,7 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-2',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             amount: 2,
             price: 400
@@ -139,7 +139,7 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-1',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             amount: 1,
             price: 100,
@@ -156,7 +156,7 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-2',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             amount: 2,
             price: 400,

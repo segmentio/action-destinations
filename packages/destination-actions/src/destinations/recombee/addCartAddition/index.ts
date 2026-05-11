@@ -9,7 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Adds a cart addition of the given item made by the given user.',
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
-    userId: userIdField({ description: 'The ID of the user who added the item to the cart.' }),
+    userId: userIdField('The ID of the user who added the item to the cart.'),
     item: {
       label: 'Item',
       description: 'The item that was added to the cart.',

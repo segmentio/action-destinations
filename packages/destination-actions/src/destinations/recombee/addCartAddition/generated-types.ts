@@ -23,7 +23,7 @@ export interface Payload {
     price?: number
   }
   /**
-   * The UTC timestamp of when the cart addition occurred, in Unix seconds or ISO-8601 format. Set `properties.timestamp` in your event to use a stable anchor for later exact-match deletion. Falls back to Segment's root timestamp if omitted.
+   * The UTC timestamp of when the cart addition occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.
    */
   timestamp?: string | number
   /**

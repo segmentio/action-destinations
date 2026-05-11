@@ -40,7 +40,7 @@ describe('addCartAddition', () => {
     expect(await response[0].request.json()).toMatchObject({
       userId: 'user-id',
       itemId: 'product-id',
-      timestamp: '2021-09-01T00:00:00.000Z',
+      timestamp: 1630454400,
       cascadeCreate: true
     })
   })
@@ -66,7 +66,7 @@ describe('addCartAddition', () => {
       traits: {
         region: 'region'
       },
-      timestamp: '2021-09-01T00:00:00.000Z'
+      timestamp: new Date(1630454400000).toISOString()
     })
 
     const response = await testDestination.testAction('addCartAddition', {
@@ -86,7 +86,7 @@ describe('addCartAddition', () => {
       userId: 'user-id',
       itemId: 'product-id',
       price: 10,
-      timestamp: '2021-09-01T00:00:00.000Z',
+      timestamp: 1630454400,
       cascadeCreate: true,
       recommId,
       additionalData: {
@@ -125,7 +125,39 @@ describe('addCartAddition', () => {
       itemId: 'product-id',
       amount: 2,
       price: 20,
-      timestamp: '2021-09-01T00:00:00.000Z',
+      timestamp: 1630454400,
+      cascadeCreate: true
+    })
+  })
+
+  it('should use properties.timestamp over root timestamp', async () => {
+    nock('https://rapi-eu-west.recombee.com/')
+      .post(`/${DATABASE_ID}/cartadditions/`)
+      .query({
+        hmac_timestamp: /.*/,
+        hmac_sign: /.*/
+      })
+      .reply(200, [{ code: 200, json: 'ok' }])
+
+    const event = createTestEvent({
+      userId: 'user-id',
+      properties: {
+        product_id: 'product-id',
+        timestamp: '2021-08-01T00:00:00.000Z'
+      },
+      timestamp: '2021-09-01T00:00:00.000Z'
+    })
+
+    const response = await testDestination.testAction('addCartAddition', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(await response[0].request.json()).toMatchObject({
+      userId: 'user-id',
+      itemId: 'product-id',
+      timestamp: 1627776000,
       cascadeCreate: true
     })
   })

@@ -74,8 +74,9 @@ type BatchParams = {
 type HttpMethod = 'POST' | 'PUT' | 'DELETE'
 
 function createAddInteractionData<T extends AddInteractionParams & InternalAdditionalData>(payload: T) {
-  const { additionalData, internalAdditionalData, ...rest } = payload
+  const { timestamp, additionalData, internalAdditionalData, ...rest } = payload
   return {
+    timestamp: timestamp !== undefined ? datetimeToEpochSeconds(timestamp) : undefined,
     cascadeCreate: true,
     additionalData: {
       ...(additionalData || {}),
@@ -83,6 +84,30 @@ function createAddInteractionData<T extends AddInteractionParams & InternalAddit
     },
     ...rest
   }
+}
+
+function datetimeToEpochSeconds(datetime: string | number): number {
+  const numValue = Number(datetime)
+
+  if (!isNaN(numValue) && String(datetime).trim() !== '') {
+    if (numValue < 0) {
+      throw new PayloadValidationError('Timestamp cannot be negative.')
+    }
+
+    // 10,000,000,000 is the year 2286 in seconds, anything larger is likely in milliseconds
+    if (numValue >= 10000000000) {
+      return numValue / 1000
+    } else {
+      return numValue
+    }
+  }
+
+  const parsedDate = new Date(datetime)
+  if (!isNaN(parsedDate.getTime())) {
+    return parsedDate.getTime() / 1000
+  }
+
+  throw new PayloadValidationError(`Invalid timestamp provided: ${datetime}`)
 }
 
 abstract class Request<Params extends object> {
@@ -138,24 +163,7 @@ function getDeleteUrl(interactionType: string, params: DeleteParams): string {
   })
 
   if (params.timestamp !== undefined && params.timestamp !== null) {
-    // In the URL, timestamp has to be seconds since epoch.
-    if (typeof params.timestamp === 'number' || /^\d+$/.test(params.timestamp)) {
-      if (String(params.timestamp).length > 10) {
-        const secondsFromMs = Math.floor(Number(params.timestamp) / 1000)
-        query.append('timestamp', secondsFromMs.toString())
-      } else {
-        query.append('timestamp', String(params.timestamp))
-      }
-    } else {
-      const parsedDate = new Date(params.timestamp)
-
-      if (!isNaN(parsedDate.getTime())) {
-        const epochSeconds = Math.floor(parsedDate.getTime() / 1000)
-        query.append('timestamp', epochSeconds.toString())
-      } else {
-        throw new PayloadValidationError(`Invalid timestamp provided: ${params.timestamp}`)
-      }
-    }
+    query.append('timestamp', String(datetimeToEpochSeconds(params.timestamp)))
   }
 
   return `/${interactionType}/?${query.toString()}`
