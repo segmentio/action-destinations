@@ -146,6 +146,7 @@ export async function sendAndCollectResponses(
   statsContext?: StatsContext
 ): Promise<void> {
   const payloads = Array.from(payloadMap.values())
+  const indices = Array.from(payloadMap.keys())
 
   if (payloads.length === 0) {
     return
@@ -170,7 +171,8 @@ export async function sendAndCollectResponses(
 
     if (isSuccess) {
       trackMetric(statsContext, `syncAudience.batch.${action}.success`)
-      for (const [index, p] of payloadMap) {
+      payloads.forEach((p, i) => {
+        const index = indices[i]
         if (!multiStatusResponse.getResponseAtIndex(index)) {
           multiStatusResponse.setSuccessResponseAtIndex(index, {
             status: 200,
@@ -178,18 +180,19 @@ export async function sendAndCollectResponses(
               action,
               advertiser_ids: [advertiserId],
               id_schema: idSchema,
-              batch_data: extractUsers([p])
+              batch_data: [batchData[i]]
             } as unknown as JSONLikeObject,
             body: p as unknown as JSONLikeObject
           })
         }
-      }
+      })
     } else {
       const status = response.status >= 400 ? response.status : 400
       const message = responseData?.message ?? 'Unknown TikTok API error'
       trackMetric(statsContext, `syncAudience.batch.${action}.error`)
 
-      for (const [index, p] of payloadMap) {
+      payloads.forEach((p, i) => {
+        const index = indices[i]
         if (!multiStatusResponse.getResponseAtIndex(index)) {
           multiStatusResponse.setErrorResponseAtIndex(index, {
             status,
@@ -198,21 +201,21 @@ export async function sendAndCollectResponses(
               action,
               advertiser_ids: [advertiserId],
               id_schema: idSchema,
-              batch_data: extractUsers([p])
+              batch_data: [batchData[i]]
             } as unknown as JSONLikeObject,
             body: p as unknown as JSONLikeObject
           })
         }
-      }
+      })
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     const status = (err as { response?: { status?: number } })?.response?.status || 500
     trackMetric(statsContext, `syncAudience.batch.${action}.error`)
 
-    for (const [index, p] of payloadMap) {
+    payloads.forEach((p, i) => {
+      const index = indices[i]
       if (!multiStatusResponse.getResponseAtIndex(index)) {
-
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status,
           errormessage: message,
@@ -220,12 +223,12 @@ export async function sendAndCollectResponses(
             action,
             advertiser_ids: [advertiserId],
             id_schema: idSchema,
-            batch_data: extractUsers([p])
+            batch_data: [batchData[i]]
           } as unknown as JSONLikeObject,
           body: p as unknown as JSONLikeObject
         })
       }
-    }
+    })
   }
 }
 
