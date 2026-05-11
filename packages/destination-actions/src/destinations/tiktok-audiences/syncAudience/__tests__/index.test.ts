@@ -55,7 +55,7 @@ function createAudienceEvent(membership: boolean, overrides: Record<string, unkn
 }
 
 // Pre-computed hashes for test data
-// sha256('testingtestingcom') - email after normalization (dots removed, lowercase)
+// sha256('testing@testing.com') - email after normalization (dots removed from local-part, lowercase)
 const HASHED_EMAIL = '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
 // sha256('1234567890')
 const HASHED_PHONE = 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646'
