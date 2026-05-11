@@ -518,7 +518,7 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Electronics')
     })
 
-    it('should handle multiple trait groups in the same profile', async () => {
+    it('should handle multiple trait groups in the same profile including non-STRING trait types', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-891',
@@ -527,7 +527,9 @@ describe('Memora.upsertProfile', () => {
           first_name: 'Bob',
           last_purchase: '2024-02-20',
           loyalty_tier: 'Gold',
-          last_login: '2024-03-01'
+          last_login: '2024-03-01',
+          total_orders: 42,
+          is_subscribed: true
         }
       })
 
@@ -551,7 +553,9 @@ describe('Memora.upsertProfile', () => {
           profile_traits: {
             'Contact.$.firstName': { '@path': '$.traits.first_name' },
             'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.totalOrders': { '@path': '$.traits.total_orders' },
             'Loyalty.$.tier': { '@path': '$.traits.loyalty_tier' },
+            'Loyalty.$.isSubscribed': { '@path': '$.traits.is_subscribed' },
             'Engagement.$.lastLogin': { '@path': '$.traits.last_login' }
           }
         },
@@ -563,7 +567,10 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact.email).toBe('multi@example.com')
       expect(profile.traits.Contact.firstName).toBe('Bob')
       expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-02-20')
+      // Non-STRING trait values must be passed through as their native types (not coerced to strings)
+      expect(profile.traits.PurchaseHistory.totalOrders).toBe(42)
       expect(profile.traits.Loyalty.tier).toBe('Gold')
+      expect(profile.traits.Loyalty.isSubscribed).toBe(true)
       expect(profile.traits.Engagement.lastLogin).toBe('2024-03-01')
     })
 
@@ -1005,9 +1012,13 @@ describe('Memora.upsertProfile', () => {
       expect(error2.errormessage).toContain('Invalid trait key format detected')
       expect(error2.errormessage).toContain('Contact.firstName')
 
-      // Verify logger.warn was called
-      expect(mockLogger.warn).toHaveBeenCalledWith('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
-      expect(mockLogger.warn).toHaveBeenCalledWith('No valid profiles to import. All profiles failed validation.')
+      // Verify logger.warn was called (messages include tags)
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped 3 invalid profile(s). Processing 0 valid profile(s).')
+      )
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('No valid profiles to import. All profiles failed validation.')
+      )
 
       // Verify no API call was made
       expect(mockRequest).not.toHaveBeenCalled()
@@ -1281,6 +1292,217 @@ describe('Memora.upsertProfile', () => {
     })
   })
 
+  describe('stats and logging', () => {
+    const mockStatsClient = {
+      observe: jest.fn(),
+      _name: jest.fn(),
+      _tags: jest.fn(),
+      incr: jest.fn(),
+      set: jest.fn(),
+      histogram: jest.fn()
+    }
+    const mockStatsContext = { statsClient: mockStatsClient, tags: ['env:test'] }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      nock.cleanAll()
+    })
+
+    it('should emit success stat with correct count and tags on success', async () => {
+      const action = Destination.actions.upsertProfile
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        }
+      ]
+
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => 'req-id-123' } })
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext
+      })
+
+      const tags = mockStatsClient.incr.mock.calls.find(
+        (c: any[]) => c[0] === 'memora.upsert_profile.success'
+      )?.[2] as string[]
+      expect(tags).toEqual(
+        expect.arrayContaining([
+          'env:test',
+          `twilioAccountId:${defaultSettings.twilioAccount}`,
+          'memory_store_id:test-store-id'
+        ])
+      )
+      expect(tags).not.toEqual(
+        expect.arrayContaining([expect.stringMatching(/^audience_key:/), expect.stringMatching(/^space_id:/)])
+      )
+      expect(mockStatsClient.incr).toHaveBeenCalledWith('memora.upsert_profile.success', 2, expect.anything())
+      expect(mockStatsClient.incr).not.toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        expect.anything(),
+        expect.anything()
+      )
+    })
+
+    it('should emit failure stat for invalid profiles alongside success for valid ones', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        { memora_store: 'test-store-id', profile_identifiers: {}, profile_traits: { 'Contact.$.firstName': 'Bad' } },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'good@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Good' }
+        }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        1,
+        expect.arrayContaining(['twilioAccountId:AC1234567890'])
+      )
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        1,
+        expect.arrayContaining(['twilioAccountId:AC1234567890'])
+      )
+    })
+
+    it('should emit failure stat with full payload count when API call throws', async () => {
+      const mockRequestFn = jest
+        .fn()
+        .mockRejectedValue(Object.assign(new Error('server error'), { response: { status: 500 } }))
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        }
+      ]
+
+      await expect(
+        action.performBatch!(mockRequestFn as unknown as RequestClient, {
+          payload: payloads,
+          settings: defaultSettings,
+          statsContext: mockStatsContext
+        })
+      ).rejects.toThrow('server error')
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        1,
+        expect.arrayContaining(['twilioAccountId:AC1234567890'])
+      )
+    })
+
+    it('should use computation_key and space_id from personasContext as tags', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext,
+        personasContext: {
+          computation_key: 'my-audience',
+          computation_id: 'comp-1',
+          namespace: 'ns',
+          space_id: 'space-abc'
+        }
+      })
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        1,
+        expect.arrayContaining(['audience_key:my-audience', 'space_id:space-abc'])
+      )
+    })
+
+    it('should omit audience_key and space_id tags when personasContext is undefined', async () => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext
+      })
+
+      const tags = mockStatsClient.incr.mock.calls.find(
+        (c: any[]) => c[0] === 'memora.upsert_profile.success'
+      )?.[2] as string[]
+      expect(tags.some((t: string) => t.startsWith('audience_key:'))).toBe(false)
+      expect(tags.some((t: string) => t.startsWith('space_id:'))).toBe(false)
+    })
+
+    it('should emit failure stat when all profiles fail validation without making an API call', async () => {
+      const mockRequestFn = jest.fn()
+      const action = Destination.actions.upsertProfile
+
+      const payloads: Payload[] = [
+        { memora_store: 'test-store-id', profile_identifiers: {}, profile_traits: { 'Contact.$.firstName': 'Bad' } },
+        { memora_store: 'test-store-id', profile_identifiers: { 'Contact.$.email': 'sparse@example.com' } }
+      ]
+
+      await action.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: mockStatsContext,
+        personasContext: { computation_key: 'my-audience', computation_id: 'comp-1', namespace: 'ns', space_id: 'sp-1' }
+      })
+
+      expect(mockRequestFn).not.toHaveBeenCalled()
+      expect(mockStatsClient.incr).toHaveBeenCalledWith(
+        'memora.upsert_profile.failure',
+        2,
+        expect.arrayContaining([
+          'env:test',
+          `twilioAccountId:${defaultSettings.twilioAccount}`,
+          'memory_store_id:test-store-id',
+          'audience_key:my-audience',
+          'space_id:sp-1'
+        ])
+      )
+      expect(mockStatsClient.incr).not.toHaveBeenCalledWith(
+        'memora.upsert_profile.success',
+        expect.anything(),
+        expect.anything()
+      )
+    })
+  })
+
   describe('error handling', () => {
     it('should throw error when API returns error response', async () => {
       const event = createTestEvent({
@@ -1451,7 +1673,7 @@ describe('Memora.upsertProfile', () => {
     })
 
     describe('profile_identifiers (dynamic identifiers from all trait groups)', () => {
-      it('should fetch and return identifier traits from all trait groups', async () => {
+      it('should fetch and return identifier traits from all trait groups including non-STRING types', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
@@ -1505,6 +1727,27 @@ describe('Memora.upsertProfile', () => {
                   }
                 },
                 version: 1
+              },
+              {
+                displayName: 'Device',
+                description: 'Device traits',
+                traits: {
+                  deviceId: {
+                    dataType: 'NUMBER',
+                    description: 'Numeric device identifier',
+                    displayName: 'Device ID',
+                    idTypePromotion: 'device_id',
+                    validationRule: null
+                  },
+                  osVersion: {
+                    dataType: 'STRING',
+                    description: 'OS version',
+                    displayName: 'OS Version',
+                    idTypePromotion: null,
+                    validationRule: null
+                  }
+                },
+                version: 1
               }
             ]
           })
@@ -1515,11 +1758,12 @@ describe('Memora.upsertProfile', () => {
         })) as DynamicFieldResponse
 
         expect(result).toBeDefined()
-        // Should return only traits with idTypePromotion set
+        // Should return all traits with idTypePromotion set, regardless of dataType
         expect(result.choices).toEqual([
           { label: 'Contact.email', value: 'Contact.$.email', description: 'Contact - email (email)' },
           { label: 'Contact.phone', value: 'Contact.$.phone', description: 'Contact - phone (phone)' },
-          { label: 'Loyalty.Member ID', value: 'Loyalty.$.memberId', description: 'Loyalty member ID' }
+          { label: 'Loyalty.Member ID', value: 'Loyalty.$.memberId', description: 'Loyalty member ID' },
+          { label: 'Device.Device ID', value: 'Device.$.deviceId', description: 'Numeric device identifier' }
         ])
       })
 
@@ -1600,6 +1844,13 @@ describe('Memora.upsertProfile', () => {
                     displayName: 'age',
                     idTypePromotion: null,
                     validationRule: null
+                  },
+                  isSubscribed: {
+                    dataType: 'BOOLEAN',
+                    description: 'Email subscription status',
+                    displayName: 'Is Subscribed',
+                    idTypePromotion: null,
+                    validationRule: null
                   }
                 },
                 version: 1
@@ -1641,15 +1892,22 @@ describe('Memora.upsertProfile', () => {
         })) as DynamicFieldResponse
 
         expect(result).toBeDefined()
-        // Should exclude identifiers (traits with idTypePromotion) and non-STRING traits
+        // Should exclude identifiers (traits with idTypePromotion) but include all non-identifier traits regardless of dataType
         // All trait groups use traitGroupName.$.traitName format
         expect(result.choices).toEqual([
           { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
           { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
+          { label: 'Contact.age', value: 'Contact.$.age', description: 'User age' },
+          { label: 'Contact.Is Subscribed', value: 'Contact.$.isSubscribed', description: 'Email subscription status' },
           {
             label: 'PurchaseHistory.Last Purchase Date',
             value: 'PurchaseHistory.$.lastPurchaseDate',
             description: 'Date of last purchase'
+          },
+          {
+            label: 'PurchaseHistory.Total Spent',
+            value: 'PurchaseHistory.$.totalSpent',
+            description: 'Total amount spent'
           },
           {
             label: 'PurchaseHistory.Favorite Category',

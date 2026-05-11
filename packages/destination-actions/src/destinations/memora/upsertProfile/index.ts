@@ -2,7 +2,7 @@ import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
-import type { Logger } from '@segment/actions-core/destination-kit'
+import type { Logger, StatsContext, Personas } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
 
@@ -79,8 +79,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { payload, settings, logger }) => {
-    const { rawResponse, multiStatus } = await upsertProfiles(request, [payload], settings, logger)
+  perform: async (request, { payload, settings, logger, statsContext, personasContext }) => {
+    const { rawResponse, multiStatus } = await upsertProfiles(
+      request,
+      [payload],
+      settings,
+      logger,
+      statsContext,
+      personasContext
+    )
 
     // For single-event execution, convert validation errors to thrown exceptions
     if (multiStatus.isErrorResponseAtIndex(0)) {
@@ -97,8 +104,8 @@ const action: ActionDefinition<Settings, Payload> = {
     return rawResponse
   },
 
-  performBatch: async (request, { payload: payloads, settings, logger }) => {
-    const { multiStatus } = await upsertProfiles(request, payloads, settings, logger)
+  performBatch: async (request, { payload: payloads, settings, logger, statsContext, personasContext }) => {
+    const { multiStatus } = await upsertProfiles(request, payloads, settings, logger, statsContext, personasContext)
     return multiStatus
   }
 }
@@ -108,7 +115,9 @@ async function upsertProfiles(
   request: RequestClient,
   payloads: Payload[],
   settings: Settings,
-  logger?: Logger
+  logger?: Logger,
+  statsContext?: StatsContext,
+  personasContext?: Personas
 ): Promise<{ rawResponse: ModifiedResponse | undefined; multiStatus: MultiStatusResponse }> {
   if (!payloads || payloads.length === 0) {
     throw new IntegrationError('No profiles provided', 'EMPTY_BATCH', 400)
@@ -161,15 +170,20 @@ async function upsertProfiles(
     }
   })
 
+  const statsTags = buildStatsTags(settings, storeId, personasContext, statsContext?.tags)
+  const tagStr = statsTags.join(', ')
+
   if (invalidIndices.length > 0) {
     logger?.warn?.(
-      `Skipped ${invalidIndices.length} invalid profile(s). Processing ${validProfiles.length} valid profile(s).`
+      `Skipped ${invalidIndices.length} invalid profile(s). Processing ${validProfiles.length} valid profile(s). ${tagStr}`
     )
   }
 
   // If all profiles are invalid, return MultiStatusResponse with per-profile errors
   if (validProfiles.length === 0) {
-    logger?.warn?.('No valid profiles to import. All profiles failed validation.')
+    logger?.warn?.(`No valid profiles to import. All profiles failed validation. ${tagStr}`)
+
+    statsContext?.statsClient?.incr('memora.upsert_profile.failure', invalidIndices.length, statsTags)
 
     const multiStatusResponse = new MultiStatusResponse()
     invalidIndices.forEach((index) => {
@@ -195,12 +209,20 @@ async function upsertProfiles(
       }
     })
 
-    logger?.info?.(`Bulk upsert completed successfully for ${validProfiles.length} profile(s)`)
+    const twilioRequestId = response.headers?.get?.('twilio-request-id')
+    logger?.info?.(
+      `Bulk upsert completed successfully for ${validProfiles.length} profile(s)${
+        twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
+      }. ${tagStr}`
+    )
 
-    // Build multi-status response
+    statsContext?.statsClient?.incr('memora.upsert_profile.success', validProfiles.length, statsTags)
+    if (invalidIndices.length > 0) {
+      statsContext?.statsClient?.incr('memora.upsert_profile.failure', invalidIndices.length, statsTags)
+    }
+
     const multiStatusResponse = new MultiStatusResponse()
 
-    // Mark valid profiles as successful
     validIndices.forEach((index) => {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: response.status,
@@ -209,7 +231,6 @@ async function upsertProfiles(
       })
     })
 
-    // Mark invalid profiles with validation error
     invalidIndices.forEach((index) => {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -219,9 +240,32 @@ async function upsertProfiles(
 
     return { rawResponse: response, multiStatus: multiStatusResponse }
   } catch (error) {
-    logger?.error?.(`Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}`)
+    const twilioRequestId = error?.response?.headers?.get?.('twilio-request-id')
+    logger?.error?.(
+      `Error in bulk upsert: ${error instanceof Error ? error.message : String(error)}${
+        twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
+      }. ${tagStr}`
+    )
+    statsContext?.statsClient?.incr('memora.upsert_profile.failure', payloads.length, statsTags)
     throw error
   }
+}
+
+function buildStatsTags(
+  settings: Settings,
+  storeId: string,
+  personasContext?: Personas,
+  existingTags?: string[]
+): string[] {
+  const audienceKey = personasContext?.computation_key
+  const spaceId = personasContext?.['space_id'] != null ? String(personasContext['space_id']) : undefined
+  return [
+    ...(existingTags ?? []),
+    `twilioAccountId:${settings.twilioAccount}`,
+    `memory_store_id:${storeId}`,
+    ...(audienceKey ? [`audience_key:${audienceKey}`] : []),
+    ...(spaceId ? [`space_id:${spaceId}`] : [])
+  ]
 }
 
 // Build trait groups payload for Memora API
@@ -335,7 +379,7 @@ type DynamicFieldResult = {
 }
 
 // Fetch all trait group fields and return identifiers and traits separately.
-// Identifiers are traits with idTypePromotion set; traits are non-identifier STRING traits.
+// Identifiers are traits with idTypePromotion set; traits are all non-identifier traits regardless of dataType.
 async function fetchTraitGroupFields(
   request: RequestClient,
   settings: Settings,
@@ -368,12 +412,12 @@ async function fetchTraitGroupFields(
         const value = `${traitGroupName}.$.${traitName}`
         const label = `${traitGroupName}.${trait.displayName || traitName}`
 
-        if (trait.idTypePromotion && trait.dataType === 'STRING') {
+        if (trait.idTypePromotion) {
           const description = trait.description
             ? trait.description
             : `${traitGroupName} - ${trait.displayName} (${trait.idTypePromotion})`
           identifierChoices.push({ label, value, description })
-        } else if (!trait.idTypePromotion && trait.dataType === 'STRING') {
+        } else {
           const description = trait.description
             ? trait.description
             : `${traitGroupName} - ${trait.displayName} (${trait.dataType})`
