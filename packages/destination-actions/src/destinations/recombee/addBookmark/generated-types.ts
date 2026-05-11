@@ -6,11 +6,11 @@ export interface Payload {
    */
   userId: string
   /**
-   * The bookmarked item.
+   * The ID of the item that was bookmarked.
    */
   itemId: string
   /**
-   * The UTC timestamp of when the bookmark event occurred.
+   * The UTC timestamp of when the bookmark occurred, in Unix seconds or ISO-8601 format. Set `properties.timestamp` in your event to use a stable anchor for later exact-match deletion. Falls back to Segment's root timestamp if omitted.
    */
   timestamp?: string | number
   /**

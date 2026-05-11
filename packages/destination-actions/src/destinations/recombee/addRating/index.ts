@@ -2,45 +2,15 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AddRating, Batch, RecombeeApiClient } from '../recombeeApiClient'
-import { interactionFields } from '../commonFields'
+import { interactionFields, userIdField, itemIdField, interactionTimestampField } from '../commonFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Rating',
   description: 'Adds a rating of the given item made by the given user.',
   fields: {
-    userId: {
-      label: 'User ID',
-      description: 'The ID of the user who submitted the rating.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
-    itemId: {
-      label: 'Item ID',
-      description: 'The rated item.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.product_id' },
-          then: { '@path': '$.properties.product_id' },
-          else: { '@path': '$.properties.asset_id' }
-        }
-      }
-    },
-    timestamp: {
-      label: 'Timestamp',
-      description: 'The UTC timestamp of when the rating occurred.',
-      type: 'datetime',
-      required: false,
-      default: { '@path': '$.timestamp' }
-    },
+    userId: userIdField({ description: 'The ID of the user who submitted the rating.' }),
+    itemId: itemIdField({ description: 'The ID of the item that was rated.' }),
+    timestamp: interactionTimestampField('rating'),
     rating: {
       label: 'Rating',
       description:

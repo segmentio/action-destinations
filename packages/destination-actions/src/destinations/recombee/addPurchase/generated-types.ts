@@ -27,7 +27,7 @@ export interface Payload {
     profit?: number
   }[]
   /**
-   * The UTC timestamp of when the purchase occurred.
+   * The UTC timestamp of when the purchase occurred, in Unix seconds or ISO-8601 format. Set `properties.timestamp` in your event to use a stable anchor for later exact-match deletion. Falls back to Segment's root timestamp if omitted.
    */
   timestamp?: string | number
   /**

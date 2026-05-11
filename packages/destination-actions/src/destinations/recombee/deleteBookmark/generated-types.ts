@@ -6,11 +6,11 @@ export interface Payload {
    */
   userId: string
   /**
-   * The item that was bookmarked.
+   * The ID of the item that was bookmarked.
    */
   itemId: string
   /**
-   * The UTC timestamp of when the bookmark occurred. If the timestamp is omitted, then all the bookmarks with the given `userId` and `itemId` are deleted.
+   * The UTC timestamp of the bookmark to delete, in Unix seconds or ISO-8601 format. Must match the value used when the bookmark was created. If omitted, all bookmarks for the given `userId` and `itemId` are deleted.
    */
   timestamp?: string | number
 }

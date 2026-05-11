@@ -6,11 +6,11 @@ export interface Payload {
    */
   userId: string
   /**
-   * The rated item.
+   * The ID of the item that was rated.
    */
   itemId: string
   /**
-   * The UTC timestamp of when the rating occurred.
+   * The UTC timestamp of when the rating occurred, in Unix seconds or ISO-8601 format. Set `properties.timestamp` in your event to use a stable anchor for later exact-match deletion. Falls back to Segment's root timestamp if omitted.
    */
   timestamp?: string | number
   /**
