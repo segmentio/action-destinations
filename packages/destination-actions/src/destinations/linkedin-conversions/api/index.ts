@@ -6,9 +6,7 @@ import {
   PayloadValidationError,
   JSONLikeObject,
   MultiStatusResponse,
-  HTTPError,
-  InvalidAuthenticationError,
-  ErrorCodes
+  HTTPError
 } from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
@@ -482,7 +480,7 @@ export class LinkedInConversions {
 
   async batchConversionAdd(payloads: Payload[]): Promise<MultiStatusResponse> {
     const multiStatusResponse = new MultiStatusResponse()
-    const validElements: ReturnType<typeof this.buildConversionElement>[] = []
+    const validElements: JSONLikeObject[] = []
     const validResponseIndices: number[] = []
 
     payloads.forEach((payload, i) => {
@@ -521,28 +519,23 @@ export class LinkedInConversions {
       validResponseIndices.forEach((originalIndex, filteredIndex) => {
         multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
           status: response.status,
-          sent: validElements[filteredIndex] as unknown as JSONLikeObject,
+          sent: validElements[filteredIndex],
           body: response.content
         })
       })
     } catch (error) {
       if (error instanceof HTTPError) {
         const status = error.response.status
+        const errormessage = (error.response as ModifiedResponse).content || error.message
 
-        // 401 means the OAuth token is expired — re-throw so the platform triggers a token refresh
-        if (status === 401) {
-          throw new InvalidAuthenticationError(
-            'LinkedIn OAuth token is expired or invalid. Please re-authenticate.',
-            ErrorCodes.INVALID_AUTHENTICATION
-          )
-        }
-
-        // For all other API errors, mark every valid event as failed with the actual status
+        // Mark every valid event with the API error status.
+        // For 401, the framework's shouldRetry detects status===401 in the MultiStatusResponse
+        // and triggers token refresh + retry automatically (destination-kit/index.ts:980).
         validResponseIndices.forEach((originalIndex, filteredIndex) => {
           multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
             status,
-            errormessage: error.message,
-            sent: validElements[filteredIndex] as unknown as JSONLikeObject
+            errormessage,
+            sent: validElements[filteredIndex]
           })
         })
       } else {
@@ -553,7 +546,7 @@ export class LinkedInConversions {
     return multiStatusResponse
   }
 
-  private buildConversionElement(payload: Payload, conversionTime: number) {
+  private buildConversionElement(payload: Payload, conversionTime: number): JSONLikeObject {
     const userIds = this.buildUserIdsArray(payload)
     return {
       conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
