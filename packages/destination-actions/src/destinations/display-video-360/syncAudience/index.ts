@@ -24,13 +24,13 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
   perform: async (request, { payload, statsContext, audienceMembership }) => {
     statsContext?.tags?.push('slug:actions-display-video-360')
-    statsContext?.statsClient?.incr('syncAudience', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('syncAudience.perform', 1, statsContext?.tags)
     await syncAudience(request, [payload], statsContext, [audienceMembership])
     return { success: true }
   },
   performBatch: async (request, { payload, statsContext, audienceMembership }) => {
     statsContext?.tags?.push('slug:actions-display-video-360')
-    statsContext?.statsClient?.incr('syncAudience.batch', 1, statsContext?.tags)
+    statsContext?.statsClient?.incr('syncAudience.performBatch', 1, statsContext?.tags)
     await syncAudience(request, payload, statsContext, audienceMembership)
     return { success: true }
   }

@@ -237,8 +237,6 @@ export const syncAudience = async (
   statsContext: StatsContext | undefined,
   audienceMemberships: AudienceMembership[] | undefined
 ) => {
-  const statsName = 'syncAudience'
-
   validateMembership(payload, audienceMemberships)
 
   const addPayloads: SyncPayload[] = []
@@ -255,17 +253,17 @@ export const syncAudience = async (
   const addRequest = addPayloads.length > 0 ? createUpdateRequest(addPayloads, 'add') : undefined
 
   if (addRequest && addRequest.ops.length > 0) {
-    await sendUpdateRequest(request, addRequest, statsName, statsContext)
+    await sendUpdateRequest(request, addRequest, 'syncAudience.add', statsContext)
   }
 
   const deleteRequest = removePayloads.length > 0 ? createUpdateRequest(removePayloads, 'remove') : undefined
 
   if (deleteRequest && deleteRequest.ops.length > 0) {
-    await sendUpdateRequest(request, deleteRequest, statsName, statsContext)
+    await sendUpdateRequest(request, deleteRequest, 'syncAudience.remove', statsContext)
   }
 
   if ((!addRequest || addRequest.ops.length === 0) && (!deleteRequest || deleteRequest.ops.length === 0)) {
-    statsContext?.statsClient.incr(`${statsName}.discard`, 1, statsContext?.tags)
+    statsContext?.statsClient.incr('syncAudience.discard', 1, statsContext?.tags)
   }
 
   return {
