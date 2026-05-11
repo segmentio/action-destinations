@@ -5,7 +5,7 @@ import { MoengageSDK } from '../../types'
 
 describe('Moengage.trackEvent', () => {
   const settings = {
-    app_id: 'test_app_id',
+    appId: 'test_app_id',
     env: 'TEST',
     moeDataCenter: 'dc_1'
   }
@@ -18,17 +18,17 @@ describe('Moengage.trackEvent', () => {
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockMoengage = {
-        track_event: jest.fn(),
-        add_user_attribute: jest.fn(),
-        add_first_name: jest.fn(),
-        add_last_name: jest.fn(),
-        add_email: jest.fn(),
-        add_mobile: jest.fn(),
-        add_user_name: jest.fn(),
-        add_gender: jest.fn(),
-        add_birthday: jest.fn(),
-        destroy_session: jest.fn(),
-        call_web_push: jest.fn(),
+        trackEvent: jest.fn(),
+        setUserAttribute: jest.fn(),
+        setFirstName: jest.fn(),
+        setLastName: jest.fn(),
+        setEmailId: jest.fn(),
+        setMobileNumber: jest.fn(),
+        setUserName: jest.fn(),
+        setGender: jest.fn(),
+        setBirthDate: jest.fn(),
+        logoutUser: jest.fn(),
+        callWebPush: jest.fn(),
         identifyUser: jest.fn(),
         getUserIdentities: jest.fn(),
         onsite: jest.fn()
@@ -75,7 +75,7 @@ describe('Moengage.trackEvent', () => {
     await trackEventAction.load(Context.system(), {} as Analytics)
     await trackEventAction.track?.(context)
 
-    expect(mockMoengage.track_event).toHaveBeenCalledWith('Product Viewed', {
+    expect(mockMoengage.trackEvent).toHaveBeenCalledWith('Product Viewed', {
       product_id: 'prod-123',
       product_name: 'Blue Widget',
       price: 19.99,
@@ -113,7 +113,7 @@ describe('Moengage.trackEvent', () => {
     await trackEventAction.load(Context.system(), {} as Analytics)
     await trackEventAction.track?.(context)
 
-    expect(mockMoengage.track_event).toHaveBeenCalledWith('Button Clicked', {})
+    expect(mockMoengage.trackEvent).toHaveBeenCalledWith('Button Clicked', {})
   })
 
   test('trackEvent() sends complex nested properties', async () => {
@@ -140,11 +140,11 @@ describe('Moengage.trackEvent', () => {
         total: 99.99,
         items: [
           { id: 'item-1', name: 'Widget', price: 49.99 },
-          { id: 'item-2', name: 'Gadget', price: 50.00 }
+          { id: 'item-2', name: 'Gadget', price: 50.0 }
         ],
         shipping: {
           method: 'express',
-          cost: 10.00
+          cost: 10.0
         }
       }
     })
@@ -158,16 +158,16 @@ describe('Moengage.trackEvent', () => {
     await trackEventAction.load(Context.system(), {} as Analytics)
     await trackEventAction.track?.(context)
 
-    expect(mockMoengage.track_event).toHaveBeenCalledWith('Order Completed', {
+    expect(mockMoengage.trackEvent).toHaveBeenCalledWith('Order Completed', {
       order_id: 'order-abc-123',
       total: 99.99,
       items: [
         { id: 'item-1', name: 'Widget', price: 49.99 },
-        { id: 'item-2', name: 'Gadget', price: 50.00 }
+        { id: 'item-2', name: 'Gadget', price: 50.0 }
       ],
       shipping: {
         method: 'express',
-        cost: 10.00
+        cost: 10.0
       }
     })
   })
