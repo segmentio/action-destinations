@@ -527,6 +527,239 @@ describe('TiktokAudiences.syncAudience', () => {
       expect(errorItems.length).toBe(2)
     })
 
+    it('should include correct sent and body in success responses', async () => {
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'add')
+        .reply(200, SUCCESS_RESPONSE)
+
+      const events = [
+        createAudienceEvent(true) as SegmentEvent,
+        createAudienceEvent(true) as SegmentEvent
+      ]
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events,
+        settings: {},
+        mapping: defaultMapping,
+        auth
+      })
+
+      const expectedBody = {
+        event_name: 'Audience Entered',
+        send_email: true,
+        send_phone: true,
+        send_advertising_id: true,
+        email: 'testing@testing.com',
+        phone: '1234567890',
+        advertising_id: ADVERTISING_ID,
+        enable_batching: true,
+        external_audience_id: EXTERNAL_AUDIENCE_ID,
+        batch_keys: ['send_email', 'send_phone', 'send_advertising_id']
+      }
+
+      const expectedSent = {
+        action: 'add',
+        advertiser_ids: [ADVERTISER_ID],
+        id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+        batch_data: [
+          [
+            { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+            { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+            { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+          ]
+        ]
+      }
+
+      expect(responses).toEqual([
+        { status: 200, sent: expectedSent, body: expectedBody },
+        { status: 200, sent: expectedSent, body: expectedBody }
+      ])
+    })
+
+    it('should include correct sent and body in error responses when TikTok returns error', async () => {
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'delete')
+        .reply(200, ERROR_RESPONSE)
+
+      const events = [
+        createAudienceEvent(false) as SegmentEvent,
+        createAudienceEvent(false) as SegmentEvent
+      ]
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events,
+        settings: {},
+        mapping: defaultMapping,
+        auth
+      })
+
+      const expectedBody = {
+        event_name: 'Audience Entered',
+        send_email: true,
+        send_phone: true,
+        send_advertising_id: true,
+        email: 'testing@testing.com',
+        phone: '1234567890',
+        advertising_id: ADVERTISING_ID,
+        enable_batching: true,
+        external_audience_id: EXTERNAL_AUDIENCE_ID,
+        batch_keys: ['send_email', 'send_phone', 'send_advertising_id']
+      }
+
+      const expectedSent = {
+        action: 'delete',
+        advertiser_ids: [ADVERTISER_ID],
+        id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+        batch_data: [
+          [
+            { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+            { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+            { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+          ]
+        ]
+      }
+
+      expect(responses).toEqual([
+        { status: 400, errortype: 'BAD_REQUEST', errormessage: 'Parameter error: invalid audience ID', errorreporter: 'DESTINATION', sent: expectedSent, body: expectedBody },
+        { status: 400, errortype: 'BAD_REQUEST', errormessage: 'Parameter error: invalid audience ID', errorreporter: 'DESTINATION', sent: expectedSent, body: expectedBody }
+      ])
+    })
+
+    it('should include correct sent and body in mixed add/delete batch', async () => {
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'add')
+        .reply(200, SUCCESS_RESPONSE)
+
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'delete')
+        .reply(200, SUCCESS_RESPONSE)
+
+      const events = [
+        createAudienceEvent(true) as SegmentEvent,
+        createAudienceEvent(false) as SegmentEvent
+      ]
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events,
+        settings: {},
+        mapping: defaultMapping,
+        auth
+      })
+
+      const expectedBody = {
+        event_name: 'Audience Entered',
+        send_email: true,
+        send_phone: true,
+        send_advertising_id: true,
+        email: 'testing@testing.com',
+        phone: '1234567890',
+        advertising_id: ADVERTISING_ID,
+        enable_batching: true,
+        external_audience_id: EXTERNAL_AUDIENCE_ID,
+        batch_keys: ['send_email', 'send_phone', 'send_advertising_id']
+      }
+
+      const expectedBatchData = [
+        [
+          { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+        ]
+      ]
+
+      expect(responses).toEqual([
+        {
+          status: 200,
+          sent: {
+            action: 'add',
+            advertiser_ids: [ADVERTISER_ID],
+            id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+            batch_data: expectedBatchData
+          },
+          body: expectedBody
+        },
+        {
+          status: 200,
+          sent: {
+            action: 'delete',
+            advertiser_ids: [ADVERTISER_ID],
+            id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+            batch_data: expectedBatchData
+          },
+          body: expectedBody
+        }
+      ])
+    })
+
+    it('should return success for adds and errors for deletes when delete API call fails', async () => {
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'add')
+        .reply(200, SUCCESS_RESPONSE)
+
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'delete')
+        .reply(200, ERROR_RESPONSE)
+
+      const events = [
+        createAudienceEvent(true) as SegmentEvent,
+        createAudienceEvent(false) as SegmentEvent
+      ]
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events,
+        settings: {},
+        mapping: defaultMapping,
+        auth
+      })
+
+      const expectedBody = {
+        event_name: 'Audience Entered',
+        send_email: true,
+        send_phone: true,
+        send_advertising_id: true,
+        email: 'testing@testing.com',
+        phone: '1234567890',
+        advertising_id: ADVERTISING_ID,
+        enable_batching: true,
+        external_audience_id: EXTERNAL_AUDIENCE_ID,
+        batch_keys: ['send_email', 'send_phone', 'send_advertising_id']
+      }
+
+      const expectedBatchData = [
+        [
+          { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+        ]
+      ]
+
+      expect(responses).toEqual([
+        {
+          status: 200,
+          sent: {
+            action: 'add',
+            advertiser_ids: [ADVERTISER_ID],
+            id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+            batch_data: expectedBatchData
+          },
+          body: expectedBody
+        },
+        {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: 'Parameter error: invalid audience ID',
+          errorreporter: 'DESTINATION',
+          sent: {
+            action: 'delete',
+            advertiser_ids: [ADVERTISER_ID],
+            id_schema: ['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'],
+            batch_data: expectedBatchData
+          },
+          body: expectedBody
+        }
+      ])
+    })
+
     it('should record validation errors per payload while succeeding for valid ones', async () => {
       nock(SEGMENT_MAPPING_URL)
         .post(/.*/)
