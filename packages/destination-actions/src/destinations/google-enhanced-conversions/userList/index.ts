@@ -1,5 +1,4 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -10,9 +9,9 @@ import {
   processBatchPayload,
   verifyCustomerId
 } from '../functions'
+import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
-import type { RawData } from './types'
-import { updateMembershipIfJourneys } from './functions'
+import { membershipsIfLegacyJourneys } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
@@ -21,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
   syncMode: {
     description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
-    default: 'mirror',
+    default: 'add',
     choices: [
       { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
       { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
@@ -305,12 +304,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, data) => {
-    const { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features } = data
-    const rawData = (data as unknown as { rawData?: RawData }).rawData
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, personasContext }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
-    const { resolvedMembership } = updateMembershipIfJourneys(false, [payload], features, [audienceMembership], rawData ? [rawData] : undefined)
+    const { computationClass, computationKey } = personasContext
+    const journeyMemberships = membershipsIfLegacyJourneys([payload], computationClass, computationKey, features)
 
     return await handleUpdate(
       request,
@@ -320,21 +317,18 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
-      resolvedMembership?.[0],
       features,
       statsContext
     )
   },
-  performBatch: async (request, data) => {
-    const { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, audienceMembership, features } = data
-    const rawData = (data as unknown as { rawData?: RawData[] }).rawData
+  performBatch: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, personasContext }
+  ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    const { resolvedMembership, multiStatusResponse } = updateMembershipIfJourneys(true, payload, features, audienceMembership, rawData)
-
-    if (multiStatusResponse) {
-      return multiStatusResponse
-    }
+    const { computationClass, computationKey } = personasContext
+    const journeyMemberships = membershipsIfLegacyJourneys([payload], computationClass, computationKey, features)
 
     return await processBatchPayload(
       request,
@@ -344,7 +338,6 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.id,
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
-      resolvedMembership,
       features,
       statsContext
     )
