@@ -480,7 +480,7 @@ export class LinkedInConversions {
 
   async batchConversionAdd(payloads: Payload[]): Promise<MultiStatusResponse> {
     const multiStatusResponse = new MultiStatusResponse()
-    const validElements: JSONLikeObject[] = []
+    const validElements: ReturnType<LinkedInConversions['buildConversionElement']>[] = []
     const validResponseIndices: number[] = []
 
     payloads.forEach((payload, i) => {
@@ -519,7 +519,7 @@ export class LinkedInConversions {
       validResponseIndices.forEach((originalIndex, filteredIndex) => {
         multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
           status: response.status,
-          sent: validElements[filteredIndex],
+          sent: validElements[filteredIndex] as unknown as JSONLikeObject,
           body: response.content
         })
       })
@@ -535,7 +535,7 @@ export class LinkedInConversions {
           multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
             status,
             errormessage,
-            sent: validElements[filteredIndex]
+            sent: validElements[filteredIndex] as unknown as JSONLikeObject
           })
         })
       } else {
@@ -546,7 +546,7 @@ export class LinkedInConversions {
     return multiStatusResponse
   }
 
-  private buildConversionElement(payload: Payload, conversionTime: number): JSONLikeObject {
+  private buildConversionElement(payload: Payload, conversionTime: number) {
     const userIds = this.buildUserIdsArray(payload)
     return {
       conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
