@@ -4,6 +4,7 @@ import type { Payload } from './generated-types'
 import { fields, retlHookInputFields, retlHookOutputTypes } from './fields'
 import { send } from './functions'
 import { performHook } from './hook-functions'
+import type { RawData } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -41,11 +42,29 @@ const action: ActionDefinition<Settings, Payload> = {
     ]
   },
   fields,
-  perform: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
-    return await send(request, [payload],false, [audienceMembership], hookOutputs, features, statsContext)
+  perform: async (
+    request,
+    data
+  ) => {
+    const { payload, audienceMembership, hookOutputs, features, statsContext } = data
+    const rawData = (data as unknown as { rawData?: RawData }).rawData
+    return await send(
+      request, [payload], false, [audienceMembership],
+      hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
+      features, statsContext, rawData ? [rawData] : undefined
+    )
   },
-  performBatch: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
-    return await send(request, payload, true, audienceMembership, hookOutputs, features, statsContext)
+  performBatch: async (
+    request,
+    data
+  ) => {
+    const { payload, audienceMembership, hookOutputs, features, statsContext } = data
+    const rawData = (data as unknown as { rawData?: RawData[] }).rawData
+    return await send(
+      request, payload, true, audienceMembership,
+      hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
+      features, statsContext, rawData
+    )
   }
 }
 
