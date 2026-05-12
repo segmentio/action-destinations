@@ -575,8 +575,8 @@ const extractUserIdentifiers = (
   for (const payload of payloads) {
     if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
       if (computation_class === 'journey_step' && !computation_key) {
-        // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
-         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
+        // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined
+        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
       else if (
         payload.event_name === 'Audience Entered' ||
@@ -589,12 +589,11 @@ const extractUserIdentifiers = (
         payload.event_name === 'Audience Exited' ||
         syncMode === 'delete' ||
         (syncMode === 'mirror' && payload.event_name === 'deleted') ||
-        audienceMembership === false 
+        audienceMembership === false
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
-    } 
-    else {
+    } else {
       // Map user data to Google Ads API format
       if (
         payload.event_name === 'Audience Entered' ||
@@ -1004,7 +1003,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
   if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     const { computation_key, computation_class } = personasContext || {}
     if (computation_class === 'journey_step' && !computation_key) {
-        // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
+        // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined
         return true
     }
     if (
