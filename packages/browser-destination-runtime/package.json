@@ -62,7 +62,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "3.167.1-staging-eaeb45c80.0"
+    "@segment/actions-core": "3.168.1-staging-ee75d3cad.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
