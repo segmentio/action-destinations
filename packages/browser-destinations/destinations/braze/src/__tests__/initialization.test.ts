@@ -1,7 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime'
 import brazeDestination, { destination } from '../index'
-import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from '../versioning-info'
+import { BRAZE_SDK_DEFAULT_VERSION, BRAZE_SDK_CANARY_VERSION } from '../versioning-info'
 
 describe('initialization', () => {
   const settings = {
@@ -168,7 +168,7 @@ describe('initialization', () => {
     expect(callArgs.devicePropertyAllowlist).toEqual(devicePropertyAllowlist)
   })
 
-  test('uses stable SDK version by default (6.1)', async () => {
+  test(`uses stable SDK version by default (${BRAZE_SDK_DEFAULT_VERSION})`, async () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
@@ -192,14 +192,16 @@ describe('initialization', () => {
     const scripts = window.document.querySelectorAll('script')
     const brazeScript = Array.from(scripts).find((script) => script.src.includes('js.appboycdn.com/web-sdk'))
 
-    expect(brazeScript?.src).toBe(`https://js.appboycdn.com/web-sdk/${DESTINATION_API_VERSION}/braze.no-module.min.js`)
+    expect(brazeScript?.src).toBe(
+      `https://js.appboycdn.com/web-sdk/${BRAZE_SDK_DEFAULT_VERSION}/braze.no-module.min.js`
+    )
   })
 
-  test('can load canary SDK version (6.5) when explicitly selected', async () => {
+  test(`can load canary SDK version (${BRAZE_SDK_CANARY_VERSION}) when explicitly selected`, async () => {
     const [event] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'endpoint',
-      sdkVersion: DESTINATION_CANARY_API_VERSION, // Explicitly select 6.5
+      sdkVersion: BRAZE_SDK_CANARY_VERSION,
       subscriptions: [
         {
           partnerAction: 'trackEvent',
@@ -222,17 +224,15 @@ describe('initialization', () => {
     const scripts = window.document.querySelectorAll('script')
     const brazeScript = Array.from(scripts).find((script) => script.src.includes('js.appboycdn.com/web-sdk'))
 
-    expect(brazeScript?.src).toBe(
-      `https://js.appboycdn.com/web-sdk/${DESTINATION_CANARY_API_VERSION}/braze.no-module.min.js`
-    )
+    expect(brazeScript?.src).toBe(`https://js.appboycdn.com/web-sdk/${BRAZE_SDK_CANARY_VERSION}/braze.no-module.min.js`)
   })
 
-  test('verifies SDK version 6.5 is available in settings choices', () => {
+  test('verifies canary SDK version is available in settings choices', () => {
     const sdkVersionField = destination.settings.sdkVersion
     const choices = sdkVersionField?.choices || []
-    const hasVersion65 = choices.some((choice) => choice.value === '6.5')
+    const hasCanaryVersion = choices.some((choice) => choice.value === BRAZE_SDK_CANARY_VERSION)
 
-    expect(hasVersion65).toBe(true)
-    expect(sdkVersionField?.default).toBe(DESTINATION_API_VERSION)
+    expect(hasCanaryVersion).toBe(true)
+    expect(sdkVersionField?.default).toBe(BRAZE_SDK_DEFAULT_VERSION)
   })
 })

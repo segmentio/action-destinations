@@ -9,7 +9,7 @@ import trackPurchase from './trackPurchase'
 import debounce, { resetUserCache } from './debounce'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import { BrazeDestinationClient } from './braze-types'
-import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
+import { BRAZE_SDK_DEFAULT_VERSION, BRAZE_SDK_CANARY_VERSION } from './versioning-info'
 
 declare global {
   interface Window {
@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-const defaultVersion = DESTINATION_API_VERSION
+const defaultVersion = BRAZE_SDK_DEFAULT_VERSION
 
 const presets: DestinationDefinition['presets'] = [
   {
@@ -108,12 +108,12 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           label: '5.9'
         },
         {
-          value: DESTINATION_API_VERSION,
-          label: DESTINATION_API_VERSION
+          value: BRAZE_SDK_DEFAULT_VERSION,
+          label: BRAZE_SDK_DEFAULT_VERSION
         },
         {
-          value: DESTINATION_CANARY_API_VERSION,
-          label: DESTINATION_CANARY_API_VERSION
+          value: BRAZE_SDK_CANARY_VERSION,
+          label: BRAZE_SDK_CANARY_VERSION
         }
       ],
       default: defaultVersion,
