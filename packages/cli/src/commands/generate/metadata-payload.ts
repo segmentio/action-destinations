@@ -78,9 +78,12 @@ export interface PublicDestinationMetadata {
 
 export function normalizeChoices(choices: unknown): Array<{ label: string; value: unknown }> | null {
   if (!Array.isArray(choices) || choices.length === 0) return null
-  return choices.map((c: string | { label: string; value: unknown }) =>
-    typeof c === 'string' ? { label: c, value: c } : c
-  )
+  return choices.map((c: unknown) => {
+    if (typeof c === 'object' && c !== null && 'label' in c && 'value' in c) {
+      return c as { label: string; value: unknown }
+    }
+    return { label: String(c), value: c }
+  })
 }
 
 export function serializeAuthField(schema: any): PublicAuthField {
@@ -326,7 +329,7 @@ export default class GenerateMetadataPayload extends Command {
       try {
         const payload = generatePublicMetadata(slug, definition)
         const filePath = path.join(sourceDir, 'metadata.json')
-        await fs.writeJson(filePath, payload, { spaces: 2 })
+        await fs.writeFile(filePath, JSON.stringify(payload, null, 2) + '\n')
         generated++
         this.spinner.succeed(`${definition.name} → ${filePath}`)
       } catch (err) {
@@ -343,6 +346,10 @@ export default class GenerateMetadataPayload extends Command {
 
     if (failed > 0) {
       throw new Error(`${failed} destination(s) failed to generate metadata. See above for details.`)
+    }
+
+    if (filterSlugs && filterSlugs.length > 0 && generated === 0) {
+      throw new Error(`No destinations matched the slug filter: ${filterSlugs.join(', ')}. Check for typos.`)
     }
   }
 

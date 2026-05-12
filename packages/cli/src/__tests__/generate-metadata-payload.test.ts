@@ -5,7 +5,7 @@ jest.mock('../lib/destinations', () => ({
 
 jest.mock('fs-extra', () => ({
   __esModule: true,
-  default: { writeJson: jest.fn().mockResolvedValue(undefined) }
+  default: { writeFile: jest.fn().mockResolvedValue(undefined) }
 }))
 
 import fs from 'fs-extra'
@@ -460,7 +460,7 @@ describe('resolveSourceDir()', () => {
 
 describe('GenerateMetadataPayload command', () => {
   const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
-  const mockWriteJson = fs.writeJson as jest.MockedFunction<typeof fs.writeJson>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
 
   const validEntry = {
     path: '/repo/packages/destination-actions/dist/destinations/test-dest/index.js',
@@ -469,17 +469,23 @@ describe('GenerateMetadataPayload command', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockWriteJson.mockResolvedValue(undefined as never)
+    mockWriteFile.mockResolvedValue(undefined as never)
   })
 
   it('writes metadata.json to the resolved source dir', async () => {
     mockGetManifest.mockReturnValue({ 'meta-1': validEntry as any })
     await GenerateMetadataPayload.run([])
-    expect(mockWriteJson).toHaveBeenCalledWith(
+    expect(mockWriteFile).toHaveBeenCalledWith(
       '/repo/packages/destination-actions/src/destinations/test-dest/metadata.json',
-      expect.objectContaining({ name: 'Cloud Dest', slug: 'test-dest' }),
-      { spaces: 2 }
+      expect.stringContaining('"slug": "test-dest"')
     )
+  })
+
+  it('writes metadata.json with trailing newline', async () => {
+    mockGetManifest.mockReturnValue({ 'meta-1': validEntry as any })
+    await GenerateMetadataPayload.run([])
+    const written = mockWriteFile.mock.calls[0][1] as string
+    expect(written.endsWith('\n')).toBe(true)
   })
 
   it('skips entries where resolveSourceDir returns null', async () => {
@@ -487,7 +493,7 @@ describe('GenerateMetadataPayload command', () => {
       'meta-bad': { path: '/some/unrecognizable/path/index.js', definition: cloudDef } as any
     })
     await GenerateMetadataPayload.run([])
-    expect(mockWriteJson).not.toHaveBeenCalled()
+    expect(mockWriteFile).not.toHaveBeenCalled()
   })
 
   it('processes all entries when no --slug flag is passed', async () => {
@@ -499,7 +505,7 @@ describe('GenerateMetadataPayload command', () => {
       } as any
     })
     await GenerateMetadataPayload.run([])
-    expect(mockWriteJson).toHaveBeenCalledTimes(2)
+    expect(mockWriteFile).toHaveBeenCalledTimes(2)
   })
 
   it('filters to only the matching slug when --slug is passed', async () => {
@@ -514,11 +520,19 @@ describe('GenerateMetadataPayload command', () => {
       } as any
     })
     await GenerateMetadataPayload.run(['--slug=alpha-dest'])
-    expect(mockWriteJson).toHaveBeenCalledTimes(1)
-    expect(mockWriteJson).toHaveBeenCalledWith(
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(
       '/repo/packages/destination-actions/src/destinations/alpha-dest/metadata.json',
-      expect.any(Object),
-      { spaces: 2 }
+      expect.any(String)
+    )
+  })
+
+  it('throws when --slug matches no destinations', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-1': validEntry as any
+    })
+    await expect(GenerateMetadataPayload.run(['--slug=nonexistent'])).rejects.toThrow(
+      'No destinations matched the slug filter'
     )
   })
 
@@ -541,6 +555,6 @@ describe('GenerateMetadataPayload command', () => {
       } as any
     })
     await expect(GenerateMetadataPayload.run([])).rejects.toThrow('1 destination(s) failed to generate metadata')
-    expect(mockWriteJson).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
   })
 })
