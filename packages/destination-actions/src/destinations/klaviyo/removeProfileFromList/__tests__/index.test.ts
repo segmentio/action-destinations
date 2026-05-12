@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { AggregateAjvError } from '@segment/ajv-human-errors'
 import Definition from '../../index'
 import { API_URL } from '../../config'
-import { AggregateAjvError } from '@segment/ajv-human-errors'
 
 const testDestination = createTestIntegration(Definition)
 

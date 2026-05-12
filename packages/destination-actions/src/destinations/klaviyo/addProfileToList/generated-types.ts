@@ -14,7 +14,7 @@ export interface Payload {
    */
   list_id: string
   /**
-   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required. Must not exceed 255 characters.
+   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Email or Phone Number is required. Must not exceed 255 characters.
    */
   external_id?: string
   /**

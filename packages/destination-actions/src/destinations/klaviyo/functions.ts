@@ -779,27 +779,24 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       return
     }
 
+    if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, EXTERNAL_ID_LENGTH_ERROR)
+      return
+    }
+
     if (phone_number) {
-      // Validate and convert the phone number if present
       const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
-      // If the phone number is not valid, skip this payload
       if (!validPhoneNumber) {
         multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Phone number could not be converted to E.164 format.'
         })
-        return // Skip this payload
+        return
       }
 
-      // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
-    }
-
-    if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
-      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, EXTERNAL_ID_LENGTH_ERROR)
-      return
     }
 
     const profileToAdd = constructBulkCreateEventPayload(payload)
