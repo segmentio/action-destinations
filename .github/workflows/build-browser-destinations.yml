@@ -24,7 +24,6 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     timeout-minutes: 20
-    environment: ${{ inputs.environment }}
     concurrency:
       group: build-browser-destinations-${{ inputs.environment }}
       cancel-in-progress: false
