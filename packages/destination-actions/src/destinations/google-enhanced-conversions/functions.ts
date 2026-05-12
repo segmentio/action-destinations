@@ -576,7 +576,7 @@ const extractUserIdentifiers = (
     if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
       if(computation_class === 'journey_step' && !computation_key){
         // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
-        audienceMembership === true
+         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
       else if (
         payload.event_name === 'Audience Entered' ||
@@ -1001,7 +1001,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
     const { computation_key, computation_class } = personasContext || {}
     if(computation_class === 'journey_step' && !computation_key){
         // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
-        audienceMembership === true
+        return true
     }
     if (
       payload.event_name === 'Audience Entered' ||
