@@ -16,29 +16,44 @@ on:
         type: string
         default: main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 20
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: build-browser-destinations-${{ inputs.environment }}
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 1
           ref: ${{ inputs.branch }}
+
+      - name: Get checkout SHA
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Build Destinations Manifest
-        run: nx build @segment/destinations-manifest
+        run: yarn nx build @segment/destinations-manifest
 
       - name: Build Browser Bundles
         working-directory: packages/browser-destinations
@@ -47,6 +62,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: browser-destinations-${{ inputs.environment }}-${{ github.sha }}
+          name: browser-destinations-${{ inputs.environment }}-${{ steps.sha.outputs.sha }}
           path: packages/browser-destinations/dist/web/
-          retention-days: 7
+          if-no-files-found: error
+          retention-days: 30
