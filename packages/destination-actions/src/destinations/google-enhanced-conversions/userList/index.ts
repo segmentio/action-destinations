@@ -303,7 +303,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership, personasContext }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -315,12 +315,14 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
       features,
-      statsContext
+      statsContext,
+      audienceMembership, 
+      personasContext
     )
   },
   performBatch: async (
     request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership, personasContext }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
@@ -332,7 +334,9 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
       features,
-      statsContext
+      statsContext,
+      audienceMembership, 
+      personasContext
     )
   }
 }

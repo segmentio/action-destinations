@@ -101,6 +101,7 @@ export type AudienceMode = { type: 'realtime' } | { type: 'synced'; full_audienc
 export type Personas = {
   computation_id: string
   computation_key: string
+  computation_class: string
   namespace: string
   [key: string]: unknown
 }
