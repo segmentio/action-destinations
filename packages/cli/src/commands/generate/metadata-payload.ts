@@ -180,10 +180,10 @@ export function generatePublicMetadata(slug: string, definition: DestinationDefi
   const authFields = cloudDef.authentication?.fields
   const browserSettings = browserDef.settings
   const rawFields = authFields ?? browserSettings
-  if (rawFields && Object.keys(rawFields).length > 0) {
+  if (cloudDef.authentication || (rawFields && Object.keys(rawFields).length > 0)) {
     authentication = {
       scheme: cloudDef.authentication?.scheme ?? 'custom',
-      fields: serializeAuthFields(rawFields)
+      fields: serializeAuthFields(rawFields ?? {})
     }
   }
 

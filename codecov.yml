@@ -12,7 +12,8 @@ codecov:
 # Setting this configuration as recommended for beginners in the above blog post.
 # We can introduce more strict settings as we progress.
 ignore:
-  - packages/cli/src/**/*
+  - packages/cli/src/commands/generate/**/*
+  - packages/cli/src/templates/**/*
 
 coverage:
   status:

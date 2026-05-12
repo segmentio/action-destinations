@@ -36,8 +36,9 @@ export async function loadDestination(filePath: string): Promise<null | Destinat
 // So here we need to intelligently merge them until we explore colocating all actions with a single
 // definition file.
 export const getManifest: () => Record<string, CloudManifest | BrowserManifest> = () => {
-  // Resolve from cwd (repo root) so the workspace-built versions are used,
+  // Resolve from cwd so the workspace-built versions are used,
   // not potentially stale published copies in packages/cli/node_modules.
+  // Note: assumes the CLI is invoked from the repo root (e.g. via ./bin/run or yarn scripts).
   const cwd = process.cwd()
   const { manifest: browserManifest } = require(require.resolve('@segment/destinations-manifest', { paths: [cwd] }))
   const { manifest: cloudManifest } = require(require.resolve('@segment/action-destinations', { paths: [cwd] }))

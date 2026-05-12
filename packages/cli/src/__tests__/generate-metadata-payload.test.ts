@@ -140,6 +140,19 @@ describe('generatePublicMetadata() — authentication fields', () => {
     expect(generatePublicMetadata('no-auth', noAuthDef).authentication).toBeNull()
   })
 
+  it('emits authentication with empty fields for OAuth destinations', () => {
+    const oauthDef = {
+      name: 'OAuth Dest',
+      mode: 'cloud',
+      authentication: { scheme: 'oauth2', fields: {} },
+      actions: { act: { title: 'Act', description: '', fields: {}, perform: () => undefined } }
+    } as unknown as DestinationDefinition
+    const { authentication } = generatePublicMetadata('oauth-dest', oauthDef)
+    expect(authentication).not.toBeNull()
+    expect(authentication?.scheme).toBe('oauth2')
+    expect(authentication?.fields).toEqual({})
+  })
+
   it('normalizes string choices to {label, value} objects', () => {
     const defWithChoices = {
       ...cloudDef,
