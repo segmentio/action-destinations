@@ -33,12 +33,13 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const files = await github.paginate('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
+            const allFiles = await github.paginate('GET /repos/{owner}/{repo}/pulls/{pull_number}/files', {
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.issue.number,
               per_page: 100
             }, response => response.data.map(file => file.filename))
+            const files = allFiles.filter(f => !f.endsWith('metadata.json'))
             core.setOutput('files', JSON.stringify(files))
             if (files.length === 0) {
               core.setOutput('no_files_changed', true)
