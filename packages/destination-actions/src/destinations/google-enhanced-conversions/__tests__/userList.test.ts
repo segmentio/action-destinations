@@ -6,11 +6,6 @@ import { SegmentEvent } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(GoogleEnhancedConversions)
-
-const testCases = [
-  { name: 'flag off', features: undefined },
-  { name: 'flag on', features: { [FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]: true } }
-]
 const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
 const customerId = '1234'
 const mapping = {
@@ -32,13 +27,19 @@ const mapping = {
     }
   }
 }
+
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]: true } }
+]
+
 describe('GoogleEnhancedConversions', () => {
   describe.each(testCases)('userList ($name)', ({ features }) => {
     beforeEach(() => {
       nock.cleanAll()
       testDestination.responses = []
     })
-
+    afterEach(() => nock.cleanAll())
     it('sends an event with default mappings - event = Audience Entered', async () => {
       const event = createTestEvent({
         timestamp,
@@ -91,7 +92,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -155,7 +156,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -220,7 +221,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -285,7 +286,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -350,7 +351,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -414,7 +415,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -476,7 +478,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -540,7 +542,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -605,8 +607,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          ...features,
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -676,8 +678,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          ...features,
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -746,7 +748,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -803,8 +805,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          ...features,
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -886,7 +888,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -992,7 +994,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
       expect(responses[0]).toMatchObject({
         status: 429,
@@ -1115,7 +1117,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
       expect(responses[0]).toMatchObject({
         status: 429,
@@ -1399,8 +1401,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          ...features,
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -1592,7 +1594,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1655,7 +1657,8 @@ describe('GoogleEnhancedConversions', () => {
         },
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1714,7 +1717,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1815,7 +1818,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1918,7 +1921,7 @@ describe('GoogleEnhancedConversions', () => {
         settings: {
           customerId
         },
-        features
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1940,6 +1943,420 @@ describe('GoogleEnhancedConversions', () => {
         body: new Error('Bad Request'),
         errorreporter: 'DESTINATION'
       })
+    })
+  })
+
+  describe('userList - audienceMembership (flag on only)', () => {
+    const flagOnFeatures = { [FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]: true }
+
+    beforeEach(() => {
+      nock.cleanAll()
+      testDestination.responses = []
+    })
+    afterEach(() => nock.cleanAll())
+
+    it('adds user when audienceMembership is true (track event with computation_key in properties)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        type: 'track',
+        event: 'Test Event',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          my_audience: true
+        },
+        context: {
+          personas: {
+            computation_id: 'comp-1',
+            computation_key: 'my_audience',
+            computation_class: 'audience',
+            namespace: 'spa_1234'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[1].options.body).toContain('"create"')
+      expect(responses[1].options.body).not.toContain('"remove"')
+    })
+
+    it('removes user when audienceMembership is false (track event with computation_key = false in properties)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        type: 'track',
+        event: 'Test Event',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          my_audience: false
+        },
+        context: {
+          personas: {
+            computation_id: 'comp-1',
+            computation_key: 'my_audience',
+            computation_class: 'audience',
+            namespace: 'spa_1234'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[1].options.body).toContain('"remove"')
+      expect(responses[1].options.body).not.toContain('"create"')
+    })
+
+    it('adds user when audienceMembership is true (identify event with computation_key in traits)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        type: 'identify',
+        traits: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe',
+          my_audience: true
+        },
+        context: {
+          personas: {
+            computation_id: 'comp-1',
+            computation_key: 'my_audience',
+            computation_class: 'audience',
+            namespace: 'spa_1234'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          email: { '@path': '$.traits.email' },
+          phone: { '@path': '$.traits.phone' },
+          firstName: { '@path': '$.traits.firstName' },
+          lastName: { '@path': '$.traits.lastName' },
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[1].options.body).toContain('"create"')
+      expect(responses[1].options.body).not.toContain('"remove"')
+    })
+
+    it('adds user for legacy Journeys preset (journey_step with no computation_key)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        type: 'track',
+        event: 'Some Journey Event',
+        properties: {
+          email: 'test@gmail.com',
+          phone: '3234567890',
+          firstName: 'Jane',
+          lastName: 'Doe'
+        },
+        context: {
+          personas: {
+            computation_id: 'comp-1',
+            computation_class: 'journey_step',
+            namespace: 'spa_1234'
+          }
+        }
+      })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      const responses = await testDestination.testAction('userList', {
+        event,
+        mapping: {
+          ad_user_data_consent_state: 'GRANTED',
+          ad_personalization_consent_state: 'GRANTED',
+          external_audience_id: '1234',
+          retlOnMappingSave: {
+            outputs: {
+              id: '1234',
+              name: 'Test List',
+              external_id_type: 'CONTACT_INFO'
+            }
+          }
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses.length).toEqual(3)
+      expect(responses[1].options.body).toContain('"create"')
+      expect(responses[1].options.body).not.toContain('"remove"')
+    })
+
+    it('batch: adds users when audienceMembership is true', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          type: 'track',
+          event: 'Test Event',
+          properties: {
+            email: 'test@gmail.com',
+            phone: '3234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            my_audience: true
+          },
+          context: {
+            personas: {
+              computation_id: 'comp-1',
+              computation_key: 'my_audience',
+              computation_class: 'audience',
+              namespace: 'spa_1234'
+            }
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          type: 'track',
+          event: 'Test Event',
+          properties: {
+            email: 'test2@gmail.com',
+            phone: '3234567891',
+            firstName: 'John',
+            lastName: 'Doe',
+            my_audience: true
+          },
+          context: {
+            personas: {
+              computation_id: 'comp-1',
+              computation_key: 'my_audience',
+              computation_class: 'audience',
+              namespace: 'spa_1234'
+            }
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { done: true })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200 })
+      expect(responses[1]).toMatchObject({ status: 200 })
+    })
+
+    it('batch: removes users when audienceMembership is false', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          type: 'track',
+          event: 'Test Event',
+          properties: {
+            email: 'test@gmail.com',
+            phone: '3234567890',
+            firstName: 'Jane',
+            lastName: 'Doe',
+            my_audience: false
+          },
+          context: {
+            personas: {
+              computation_id: 'comp-1',
+              computation_key: 'my_audience',
+              computation_class: 'audience',
+              namespace: 'spa_1234'
+            }
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { done: true })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200 })
+    })
+
+    it('batch: adds user for legacy Journeys preset (journey_step with no computation_key)', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          type: 'track',
+          event: 'Some Journey Event',
+          properties: {
+            email: 'test@gmail.com',
+            phone: '3234567890',
+            firstName: 'Jane',
+            lastName: 'Doe'
+          },
+          context: {
+            personas: {
+              computation_id: 'comp-1',
+              computation_class: 'journey_step',
+              namespace: 'spa_1234'
+            }
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, { data: 'offlineDataJob' })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`)
+        .post(/.*/)
+        .reply(200, { done: true })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping,
+        settings: {
+          customerId
+        },
+        features: flagOnFeatures
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200 })
     })
   })
 })

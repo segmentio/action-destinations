@@ -30,7 +30,7 @@ import {
   AudienceMembership,
   FLAGS
 } from '@segment/actions-core'
-import { StatsContext } from '@segment/actions-core/destination-kit'
+import { StatsContext, Personas } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
@@ -48,7 +48,6 @@ export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
-
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -527,9 +526,10 @@ const extractUserIdentifiers = (
   payloads: UserListPayload[],
   idType: string,
   syncMode?: string,
-  audienceMembership?: AudienceMembership,
   features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  statsContext?: StatsContext | undefined,
+  audienceMembership?: AudienceMembership,
+  personasContext?: Personas
 ) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
@@ -570,13 +570,18 @@ const extractUserIdentifiers = (
       return identifiers
     }
   }
-  // Map user data to Google Ads API format
-  if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
-    for (const payload of payloads) {
-      if (
+
+  const { computation_key, computation_class } = personasContext || {}
+  for (const payload of payloads) {
+    if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
+      if (computation_class === 'journey_step' && !computation_key) {
+        // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined
+        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
+      }
+      else if (
         payload.event_name === 'Audience Entered' ||
         syncMode === 'add' ||
-        (syncMode === 'mirror' && payload.event_name === 'new') ||
+        (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
         audienceMembership === true
       ) {
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
@@ -588,13 +593,12 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
-    }
-  } else {
-    for (const payload of payloads) {
+    } else {
+      // Map user data to Google Ads API format
       if (
         payload.event_name === 'Audience Entered' ||
         syncMode === 'add' ||
-        (syncMode === 'mirror' && payload.event_name === 'new')
+        (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
       ) {
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       } else if (
@@ -606,7 +610,6 @@ const extractUserIdentifiers = (
       }
     }
   }
-
   return [addUserIdentifiers, removeUserIdentifiers]
 }
 
@@ -719,9 +722,10 @@ export const handleUpdate = async (
   hookListId: string,
   hookListType: string,
   syncMode?: string,
-  audienceMembership?: AudienceMembership,
   features?: Features | undefined,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  audienceMembership?: AudienceMembership,
+  personasContext?: Personas
 ) => {
   const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -733,9 +737,10 @@ export const handleUpdate = async (
     payloads,
     id_type,
     syncMode,
-    audienceMembership,
     features,
-    statsContext
+    statsContext,
+    audienceMembership,
+    personasContext
   )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
@@ -939,8 +944,9 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
+  features?: Features,  
   audienceMemberships?: AudienceMembership[],
-  features?: Features
+  personasContext?: Personas
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
@@ -971,7 +977,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index], features)
+    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index], personasContext)
     if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -984,7 +990,7 @@ const extractBatchUserIdentifiers = (
     validPayloadIndicesBitmap.push(index)
     if (operationType === true) {
       addUserIdentifiers.push({ create: { userIdentifiers } })
-    } else if (operationType === false) {
+    } else {
       removeUserIdentifiers.push({ remove: { userIdentifiers } })
     }
   })
@@ -993,17 +999,17 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (
-  payload: UserListPayload,
-  syncMode?: string,
-  audienceMembership?: AudienceMembership,
-  features?: Features
-): boolean | undefined => {
+const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership, personasContext?: Personas): boolean | undefined => {
   if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
+    const { computation_key, computation_class } = personasContext || {}
+    if (computation_class === 'journey_step' && !computation_key) {
+        // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined
+        return true
+    }
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new') ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
       audienceMembership === true
     ) {
       return true
@@ -1015,11 +1021,12 @@ const determineOperationType = (
     ) {
       return false
     }
-  } else {
+  }
+  else {
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
     ) {
       return true
     } else if (
@@ -1030,7 +1037,6 @@ const determineOperationType = (
       return false
     }
   }
-
   return undefined
 }
 
@@ -1055,9 +1061,10 @@ export const processBatchPayload = async (
   hookListId: string,
   hookListType: string,
   syncMode?: string,
-  audienceMemberships?: AudienceMembership[],
   features?: Features | undefined,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  audienceMemberships?: AudienceMembership[],
+  personasContext?: Personas
 ) => {
   const externalAudienceId = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -1071,8 +1078,9 @@ export const processBatchPayload = async (
     id_type,
     multiStatusResponse,
     syncMode,
+    features,
     audienceMemberships,
-    features
+    personasContext
   )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
