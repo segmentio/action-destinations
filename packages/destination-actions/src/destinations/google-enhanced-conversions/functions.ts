@@ -571,9 +571,9 @@ const extractUserIdentifiers = (
     }
   }
 
-  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
-    const { computation_key, computation_class } = personasContext || {}
-    for (const payload of payloads) {
+  const { computation_key, computation_class } = personasContext || {}
+  for (const payload of payloads) {
+    if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
       if(computation_class === 'journey_step' && !computation_key){
         // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
         audienceMembership === true
@@ -589,11 +589,9 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
-    }
-  }
-  else {
-    // Map user data to Google Ads API format
-    for (const payload of payloads) {
+    } 
+    else {
+      // Map user data to Google Ads API format
       if (
         payload.event_name === 'Audience Entered' ||
         syncMode === 'add' ||
