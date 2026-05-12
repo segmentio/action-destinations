@@ -316,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership, 
+      audienceMembership,
       personasContext
     )
   },
@@ -335,7 +335,7 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership, 
+      audienceMembership,
       personasContext
     )
   }

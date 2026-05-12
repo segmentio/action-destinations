@@ -573,8 +573,8 @@ const extractUserIdentifiers = (
 
   const { computation_key, computation_class } = personasContext || {}
   for (const payload of payloads) {
-    if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
-      if(computation_class === 'journey_step' && !computation_key){
+    if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
+      if (computation_class === 'journey_step' && !computation_key) {
         // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
          addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
@@ -997,9 +997,9 @@ const extractBatchUserIdentifiers = (
 
 // Helper function to determine operation type
 const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership, personasContext?: Personas): boolean | undefined => {
-  if(features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]){
+  if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     const { computation_key, computation_class } = personasContext || {}
-    if(computation_class === 'journey_step' && !computation_key){
+    if (computation_class === 'journey_step' && !computation_key) {
         // Covers legacy Journeys preset journeys_step_entered_track where computation_key is undefined 
         return true
     }
