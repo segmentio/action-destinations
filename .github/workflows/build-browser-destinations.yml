@@ -1,0 +1,52 @@
+name: Build Browser Destinations
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - stage
+          - production
+      branch:
+        description: Branch to build from
+        required: true
+        type: string
+        default: main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.branch }}
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: yarn
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build Destinations Manifest
+        run: nx build @segment/destinations-manifest
+
+      - name: Build Browser Bundles
+        working-directory: packages/browser-destinations
+        run: ${{ inputs.environment == 'production' && 'yarn build-web' || 'yarn build-web-stage' }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-destinations-${{ inputs.environment }}-${{ github.sha }}
+          path: packages/browser-destinations/dist/web/
+          retention-days: 7
