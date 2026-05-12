@@ -13,6 +13,7 @@ import {
   getList,
   createList,
   processPhoneNumber,
+  validateExternalId,
   validateProfilePayload,
   updateMultiStatusWithSuccessData,
   updateMultiStatusWithKlaviyoErrors
@@ -259,6 +260,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number && !external_id) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
+
+    validateExternalId(external_id)
 
     const profileData: ProfileData = {
       data: {
