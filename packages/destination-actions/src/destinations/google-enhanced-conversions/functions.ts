@@ -1019,7 +1019,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
     ) {
       return true
     } else if (
