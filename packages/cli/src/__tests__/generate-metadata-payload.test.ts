@@ -100,6 +100,10 @@ describe('generatePublicMetadata() — top-level shape', () => {
     expect(result).toHaveProperty('actions')
     expect(result).toHaveProperty('presets')
   })
+
+  it('throws when slug is empty', () => {
+    expect(() => generatePublicMetadata('', cloudDef)).toThrow('metadata.json generation requires a slug')
+  })
 })
 
 // ---- Auth fields ----

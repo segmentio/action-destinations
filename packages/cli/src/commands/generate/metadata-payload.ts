@@ -164,6 +164,10 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
 }
 
 export function generatePublicMetadata(slug: string, definition: DestinationDefinition): PublicDestinationMetadata {
+  if (!slug) {
+    throw new Error(`metadata.json generation requires a slug but received: "${slug}"`)
+  }
+
   const cloudDef = definition as CloudDestinationDefinition
   const browserDef = definition as any // BrowserDestinationDefinition
   const audienceDef = definition as AudienceDestinationDefinition
