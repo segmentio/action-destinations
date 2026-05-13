@@ -305,7 +305,6 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership, personasContext }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
     return await handleUpdate(
       request,
       settings,
