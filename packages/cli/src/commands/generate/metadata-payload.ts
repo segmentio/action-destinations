@@ -17,8 +17,10 @@ export interface PublicAuthField {
   description: string | undefined
   type: string
   required: boolean
+  multiple: boolean
   choices: Array<{ label: string; value: unknown }> | null
   default: unknown
+  depends_on: unknown
 }
 
 export interface PublicActionField {
@@ -41,6 +43,8 @@ export interface PublicActionField {
   maximum: number | null
   defaultObjectUI: string | null
   disabledInputMethods: string[] | null
+  displayMode: string | null
+  additionalProperties: boolean
 }
 
 export interface PublicAction {
@@ -50,8 +54,21 @@ export interface PublicAction {
   defaultSubscription: string | null
   hidden: boolean
   hasPerformBatch: boolean
-  syncMode: { default: string; supportedModes: string[] } | null
-  hooks: string[]
+  syncMode: {
+    default: string
+    label: string
+    description: string
+    choices: Array<{ label: string; value: string }>
+  } | null
+  hooks: Record<
+    string,
+    {
+      label: string
+      description: string
+      inputFields: Record<string, PublicActionField>
+      outputFields: Record<string, PublicActionField>
+    }
+  > | null
   fields: Record<string, PublicActionField>
 }
 
@@ -70,7 +87,11 @@ export interface PublicDestinationMetadata {
   mode: 'cloud' | 'device' | 'warehouse'
   description: string | undefined
   authentication: { scheme: string; fields: Record<string, PublicAuthField> } | null
-  audienceConfig: { mode: unknown; audienceFields: Record<string, PublicAuthField> } | null
+  audienceConfig: {
+    mode: { type: 'synced' | 'realtime'; full_audience_sync?: boolean }
+    audienceFields: Record<string, PublicAuthField>
+    supportsAudienceFunctions: boolean
+  } | null
   actions: Record<string, PublicAction>
   presets: PublicPreset[]
 }
@@ -93,8 +114,10 @@ export function serializeAuthField(schema: any): PublicAuthField {
     description: schema.description,
     type: schema.type,
     required: schema.required === true,
+    multiple: schema.multiple ?? false,
     choices: normalizeChoices(schema.choices),
-    default: schema.default ?? null
+    default: schema.default ?? null,
+    depends_on: schema.depends_on ?? null
   }
 }
 
@@ -134,7 +157,9 @@ export function serializeActionField(field: any): PublicActionField {
     minimum: field.minimum ?? null,
     maximum: field.maximum ?? null,
     defaultObjectUI: field.defaultObjectUI ?? null,
-    disabledInputMethods: field.disabledInputMethods ?? null
+    disabledInputMethods: field.disabledInputMethods ?? null,
+    displayMode: field.displayMode ?? null,
+    additionalProperties: field.additionalProperties ?? false
   }
 }
 
@@ -148,11 +173,35 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
   if (action.syncMode) {
     syncMode = {
       default: action.syncMode.default,
-      supportedModes: (action.syncMode.choices ?? []).map((c: { value: string }) => c.value)
+      label: action.syncMode.label ?? 'Sync Mode',
+      description: action.syncMode.description ?? '',
+      choices: (action.syncMode.choices ?? []).map((c: { value: string; label: string }) => ({
+        value: c.value,
+        label: c.label
+      }))
     }
   }
 
-  const hooks: string[] = Object.keys(action.hooks ?? {}).filter((k) => hookTypeStrings.includes(k as any))
+  const hooks: PublicAction['hooks'] = {}
+  if (action.hooks) {
+    for (const [hookKey, hook] of Object.entries(action.hooks as Record<string, any>)) {
+      if (!hookTypeStrings.includes(hookKey as any)) continue
+      const inputFields: Record<string, PublicActionField> = {}
+      for (const [fieldKey, fieldDef] of Object.entries((hook.inputFields ?? {}) as Record<string, any>)) {
+        inputFields[fieldKey] = serializeActionField(fieldDef)
+      }
+      const outputFields: Record<string, PublicActionField> = {}
+      for (const [fieldKey, fieldDef] of Object.entries((hook.outputTypes ?? {}) as Record<string, any>)) {
+        outputFields[fieldKey] = serializeActionField(fieldDef)
+      }
+      hooks[hookKey] = {
+        label: hook.label ?? hookKey,
+        description: hook.description ?? '',
+        inputFields,
+        outputFields
+      }
+    }
+  }
 
   return {
     title: action.title ?? actionKey,
@@ -162,7 +211,7 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
     hidden: action.hidden ?? false,
     hasPerformBatch: typeof action.performBatch === 'function',
     syncMode,
-    hooks,
+    hooks: Object.keys(hooks).length > 0 ? hooks : null,
     fields
   }
 }
@@ -193,12 +242,17 @@ export function generatePublicMetadata(
     }
   }
 
-  // audienceConfig: strip functions, keep mode + audienceFields
+  // audienceConfig: strip functions, keep mode + audienceFields + supportsAudienceFunctions
   let audienceConfig: PublicDestinationMetadata['audienceConfig'] = null
   if (audienceDef.audienceConfig) {
+    const mode = audienceDef.audienceConfig.mode as { type: string; full_audience_sync?: boolean }
+    const audienceConfigAny = audienceDef.audienceConfig as any
+    const supportsAudienceFunctions =
+      typeof audienceConfigAny.createAudience === 'function' && typeof audienceConfigAny.getAudience === 'function'
     audienceConfig = {
-      mode: audienceDef.audienceConfig.mode,
-      audienceFields: serializeAuthFields(audienceDef.audienceFields ?? {})
+      mode: { type: mode.type as 'synced' | 'realtime', full_audience_sync: mode.full_audience_sync },
+      audienceFields: serializeAuthFields(audienceDef.audienceFields ?? {}),
+      supportsAudienceFunctions
     }
   }
 

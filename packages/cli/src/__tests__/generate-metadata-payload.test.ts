@@ -278,7 +278,7 @@ describe('generatePublicMetadata() — syncMode', () => {
     expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.syncMode).toBeNull()
   })
 
-  it('serializes syncMode with default and supportedModes', () => {
+  it('serializes syncMode with default, label, description, and choices', () => {
     const def = {
       ...cloudDef,
       actions: {
@@ -300,18 +300,26 @@ describe('generatePublicMetadata() — syncMode', () => {
       }
     } as unknown as DestinationDefinition
     const { syncMode } = generatePublicMetadata('slug', def).actions.syncAction
-    expect(syncMode).toEqual({ default: 'add', supportedModes: ['add', 'delete'] })
+    expect(syncMode).toEqual({
+      default: 'add',
+      label: 'Sync Mode',
+      description: 'How to sync.',
+      choices: [
+        { label: 'Add', value: 'add' },
+        { label: 'Delete', value: 'delete' }
+      ]
+    })
   })
 })
 
 // ---- hooks ----
 
 describe('generatePublicMetadata() — hooks', () => {
-  it('is empty array when action has no hooks', () => {
-    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.hooks).toEqual([])
+  it('is null when action has no hooks', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.hooks).toBeNull()
   })
 
-  it('lists valid hook type names present on the action', () => {
+  it('serializes hooks with label, description, inputFields, and outputFields', () => {
     const def = {
       ...cloudDef,
       actions: {
@@ -320,13 +328,31 @@ describe('generatePublicMetadata() — hooks', () => {
           description: 'Has hooks.',
           fields: {},
           hooks: {
-            onMappingSave: { label: 'On Save', description: 'Fires on save.', inputFields: {} }
+            onMappingSave: {
+              label: 'On Save',
+              description: 'Fires on save.',
+              inputFields: {
+                webhookUrl: { label: 'Webhook URL', description: 'URL to call.', type: 'string', required: true }
+              },
+              outputTypes: {
+                id: { label: 'ID', description: 'Generated ID.', type: 'string' }
+              }
+            }
           },
           perform: () => undefined
         }
       }
     } as unknown as DestinationDefinition
-    expect(generatePublicMetadata('slug', def).actions.hookAction.hooks).toEqual(['onMappingSave'])
+    const { hooks } = generatePublicMetadata('slug', def).actions.hookAction
+    expect(hooks).not.toBeNull()
+    expect(hooks).toHaveProperty('onMappingSave')
+    expect(hooks!.onMappingSave.label).toBe('On Save')
+    expect(hooks!.onMappingSave.description).toBe('Fires on save.')
+    expect(hooks!.onMappingSave.inputFields).toHaveProperty('webhookUrl')
+    expect(hooks!.onMappingSave.inputFields.webhookUrl.label).toBe('Webhook URL')
+    expect(hooks!.onMappingSave.inputFields.webhookUrl.required).toBe(true)
+    expect(hooks!.onMappingSave.outputFields).toHaveProperty('id')
+    expect(hooks!.onMappingSave.outputFields.id.label).toBe('ID')
   })
 })
 
@@ -337,7 +363,7 @@ describe('generatePublicMetadata() — audienceConfig', () => {
     expect(generatePublicMetadata('actions-cloud', cloudDef).audienceConfig).toBeNull()
   })
 
-  it('serializes audienceConfig mode and audienceFields, strips functions', () => {
+  it('serializes audienceConfig mode, audienceFields, and supportsAudienceFunctions', () => {
     const def = {
       ...cloudDef,
       audienceConfig: {
@@ -353,7 +379,22 @@ describe('generatePublicMetadata() — audienceConfig', () => {
     expect(audienceConfig).not.toBeNull()
     expect(audienceConfig?.mode).toEqual({ type: 'realtime' })
     expect(audienceConfig?.audienceFields).toHaveProperty('listId')
+    expect(audienceConfig?.supportsAudienceFunctions).toBe(true)
     expect(typeof (audienceConfig as any)?.createAudience).toBe('undefined')
+  })
+
+  it('sets supportsAudienceFunctions to false when functions are missing', () => {
+    const def = {
+      ...cloudDef,
+      audienceConfig: {
+        mode: { type: 'synced', full_audience_sync: true }
+      },
+      audienceFields: {}
+    } as unknown as DestinationDefinition
+    const { audienceConfig } = generatePublicMetadata('slug', def)
+    expect(audienceConfig).not.toBeNull()
+    expect(audienceConfig?.mode).toEqual({ type: 'synced', full_audience_sync: true })
+    expect(audienceConfig?.supportsAudienceFunctions).toBe(false)
   })
 })
 
