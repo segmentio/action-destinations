@@ -1,219 +1,153 @@
 {
+  "slug": "actions-vwo-web",
   "name": "VWO Web Mode (Actions)",
-  "basicOptions": ["vwoAccountId", "settingsTolerance", "libraryTolerance", "useExistingJquery", "addSmartcode"],
-  "options": {
-    "vwoAccountId": {
-      "tags": [],
-      "default": 0,
-      "description": "Your VWO account ID, used for fetching your VWO async smart code.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "VWO Account ID",
-      "private": false,
-      "scope": "event_destination",
-      "type": "number",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The vwoAccountId property is required."]],
-      "uIMetadata": null
-    },
-    "settingsTolerance": {
-      "tags": [],
-      "default": 2000,
-      "description": "The maximum amount of time (in milliseconds) to wait for test settings before VWO will simply display your original page.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Settings Tolerance",
-      "private": false,
-      "scope": "event_destination",
-      "type": "number",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "libraryTolerance": {
-      "tags": [],
-      "default": 2500,
-      "description": "The maximum amount of time (in milliseconds) to wait for VWO’s full library to be downloaded before simply displaying your original page.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Library Tolerance",
-      "private": false,
-      "scope": "event_destination",
-      "type": "number",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "useExistingJquery": {
-      "tags": [],
-      "default": false,
-      "description": "If your page already includes JQuery, you can set this to “true”. Otherwise, VWO will include JQuery onto the page for you. VWO needs JQuery on the page to function correctly. ",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Use Existing JQuery",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "addSmartcode": {
-      "tags": [],
-      "default": true,
-      "description": "When enabled, Segment will load the VWO SmartCode onto the webpage. When disabled, you will have to manually add SmartCode to your webpage. The setting is enabled by default, however we recommended manually adding SmartCode to the webpage to avoid flicker issues.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Add Asynchronous SmartCode",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "vwoAccountId": {
+        "label": "VWO Account ID",
+        "description": "Your VWO account ID, used for fetching your VWO async smart code.",
+        "type": "number",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "settingsTolerance": {
+        "label": "Settings Tolerance",
+        "description": "The maximum amount of time (in milliseconds) to wait for test settings before VWO will simply display your original page.",
+        "type": "number",
+        "required": false,
+        "choices": null,
+        "default": 2000
+      },
+      "libraryTolerance": {
+        "label": "Library Tolerance",
+        "description": "The maximum amount of time (in milliseconds) to wait for VWO’s full library to be downloaded before simply displaying your original page.",
+        "type": "number",
+        "required": false,
+        "choices": null,
+        "default": 2500
+      },
+      "useExistingJquery": {
+        "label": "Use Existing JQuery",
+        "description": "If your page already includes JQuery, you can set this to “true”. Otherwise, VWO will include JQuery onto the page for you. VWO needs JQuery on the page to function correctly. ",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      },
+      "addSmartcode": {
+        "label": "Add Asynchronous SmartCode",
+        "description": "When enabled, Segment will load the VWO SmartCode onto the webpage. When disabled, you will have to manually add SmartCode to your webpage. The setting is enabled by default, however we recommended manually adding SmartCode to the webpage to avoid flicker issues.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": true
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
-      "description": "Sends Segment's user traits to VWO",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "attributes",
-          "type": "object",
-          "label": "Attributes",
-          "description": "JSON object containing additional attributes that will be associated with the user.",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "attributes": {
-                "title": "Attributes",
-                "description": "JSON object containing additional attributes that will be associated with the user.",
-                "type": "object"
-              }
-            },
-            "required": ["attributes"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
       "description": "Sends Segment's track event to VWO",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "eventName",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "eventName": {
           "label": "Name",
           "description": "Name of the event.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "eventName": {
-                "title": "Name",
-                "description": "Name of the event.",
-                "type": "string"
-              }
-            },
-            "required": ["eventName"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Properties",
           "description": "JSON object containing additional properties that will be associated with the event.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "JSON object containing additional properties that will be associated with the event.",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Sends Segment's user traits to VWO",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "attributes": {
+          "label": "Attributes",
+          "description": "JSON object containing additional attributes that will be associated with the user.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "identifyUser",
-      "name": "Identify User",
-      "subscribe": "type = \"identify\"",
-      "mapping": {
-        "attributes": {
-          "@path": "$.traits"
-        }
-      },
-      "type": "automatic"
-    },
-    {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "eventName": {
@@ -223,7 +157,19 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "attributes": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
     }
   ]
 }

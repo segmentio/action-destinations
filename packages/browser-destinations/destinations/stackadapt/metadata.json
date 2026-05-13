@@ -1,148 +1,121 @@
 {
+  "slug": "actions-stackadapt",
   "name": "StackAdapt Pixel",
-  "basicOptions": ["universalPixelId"],
-  "options": {
-    "universalPixelId": {
-      "tags": [],
-      "default": "",
-      "description": "The universal pixel id for StackAdapt.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Universal Pixel Id",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The universalPixelId property is required."]],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "universalPixelId": {
+        "label": "Universal Pixel Id",
+        "description": "The universal pixel id for StackAdapt.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
       "description": "Track events",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "eventName",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "eventName": {
           "label": "Name",
           "description": "The name of the event.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "eventName": {
-                "title": "Name",
-                "description": "The name of the event.",
-                "type": "string"
-              }
-            },
-            "required": ["eventName"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "eventProperties",
-          "type": "object",
+        "eventProperties": {
           "label": "Event Properties",
           "description": "Hash of properties for this event.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "eventProperties": {
-                "title": "Event Properties",
-                "description": "Hash of properties for this event.",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "trackPage",
-      "name": "Track Page",
+    "trackPage": {
+      "title": "Track Page",
       "description": "Record when a user visits a page.",
       "platform": "web",
+      "defaultSubscription": "type = \"page\"",
       "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": [
-        {
-          "fieldKey": "properties",
-          "type": "object",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "properties": {
           "label": "Page Properties",
           "description": "Hash of properties for this page view.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Page Properties",
-                "description": "Hash of properties for this page view.",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "eventName": {
@@ -152,18 +125,19 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "trackPage",
       "name": "Track Page",
+      "type": "automatic",
+      "partnerAction": "trackPage",
       "subscribe": "type = \"page\"",
       "mapping": {
         "properties": {
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

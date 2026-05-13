@@ -1,117 +1,41 @@
 {
+  "slug": "actions-replaybird-web",
   "name": "ReplayBird Web (Actions)",
-  "basicOptions": ["apiKey"],
-  "options": {
-    "apiKey": {
-      "tags": [],
-      "default": "",
-      "description": "The api key for replaybird",
-      "encrypt": true,
-      "hidden": false,
-      "label": "API Key",
-      "private": false,
-      "scope": "event_destination",
-      "type": "password",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The apiKey property is required."]],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "The api key for replaybird",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
-      "description": "Sets user identifier and user profile details",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
-          "label": "User Id",
-          "description": "A unique ID for a known user",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User Id",
-                "description": "A unique ID for a known user",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "User Traits",
-          "description": "The Segment traits to be forwarded to ReplayBird",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "User Traits",
-                "description": "The Segment traits to be forwarded to ReplayBird",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "trackEvent",
-      "name": "Send Track Events",
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Send Track Events",
       "description": "Send Segment track() events and / or Segment page() events to ReplayBird",
       "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"page\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\" or type = \"page\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
           "label": "Event Name",
           "description": "The track() event name or page() name for the event.",
-          "defaultValue": {
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.event"
@@ -124,139 +48,153 @@
               }
             }
           },
-          "required": true,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Event Name",
-                "description": "The track() event name or page() name for the event.",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Properties",
           "description": "A JSON object containing additional information about the event that will be indexed by replaybird.",
-          "defaultValue": {
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.properties"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "A JSON object containing additional information about the event that will be indexed by replaybird.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "userId",
-          "type": "string",
+        "userId": {
           "label": "User ID",
           "description": "A unique ID for a known user",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "A unique ID for a known user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
+        "anonymousId": {
           "label": "Anonymous ID",
           "description": "A unique ID for a anonymous user",
-          "defaultValue": {
-            "@path": "$.anonymousId"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "A unique ID for a anonymous user",
-                "type": "string"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "partnerAction": "identifyUser",
-      "name": "Identify User",
-      "subscribe": "type = \"identify\"",
-      "mapping": {
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Sets user identifier and user profile details",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
         "userId": {
-          "@path": "$.userId"
+          "label": "User Id",
+          "description": "A unique ID for a known user",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
         "traits": {
-          "@path": "$.traits"
+          "label": "User Traits",
+          "description": "The Segment traits to be forwarded to ReplayBird",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      },
-      "type": "automatic"
-    },
+      }
+    }
+  },
+  "presets": [
     {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\" or type = \"page\"",
       "mapping": {
         "name": {
@@ -282,7 +220,22 @@
           "@path": "$.anonymousId"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
     }
   ]
 }

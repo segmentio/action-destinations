@@ -1,269 +1,214 @@
 {
+  "slug": "hubble-web",
   "name": "Hubble (actions)",
+  "mode": "device",
   "description": "From design to production, monitor, measure and enhance your user experience with seamless integration with Segment",
-  "basicOptions": ["id"],
-  "options": {
-    "id": {
-      "tags": [],
-      "default": "",
-      "description": "Unique identifier for your team (given in Hubble app)",
-      "encrypt": false,
-      "hidden": false,
-      "label": "id",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The id property is required."]],
-      "uIMetadata": null
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "id": {
+        "label": "id",
+        "description": "Unique identifier for your team (given in Hubble app)",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identify",
-      "name": "Identify",
-      "description": "Set identifiers and attributes for a user",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
-          "label": "User ID",
-          "description": "Unique identifer of the user",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "Unique identifer of the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
-          "label": "Anonymous ID",
-          "description": "Anonymous identifier of the user",
-          "defaultValue": {
-            "@path": "$.anonymousId"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "Anonymous identifier of the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "attributes",
-          "type": "object",
-          "label": "User Attributes (Traits)",
-          "description": "User traits used to enrich user identification",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "attributes": {
-                "title": "User Attributes (Traits)",
-                "description": "User traits used to enrich user identification",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "track",
-      "name": "Track",
+  "audienceConfig": null,
+  "actions": {
+    "track": {
+      "title": "Track",
       "description": "Track events to trigger Hubble surveys",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "event",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "event": {
           "label": "Event",
           "description": "Event to be tracked",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "event": {
-                "title": "Event",
-                "description": "Event to be tracked",
-                "type": "string"
-              }
-            },
-            "required": ["event"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "attributes",
-          "type": "object",
+        "attributes": {
           "label": "Event Attributes",
           "description": "Object containing the attributes (properties) of the event",
-          "defaultValue": {
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.properties"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "attributes": {
-                "title": "Event Attributes",
-                "description": "Object containing the attributes (properties) of the event",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "userId",
-          "type": "string",
+        "userId": {
           "label": "User ID",
           "description": "Unique identifer of the user",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "Unique identifer of the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
+        "anonymousId": {
           "label": "Anonymous ID",
           "description": "Anonymous identifier of the user",
-          "defaultValue": {
-            "@path": "$.anonymousId"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "Anonymous identifier of the user",
-                "type": "string"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
+    },
+    "identify": {
+      "title": "Identify",
+      "description": "Set identifiers and attributes for a user",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "Unique identifer of the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "Anonymous identifier of the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "attributes": {
+          "label": "User Attributes (Traits)",
+          "description": "User traits used to enrich user identification",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "identify",
       "name": "Identify user",
+      "type": "automatic",
+      "partnerAction": "identify",
       "subscribe": "type = \"identify\"",
       "mapping": {
         "userId": {
@@ -276,11 +221,12 @@
           "@path": "$.traits"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "track",
       "name": "Track event",
+      "type": "automatic",
+      "partnerAction": "track",
       "subscribe": "type = \"track\"",
       "mapping": {
         "event": {
@@ -296,7 +242,7 @@
           "@path": "$.anonymousId"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

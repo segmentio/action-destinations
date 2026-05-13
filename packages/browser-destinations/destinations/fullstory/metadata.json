@@ -1,582 +1,451 @@
 {
+  "slug": "actions-fullstory",
   "name": "Fullstory (Actions)",
-  "basicOptions": ["orgId", "debug", "recordOnlyThisIFrame", "host", "appHost", "script"],
-  "options": {
-    "orgId": {
-      "tags": [],
-      "default": "",
-      "description": "The organization ID for FullStory.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "FS Org",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The orgId property is required."]],
-      "uIMetadata": null
-    },
-    "debug": {
-      "tags": [],
-      "default": false,
-      "description": "Enables FullStory debug mode.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Debug mode",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "recordOnlyThisIFrame": {
-      "tags": [],
-      "default": false,
-      "description": "Enables FullStory inside an iframe.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Capture only this iFrame",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "host": {
-      "tags": [],
-      "default": "",
-      "description": "The domain of the web capture server host. Can be set to direct captured events to a [Fullstory Custom Endpoint](https://help.fullstory.com/hc/en-us/articles/18612999473175-How-to-send-captured-traffic-to-your-First-Party-Domain-using-Custom-Endpoints) or a proxy that you host. Defaults to 'fullstory.com'.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Host",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "appHost": {
-      "tags": [],
-      "default": "",
-      "description": "The App Host is used to define the specific base URL for the Fullstory application where session URLs are generated and displayed. Leave blank if using the default value for \"Host\"",
-      "encrypt": false,
-      "hidden": false,
-      "label": "App Host",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "script": {
-      "tags": [],
-      "default": "",
-      "description": "Optionally specify a custom FullStory script URL. Useful if you are using a proxy. The default is 'edge.fullstory.com/s/fs.js'.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Custom Script URL",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "orgId": {
+        "label": "FS Org",
+        "description": "The organization ID for FullStory.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "debug": {
+        "label": "Debug mode",
+        "description": "Enables FullStory debug mode.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      },
+      "recordOnlyThisIFrame": {
+        "label": "Capture only this iFrame",
+        "description": "Enables FullStory inside an iframe.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      },
+      "host": {
+        "label": "Host",
+        "description": "The domain of the web capture server host. Can be set to direct captured events to a [Fullstory Custom Endpoint](https://help.fullstory.com/hc/en-us/articles/18612999473175-How-to-send-captured-traffic-to-your-First-Party-Domain-using-Custom-Endpoints) or a proxy that you host. Defaults to 'fullstory.com'.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "appHost": {
+        "label": "App Host",
+        "description": "The App Host is used to define the specific base URL for the Fullstory application where session URLs are generated and displayed. Leave blank if using the default value for \"Host\"",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "script": {
+        "label": "Custom Script URL",
+        "description": "Optionally specify a custom FullStory script URL. Useful if you are using a proxy. The default is 'edge.fullstory.com/s/fs.js'.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Track events",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "description": "The name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "A JSON object containing additional information about the event that will be indexed by FullStory.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "trackEventV2": {
+      "title": "Track Event V2",
+      "description": "Track events",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "description": "The name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "A JSON object containing additional information about the event that will be indexed by FullStory.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
       "description": "Sets user identity variables",
       "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
           "label": "User ID",
           "description": "The user's id",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "The user's id",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
+        "anonymousId": {
           "label": "Anonymous ID",
           "description": "The user's anonymous id",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.anonymousId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "The user's anonymous id",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "displayName",
-          "type": "string",
+        "displayName": {
           "label": "Display Name",
           "description": "The user's display name",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits.name"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "displayName": {
-                "title": "Display Name",
-                "description": "The user's display name",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "email",
-          "type": "string",
+        "email": {
           "label": "Email",
           "description": "The user's email",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits.email"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "email": {
-                "title": "Email",
-                "description": "The user's email",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "traits",
-          "type": "object",
+        "traits": {
           "label": "Traits",
           "description": "The Segment traits to be forwarded to FullStory",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Traits",
-                "description": "The Segment traits to be forwarded to FullStory",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "identifyUserV2",
-      "name": "Identify User V2",
+    "identifyUserV2": {
+      "title": "Identify User V2",
       "description": "Sets user identity properties",
       "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
           "label": "User ID",
           "description": "The user's id",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "The user's id",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
+        "anonymousId": {
           "label": "Anonymous ID",
           "description": "The user's anonymous id",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.anonymousId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "The user's anonymous id",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "displayName",
-          "type": "string",
+        "displayName": {
           "label": "Display Name",
           "description": "The user's display name",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits.name"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "displayName": {
-                "title": "Display Name",
-                "description": "The user's display name",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "email",
-          "type": "string",
+        "email": {
           "label": "Email",
           "description": "The user's email",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits.email"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "email": {
-                "title": "Email",
-                "description": "The user's email",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "traits",
-          "type": "object",
+        "traits": {
           "label": "Traits",
           "description": "The Segment traits to be forwarded to FullStory",
-          "defaultValue": {
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Traits",
-                "description": "The Segment traits to be forwarded to FullStory",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
-      "description": "Track events",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
-          "label": "Name",
-          "description": "The name of the event.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Name",
-                "description": "The name of the event.",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "Properties",
-          "description": "A JSON object containing additional information about the event that will be indexed by FullStory.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "A JSON object containing additional information about the event that will be indexed by FullStory.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "trackEventV2",
-      "name": "Track Event V2",
-      "description": "Track events",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
-          "label": "Name",
-          "description": "The name of the event.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Name",
-                "description": "The name of the event.",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "Properties",
-          "description": "A JSON object containing additional information about the event that will be indexed by FullStory.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "A JSON object containing additional information about the event that will be indexed by FullStory.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "viewedPage",
-      "name": "Viewed Page",
+    "viewedPage": {
+      "title": "Viewed Page",
       "description": "Sets page properties events",
       "platform": "web",
+      "defaultSubscription": "type = \"page\"",
       "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": [
-        {
-          "fieldKey": "pageName",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "pageName": {
           "label": "Page Name",
           "description": "The name of the page that was viewed.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.category"
@@ -589,74 +458,62 @@
               }
             }
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "pageName": {
-                "title": "Page Name",
-                "description": "The name of the page that was viewed.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Properties",
           "description": "The properties of the page that was viewed.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "The properties of the page that was viewed.",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "viewedPageV2",
-      "name": "Viewed Page V2",
+    "viewedPageV2": {
+      "title": "Viewed Page V2",
       "description": "Sets page properties",
       "platform": "web",
+      "defaultSubscription": "type = \"page\"",
       "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": [
-        {
-          "fieldKey": "pageName",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "pageName": {
           "label": "Page Name",
           "description": "The name of the page that was viewed.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.category"
@@ -669,65 +526,64 @@
               }
             }
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "pageName": {
-                "title": "Page Name",
-                "description": "The name of the page that was viewed.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Properties",
           "description": "The properties of the page that was viewed.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "The properties of the page that was viewed.",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "identifyUserV2",
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEventV2",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
       "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUserV2",
       "subscribe": "type = \"identify\"",
       "mapping": {
         "userId": {
@@ -746,25 +602,12 @@
           "@path": "$.traits"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "trackEventV2",
-      "name": "Track Event",
-      "subscribe": "type = \"track\"",
-      "mapping": {
-        "name": {
-          "@path": "$.event"
-        },
-        "properties": {
-          "@path": "$.properties"
-        }
-      },
-      "type": "automatic"
-    },
-    {
-      "partnerAction": "viewedPageV2",
       "name": "Viewed Page",
+      "type": "automatic",
+      "partnerAction": "viewedPageV2",
       "subscribe": "type = \"page\"",
       "mapping": {
         "pageName": {
@@ -784,7 +627,7 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

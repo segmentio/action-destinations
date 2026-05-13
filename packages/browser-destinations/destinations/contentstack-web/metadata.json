@@ -1,63 +1,50 @@
 {
+  "slug": "contentstack-web",
   "name": "Contentstack Web",
+  "mode": "device",
   "description": "Sync web event and user profile data from Segment to Contentstack",
-  "basicOptions": ["personalizeProjectId", "personalizeEdgeApiBaseUrl"],
-  "options": {
-    "personalizeProjectId": {
-      "tags": [],
-      "default": "",
-      "description": "Your Personalize project ID to which Segment's data should be synced.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Personalize project ID",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The personalizeProjectId property is required."]],
-      "uIMetadata": null
-    },
-    "personalizeEdgeApiBaseUrl": {
-      "tags": [],
-      "default": "",
-      "description": "Your region-based personalize-edge API base URL.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Personalize Edge API base URL",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The personalizeEdgeApiBaseUrl property is required."]],
-      "uIMetadata": null
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "personalizeProjectId": {
+        "label": "Personalize project ID",
+        "description": "Your Personalize project ID to which Segment's data should be synced.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "personalizeEdgeApiBaseUrl": {
+        "label": "Personalize Edge API base URL",
+        "description": "Your region-based personalize-edge API base URL.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "customAttributesSync",
-      "name": "Custom Attributes Sync",
+  "audienceConfig": null,
+  "actions": {
+    "customAttributesSync": {
+      "title": "Custom Attributes Sync",
       "description": "Sync Custom Attributes to your Contentstack Experience.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\" or type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "traits",
-          "type": "object",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "traits": {
           "label": "User traits",
           "description": "User Profile traits to send to Contentstack",
-          "defaultValue": {
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.traits"
@@ -70,130 +57,101 @@
               }
             }
           },
-          "required": true,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "User traits",
-                "description": "User Profile traits to send to Contentstack",
-                "type": "object"
-              }
-            },
-            "required": ["traits"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "userId",
-          "type": "string",
+        "userId": {
           "label": "User ID",
           "description": "ID for the user",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "ID for the user",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "eventsSync",
-      "name": "Events Sync",
+    "eventsSync": {
+      "title": "Events Sync",
       "description": "Sync Events to your Contentstack Experience.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
           "label": "User ID",
           "description": "ID for the user",
-          "defaultValue": {
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": true,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "ID for the user",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "event",
-          "type": "string",
+        "event": {
           "label": "User Event",
           "description": "User Event",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "event": {
-                "title": "User Event",
-                "description": "User Event",
-                "type": "string"
-              }
-            },
-            "required": ["event"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     }
-  ],
+  },
   "presets": []
 }

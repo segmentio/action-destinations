@@ -1,254 +1,191 @@
 {
+  "slug": "actions-1flow",
   "name": "1Flow Web (Actions)",
+  "mode": "device",
   "description": "Send analytics from Segment to 1Flow",
-  "basicOptions": ["projectApiKey"],
-  "options": {
-    "projectApiKey": {
-      "tags": [],
-      "default": "",
-      "description": "This is the unique app_id for your 1Flow application, serving as the identifier for data storage and retrieval. This field is mandatory.",
-      "encrypt": true,
-      "hidden": false,
-      "label": "Project API Key",
-      "private": false,
-      "scope": "event_destination",
-      "type": "password",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The projectApiKey property is required."]],
-      "uIMetadata": null
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "projectApiKey": {
+        "label": "Project API Key",
+        "description": "This is the unique app_id for your 1Flow application, serving as the identifier for data storage and retrieval. This field is mandatory.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
-      "description": "Create or update a user in 1Flow.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
-          "label": "User ID",
-          "description": "A unique identifier for the user.",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "A unique identifier for the user.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Custom Attributes",
-          "description": "The user's custom attributes.",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "defaultObjectUI": "keyvalue",
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Custom Attributes",
-                "description": "The user's custom attributes.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
       "description": "Submit an event to 1Flow.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "event_name",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "event_name": {
           "label": "Event Name",
           "description": "The name of the event.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "event_name": {
-                "title": "Event Name",
-                "description": "The name of the event.",
-                "type": "string"
-              }
-            },
-            "required": ["event_name"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "userId",
-          "type": "string",
+        "userId": {
           "label": "User ID",
           "description": "A unique identifier for the user.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "A unique identifier for the user.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
+        "anonymousId": {
           "label": "Anonymous ID",
           "description": "An anonymous identifier for the user.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.anonymousId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "An anonymous identifier for the user.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Event Properties",
           "description": "Information associated with the event",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Event Properties",
-                "description": "Information associated with the event",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "partnerAction": "identifyUser",
-      "name": "Identify User",
-      "subscribe": "type = \"identify\"",
-      "mapping": {
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Create or update a user in 1Flow.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
         "userId": {
-          "@path": "$.userId"
+          "label": "User ID",
+          "description": "A unique identifier for the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
         "traits": {
-          "@path": "$.traits"
+          "label": "Custom Attributes",
+          "description": "The user's custom attributes.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null
         }
-      },
-      "type": "automatic"
-    },
+      }
+    }
+  },
+  "presets": [
     {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "event_name": {
@@ -264,7 +201,22 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
     }
   ]
 }

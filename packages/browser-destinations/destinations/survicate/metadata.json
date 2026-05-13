@@ -1,244 +1,180 @@
 {
+  "slug": "actions-survicate",
   "name": "Survicate (Actions)",
+  "mode": "device",
   "description": "Send user traits to Survicate and trigger surveys with Segment events",
-  "basicOptions": ["workspaceKey"],
-  "options": {
-    "workspaceKey": {
-      "tags": [],
-      "default": "",
-      "description": "The workspace key for your Survicate account.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Workspace Key",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The workspaceKey property is required."]],
-      "uIMetadata": null
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "workspaceKey": {
+        "label": "Workspace Key",
+        "description": "The workspace key for your Survicate account.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identifyGroup",
-      "name": "Identify Group",
-      "description": "Send group traits to Survicate",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"group\"",
-      "fields": [
-        {
-          "fieldKey": "groupId",
-          "type": "string",
-          "label": "Group ID",
-          "description": "The Segment groupId to be forwarded to Survicate",
-          "defaultValue": {
-            "@path": "$.groupId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "groupId": {
-                "title": "Group ID",
-                "description": "The Segment groupId to be forwarded to Survicate",
-                "type": "string"
-              }
-            },
-            "required": ["groupId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Traits",
-          "description": "The Segment traits to be forwarded to Survicate",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Traits",
-                "description": "The Segment traits to be forwarded to Survicate",
-                "type": "object"
-              }
-            },
-            "required": ["traits"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
-      "description": "Set visitor traits with Segment Identify event",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Traits",
-          "description": "The Segment traits to be forwarded to Survicate",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Traits",
-                "description": "The Segment traits to be forwarded to Survicate",
-                "type": "object"
-              }
-            },
-            "required": ["traits"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
       "description": "Invoke survey with Segment Track event",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
           "label": "Event name",
           "description": "The event name",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Event name",
-                "description": "The event name",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Event Properties",
           "description": "Object containing the properties of the event",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Event Properties",
-                "description": "Object containing the properties of the event",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "partnerAction": "identifyGroup",
-      "name": "Identify Group",
-      "subscribe": "type = \"group\"",
-      "mapping": {
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Set visitor traits with Segment Identify event",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "traits": {
+          "label": "Traits",
+          "description": "The Segment traits to be forwarded to Survicate",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "identifyGroup": {
+      "title": "Identify Group",
+      "description": "Send group traits to Survicate",
+      "platform": "web",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
         "groupId": {
-          "@path": "$.groupId"
+          "label": "Group ID",
+          "description": "The Segment groupId to be forwarded to Survicate",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
         "traits": {
-          "@path": "$.traits"
+          "label": "Traits",
+          "description": "The Segment traits to be forwarded to Survicate",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      },
-      "type": "automatic"
-    },
+      }
+    }
+  },
+  "presets": [
     {
-      "partnerAction": "identifyUser",
-      "name": "Identify User",
-      "subscribe": "type = \"identify\"",
-      "mapping": {
-        "traits": {
-          "@path": "$.traits"
-        }
-      },
-      "type": "automatic"
-    },
-    {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "name": {
@@ -248,7 +184,34 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Group",
+      "type": "automatic",
+      "partnerAction": "identifyGroup",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
     }
   ]
 }

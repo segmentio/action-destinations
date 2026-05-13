@@ -1,317 +1,331 @@
 {
+  "slug": "actions-facebook-conversions-api-web",
   "name": "Facebook Conversions Api Web",
+  "mode": "device",
   "description": "Send events to Facebook Conversions API from the browser.",
-  "basicOptions": [
-    "pixelId",
-    "disablePushState",
-    "disableAutoConfig",
-    "disableFirstPartyCookies",
-    "agent",
-    "ldu",
-    "formatUserDataWithParamBuilder"
-  ],
-  "options": {
-    "pixelId": {
-      "tags": [],
-      "default": "",
-      "description": "The Pixel ID associated with your Facebook Pixel.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Pixel ID",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The pixelId property is required."]],
-      "uIMetadata": null
-    },
-    "disablePushState": {
-      "tags": [],
-      "default": false,
-      "description": "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Disable Push State",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "disableAutoConfig": {
-      "tags": [],
-      "default": true,
-      "description": "Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Disable Auto Config",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "disableFirstPartyCookies": {
-      "tags": [],
-      "default": false,
-      "description": "Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Disable First Party Cookies",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "agent": {
-      "tags": [],
-      "default": "segment",
-      "description": "Specifies the agent to use when sending events.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Agent",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "ldu": {
-      "tags": [],
-      "default": "Disabled",
-      "description": "Specify if and how Limited Data Use should apply.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Limited Data User (LDU)",
-      "private": false,
-      "scope": "event_destination",
-      "type": "select",
-      "options": [
-        {
-          "value": "Disabled",
-          "label": "LDU disabled",
-          "text": "LDU disabled"
-        },
-        {
-          "value": "GeolocationLogic",
-          "label": "LDU enabled - Use Meta Geolocation Logic",
-          "text": "LDU enabled - Use Meta Geolocation Logic"
-        },
-        {
-          "value": "California",
-          "label": "LDU enabled - California only",
-          "text": "LDU enabled - California only"
-        },
-        {
-          "value": "Colorado",
-          "label": "LDU enabled - Colorado only",
-          "text": "LDU enabled - Colorado only"
-        },
-        {
-          "value": "Connecticut",
-          "label": "LDU enabled - Connecticut only",
-          "text": "LDU enabled - Connecticut only"
-        },
-        {
-          "value": "Florida",
-          "label": "LDU enabled - Florida only",
-          "text": "LDU enabled - Florida only"
-        },
-        {
-          "value": "Oregon",
-          "label": "LDU enabled - Oregon only",
-          "text": "LDU enabled - Oregon only"
-        },
-        {
-          "value": "Texas",
-          "label": "LDU enabled - Texas only",
-          "text": "LDU enabled - Texas only"
-        },
-        {
-          "value": "Montana",
-          "label": "LDU enabled - Montana only",
-          "text": "LDU enabled - Montana only"
-        },
-        {
-          "value": "Delaware",
-          "label": "LDU enabled - Delaware only",
-          "text": "LDU enabled - Delaware only"
-        },
-        {
-          "value": "Nebraska",
-          "label": "LDU enabled - Nebraska only",
-          "text": "LDU enabled - Nebraska only"
-        },
-        {
-          "value": "NewHampshire",
-          "label": "LDU enabled - New Hampshire only",
-          "text": "LDU enabled - New Hampshire only"
-        },
-        {
-          "value": "NewJersey",
-          "label": "LDU enabled - New Jersey only",
-          "text": "LDU enabled - New Jersey only"
-        },
-        {
-          "value": "Minnesota",
-          "label": "LDU enabled - Minnesota only",
-          "text": "LDU enabled - Minnesota only"
-        }
-      ],
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The ldu property is required."]],
-      "uIMetadata": null
-    },
-    "formatUserDataWithParamBuilder": {
-      "tags": [],
-      "default": true,
-      "description": "If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Format User Data with Parameter Builder",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "pixelId": {
+        "label": "Pixel ID",
+        "description": "The Pixel ID associated with your Facebook Pixel.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "disablePushState": {
+        "label": "Disable Push State",
+        "description": "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      },
+      "disableAutoConfig": {
+        "label": "Disable Auto Config",
+        "description": "Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": true
+      },
+      "disableFirstPartyCookies": {
+        "label": "Disable First Party Cookies",
+        "description": "Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      },
+      "agent": {
+        "label": "Agent",
+        "description": "Specifies the agent to use when sending events.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": "segment"
+      },
+      "ldu": {
+        "label": "Limited Data User (LDU)",
+        "description": "Specify if and how Limited Data Use should apply.",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "LDU disabled",
+            "value": "Disabled"
+          },
+          {
+            "label": "LDU enabled - Use Meta Geolocation Logic",
+            "value": "GeolocationLogic"
+          },
+          {
+            "label": "LDU enabled - California only",
+            "value": "California"
+          },
+          {
+            "label": "LDU enabled - Colorado only",
+            "value": "Colorado"
+          },
+          {
+            "label": "LDU enabled - Connecticut only",
+            "value": "Connecticut"
+          },
+          {
+            "label": "LDU enabled - Florida only",
+            "value": "Florida"
+          },
+          {
+            "label": "LDU enabled - Oregon only",
+            "value": "Oregon"
+          },
+          {
+            "label": "LDU enabled - Texas only",
+            "value": "Texas"
+          },
+          {
+            "label": "LDU enabled - Montana only",
+            "value": "Montana"
+          },
+          {
+            "label": "LDU enabled - Delaware only",
+            "value": "Delaware"
+          },
+          {
+            "label": "LDU enabled - Nebraska only",
+            "value": "Nebraska"
+          },
+          {
+            "label": "LDU enabled - New Hampshire only",
+            "value": "NewHampshire"
+          },
+          {
+            "label": "LDU enabled - New Jersey only",
+            "value": "NewJersey"
+          },
+          {
+            "label": "LDU enabled - Minnesota only",
+            "value": "Minnesota"
+          }
+        ],
+        "default": "Disabled"
+      },
+      "formatUserDataWithParamBuilder": {
+        "label": "Format User Data with Parameter Builder",
+        "description": "If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": true
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "send",
-      "name": "Send Event",
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send Event",
       "description": "Send a Standard or Custom Event to Facebook Conversions API.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "event_config",
-          "type": "object",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "event_config": {
           "label": "Event Configuration",
           "description": "Specify the type of Facebook Conversions API event to send.",
-          "defaultValue": {
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "event_name": "CustomEvent",
             "custom_event_name": {
               "@path": "$.event"
             },
             "show_fields": false
           },
-          "required": true,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "defaultObjectUI": "keyvalue",
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "event_config": {
-                "title": "Event Configuration",
-                "description": "Specify the type of Facebook Conversions API event to send.",
-                "type": "object",
-                "$schema": "http://json-schema.org/schema#",
-                "additionalProperties": false,
-                "properties": {
-                  "event_name": {
-                    "title": "Event Name",
-                    "description": "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
-                    "type": "string",
-                    "enum": [
-                      "CustomEvent",
-                      "PageView",
-                      "AddPaymentInfo",
-                      "AddToCart",
-                      "AddToWishlist",
-                      "CompleteRegistration",
-                      "Contact",
-                      "CustomizeProduct",
-                      "Donate",
-                      "FindLocation",
-                      "InitiateCheckout",
-                      "Lead",
-                      "Purchase",
-                      "Schedule",
-                      "Search",
-                      "StartTrial",
-                      "SubmitApplication",
-                      "Subscribe",
-                      "ViewContent"
-                    ]
-                  },
-                  "custom_event_name": {
-                    "title": "Custom Event Name",
-                    "description": "Custom event name to send to Facebook",
-                    "type": "string"
-                  },
-                  "show_fields": {
-                    "title": "Show all fields",
-                    "description": "Show all fields, even those which are not relevant to the selected Event Name.",
-                    "type": "boolean",
-                    "default": false
-                  }
+          "placeholder": null,
+          "properties": {
+            "event_name": {
+              "label": "Event Name",
+              "description": "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Custom Event",
+                  "value": "CustomEvent"
                 },
-                "required": ["event_name"]
-              }
+                {
+                  "label": "Page View",
+                  "value": "PageView"
+                },
+                {
+                  "label": "Add Payment Info",
+                  "value": "AddPaymentInfo"
+                },
+                {
+                  "label": "Add To Cart",
+                  "value": "AddToCart"
+                },
+                {
+                  "label": "Add To Wishlist",
+                  "value": "AddToWishlist"
+                },
+                {
+                  "label": "Complete Registration",
+                  "value": "CompleteRegistration"
+                },
+                {
+                  "label": "Contact",
+                  "value": "Contact"
+                },
+                {
+                  "label": "Customize Product",
+                  "value": "CustomizeProduct"
+                },
+                {
+                  "label": "Donate",
+                  "value": "Donate"
+                },
+                {
+                  "label": "Find Location",
+                  "value": "FindLocation"
+                },
+                {
+                  "label": "Initiate Checkout",
+                  "value": "InitiateCheckout"
+                },
+                {
+                  "label": "Lead",
+                  "value": "Lead"
+                },
+                {
+                  "label": "Purchase",
+                  "value": "Purchase"
+                },
+                {
+                  "label": "Schedule",
+                  "value": "Schedule"
+                },
+                {
+                  "label": "Search",
+                  "value": "Search"
+                },
+                {
+                  "label": "Start Trial",
+                  "value": "StartTrial"
+                },
+                {
+                  "label": "Submit Application",
+                  "value": "SubmitApplication"
+                },
+                {
+                  "label": "Subscribe",
+                  "value": "Subscribe"
+                },
+                {
+                  "label": "View Content",
+                  "value": "ViewContent"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
             },
-            "required": ["event_config"]
+            "custom_event_name": {
+              "label": "Custom Event Name",
+              "description": "Custom event name to send to Facebook",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "any",
+                "conditions": [
+                  {
+                    "fieldKey": "event_config.show_fields",
+                    "operator": "is",
+                    "value": "true"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "show_fields": {
+              "label": "Show all fields",
+              "description": "Show all fields, even those which are not relevant to the selected Event Name.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "content_category",
-          "type": "string",
+        "content_category": {
           "label": "Content Category",
           "description": "The category of the content associated with the event.",
-          "defaultValue": {
-            "@path": "$.properties.category"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "content_category": {
-                "title": "Content Category",
-                "description": "The category of the content associated with the event.",
-                "type": "string"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.category"
           },
-          "dependsOn": {
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -336,39 +350,29 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "content_ids",
-          "type": "string",
+        "content_ids": {
           "label": "Content IDs",
           "description": "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
-          "defaultValue": {
-            "@liquid": "{{ properties.products | map: 'product_id' }}"
-          },
+          "type": "string",
           "required": false,
           "multiple": true,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "content_ids": {
-                "title": "Content IDs",
-                "description": "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@liquid": "{{ properties.products | map: 'product_id' }}"
           },
-          "dependsOn": {
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -413,36 +417,29 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "content_name",
-          "type": "string",
+        "content_name": {
           "label": "Content Name",
           "description": "The name of the page or product associated with the event.",
-          "defaultValue": {
-            "@path": "$.properties.name"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "content_name": {
-                "title": "Content Name",
-                "description": "The name of the page or product associated with the event.",
-                "type": "string"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.name"
           },
-          "dependsOn": {
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -467,16 +464,22 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "content_type",
-          "type": "string",
+        "content_type": {
           "label": "Content Type",
           "description": "If the IDs being passed in content_ids or contents parameter are IDs of products, then the value should be product. If product group IDs are being passed, then the value should be product_group. If no content_type is provided, Meta will match the event to every item that has the same ID, independent of its type.",
-          "defaultValue": "product",
+          "type": "string",
           "required": false,
           "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "product",
           "choices": [
             {
               "value": "product",
@@ -487,24 +490,10 @@
               "label": "Product Group"
             }
           ],
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "content_type": {
-                "title": "Content Type",
-                "description": "If the IDs being passed in content_ids or contents parameter are IDs of products, then the value should be product. If product group IDs are being passed, then the value should be product_group. If no content_type is provided, Meta will match the event to every item that has the same ID, independent of its type.",
-                "type": "string",
-                "enum": ["product", "product_group"]
-              }
-            },
-            "required": []
-          },
-          "dependsOn": {
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -534,14 +523,22 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "contents",
-          "type": "object",
+        "contents": {
           "label": "Contents",
           "description": "A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.",
-          "defaultValue": {
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@arrayPath": [
               "$.properties.products",
               {
@@ -557,50 +554,75 @@
               }
             ]
           },
-          "required": false,
-          "multiple": true,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "defaultObjectUI": "keyvalue",
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": true,
-            "properties": {
-              "contents": {
-                "title": "Contents",
-                "description": "A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.",
-                "type": "array",
-                "items": {
-                  "$schema": "http://json-schema.org/schema#",
-                  "type": "object",
-                  "additionalProperties": true,
-                  "properties": {
-                    "id": {
-                      "title": "ID",
-                      "description": "The product ID of the purchased item.",
-                      "type": "string"
-                    },
-                    "quantity": {
-                      "title": "Quantity",
-                      "description": "The number of items purchased.",
-                      "type": "integer"
-                    },
-                    "item_price": {
-                      "title": "Item Price",
-                      "description": "The price of the item.",
-                      "type": "number"
-                    }
-                  },
-                  "required": ["id", "quantity"]
-                }
-              }
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "ID",
+              "description": "The product ID of the purchased item.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
             },
-            "required": []
+            "quantity": {
+              "label": "Quantity",
+              "description": "The number of items purchased.",
+              "type": "integer",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "item_price": {
+              "label": "Item Price",
+              "description": "The price of the item.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
           },
-          "dependsOn": {
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -645,18 +667,24 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "currency",
-          "type": "string",
+        "currency": {
           "label": "Currency",
           "description": "The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.",
-          "defaultValue": {
-            "@path": "$.properties.currency"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
           "choices": [
             {
               "value": "AED",
@@ -1375,224 +1403,10 @@
               "label": "ZWC"
             }
           ],
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "currency": {
-                "title": "Currency",
-                "description": "The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.",
-                "type": "string",
-                "enum": [
-                  "AED",
-                  "AFN",
-                  "ALL",
-                  "AMD",
-                  "ANG",
-                  "AOA",
-                  "ARS",
-                  "AUD",
-                  "AWG",
-                  "AZN",
-                  "BAM",
-                  "BBD",
-                  "BDT",
-                  "BGN",
-                  "BHD",
-                  "BIF",
-                  "BMD",
-                  "BND",
-                  "BOB",
-                  "BOV",
-                  "BRL",
-                  "BSD",
-                  "BTN",
-                  "BWP",
-                  "BYN",
-                  "BZD",
-                  "CAD",
-                  "CDF",
-                  "CHE",
-                  "CHF",
-                  "CHW",
-                  "CLF",
-                  "CLP",
-                  "CNY",
-                  "COP",
-                  "COU",
-                  "CRC",
-                  "CUC",
-                  "CUP",
-                  "CVE",
-                  "CZK",
-                  "DJF",
-                  "DKK",
-                  "DOP",
-                  "DZD",
-                  "EGP",
-                  "ERN",
-                  "ETB",
-                  "EUR",
-                  "FJD",
-                  "FKP",
-                  "GBP",
-                  "GEL",
-                  "GHS",
-                  "GIP",
-                  "GMD",
-                  "GNF",
-                  "GTQ",
-                  "GYD",
-                  "HKD",
-                  "HNL",
-                  "HRK",
-                  "HTG",
-                  "HUF",
-                  "IDR",
-                  "ILS",
-                  "INR",
-                  "IQD",
-                  "IRR",
-                  "ISK",
-                  "JMD",
-                  "JOD",
-                  "JPY",
-                  "KES",
-                  "KGS",
-                  "KHR",
-                  "KMF",
-                  "KPW",
-                  "KRW",
-                  "KWD",
-                  "KYD",
-                  "KZT",
-                  "LAK",
-                  "LBP",
-                  "LKR",
-                  "LRD",
-                  "LSL",
-                  "LYD",
-                  "MAD",
-                  "MDL",
-                  "MGA",
-                  "MKD",
-                  "MMK",
-                  "MNT",
-                  "MOP",
-                  "MRU",
-                  "MUR",
-                  "MVR",
-                  "MWK",
-                  "MXN",
-                  "MXV",
-                  "MYR",
-                  "MZN",
-                  "NAD",
-                  "NGN",
-                  "NIO",
-                  "NOK",
-                  "NPR",
-                  "NZD",
-                  "OMR",
-                  "PAB",
-                  "PEN",
-                  "PGK",
-                  "PHP",
-                  "PKR",
-                  "PLN",
-                  "PYG",
-                  "QAR",
-                  "RON",
-                  "RSD",
-                  "RUB",
-                  "RWF",
-                  "SAR",
-                  "SBD",
-                  "SCR",
-                  "SDG",
-                  "SEK",
-                  "SGD",
-                  "SHP",
-                  "SLL",
-                  "SOS",
-                  "SRD",
-                  "SSP",
-                  "STN",
-                  "SVC",
-                  "SYP",
-                  "SZL",
-                  "THB",
-                  "TJS",
-                  "TMT",
-                  "TND",
-                  "TOP",
-                  "TRY",
-                  "TTD",
-                  "TWD",
-                  "TZS",
-                  "UAH",
-                  "UGX",
-                  "USD",
-                  "USN",
-                  "UYI",
-                  "UYU",
-                  "UYW",
-                  "UZS",
-                  "VES",
-                  "VND",
-                  "VUV",
-                  "WST",
-                  "XAF",
-                  "XAG",
-                  "XAU",
-                  "XBA",
-                  "XBB",
-                  "XBC",
-                  "XBD",
-                  "XCD",
-                  "XDR",
-                  "XOF",
-                  "XPD",
-                  "XPF",
-                  "XPT",
-                  "XSU",
-                  "XTS",
-                  "XUA",
-                  "XXX",
-                  "YER",
-                  "ZAR",
-                  "ZMW",
-                  "ZWC"
-                ]
-              }
-            },
-            "required": [],
-            "allOf": [
-              {
-                "if": {
-                  "properties": {
-                    "event_config": {
-                      "properties": {
-                        "event_name": {
-                          "const": "Purchase"
-                        }
-                      },
-                      "required": ["event_name"]
-                    }
-                  },
-                  "required": ["event_config"]
-                },
-                "then": {
-                  "required": ["currency"]
-                }
-              }
-            ]
-          },
-          "dependsOn": {
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1657,26 +1471,22 @@
               }
             ]
           },
-          "displayMetadata": {
-            "conditionallyRequired": {
-              "match": "all",
-              "conditions": [
-                {
-                  "fieldKey": "event_config.event_name",
-                  "operator": "is",
-                  "value": "Purchase"
-                }
-              ]
-            }
-          }
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "delivery_category",
-          "type": "string",
+        "delivery_category": {
           "label": "Delivery Category",
           "description": "Category of the delivery",
+          "type": "string",
           "required": false,
           "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
           "choices": [
             {
               "value": "in_store",
@@ -1691,24 +1501,10 @@
               "label": "Home Delivery"
             }
           ],
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "delivery_category": {
-                "title": "Delivery Category",
-                "description": "Category of the delivery",
-                "type": "string",
-                "enum": ["in_store", "curbside", "home_delivery"]
-              }
-            },
-            "required": []
-          },
-          "dependsOn": {
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1728,36 +1524,29 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "num_items",
-          "type": "integer",
+        "num_items": {
           "label": "Number of Items",
           "description": "The number of items when checkout was initiated.",
-          "defaultValue": {
-            "@path": "$.properties.num_items"
-          },
+          "type": "integer",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "num_items": {
-                "title": "Number of Items",
-                "description": "The number of items when checkout was initiated.",
-                "type": "integer"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.num_items"
           },
-          "dependsOn": {
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1767,33 +1556,27 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "predicted_ltv",
-          "type": "number",
+        "predicted_ltv": {
           "label": "Predicted LTV",
           "description": "Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.",
+          "type": "number",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "predicted_ltv": {
-                "title": "Predicted LTV",
-                "description": "Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.",
-                "type": "number"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": {
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1833,36 +1616,29 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "net_revenue",
-          "type": "number",
+        "net_revenue": {
           "label": "Net Revenue",
           "description": "The net revenue associated with the purchase.",
-          "defaultValue": {
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.properties.net_revenue"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "net_revenue": {
-                "title": "Net Revenue",
-                "description": "The net revenue associated with the purchase.",
-                "type": "number"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": {
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1872,36 +1648,29 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "search_string",
-          "type": "string",
+        "search_string": {
           "label": "Search String",
           "description": "The string entered by the user for the search.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.properties.query"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "search_string": {
-                "title": "Search String",
-                "description": "The string entered by the user for the search.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": {
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1911,33 +1680,27 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "status",
-          "type": "boolean",
+        "status": {
           "label": "Registration Status",
           "description": "The status of the registration. true for completed registrations, false otherwise.",
+          "type": "boolean",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "status": {
-                "title": "Registration Status",
-                "description": "The status of the registration. true for completed registrations, false otherwise.",
-                "type": "boolean"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": {
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -1947,56 +1710,29 @@
               }
             ]
           },
-          "displayMetadata": null
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "value",
-          "type": "number",
+        "value": {
           "label": "Value",
           "description": "A numeric value associated with this event. This could be a monetary value or a value in some other metric.",
-          "defaultValue": {
-            "@path": "$.properties.value"
-          },
+          "type": "number",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "value": {
-                "title": "Value",
-                "description": "A numeric value associated with this event. This could be a monetary value or a value in some other metric.",
-                "type": "number"
-              }
-            },
-            "required": [],
-            "allOf": [
-              {
-                "if": {
-                  "properties": {
-                    "event_config": {
-                      "properties": {
-                        "event_name": {
-                          "const": "Purchase"
-                        }
-                      },
-                      "required": ["event_name"]
-                    }
-                  },
-                  "required": ["event_config"]
-                },
-                "then": {
-                  "required": ["value"]
-                }
-              }
-            ]
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.value"
           },
-          "dependsOn": {
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
             "match": "any",
             "conditions": [
               {
@@ -2061,113 +1797,89 @@
               }
             ]
           },
-          "displayMetadata": {
-            "conditionallyRequired": {
-              "match": "all",
-              "conditions": [
-                {
-                  "fieldKey": "event_config.event_name",
-                  "operator": "is",
-                  "value": "Purchase"
-                }
-              ]
-            }
-          }
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "custom_data",
-          "type": "object",
+        "custom_data": {
           "label": "Custom Data",
           "description": "The custom data object can be used to pass custom properties.",
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": true,
-            "properties": {
-              "custom_data": {
-                "title": "Custom Data",
-                "description": "The custom data object can be used to pass custom properties.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "eventID",
-          "type": "string",
+        "eventID": {
           "label": "Event ID",
           "description": "This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.messageId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "eventID": {
-                "title": "Event ID",
-                "description": "This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "eventSourceUrl",
-          "type": "string",
+        "eventSourceUrl": {
           "label": "Event Source URL",
           "description": "The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.",
-          "defaultValue": {
-            "@path": "$.context.page.url"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "eventSourceUrl": {
-                "title": "Event Source URL",
-                "description": "The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.",
-                "type": "string"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "userData",
-          "type": "object",
+        "userData": {
           "label": "User Data",
           "description": "User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.",
-          "defaultValue": {
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "external_id": {
               "@path": "$.userId"
             },
@@ -2211,109 +1923,309 @@
               "@path": "$.context.traits.client_ip_address"
             }
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "defaultObjectUI": "keyvalue",
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userData": {
-                "title": "User Data",
-                "description": "User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.",
-                "type": "object",
-                "$schema": "http://json-schema.org/schema#",
-                "additionalProperties": false,
-                "properties": {
-                  "external_id": {
-                    "title": "External ID",
-                    "description": "A unique identifier for the user from your system",
-                    "type": "string"
-                  },
-                  "em": {
-                    "title": "Email",
-                    "description": "Email address of the user",
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "ph": {
-                    "title": "Phone Number",
-                    "description": "Phone number of the user. Make sure to include the country code. For example, \"15551234567\" for a US number.",
-                    "type": "string"
-                  },
-                  "fn": {
-                    "title": "First Name",
-                    "description": "First name of the user",
-                    "type": "string"
-                  },
-                  "ln": {
-                    "title": "Last Name",
-                    "description": "Last name of the user",
-                    "type": "string"
-                  },
-                  "ge": {
-                    "title": "Gender",
-                    "description": "Gender of the user. If unknown leave blank.",
-                    "type": "string",
-                    "enum": ["m", "f"]
-                  },
-                  "db": {
-                    "title": "Date of Birth",
-                    "description": "Date of birth of the user",
-                    "type": "string",
-                    "format": "date"
-                  },
-                  "ct": {
-                    "title": "City",
-                    "description": "City of the user",
-                    "type": "string"
-                  },
-                  "st": {
-                    "title": "State",
-                    "description": "State of the user. Facebook expects the 2-letter abbreviation for US states. For example, \"CA\" for California, or \"NY\" for New York.",
-                    "type": "string"
-                  },
-                  "zp": {
-                    "title": "ZIP/Postal Code",
-                    "description": "ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.",
-                    "type": "string"
-                  },
-                  "country": {
-                    "title": "Country",
-                    "description": "The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, \"US\" for the United States, or \"GB\" for the United Kingdom.",
-                    "type": "string"
-                  },
-                  "fbp": {
-                    "title": "FBP",
-                    "description": "Use this field to pass the Facebook browser cookie value (_fbp) associated with the user. If the \"Format User Data with Parameter Builder\" setting is enabled, Segment will automatically capture this value from the _fbp cookie.",
-                    "type": "string"
-                  },
-                  "fbc": {
-                    "title": "FBC",
-                    "description": "Use this field to pass The Facebook browser cookie value (_fbc) associated with the user. If the \"Format User Data with Parameter Builder\" setting is enabled, Segment will automatically capture this value from the _fbc cookie.",
-                    "type": "string"
-                  }
-                },
-                "required": []
-              }
+          "placeholder": null,
+          "properties": {
+            "external_id": {
+              "label": "External ID",
+              "description": "A unique identifier for the user from your system",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
             },
-            "required": []
+            "em": {
+              "label": "Email",
+              "description": "Email address of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ph": {
+              "label": "Phone Number",
+              "description": "Phone number of the user. Make sure to include the country code. For example, \"15551234567\" for a US number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "fn": {
+              "label": "First Name",
+              "description": "First name of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ln": {
+              "label": "Last Name",
+              "description": "Last name of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ge": {
+              "label": "Gender",
+              "description": "Gender of the user. If unknown leave blank.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Male",
+                  "value": "m"
+                },
+                {
+                  "label": "Female",
+                  "value": "f"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "db": {
+              "label": "Date of Birth",
+              "description": "Date of birth of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ct": {
+              "label": "City",
+              "description": "City of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "st": {
+              "label": "State",
+              "description": "State of the user. Facebook expects the 2-letter abbreviation for US states. For example, \"CA\" for California, or \"NY\" for New York.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "zp": {
+              "label": "ZIP/Postal Code",
+              "description": "ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "country": {
+              "label": "Country",
+              "description": "The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, \"US\" for the United States, or \"GB\" for the United Kingdom.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "fbp": {
+              "label": "FBP",
+              "description": "Use this field to pass the Facebook browser cookie value (_fbp) associated with the user. If the \"Format User Data with Parameter Builder\" setting is enabled, Segment will automatically capture this value from the _fbp cookie.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "fbc": {
+              "label": "FBC",
+              "description": "Use this field to pass The Facebook browser cookie value (_fbc) associated with the user. If the \"Format User Data with Parameter Builder\" setting is enabled, Segment will automatically capture this value from the _fbc cookie.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null
         }
-      ]
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "send",
       "name": "AddPaymentInfo",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Payment Info Entered\"",
       "mapping": {
         "event_config": {
@@ -2412,11 +2324,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "AddToCart",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Product Added\"",
       "mapping": {
         "event_config": {
@@ -2510,11 +2423,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "AddToWishlist",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Product Added To Wishlist\"",
       "mapping": {
         "event_config": {
@@ -2608,11 +2522,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "CompleteRegistration",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Signed Up\"",
       "mapping": {
         "event_config": {
@@ -2711,11 +2626,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "InitiateCheckout",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Checkout Started\"",
       "mapping": {
         "event_config": {
@@ -2814,11 +2730,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "PageView",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "type = \"page\"",
       "mapping": {
         "event_config": {
@@ -2917,11 +2834,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "Purchase",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Order Completed\"",
       "mapping": {
         "event_config": {
@@ -3025,11 +2943,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "Search",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Products Searched\"",
       "mapping": {
         "event_config": {
@@ -3123,11 +3042,12 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "send",
       "name": "ViewContent",
+      "type": "automatic",
+      "partnerAction": "send",
       "subscribe": "event = \"Product Viewed\"",
       "mapping": {
         "event_config": {
@@ -3221,7 +3141,7 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

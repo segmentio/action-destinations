@@ -1,137 +1,96 @@
 {
+  "slug": "actions-rupt",
   "name": "Rupt",
-  "basicOptions": ["client_id", "new_account_url", "logout_url", "success_url", "suspended_url"],
-  "options": {
-    "client_id": {
-      "tags": [],
-      "default": "",
-      "description": "The API client id of your Rupt project.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Client ID",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The client_id property is required."]],
-      "uIMetadata": null
-    },
-    "new_account_url": {
-      "tags": [],
-      "default": "",
-      "description": "A URL to redirect the user to if they want to stop account sharing and create a new account.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "New Account URL",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The new_account_url property is required."]],
-      "uIMetadata": null
-    },
-    "logout_url": {
-      "tags": [],
-      "default": "",
-      "description": "A URL to redirect the user to if they choose to logout or if they are removed by a verified owner.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Logout URL",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "success_url": {
-      "tags": [],
-      "default": "",
-      "description": "A URL to redirect the user to if they are successfully verified and are within the device limit.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Success URL",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "suspended_url": {
-      "tags": [],
-      "default": "",
-      "description": "A URL to redirect the user to if they are suspended.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Suspended URL",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "client_id": {
+        "label": "Client ID",
+        "description": "The API client id of your Rupt project.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "new_account_url": {
+        "label": "New Account URL",
+        "description": "A URL to redirect the user to if they want to stop account sharing and create a new account.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "logout_url": {
+        "label": "Logout URL",
+        "description": "A URL to redirect the user to if they choose to logout or if they are removed by a verified owner.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "success_url": {
+        "label": "Success URL",
+        "description": "A URL to redirect the user to if they are successfully verified and are within the device limit.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "suspended_url": {
+        "label": "Suspended URL",
+        "description": "A URL to redirect the user to if they are suspended.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "attach",
-      "name": "Attach Device",
+  "audienceConfig": null,
+  "actions": {
+    "attach": {
+      "title": "Attach Device",
       "description": "Attach a device to an account.",
       "platform": "web",
+      "defaultSubscription": "type = \"page\"",
       "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": [
-        {
-          "fieldKey": "account",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "account": {
           "label": "Account",
           "description": "The account to attach the device to.",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "account": {
-                "title": "Account",
-                "description": "The account to attach the device to.",
-                "type": "string"
-              }
-            },
-            "required": ["account"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "email",
-          "type": "string",
+        "email": {
           "label": "Email",
           "description": "The email of the user to attach the device to.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.context.traits.email"
@@ -144,34 +103,27 @@
               }
             }
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "email": {
-                "title": "Email",
-                "description": "The email of the user to attach the device to.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "phone",
-          "type": "string",
+        "phone": {
           "label": "Phone",
           "description": "The phone number of the user to attach the device to.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.context.traits.phone"
@@ -184,90 +136,68 @@
               }
             }
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "phone": {
-                "title": "Phone",
-                "description": "The phone number of the user to attach the device to.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "metadata",
-          "type": "object",
+        "metadata": {
           "label": "Metadata",
           "description": "Metadata to attach to the device.",
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "metadata": {
-                "title": "Metadata",
-                "description": "Metadata to attach to the device.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "include_page",
-          "type": "boolean",
+        "include_page": {
           "label": "Include Page",
           "description": "Whether to include the page (url) in the attach request",
+          "type": "boolean",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "include_page": {
-                "title": "Include Page",
-                "description": "Whether to include the page (url) in the attach request",
-                "type": "boolean"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "attach",
       "name": "Attach Device",
+      "type": "automatic",
+      "partnerAction": "attach",
       "subscribe": "type = 'page'",
       "mapping": {
         "account": {
@@ -300,7 +230,7 @@
           }
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

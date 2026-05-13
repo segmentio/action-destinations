@@ -1,302 +1,241 @@
 {
+  "slug": "appcues-web-actions",
   "name": "Appcues Web",
-  "basicOptions": ["accountID", "region", "enableURLDetection"],
-  "options": {
-    "accountID": {
-      "tags": [],
-      "default": "",
-      "description": "Your Appcues Account ID.",
-      "encrypt": true,
-      "hidden": false,
-      "label": "Appcues Account ID",
-      "private": false,
-      "scope": "event_destination",
-      "type": "password",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The accountID property is required."]],
-      "uIMetadata": null
-    },
-    "region": {
-      "tags": [],
-      "default": "US",
-      "description": "Select the Appcues region for your account.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Region",
-      "private": false,
-      "scope": "event_destination",
-      "type": "select",
-      "options": [
-        {
-          "value": "US",
-          "label": "US",
-          "text": "US"
-        },
-        {
-          "value": "EU",
-          "label": "EU",
-          "text": "EU"
-        }
-      ],
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The region property is required."]],
-      "uIMetadata": null
-    },
-    "enableURLDetection": {
-      "tags": [],
-      "default": false,
-      "description": "Enable or disable URL detection in Appcues. If enabled, page events should not be triggered manually using the page action.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Enable URL Detection",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The enableURLDetection property is required."]],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "accountID": {
+        "label": "Appcues Account ID",
+        "description": "Your Appcues Account ID.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "region": {
+        "label": "Region",
+        "description": "Select the Appcues region for your account.",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          }
+        ],
+        "default": "US"
+      },
+      "enableURLDetection": {
+        "label": "Enable URL Detection",
+        "description": "Enable or disable URL detection in Appcues. If enabled, page events should not be triggered manually using the page action.",
+        "type": "boolean",
+        "required": true,
+        "choices": null,
+        "default": false
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "group",
-      "name": "Group",
-      "description": "Send Segment group events to Appcues.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"group\"",
-      "fields": [
-        {
-          "fieldKey": "groupId",
-          "type": "string",
-          "label": "Group ID",
-          "description": "The ID of the group to identify in Appcues.",
-          "defaultValue": {
-            "@path": "$.groupId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "groupId": {
-                "title": "Group ID",
-                "description": "The ID of the group to identify in Appcues.",
-                "type": "string"
-              }
-            },
-            "required": ["groupId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Group traits",
-          "description": "Properties to associate with the group / account / company.",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Group traits",
-                "description": "Properties to associate with the group / account / company.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "identify",
-      "name": "Identify",
-      "description": "Send Segment identify events to Appcues.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
-          "label": "User ID",
-          "description": "The ID of the user to identify in Appcues.",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "The ID of the user to identify in Appcues.",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "User traits",
-          "description": "Properties to associate with the user.",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "User traits",
-                "description": "Properties to associate with the user.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "page",
-      "name": "Page",
-      "description": "Send Segment page events to Appcues.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": []
-    },
-    {
-      "slug": "track",
-      "name": "Track",
+  "audienceConfig": null,
+  "actions": {
+    "track": {
+      "title": "Track",
       "description": "Send Segment track events to Appcues.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "event",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "event": {
           "label": "Event Name",
           "description": "The name of the event to track in Appcues.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "event": {
-                "title": "Event Name",
-                "description": "The name of the event to track in Appcues.",
-                "type": "string"
-              }
-            },
-            "required": ["event"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
-          "type": "object",
+        "properties": {
           "label": "Event Properties",
           "description": "Properties to associate with the event.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
+          "type": "object",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Event Properties",
-                "description": "Properties to associate with the event.",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
+    },
+    "page": {
+      "title": "Page",
+      "description": "Send Segment page events to Appcues.",
+      "platform": "web",
+      "defaultSubscription": "type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {}
+    },
+    "identify": {
+      "title": "Identify",
+      "description": "Send Segment identify events to Appcues.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user to identify in Appcues.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "traits": {
+          "label": "User traits",
+          "description": "Properties to associate with the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "group": {
+      "title": "Group",
+      "description": "Send Segment group events to Appcues.",
+      "platform": "web",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "groupId": {
+          "label": "Group ID",
+          "description": "The ID of the group to identify in Appcues.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "traits": {
+          "label": "Group traits",
+          "description": "Properties to associate with the group / account / company.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "page",
       "name": "Page",
+      "type": "automatic",
+      "partnerAction": "page",
       "subscribe": "type = \"page\"",
       "mapping": {},
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

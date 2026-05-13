@@ -1,112 +1,84 @@
 {
+  "slug": "actions-segment-utilities-web",
   "name": "Segment Utilities Web",
-  "basicOptions": ["throttleWindow", "passThroughCount"],
-  "options": {
-    "throttleWindow": {
-      "tags": [],
-      "default": 3000,
-      "description": "The window of time in milliseconds to throttle events.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Throttle time",
-      "private": false,
-      "scope": "event_destination",
-      "type": "number",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "passThroughCount": {
-      "tags": [],
-      "default": 1,
-      "description": "Number of events to pass through while waiting for the throttle time to expire.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Number of events to pass through",
-      "private": false,
-      "scope": "event_destination",
-      "type": "number",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "throttleWindow": {
+        "label": "Throttle time",
+        "description": "The window of time in milliseconds to throttle events.",
+        "type": "number",
+        "required": false,
+        "choices": null,
+        "default": 3000
+      },
+      "passThroughCount": {
+        "label": "Number of events to pass through",
+        "description": "Number of events to pass through while waiting for the throttle time to expire.",
+        "type": "number",
+        "required": false,
+        "choices": null,
+        "default": 1
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "throttle",
-      "name": "Throttle by event name",
+  "audienceConfig": null,
+  "actions": {
+    "throttle": {
+      "title": "Throttle by event name",
       "description": "Throttle events sent to Segment. Throttling is on a per event name basis.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "passThroughCount",
-          "type": "integer",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "passThroughCount": {
           "label": "Number of events to pass through",
           "description": "Override the global pass through count.",
+          "type": "integer",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": true,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "passThroughCount": {
-                "title": "Number of events to pass through",
-                "description": "Override the global pass through count.",
-                "type": ["integer", "null"]
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "throttleWindow",
-          "type": "number",
+        "throttleWindow": {
           "label": "Throttle time",
           "description": "Override the global throttle time.",
+          "type": "number",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": true,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "throttleWindow": {
-                "title": "Throttle time",
-                "description": "Override the global throttle time.",
-                "type": ["number", "null"]
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     }
-  ],
+  },
   "presets": []
 }

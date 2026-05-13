@@ -1,279 +1,246 @@
 {
+  "slug": "actions-wisepops",
   "name": "Wisepops",
-  "basicOptions": ["websiteId"],
-  "options": {
-    "websiteId": {
-      "tags": [],
-      "default": "",
-      "description": "The identifier of your Wisepops' website. You can find it in [your setup code on Wisepops](https://id.wisepops.com/r/id/workspaces/_workspaceId_/settings/setup-code).",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Website Identifier",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The websiteId property is required."]],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "websiteId": {
+        "label": "Website Identifier",
+        "description": "The identifier of your Wisepops' website. You can find it in [your setup code on Wisepops](https://id.wisepops.com/r/id/workspaces/_workspaceId_/settings/setup-code).",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "setCustomProperties",
-      "name": "Set Custom Properties",
+  "audienceConfig": null,
+  "actions": {
+    "setCustomProperties": {
+      "title": "Set Custom Properties",
       "description": "Define [custom properties](https://support.wisepops.com/article/yrdyv1tfih-set-up-custom-properties) to let Wisepops target them in your scenarios.",
       "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "traits",
-          "type": "object",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "traits": {
           "label": "Custom Properties",
           "description": "The custom properties to send to Wisepops.",
-          "defaultValue": {
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits"
           },
-          "required": true,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Custom Properties",
-                "description": "The custom properties to send to Wisepops.",
-                "type": "object"
-              }
-            },
-            "required": ["traits"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "id",
-          "type": "string",
+        "id": {
           "label": "Entity ID",
           "description": "A unique identifier. Typically, a user ID or group ID.",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "id": {
-                "title": "Entity ID",
-                "description": "A unique identifier. Typically, a user ID or group ID.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "idProperty",
-          "type": "string",
+        "idProperty": {
           "label": "Property name for the entity ID",
           "description": "How to name the entity ID among the other custom properties?",
-          "defaultValue": "userId",
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "idProperty": {
-                "title": "Property name for the entity ID",
-                "description": "How to name the entity ID among the other custom properties?",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "dynamic": false,
+          "default": "userId",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "prefix",
-          "type": "string",
+        "prefix": {
           "label": "Prefix",
           "description": "This lets you define the properties as a nested object. If you set the property `\"name\"` with the prefix `\"group\"`, you'll access it in Wisepops as `\"group.name\"`.",
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "prefix": {
-                "title": "Prefix",
-                "description": "This lets you define the properties as a nested object. If you set the property `\"name\"` with the prefix `\"group\"`, you'll access it in Wisepops as `\"group.name\"`.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
+    "trackEvent": {
+      "title": "Track Event",
       "description": "Send a [custom event](https://support.wisepops.com/article/zbpq1z0exk-set-up-custom-events-to-trigger-popups) to Wisepops. Keep in mind that events are counted as page views in your Wisepops' monthly quota.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "eventName",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "eventName": {
           "label": "Event Name",
           "description": "The name of the event to send to Wisepops.",
-          "defaultValue": {
-            "@path": "$.event"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "eventName": {
-                "title": "Event Name",
-                "description": "The name of the event to send to Wisepops.",
-                "type": "string"
-              }
-            },
-            "required": ["eventName"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "trackGoal",
-      "name": "Track Goal",
+    "trackGoal": {
+      "title": "Track Goal",
       "description": "[Track goals and revenue](https://support.wisepops.com/article/mx3z8na6yb-set-up-goal-tracking) to know which campaigns are generating the most value.",
       "platform": "web",
+      "defaultSubscription": "type = \"track\" and event = \"Order Completed\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\" and event = \"Order Completed\"",
-      "fields": [
-        {
-          "fieldKey": "goalName",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "goalName": {
           "label": "Goal Identifier",
           "description": "This is a 32-character identifier, visible when you create the JS goal in Wisepops.",
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "goalName": {
-                "title": "Goal Identifier",
-                "description": "This is a 32-character identifier, visible when you create the JS goal in Wisepops.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "goalRevenue",
-          "type": "string",
+        "goalRevenue": {
           "label": "Goal Revenue",
           "description": "The revenue associated with the goal.",
-          "defaultValue": {
-            "@path": "$.properties.revenue"
-          },
+          "type": "string",
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "goalRevenue": {
-                "title": "Goal Revenue",
-                "description": "The revenue associated with the goal.",
-                "type": "string"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.revenue"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "trackPage",
-      "name": "Track Page",
+    "trackPage": {
+      "title": "Track Page",
       "description": "Let Wisepops know when the visitor goes to a new page. This allows Wisepops to display campaigns at page change.",
       "platform": "web",
+      "defaultSubscription": "type = \"page\"",
       "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": []
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {}
     }
-  ],
+  },
   "presets": [
     {
+      "name": "Set User Traits as Custom Properties",
+      "type": "automatic",
       "partnerAction": "setCustomProperties",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "traits": {
+          "@path": "$.traits"
+        },
+        "id": {
+          "@path": "$.userId"
+        },
+        "idProperty": "userId"
+      },
+      "eventSlug": null
+    },
+    {
       "name": "Set Group Traits as Custom Properties",
+      "type": "automatic",
+      "partnerAction": "setCustomProperties",
       "subscribe": "type = \"group\"",
       "mapping": {
         "traits": {
@@ -285,40 +252,27 @@
         "idProperty": "groupId",
         "prefix": "group"
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "setCustomProperties",
-      "name": "Set User Traits as Custom Properties",
-      "subscribe": "type = \"identify\"",
-      "mapping": {
-        "traits": {
-          "@path": "$.traits"
-        },
-        "id": {
-          "@path": "$.userId"
-        },
-        "idProperty": "userId"
-      },
-      "type": "automatic"
-    },
-    {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "eventName": {
           "@path": "$.event"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "trackPage",
       "name": "Track Page",
+      "type": "automatic",
+      "partnerAction": "trackPage",
       "subscribe": "type = \"page\"",
       "mapping": {},
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

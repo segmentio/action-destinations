@@ -1,147 +1,57 @@
 {
+  "slug": "actions-userpilot-web",
   "name": "Userpilot Web (Actions)",
-  "basicOptions": ["token", "endpoint", "shouldSegmentLoadSDK"],
-  "options": {
-    "token": {
-      "tags": [],
-      "default": "",
-      "description": "Your Userpilot app token, you can find it in the [Userpilot installation](https://run.userpilot.io/installation) dashboard.",
-      "encrypt": true,
-      "hidden": false,
-      "label": "App Token",
-      "private": false,
-      "scope": "event_destination",
-      "type": "password",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The token property is required."]],
-      "uIMetadata": null
-    },
-    "endpoint": {
-      "tags": [],
-      "default": "",
-      "description": "By default, Userpilot would use a service discovery mechanism to determine the API endpoint to connect to. If you are using a proxy or a firewall, you can specify the API endpoint here.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "The API endpoint the SDK would connect to",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [],
-      "uIMetadata": null
-    },
-    "shouldSegmentLoadSDK": {
-      "tags": [],
-      "default": true,
-      "description": "By default, Segment will load the Userpilot JS snippet onto the page. If you are already loading the Userpilot JS onto the page then disable this setting and Segment will detect the Userpilot JS on the page",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Segment Loads Userpilot JS",
-      "private": false,
-      "scope": "event_destination",
-      "type": "boolean",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The shouldSegmentLoadSDK property is required."]],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "token": {
+        "label": "App Token",
+        "description": "Your Userpilot app token, you can find it in the [Userpilot installation](https://run.userpilot.io/installation) dashboard.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "endpoint": {
+        "label": "The API endpoint the SDK would connect to",
+        "description": "By default, Userpilot would use a service discovery mechanism to determine the API endpoint to connect to. If you are using a proxy or a firewall, you can specify the API endpoint here.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "shouldSegmentLoadSDK": {
+        "label": "Segment Loads Userpilot JS",
+        "description": "By default, Segment will load the Userpilot JS snippet onto the page. If you are already loading the Userpilot JS onto the page then disable this setting and Segment will detect the Userpilot JS on the page",
+        "type": "boolean",
+        "required": true,
+        "choices": null,
+        "default": true
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "identifyCompany",
-      "name": "Identify Company",
-      "description": "Create or update a company entity in Userpilot",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"group\"",
-      "fields": [
-        {
-          "fieldKey": "groupId",
-          "type": "string",
-          "label": "Company ID",
-          "description": "The ID of the company.",
-          "defaultValue": {
-            "@path": "$.groupId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "groupId": {
-                "title": "Company ID",
-                "description": "The ID of the company.",
-                "type": "string"
-              }
-            },
-            "required": ["groupId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Traits",
-          "description": "Company traits",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Traits",
-                "description": "Company traits",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
+  "audienceConfig": null,
+  "actions": {
+    "identifyUser": {
+      "title": "Identify User",
       "description": "Create or update a user entity in Userpilot. It's mandatory to identify a user by calling identify() prior to invoking other methods such as track(), page(), or group(). You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).",
       "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
           "label": "User ID",
           "description": "The ID of the logged-in user.",
-          "defaultValue": {
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@if": {
               "exists": {
                 "@path": "$.userId"
@@ -154,250 +64,246 @@
               }
             }
           },
-          "required": true,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "The ID of the logged-in user.",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "createdAt",
-          "type": "datetime",
+        "createdAt": {
           "label": "User Created At Date",
           "description": "The date the user profile was created at",
-          "defaultValue": {
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits.createdAt"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "createdAt": {
-                "title": "User Created At Date",
-                "description": "The date the user profile was created at",
-                "type": ["string", "number"],
-                "format": "date-like"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Traits",
-          "description": "User traits.",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Traits",
-                "description": "User traits.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "pageView",
-      "name": "Page View",
-      "description": "Update the content queue designed to trigger on a specific page. It's mandatory to identify a user by calling identify() prior to invoking other methods such as page()",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"page\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
-          "label": "Page Name",
-          "description": "The name of the page that was viewed.",
-          "defaultValue": {
-            "@path": "$.name"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Page Name",
-                "description": "The name of the page that was viewed.",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "Properties",
-          "description": "The properties of the page that was viewed.",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "The properties of the page that was viewed.",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
-      "description": "Send an event to Userpilot. It's mandatory to identify a user by calling identify() prior to invoking other methods such as track(). You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
-          "label": "Name",
-          "description": "Event name",
-          "defaultValue": {
-            "@path": "$.event"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Name",
-                "description": "Event name",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "Properties",
-          "description": "Event properties",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Properties",
-                "description": "Event properties",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "partnerAction": "identifyCompany",
-      "name": "Identify Company",
-      "subscribe": "type = \"group\"",
-      "mapping": {
-        "groupId": {
-          "@path": "$.groupId"
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
         "traits": {
-          "@path": "$.traits"
+          "label": "Traits",
+          "description": "User traits.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      },
-      "type": "automatic"
+      }
     },
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Send an event to Userpilot. It's mandatory to identify a user by calling identify() prior to invoking other methods such as track(). You can learn more by visiting the [Userpilot documentation](https://docs.userpilot.com/article/23-identify-users-track-custom-events).",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
+          "label": "Name",
+          "description": "Event name",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "Event properties",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "pageView": {
+      "title": "Page View",
+      "description": "Update the content queue designed to trigger on a specific page. It's mandatory to identify a user by calling identify() prior to invoking other methods such as page()",
+      "platform": "web",
+      "defaultSubscription": "type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
+          "label": "Page Name",
+          "description": "The name of the page that was viewed.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "The properties of the page that was viewed.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "identifyCompany": {
+      "title": "Identify Company",
+      "description": "Create or update a company entity in Userpilot",
+      "platform": "web",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "groupId": {
+          "label": "Company ID",
+          "description": "The ID of the company.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "Company traits",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
     {
-      "partnerAction": "identifyUser",
       "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
       "subscribe": "type = \"identify\"",
       "mapping": {
         "userId": {
@@ -420,25 +326,27 @@
           "@path": "$.traits"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "pageView",
-      "name": "Page View",
-      "subscribe": "type = \"page\"",
+      "name": "Identify Company",
+      "type": "automatic",
+      "partnerAction": "identifyCompany",
+      "subscribe": "type = \"group\"",
       "mapping": {
-        "name": {
-          "@path": "$.name"
+        "groupId": {
+          "@path": "$.groupId"
         },
-        "properties": {
-          "@path": "$.properties"
+        "traits": {
+          "@path": "$.traits"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "name": {
@@ -448,7 +356,22 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
+    },
+    {
+      "name": "Page View",
+      "type": "automatic",
+      "partnerAction": "pageView",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "name": {
+          "@path": "$.name"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
     }
   ]
 }

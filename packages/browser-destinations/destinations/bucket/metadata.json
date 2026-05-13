@@ -1,309 +1,264 @@
 {
+  "slug": "bucket-web",
   "name": "Bucket Web (Actions)",
+  "mode": "device",
   "description": "Loads the Bucket browser SDK, maps identify(), group() and track() events and enables LiveSatisfaction connections",
-  "basicOptions": ["trackingKey"],
-  "options": {
-    "trackingKey": {
-      "tags": [],
-      "default": "",
-      "description": "The publishable key for your Bucket environment, found on the tracking page on app.bucket.co.",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Publishable Key",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The trackingKey property is required."]],
-      "uIMetadata": null
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "trackingKey": {
+        "label": "Publishable Key",
+        "description": "The publishable key for your Bucket environment, found on the tracking page on app.bucket.co.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "group",
-      "name": "Identify Company",
-      "description": "Creates or updates a Company in Bucket and associates the user with it",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"group\"",
-      "fields": [
-        {
-          "fieldKey": "groupId",
-          "type": "string",
-          "label": "Company ID",
-          "description": "Unique identifier for the company",
-          "defaultValue": {
-            "@path": "$.groupId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "groupId": {
-                "title": "Company ID",
-                "description": "Unique identifier for the company",
-                "type": "string"
-              }
-            },
-            "required": ["groupId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "userId",
-          "type": "string",
-          "label": "User ID",
-          "description": "Unique identifier for the user",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "Unique identifier for the user",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "traits",
-          "type": "object",
-          "label": "Company Attributes",
-          "description": "Additional information to associate with the Company in Bucket",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "Company Attributes",
-                "description": "Additional information to associate with the Company in Bucket",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "identifyUser",
-      "name": "Identify User",
+  "audienceConfig": null,
+  "actions": {
+    "identifyUser": {
+      "title": "Identify User",
       "description": "Creates or updates a user profile in Bucket. Also initializes Live Satisfaction",
       "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
           "label": "User ID",
           "description": "Unique identifier for the User",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "Unique identifier for the User",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "traits",
-          "type": "object",
+        "traits": {
           "label": "User Attributes",
           "description": "Additional information to associate with the User in Bucket",
-          "defaultValue": {
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.traits"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "traits": {
-                "title": "User Attributes",
-                "description": "Additional information to associate with the User in Bucket",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
     },
-    {
-      "slug": "trackEvent",
-      "name": "Track Event",
-      "description": "Map a Segment track() event to Bucket",
+    "group": {
+      "title": "Identify Company",
+      "description": "Creates or updates a Company in Bucket and associates the user with it",
       "platform": "web",
+      "defaultSubscription": "type = \"group\"",
       "hidden": false,
-      "defaultTrigger": "type = \"track\"",
-      "fields": [
-        {
-          "fieldKey": "name",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "groupId": {
+          "label": "Company ID",
+          "description": "Unique identifier for the company",
           "type": "string",
-          "label": "Event name",
-          "description": "The event name",
-          "defaultValue": {
-            "@path": "$.event"
-          },
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Event name",
-                "description": "The event name",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "userId",
-          "type": "string",
+        "userId": {
           "label": "User ID",
           "description": "Unique identifier for the user",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
+          "type": "string",
           "required": true,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "Unique identifier for the user",
-                "type": "string"
-              }
-            },
-            "required": ["userId"]
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
-        {
-          "fieldKey": "properties",
+        "traits": {
+          "label": "Company Attributes",
+          "description": "Additional information to associate with the Company in Bucket",
           "type": "object",
-          "label": "Event Properties",
-          "description": "Object containing the properties of the event",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
           "required": false,
           "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
           "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Event Properties",
-                "description": "Object containing the properties of the event",
-                "type": "object"
-              }
-            },
-            "required": []
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
           },
-          "dependsOn": null,
-          "displayMetadata": null
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      ]
+      }
+    },
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Map a Segment track() event to Bucket",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
+          "label": "Event name",
+          "description": "The event name",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "Unique identifier for the user",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Event Properties",
+          "description": "Object containing the properties of the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
     }
-  ],
+  },
   "presets": [
     {
-      "partnerAction": "group",
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    },
+    {
       "name": "Group",
+      "type": "automatic",
+      "partnerAction": "group",
       "subscribe": "type = \"group\"",
       "mapping": {
         "groupId": {
@@ -316,25 +271,12 @@
           "@path": "$.traits"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "identifyUser",
-      "name": "Identify User",
-      "subscribe": "type = \"identify\"",
-      "mapping": {
-        "userId": {
-          "@path": "$.userId"
-        },
-        "traits": {
-          "@path": "$.traits"
-        }
-      },
-      "type": "automatic"
-    },
-    {
-      "partnerAction": "trackEvent",
       "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
         "name": {
@@ -347,7 +289,7 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     }
   ]
 }

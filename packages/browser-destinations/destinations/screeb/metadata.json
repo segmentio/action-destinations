@@ -1,409 +1,306 @@
 {
+  "slug": "actions-screeb-web",
   "name": "Screeb Web (Actions)",
-  "basicOptions": ["websiteId"],
-  "options": {
-    "websiteId": {
-      "tags": [],
-      "default": "",
-      "description": "Your website ID (given in Screeb app).",
-      "encrypt": false,
-      "hidden": false,
-      "label": "Website ID",
-      "private": false,
-      "scope": "event_destination",
-      "type": "string",
-      "readOnly": false,
-      "dependsOn": null,
-      "validators": [["required", "The websiteId property is required."]],
-      "uIMetadata": null
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "websiteId": {
+        "label": "Website ID",
+        "description": "Your website ID (given in Screeb app).",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
     }
   },
-  "platforms": {
-    "browser": true,
-    "server": false,
-    "mobile": false,
-    "warehouse": false,
-    "cloudAppObject": false
-  },
-  "supportedRegions": ["us-west-2", "eu-west-1"],
-  "supportsAudiences": false,
-  "actions": [
-    {
-      "slug": "alias",
-      "name": "Alias",
-      "description": "Update user identity with new user ID.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"alias\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
-          "label": "User ID",
-          "description": "New unique identifier for the user",
-          "defaultValue": {
-            "@path": "$.userId"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "New unique identifier for the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
-          "label": "Anonymous ID",
-          "description": "New anonymous identifier for the user",
-          "defaultValue": {
-            "@path": "$.anonymousId"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "New anonymous identifier for the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "group",
-      "name": "Group",
-      "description": "Set user group and/or attributes.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"group\"",
-      "fields": [
-        {
-          "fieldKey": "groupId",
-          "type": "string",
-          "label": "Group ID",
-          "description": "The group id",
-          "defaultValue": {
-            "@path": "$.groupId"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "groupId": {
-                "title": "Group ID",
-                "description": "The group id",
-                "type": "string"
-              }
-            },
-            "required": ["groupId"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "groupType",
-          "type": "string",
-          "label": "Group type",
-          "description": "The group type",
-          "defaultValue": {
-            "@path": "$.traits.group_type"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "groupType": {
-                "title": "Group type",
-                "description": "The group type",
-                "type": "string"
-              }
-            },
-            "required": ["groupType"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "Traits",
-          "description": "Traits to associate with the group",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Traits",
-                "description": "Traits to associate with the group",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "identify",
-      "name": "Identify",
+  "audienceConfig": null,
+  "actions": {
+    "identify": {
+      "title": "Identify",
       "description": "Set user ID and/or attributes.",
       "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
       "hidden": false,
-      "defaultTrigger": "type = \"identify\"",
-      "fields": [
-        {
-          "fieldKey": "userId",
-          "type": "string",
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
           "label": "User ID",
           "description": "Unique identifier for the user",
-          "defaultValue": {
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
             "@path": "$.userId"
           },
-          "required": false,
-          "multiple": false,
           "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "userId": {
-                "title": "User ID",
-                "description": "Unique identifier for the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "anonymousId",
-          "type": "string",
-          "label": "Anonymous ID",
-          "description": "Anonymous identifier for the user",
-          "defaultValue": {
-            "@path": "$.anonymousId"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "anonymousId": {
-                "title": "Anonymous ID",
-                "description": "Anonymous identifier for the user",
-                "type": "string"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "User Attributes",
-          "description": "The Segment user traits to be forwarded to Screeb and set as attributes",
-          "defaultValue": {
-            "@path": "$.traits"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "User Attributes",
-                "description": "The Segment user traits to be forwarded to Screeb and set as attributes",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    },
-    {
-      "slug": "track",
-      "name": "Track",
-      "description": "Track event to potentially filter user studies (microsurveys) later, or trigger a study now.",
-      "platform": "web",
-      "hidden": false,
-      "defaultTrigger": "type = \"track\" and event != \"Signed Out\"",
-      "fields": [
-        {
-          "fieldKey": "name",
-          "type": "string",
-          "label": "Event name",
-          "description": "The event name that will be shown on Screeb's dashboard",
-          "defaultValue": {
-            "@path": "$.event"
-          },
-          "required": true,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "title": "Event name",
-                "description": "The event name that will be shown on Screeb's dashboard",
-                "type": "string"
-              }
-            },
-            "required": ["name"]
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        },
-        {
-          "fieldKey": "properties",
-          "type": "object",
-          "label": "Event Properties",
-          "description": "Object containing the properties of the event",
-          "defaultValue": {
-            "@path": "$.properties"
-          },
-          "required": false,
-          "multiple": false,
-          "choices": null,
-          "dynamic": false,
-          "placeholder": "",
-          "allowNull": false,
-          "fieldSchema": {
-            "$schema": "http://json-schema.org/schema#",
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "properties": {
-                "title": "Event Properties",
-                "description": "Object containing the properties of the event",
-                "type": "object"
-              }
-            },
-            "required": []
-          },
-          "dependsOn": null,
-          "displayMetadata": null
-        }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "partnerAction": "alias",
-      "name": "Alias",
-      "subscribe": "type = \"alias\"",
-      "mapping": {
-        "userId": {
-          "@path": "$.userId"
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
         "anonymousId": {
-          "@path": "$.anonymousId"
-        }
-      },
-      "type": "automatic"
-    },
-    {
-      "partnerAction": "group",
-      "name": "Group",
-      "subscribe": "type = \"group\"",
-      "mapping": {
-        "groupId": {
-          "@path": "$.groupId"
-        },
-        "groupType": {
-          "@path": "$.traits.group_type"
+          "label": "Anonymous ID",
+          "description": "Anonymous identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         },
         "properties": {
-          "@path": "$.traits"
+          "label": "User Attributes",
+          "description": "The Segment user traits to be forwarded to Screeb and set as attributes",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
         }
-      },
-      "type": "automatic"
+      }
     },
+    "track": {
+      "title": "Track",
+      "description": "Track event to potentially filter user studies (microsurveys) later, or trigger a study now.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" and event != \"Signed Out\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "name": {
+          "label": "Event name",
+          "description": "The event name that will be shown on Screeb's dashboard",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Event Properties",
+          "description": "Object containing the properties of the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "group": {
+      "title": "Group",
+      "description": "Set user group and/or attributes.",
+      "platform": "web",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "groupId": {
+          "label": "Group ID",
+          "description": "The group id",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "groupType": {
+          "label": "Group type",
+          "description": "The group type",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.group_type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Traits",
+          "description": "Traits to associate with the group",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "alias": {
+      "title": "Alias",
+      "description": "Update user identity with new user ID.",
+      "platform": "web",
+      "defaultSubscription": "type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "New unique identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "New anonymous identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
     {
-      "partnerAction": "identify",
       "name": "Identify",
+      "type": "automatic",
+      "partnerAction": "identify",
       "subscribe": "type = \"identify\"",
       "mapping": {
         "userId": {
@@ -416,11 +313,12 @@
           "@path": "$.traits"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
     },
     {
-      "partnerAction": "track",
       "name": "Track",
+      "type": "automatic",
+      "partnerAction": "track",
       "subscribe": "type = \"track\"",
       "mapping": {
         "name": {
@@ -430,7 +328,40 @@
           "@path": "$.properties"
         }
       },
-      "type": "automatic"
+      "eventSlug": null
+    },
+    {
+      "name": "Group",
+      "type": "automatic",
+      "partnerAction": "group",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "groupType": {
+          "@path": "$.traits.group_type"
+        },
+        "properties": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Alias",
+      "type": "automatic",
+      "partnerAction": "alias",
+      "subscribe": "type = \"alias\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": null
     }
   ]
 }
