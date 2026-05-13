@@ -34,7 +34,7 @@ export interface Payload {
    */
   delimiter: string
   /**
-   * Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.
+   * Name of the CSV file to upload for LiveRamp ingestion. Files are gzipped before upload and `.gz` is appended to the filename in the destination SFTP folder (e.g. `audience_PII.csv` becomes `audience_PII.csv.gz`). For multiple subscriptions, make sure to use a unique filename for each subscription.
    */
   filename: string
   /**
