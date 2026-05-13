@@ -174,6 +174,29 @@ describe('generatePublicMetadata() — authentication fields', () => {
       { label: 'staging', value: 'staging' }
     ])
   })
+
+  it('serializes multiple and depends_on on auth fields', () => {
+    const def = {
+      ...cloudDef,
+      authentication: {
+        scheme: 'custom',
+        fields: {
+          tags: { label: 'Tags', description: 'Tags.', type: 'string', multiple: true },
+          region: {
+            label: 'Region',
+            description: 'Region.',
+            type: 'string',
+            depends_on: { conditions: [{ fieldKey: 'env', operator: 'is', value: 'prod' }] }
+          }
+        }
+      }
+    } as unknown as DestinationDefinition
+    const { authentication } = generatePublicMetadata('slug', def)
+    expect(authentication?.fields.tags.multiple).toBe(true)
+    expect(authentication?.fields.region.depends_on).toEqual({
+      conditions: [{ fieldKey: 'env', operator: 'is', value: 'prod' }]
+    })
+  })
 })
 
 // ---- Action fields ----
@@ -249,6 +272,31 @@ describe('generatePublicMetadata() — action fields', () => {
       }
     } as unknown as DestinationDefinition
     expect(generatePublicMetadata('slug', def).actions.dynAction.fields.staticField.dynamic).toBe(false)
+  })
+
+  it('serializes displayMode and additionalProperties on action fields', () => {
+    const def = {
+      ...cloudDef,
+      actions: {
+        testAction: {
+          title: 'Test',
+          description: '',
+          fields: {
+            traits: {
+              label: 'Traits',
+              description: 'User traits.',
+              type: 'object',
+              displayMode: 'key-value',
+              additionalProperties: true
+            }
+          },
+          perform: () => undefined
+        }
+      }
+    } as unknown as DestinationDefinition
+    const field = generatePublicMetadata('slug', def).actions.testAction.fields.traits
+    expect(field.displayMode).toBe('key-value')
+    expect(field.additionalProperties).toBe(true)
   })
 })
 
@@ -506,6 +554,18 @@ describe('resolveSourceDir()', () => {
     )
   })
 
+  it('resolves compiled warehouse dist path to src directory', () => {
+    expect(resolveSourceDir('/repo/packages/warehouse-destinations/dist/destinations/my-wh/index.js')).toBe(
+      '/repo/packages/warehouse-destinations/src/destinations/my-wh'
+    )
+  })
+
+  it('resolves ts-node warehouse src path to its own directory', () => {
+    expect(resolveSourceDir('/repo/packages/warehouse-destinations/src/destinations/my-wh/index.ts')).toBe(
+      '/repo/packages/warehouse-destinations/src/destinations/my-wh'
+    )
+  })
+
   it('returns null for an unrecognized path pattern', () => {
     expect(resolveSourceDir('/some/random/path/index.js')).toBeNull()
   })
@@ -620,15 +680,57 @@ describe('GenerateMetadataPayload command', () => {
     await expect(GenerateMetadataPayload.run([])).rejects.toThrow('1 destination(s) failed to generate metadata')
     expect(mockWriteFile).toHaveBeenCalledTimes(1)
   })
+
+  it('filters to only cloud destinations when --mode=cloud is passed', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-cloud': {
+        path: '/repo/packages/destination-actions/dist/destinations/cloud-dest/index.js',
+        definition: { ...cloudDef, slug: 'cloud-dest', mode: 'cloud' }
+      } as any,
+      'meta-device': {
+        path: '/repo/packages/browser-destinations/destinations/browser-dest/dist/cjs/index.js',
+        definition: { ...browserDef, slug: 'browser-dest', mode: 'device' }
+      } as any
+    })
+    await GenerateMetadataPayload.run(['--mode=cloud'])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      '/repo/packages/destination-actions/src/destinations/cloud-dest/metadata.json',
+      expect.any(String)
+    )
+  })
+
+  it('filters to only device destinations when --mode=device is passed', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-cloud': {
+        path: '/repo/packages/destination-actions/dist/destinations/cloud-dest/index.js',
+        definition: { ...cloudDef, slug: 'cloud-dest', mode: 'cloud' }
+      } as any,
+      'meta-device': {
+        path: '/repo/packages/browser-destinations/destinations/browser-dest/dist/cjs/index.js',
+        definition: { ...browserDef, slug: 'browser-dest', mode: 'device' }
+      } as any
+    })
+    await GenerateMetadataPayload.run(['--mode=device'])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      '/repo/packages/browser-destinations/destinations/browser-dest/metadata.json',
+      expect.any(String)
+    )
+  })
 })
 
 // ---- Filesystem Discovery ----
+
+function makeDirent(name: string, isDir = true) {
+  return { name, isDirectory: () => isDir, isFile: () => !isDir } as any
+}
 
 describe('GenerateMetadataPayload — filesystem discovery', () => {
   const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
   const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
   const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<(p: string) => Promise<boolean>>
-  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<string[]>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<any[]>>
   const mockLoadDestination = loadDestination as jest.MockedFunction<typeof loadDestination>
 
   const unregisteredDef = {
@@ -649,7 +751,7 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
       if (p.endsWith('new-dest/index.ts')) return true
       return false
     })
-    mockReaddir.mockResolvedValue(['new-dest'] as any)
+    mockReaddir.mockResolvedValue([makeDirent('new-dest')])
     mockLoadDestination.mockResolvedValue(unregisteredDef)
 
     await GenerateMetadataPayload.run([])
@@ -660,12 +762,21 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
     )
   })
 
+  it('skips non-directory entries', async () => {
+    mockPathExists.mockResolvedValue(true)
+    mockReaddir.mockResolvedValue([makeDirent('utils.ts', false), makeDirent('.DS_Store', false)])
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).not.toHaveBeenCalled()
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
   it('skips directories without an index.ts', async () => {
     mockPathExists.mockImplementation(async (p: string) => {
       if (p.includes('destination-actions/src/destinations') && !p.includes('index.ts')) return true
       return false
     })
-    mockReaddir.mockResolvedValue(['no-index-dir'] as any)
+    mockReaddir.mockResolvedValue([makeDirent('no-index-dir')])
 
     await GenerateMetadataPayload.run([])
     expect(mockLoadDestination).not.toHaveBeenCalled()
@@ -674,7 +785,7 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
 
   it('skips directories where loadDestination returns null', async () => {
     mockPathExists.mockResolvedValue(true)
-    mockReaddir.mockResolvedValue(['invalid-dest'] as any)
+    mockReaddir.mockResolvedValue([makeDirent('invalid-dest')])
     mockLoadDestination.mockResolvedValue(null)
 
     await GenerateMetadataPayload.run([])
@@ -683,7 +794,7 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
 
   it('skips directories where loadDestination throws and continues', async () => {
     mockPathExists.mockResolvedValue(true)
-    mockReaddir.mockResolvedValue(['broken-dest', 'good-dest'] as any)
+    mockReaddir.mockResolvedValue([makeDirent('broken-dest'), makeDirent('good-dest')])
     mockLoadDestination.mockRejectedValueOnce(new Error('syntax error')).mockResolvedValueOnce(unregisteredDef)
 
     await GenerateMetadataPayload.run([])
@@ -703,7 +814,7 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
       if (typeof p === 'string' && p.includes('destination-actions/src/destinations')) return true
       return false
     })
-    mockReaddir.mockResolvedValue(['existing-dest'] as any)
+    mockReaddir.mockResolvedValue([makeDirent('existing-dest')])
 
     await GenerateMetadataPayload.run([])
     expect(mockLoadDestination).not.toHaveBeenCalled()

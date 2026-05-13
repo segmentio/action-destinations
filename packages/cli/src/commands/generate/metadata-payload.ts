@@ -88,7 +88,7 @@ export interface PublicDestinationMetadata {
   description: string | undefined
   authentication: { scheme: string; fields: Record<string, PublicAuthField> } | null
   audienceConfig: {
-    mode: { type: 'synced' | 'realtime'; full_audience_sync?: boolean }
+    mode: { type: 'synced'; full_audience_sync: boolean } | { type: 'realtime' }
     audienceFields: Record<string, PublicAuthField>
     supportsAudienceFunctions: boolean
   } | null
@@ -191,7 +191,9 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
         inputFields[fieldKey] = serializeActionField(fieldDef)
       }
       const outputFields: Record<string, PublicActionField> = {}
-      for (const [fieldKey, fieldDef] of Object.entries((hook.outputTypes ?? {}) as Record<string, any>)) {
+      for (const [fieldKey, fieldDef] of Object.entries(
+        (hook.outputTypes ?? hook.outputFields ?? {}) as Record<string, any>
+      )) {
         outputFields[fieldKey] = serializeActionField(fieldDef)
       }
       hooks[hookKey] = {
@@ -245,12 +247,16 @@ export function generatePublicMetadata(
   // audienceConfig: strip functions, keep mode + audienceFields + supportsAudienceFunctions
   let audienceConfig: PublicDestinationMetadata['audienceConfig'] = null
   if (audienceDef.audienceConfig) {
-    const mode = audienceDef.audienceConfig.mode as { type: string; full_audience_sync?: boolean }
+    const rawMode = audienceDef.audienceConfig.mode as { type: string; full_audience_sync?: boolean }
     const audienceConfigAny = audienceDef.audienceConfig as any
     const supportsAudienceFunctions =
       typeof audienceConfigAny.createAudience === 'function' && typeof audienceConfigAny.getAudience === 'function'
+    const mode =
+      rawMode.type === 'synced'
+        ? { type: 'synced' as const, full_audience_sync: rawMode.full_audience_sync ?? false }
+        : { type: 'realtime' as const }
     audienceConfig = {
-      mode: { type: mode.type as 'synced' | 'realtime', full_audience_sync: mode.full_audience_sync },
+      mode,
       audienceFields: serializeAuthFields(audienceDef.audienceFields ?? {}),
       supportsAudienceFunctions
     }
@@ -390,13 +396,18 @@ export default class GenerateMetadataPayload extends Command {
     const cloudDestDir = path.join(process.cwd(), 'packages', 'destination-actions', 'src', 'destinations')
     const registeredDirs = new Set(
       Object.values(manifest)
-        .filter((entry: any) => entry.path?.includes('packages/destination-actions'))
+        .filter((entry: any) => {
+          const entryPath: string = entry.path ?? ''
+          return entryPath.startsWith(cloudDestDir) || entryPath.includes('packages/destination-actions')
+        })
         .map((entry: any) => entry.directory as string)
     )
 
     if (await fs.pathExists(cloudDestDir)) {
-      const dirs = await fs.readdir(cloudDestDir)
-      for (const dir of dirs) {
+      const entries = await fs.readdir(cloudDestDir, { withFileTypes: true })
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        const dir = entry.name
         if (registeredDirs.has(dir)) continue
         const indexPath = path.join(cloudDestDir, dir, 'index.ts')
         if (!(await fs.pathExists(indexPath))) continue
@@ -417,9 +428,10 @@ export default class GenerateMetadataPayload extends Command {
     // Discover warehouse destinations from the filesystem
     const warehouseDestDir = path.join(process.cwd(), 'packages', 'warehouse-destinations', 'src', 'destinations')
     if (await fs.pathExists(warehouseDestDir)) {
-      const dirs = await fs.readdir(warehouseDestDir)
-      for (const dir of dirs) {
-        if (dir === 'index.ts') continue
+      const entries = await fs.readdir(warehouseDestDir, { withFileTypes: true })
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        const dir = entry.name
         const indexPath = path.join(warehouseDestDir, dir, 'index.ts')
         if (!(await fs.pathExists(indexPath))) continue
         try {
