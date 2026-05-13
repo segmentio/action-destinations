@@ -5,7 +5,7 @@ import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { EventData } from '../types'
 import { v4 as uuidv4 } from '@lukeed/uuid'
-import { processPhoneNumber } from '../functions'
+import { processPhoneNumber, validateExternalId } from '../functions'
 import { country_code } from '../properties'
 import dayjs from 'dayjs'
 
@@ -176,6 +176,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
+    validateExternalId(external_id)
 
     const eventData = createEventData(payload)
 
