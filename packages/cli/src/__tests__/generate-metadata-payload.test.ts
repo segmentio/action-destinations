@@ -1,18 +1,23 @@
 jest.mock('../lib/destinations', () => ({
   getManifest: jest.fn(),
+  loadDestination: jest.fn(),
   hasOauthAuthentication: jest.requireActual('../lib/destinations').hasOauthAuthentication
 }))
 
 jest.mock('fs-extra', () => ({
   __esModule: true,
-  default: { writeFile: jest.fn().mockResolvedValue(undefined) }
+  default: {
+    writeFile: jest.fn().mockResolvedValue(undefined),
+    pathExists: jest.fn().mockResolvedValue(false),
+    readdir: jest.fn().mockResolvedValue([])
+  }
 }))
 
 import fs from 'fs-extra'
 import { generatePublicMetadata } from '../commands/generate/metadata-payload'
 import { resolveSourceDir } from '../commands/generate/metadata-payload'
 import GenerateMetadataPayload from '../commands/generate/metadata-payload'
-import { getManifest } from '../lib/destinations'
+import { getManifest, loadDestination } from '../lib/destinations'
 import type { DestinationDefinition } from '../lib/destinations'
 
 // ---- Fixtures ----
@@ -515,6 +520,8 @@ describe('resolveSourceDir()', () => {
 describe('GenerateMetadataPayload command', () => {
   const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
   const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<() => Promise<boolean>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<string[]>>
 
   const validEntry = {
     path: '/repo/packages/destination-actions/dist/destinations/test-dest/index.js',
@@ -524,6 +531,8 @@ describe('GenerateMetadataPayload command', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockWriteFile.mockResolvedValue(undefined as never)
+    mockPathExists.mockResolvedValue(false)
+    mockReaddir.mockResolvedValue([])
   })
 
   it('writes metadata.json to the resolved source dir', async () => {
@@ -610,5 +619,93 @@ describe('GenerateMetadataPayload command', () => {
     })
     await expect(GenerateMetadataPayload.run([])).rejects.toThrow('1 destination(s) failed to generate metadata')
     expect(mockWriteFile).toHaveBeenCalledTimes(1)
+  })
+})
+
+// ---- Filesystem Discovery ----
+
+describe('GenerateMetadataPayload — filesystem discovery', () => {
+  const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<(p: string) => Promise<boolean>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<string[]>>
+  const mockLoadDestination = loadDestination as jest.MockedFunction<typeof loadDestination>
+
+  const unregisteredDef = {
+    ...cloudDef,
+    name: 'Unregistered Dest',
+    slug: 'actions-unregistered'
+  } as unknown as DestinationDefinition
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockWriteFile.mockResolvedValue(undefined as never)
+    mockGetManifest.mockReturnValue({})
+  })
+
+  it('discovers an unregistered destination directory with an index.ts', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('destination-actions/src/destinations')) return true
+      if (p.endsWith('new-dest/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockResolvedValue(['new-dest'] as any)
+    mockLoadDestination.mockResolvedValue(unregisteredDef)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).toHaveBeenCalledWith(expect.stringContaining('new-dest/index.ts'))
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      expect.stringContaining('new-dest/metadata.json'),
+      expect.stringContaining('"slug": "actions-unregistered"')
+    )
+  })
+
+  it('skips directories without an index.ts', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('destination-actions/src/destinations') && !p.includes('index.ts')) return true
+      return false
+    })
+    mockReaddir.mockResolvedValue(['no-index-dir'] as any)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).not.toHaveBeenCalled()
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('skips directories where loadDestination returns null', async () => {
+    mockPathExists.mockResolvedValue(true)
+    mockReaddir.mockResolvedValue(['invalid-dest'] as any)
+    mockLoadDestination.mockResolvedValue(null)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('skips directories where loadDestination throws and continues', async () => {
+    mockPathExists.mockResolvedValue(true)
+    mockReaddir.mockResolvedValue(['broken-dest', 'good-dest'] as any)
+    mockLoadDestination.mockRejectedValueOnce(new Error('syntax error')).mockResolvedValueOnce(unregisteredDef)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(expect.stringContaining('good-dest/metadata.json'), expect.any(String))
+  })
+
+  it('does not re-discover directories already in the manifest', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-1': {
+        path: '/repo/packages/destination-actions/dist/destinations/existing-dest/index.js',
+        definition: { ...cloudDef, slug: 'existing-dest' },
+        directory: 'existing-dest'
+      } as any
+    })
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (typeof p === 'string' && p.includes('destination-actions/src/destinations')) return true
+      return false
+    })
+    mockReaddir.mockResolvedValue(['existing-dest'] as any)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).not.toHaveBeenCalled()
   })
 })

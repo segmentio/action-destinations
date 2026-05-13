@@ -362,9 +362,10 @@ export default class GenerateMetadataPayload extends Command {
       description: 'Only generate payload for a specific destination slug',
       multiple: true
     }),
-    mode: flags.string({
+    mode: flags.enum({
       char: 'm',
       description: 'Only generate payload for destinations matching this mode (cloud, device, warehouse)',
+      options: ['cloud', 'device', 'warehouse'],
       multiple: true
     })
   }
@@ -387,7 +388,11 @@ export default class GenerateMetadataPayload extends Command {
 
     // Discover unregistered cloud destinations from the filesystem
     const cloudDestDir = path.join(process.cwd(), 'packages', 'destination-actions', 'src', 'destinations')
-    const registeredDirs = new Set(Object.values(manifest).map((entry: any) => entry.directory as string))
+    const registeredDirs = new Set(
+      Object.values(manifest)
+        .filter((entry: any) => entry.path?.includes('packages/destination-actions'))
+        .map((entry: any) => entry.directory as string)
+    )
 
     if (await fs.pathExists(cloudDestDir)) {
       const dirs = await fs.readdir(cloudDestDir)
@@ -403,8 +408,8 @@ export default class GenerateMetadataPayload extends Command {
             directory: dir,
             path: indexPath
           }
-        } catch {
-          // Skip directories that fail to load (e.g. not valid destinations)
+        } catch (err) {
+          this.debug(`Skipping unregistered destination "${dir}": ${(err as Error).message}`)
         }
       }
     }
@@ -425,8 +430,8 @@ export default class GenerateMetadataPayload extends Command {
             directory: dir,
             path: indexPath
           }
-        } catch {
-          // Skip directories that fail to load
+        } catch (err) {
+          this.debug(`Skipping warehouse destination "${dir}": ${(err as Error).message}`)
         }
       }
     }
