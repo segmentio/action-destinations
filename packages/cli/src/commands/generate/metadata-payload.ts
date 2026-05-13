@@ -7,7 +7,7 @@ import { hookTypeStrings } from '@segment/actions-core/destination-kit'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
-import { getManifest, DestinationDefinition } from '../../lib/destinations'
+import { getManifest, DestinationDefinition, loadDestination } from '../../lib/destinations'
 
 // ---- Public output interfaces ----
 
@@ -274,7 +274,8 @@ export default class GenerateMetadataPayload extends Command {
 
   static examples = [
     `$ ./bin/run generate:metadata-payload`,
-    `$ ./bin/run generate:metadata-payload --slug=actions-amplitude`
+    `$ ./bin/run generate:metadata-payload --slug=actions-amplitude`,
+    `$ ./bin/run generate:metadata-payload --mode=cloud`
   ]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -284,6 +285,11 @@ export default class GenerateMetadataPayload extends Command {
       char: 's',
       description: 'Only generate payload for a specific destination slug',
       multiple: true
+    }),
+    mode: flags.string({
+      char: 'm',
+      description: 'Only generate payload for destinations matching this mode (cloud, device)',
+      multiple: true
     })
   }
 
@@ -292,6 +298,7 @@ export default class GenerateMetadataPayload extends Command {
   async run() {
     const { flags: parsedFlags } = this.parse(GenerateMetadataPayload)
     const filterSlugs: string[] | undefined = parsedFlags['slug']
+    const filterModes: string[] | undefined = parsedFlags['mode']
 
     this.spinner.start('Loading destination manifest...')
     let manifest: Record<string, any>
@@ -301,6 +308,31 @@ export default class GenerateMetadataPayload extends Command {
       this.spinner.fail('Failed to load manifest')
       throw err
     }
+
+    // Discover unregistered cloud destinations from the filesystem
+    const cloudDestDir = path.join(process.cwd(), 'packages', 'destination-actions', 'src', 'destinations')
+    const registeredDirs = new Set(Object.values(manifest).map((entry: any) => entry.directory as string))
+
+    if (await fs.pathExists(cloudDestDir)) {
+      const dirs = await fs.readdir(cloudDestDir)
+      for (const dir of dirs) {
+        if (registeredDirs.has(dir)) continue
+        const indexPath = path.join(cloudDestDir, dir, 'index.ts')
+        if (!(await fs.pathExists(indexPath))) continue
+        try {
+          const definition = await loadDestination(indexPath)
+          if (!definition) continue
+          manifest[`unregistered:${dir}`] = {
+            definition,
+            directory: dir,
+            path: indexPath
+          }
+        } catch {
+          // Skip directories that fail to load (e.g. not valid destinations)
+        }
+      }
+    }
+
     this.spinner.succeed(`Loaded ${Object.keys(manifest).length} destinations`)
 
     const entries = Object.entries(manifest)
@@ -315,6 +347,14 @@ export default class GenerateMetadataPayload extends Command {
       if (filterSlugs && filterSlugs.length > 0 && !filterSlugs.includes(slug)) {
         skipped++
         continue
+      }
+
+      if (filterModes && filterModes.length > 0) {
+        const definitionMode = ((definition as any).mode ?? 'cloud') as string
+        if (!filterModes.includes(definitionMode)) {
+          skipped++
+          continue
+        }
       }
 
       this.spinner.start(`Generating payload for ${definition.name} (${slug})...`)
