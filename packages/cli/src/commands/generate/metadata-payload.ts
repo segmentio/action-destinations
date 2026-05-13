@@ -8,6 +8,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
 import { getManifest, DestinationDefinition, loadDestination } from '../../lib/destinations'
+import type { WarehouseDestinationDefinition } from '@segment/actions-core'
 
 // ---- Public output interfaces ----
 
@@ -166,20 +167,25 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
   }
 }
 
-export function generatePublicMetadata(slug: string, definition: DestinationDefinition): PublicDestinationMetadata {
+export function generatePublicMetadata(
+  slug: string,
+  definition: DestinationDefinition | WarehouseDestinationDefinition
+): PublicDestinationMetadata {
   if (!slug) {
     throw new Error(`metadata.json generation requires a slug but received: "${slug}"`)
   }
 
   const cloudDef = definition as CloudDestinationDefinition
   const browserDef = definition as any // BrowserDestinationDefinition
+  const warehouseDef = definition as unknown as WarehouseDestinationDefinition
   const audienceDef = definition as AudienceDestinationDefinition
 
-  // Authentication fields: cloud uses authentication.fields, browser uses settings
+  // Authentication fields: cloud uses authentication.fields, browser uses settings, warehouse uses settings
   let authentication: PublicDestinationMetadata['authentication'] = null
   const authFields = cloudDef.authentication?.fields
   const browserSettings = browserDef.settings
-  const rawFields = authFields ?? browserSettings
+  const warehouseSettings = warehouseDef.settings
+  const rawFields = authFields ?? browserSettings ?? warehouseSettings
   if (cloudDef.authentication || (rawFields && Object.keys(rawFields).length > 0)) {
     authentication = {
       scheme: cloudDef.authentication?.scheme ?? 'custom',
@@ -260,6 +266,22 @@ function resolveSourceDir(entryPath: string): string | null {
     return browserSrcMatch[1]
   }
 
+  // Compiled warehouse: .../packages/warehouse-destinations/dist/destinations/<name>/index.js
+  const warehouseDistMatch = entryPath.match(
+    /^(.+\/packages\/warehouse-destinations)\/dist\/destinations\/([^/]+)\/index\.js$/
+  )
+  if (warehouseDistMatch) {
+    return path.join(warehouseDistMatch[1], 'src', 'destinations', warehouseDistMatch[2])
+  }
+
+  // Source warehouse: .../packages/warehouse-destinations/src/destinations/<name>/index.ts
+  const warehouseSrcMatch = entryPath.match(
+    /^(.+\/packages\/warehouse-destinations\/src\/destinations\/[^/]+)\/index\.ts$/
+  )
+  if (warehouseSrcMatch) {
+    return warehouseSrcMatch[1]
+  }
+
   return null
 }
 
@@ -288,7 +310,7 @@ export default class GenerateMetadataPayload extends Command {
     }),
     mode: flags.string({
       char: 'm',
-      description: 'Only generate payload for destinations matching this mode (cloud, device)',
+      description: 'Only generate payload for destinations matching this mode (cloud, device, warehouse)',
       multiple: true
     })
   }
@@ -329,6 +351,28 @@ export default class GenerateMetadataPayload extends Command {
           }
         } catch {
           // Skip directories that fail to load (e.g. not valid destinations)
+        }
+      }
+    }
+
+    // Discover warehouse destinations from the filesystem
+    const warehouseDestDir = path.join(process.cwd(), 'packages', 'warehouse-destinations', 'src', 'destinations')
+    if (await fs.pathExists(warehouseDestDir)) {
+      const dirs = await fs.readdir(warehouseDestDir)
+      for (const dir of dirs) {
+        if (dir === 'index.ts') continue
+        const indexPath = path.join(warehouseDestDir, dir, 'index.ts')
+        if (!(await fs.pathExists(indexPath))) continue
+        try {
+          const definition = await loadDestination(indexPath)
+          if (!definition) continue
+          manifest[`warehouse:${dir}`] = {
+            definition,
+            directory: dir,
+            path: indexPath
+          }
+        } catch {
+          // Skip directories that fail to load
         }
       }
     }
