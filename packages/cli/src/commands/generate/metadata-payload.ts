@@ -294,6 +294,32 @@ export function generatePublicMetadata(
 
 // ---- Path helpers ----
 
+// Lazily-built map from browser package name to source directory.
+let browserPkgMap: Map<string, string> | null = null
+
+function getBrowserPackageMap(): Map<string, string> {
+  if (browserPkgMap) return browserPkgMap
+  browserPkgMap = new Map()
+  const browsersDir = path.join(process.cwd(), 'packages', 'browser-destinations', 'destinations')
+  try {
+    const dirs = fs.readdirSync(browsersDir)
+    for (const dir of dirs) {
+      const pkgPath = path.join(browsersDir, dir, 'package.json')
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+        if (pkg.name) {
+          browserPkgMap.set(pkg.name, path.join(browsersDir, dir))
+        }
+      } catch {
+        // skip directories without valid package.json
+      }
+    }
+  } catch {
+    // browsersDir doesn't exist
+  }
+  return browserPkgMap
+}
+
 // Derives the source directory for a destination from its compiled entry path.
 // Cloud:   .../packages/destination-actions/dist/destinations/<name>/index.js
 //       →  .../packages/destination-actions/src/destinations/<name>
@@ -340,6 +366,14 @@ function resolveSourceDir(entryPath: string): string | null {
   )
   if (warehouseSrcMatch) {
     return warehouseSrcMatch[1]
+  }
+
+  // Browser via node_modules: .../node_modules/@segment/<pkg-name>/dist/cjs/index.js
+  const nodeModulesBrowserMatch = entryPath.match(/node_modules\/(@segment\/[^/]+)\/dist\//)
+  if (nodeModulesBrowserMatch) {
+    const pkgName = nodeModulesBrowserMatch[1]
+    const sourceDir = getBrowserPackageMap().get(pkgName)
+    if (sourceDir) return sourceDir
   }
 
   return null
