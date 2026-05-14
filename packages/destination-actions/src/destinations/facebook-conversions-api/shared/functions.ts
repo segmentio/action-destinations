@@ -19,9 +19,11 @@ import {
   InitiateCheckoutEventData,
   PageEventData,
   PurchaseEventData,
+  AppendEventDetails,
+  AppendValueEventData,
   GeneratedAppData,
   UserData,
-  Content
+  Content,
 } from './types'
 import {
   API_VERSION,
@@ -30,7 +32,8 @@ import {
   US_STATE_CODES,
   COUNTRY_CODES,
   CURRENCY_ISO_CODES,
-  EventType
+  EventType,
+  FEATURE_FLAG_APPEND_VALUE
 } from './constants'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
@@ -53,7 +56,7 @@ export function send<P extends AnyPayload, T extends EventDataType>(
   request: RequestClient,
   payload: P,
   settings: Settings,
-  getDataFunction: (payload: P) => T,
+  getDataFunction: (payload: P, features?: Features, statsContext?: StatsContext) => T,
   eventType: EventTypeKey,
   features?: Features,
   statsContext?: StatsContext
@@ -64,7 +67,7 @@ export function send<P extends AnyPayload, T extends EventDataType>(
 
   validate(payload, eventType)
 
-  const data = getDataFunction(payload)
+  const data = getDataFunction(payload, features, statsContext)
 
   const json: RequestJSON = {
     data: [data],
@@ -186,15 +189,20 @@ export function getAddToCartEventData(payload: AddToCartPayload | AddToCart2Payl
   return data
 }
 
-export function getCustomEventData(payload: CustomPayload | Custom2Payload): CustomEventData {
+export function getCustomEventData(payload: CustomPayload | Custom2Payload, features?: Features, statsContext?: StatsContext): CustomEventData | AppendValueEventData {
   const baseEventData = getBaseEventData(payload)
-  const { custom_data, event_name } = payload
+  const { is_append_event, append_event_details, custom_data, event_name } = payload
 
   const data: CustomEventData = {
     event_name,
     ...baseEventData,
     custom_data: { ...custom_data }
   }
+
+  if(features?.[FEATURE_FLAG_APPEND_VALUE] && is_append_event && append_event_details) {
+    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+  }
+
   return data
 }
 
@@ -229,10 +237,10 @@ export function getPageViewEventData(payload: PageViewPayload | PageView2Payload
   return data
 }
 
-export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload): PurchaseEventData {
+export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload, features?: Features, statsContext?: StatsContext): PurchaseEventData | AppendValueEventData {
   const baseEventData = getBaseEventData(payload)
 
-  const { custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } =
+  const { is_append_event, append_event_details, order_id, predicted_ltv, custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } =
     payload
 
   const data: PurchaseEventData = {
@@ -242,6 +250,8 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
       ...custom_data,
       currency,
       value,
+      ...(order_id && { order_id }),
+      ...(typeof predicted_ltv === 'number' && { predicted_ltv }),
       ...(typeof net_revenue === 'number' && { net_revenue }),
       ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
       ...(content_name && { content_name }),
@@ -250,7 +260,12 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
       ...(typeof num_items === 'number' && { num_items })
     }
   }
-  return data
+
+  if(features?.[FEATURE_FLAG_APPEND_VALUE] && is_append_event && append_event_details) {
+    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+  }
+
+  return data  
 }
 
 export function getSearchEventData(payload: SearchPayload | Search2Payload): SearchEventData {
@@ -292,6 +307,52 @@ export function getViewContentEventData(payload: ViewContentPayload | ViewConten
     }
   }
   return data
+}
+
+export const convertToAppendValueEventData = (
+  data: CustomEventData | PurchaseEventData,
+  append_event_details: AppendEventDetails,
+  statsContext?: StatsContext
+): AppendValueEventData => {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+
+  const {
+    event_name,
+    custom_data: { order_id, net_revenue, predicted_ltv, ...restCustomData }
+  } = data
+
+  const {
+    original_event_time,
+    original_event_order_id,
+    original_event_id,
+    net_revenue_to_append,
+    predicted_ltv_to_append
+  } = append_event_details
+
+  if(!original_event_time) {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, Append Event Details field "Original Event Time" is required')
+  }
+
+  const appendValueEventData: AppendValueEventData = {
+      ...data,
+      event_name: 'AppendValue',
+      custom_data: {
+          ...restCustomData,
+          ...(typeof net_revenue_to_append ==='number' ? { net_revenue: net_revenue_to_append } : {}),
+          ...(typeof predicted_ltv_to_append ==='number' ? { predicted_ltv: predicted_ltv_to_append } : {})
+      },
+      original_event_data: {
+          event_name,
+          event_time: original_event_time,
+          ...(original_event_order_id ? {order_id: original_event_order_id} : {}),
+          ...(original_event_id ? {event_id: original_event_id} : {})
+      }
+  }
+
+  statsClient?.incr('append_value_event.success', 1, tags)
+  return appendValueEventData
 }
 
 export const generateAppData = (app_data: AnyPayload['app_data_field']): GeneratedAppData | undefined => {
