@@ -10,30 +10,37 @@
         "description": "Your Mixpanel project token.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "name": {
         "label": "Mixpanel Instance Name",
         "description": "The name for the new mixpanel instance that you want created.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "api_host": {
         "label": "API Host",
         "description": "The Mixpanel API host to send data to.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "https://api-js.mixpanel.com"
+        "default": "https://api-js.mixpanel.com",
+        "depends_on": null
       },
       "autocapture": {
         "label": "Autocapture",
         "description": "Enable or disable Mixpanel autocapture functionality. Select \"Custom\" to specify fine grained control over which events are autocaptured.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Enabled",
@@ -48,13 +55,15 @@
             "value": "custom"
           }
         ],
-        "default": "enabled"
+        "default": "enabled",
+        "depends_on": null
       },
       "pageview": {
         "label": "Autocapture Pageview",
         "description": "Capture pageview events automatically",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Full URL",
@@ -69,77 +78,159 @@
             "value": "url-with-path"
           }
         ],
-        "default": "full-url"
+        "default": "full-url",
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "click": {
         "label": "Autocapture Click",
         "description": "Capture click events automatically",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "dead_click": {
         "label": "Autocapture Dead Click",
         "description": "Capture dead click events automatically",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "input": {
         "label": "Autocapture Input",
         "description": "Capture input events automatically",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "rage_click": {
         "label": "Autocapture Rage Click",
         "description": "Capture rage click events automatically",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "scroll": {
         "label": "Autocapture Scroll",
         "description": "Capture scroll events automatically",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "submit": {
         "label": "Autocapture Submit",
         "description": "Capture form submit events automatically",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "capture_text_content": {
         "label": "Autocapture Capture Text Content",
         "description": "Capture text content of elements in autocaptured events",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "autocapture",
+              "operator": "is",
+              "value": "custom"
+            }
+          ]
+        }
       },
       "cross_subdomain_cookie": {
         "label": "Cross Subdomain Cookie",
         "description": "Enable or disable cross subdomain cookies for Mixpanel.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "persistence": {
         "label": "Persistence Method",
         "description": "Set the persistence method for Mixpanel (cookie or localStorage).",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Cookie",
@@ -150,119 +241,148 @@
             "value": "localStorage"
           }
         ],
-        "default": "cookie"
+        "default": "cookie",
+        "depends_on": null
       },
       "track_marketing": {
         "label": "Track Marketing Campaigns",
         "description": "Enable or disable tracking of marketing campaigns in Mixpanel. Includes UTM parameters and click identifiers for various ad platforms.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "cookie_expiration": {
         "label": "Cookie Expiration (days)",
         "description": "Set the cookie expiration time in days for Mixpanel cookies.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 365
+        "default": 365,
+        "depends_on": null
       },
       "disable_persistence": {
         "label": "Disable Persistence",
         "description": "Disable all persistence mechanisms for Mixpanel.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "ip": {
         "label": "Send IP Address",
         "description": "Enable or disable sending IP address information to Mixpanel.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "record_block_class": {
         "label": "Record Block Class",
         "description": "CSS class to block elements from being recorded in session recordings.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "mp-block"
+        "default": "mp-block",
+        "depends_on": null
       },
       "record_block_selector": {
         "label": "Record Block Selector",
         "description": "CSS selector to block elements from being recorded in session recordings.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "img, video, audio"
+        "default": "img, video, audio",
+        "depends_on": null
       },
       "record_canvas": {
         "label": "Record Canvas",
         "description": "Enable or disable recording of canvas elements in session recordings.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "record_heatmap_data": {
         "label": "Record Heatmap Data",
         "description": "Enable or disable tracking of heatmap events in session recordings.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "record_idle_timeout_ms": {
         "label": "Record Idle Timeout (ms)",
         "description": "Idle timeout in milliseconds for session recordings.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 180000
+        "default": 180000,
+        "depends_on": null
       },
       "record_mask_text_class": {
         "label": "Record Mask Text Class",
         "description": "CSS class to mask text elements in session recordings.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "mp-mask"
+        "default": "mp-mask",
+        "depends_on": null
       },
       "record_mask_text_selector": {
         "label": "Record Mask Text Selector",
         "description": "CSS selector to mask text elements in session recordings.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "*"
+        "default": "*",
+        "depends_on": null
       },
       "record_max_ms": {
         "label": "Record Max (ms)",
         "description": "Maximum recording time in milliseconds for session recordings.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 86400000
+        "default": 86400000,
+        "depends_on": null
       },
       "record_min_ms": {
         "label": "Record Min (ms)",
         "description": "Minimum recording time in milliseconds for session recordings.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 0
+        "default": 0,
+        "depends_on": null
       },
       "record_sessions_percent": {
         "label": "Record Sessions Percent",
         "description": "Percentage of sessions to record for session recordings.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 0
+        "default": 0,
+        "depends_on": null
       }
     }
   },
@@ -276,7 +396,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "event_name": {
           "label": "Event Name",
@@ -299,7 +419,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Event Properties",
@@ -322,7 +444,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "unique_id": {
           "label": "Unique ID",
@@ -343,7 +467,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_profile_properties_to_set": {
           "label": "User Profile Properties to Set",
@@ -376,7 +502,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "first_name": {
               "label": "First Name",
@@ -397,7 +525,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "last_name": {
               "label": "Last Name",
@@ -418,7 +548,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -439,7 +571,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "phone": {
               "label": "Phone",
@@ -460,7 +594,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "avatar": {
               "label": "Avatar",
@@ -481,7 +617,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "created": {
               "label": "Created",
@@ -502,7 +640,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -512,7 +652,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "user_profile_properties_to_set_once": {
           "label": "User Profile Properties to Set Once",
@@ -533,7 +675,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_profile_properties_to_increment": {
           "label": "User Profile Properties to Increment",
@@ -554,7 +698,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_details": {
           "label": "Group Details",
@@ -587,7 +733,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "group_id": {
               "label": "Group ID",
@@ -608,7 +756,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -618,7 +768,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_set": {
           "label": "Group properties to Set",
@@ -639,7 +791,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_set_once": {
           "label": "Group properties to set once",
@@ -660,7 +814,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_union": {
           "label": "Group list properties to union",
@@ -693,7 +849,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "string_values": {
               "label": "Values",
@@ -714,7 +872,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -724,7 +884,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "arrayeditor",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -736,7 +898,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "event_name": {
           "label": "Event Name",
@@ -759,7 +921,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Event Properties",
@@ -782,7 +946,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "unique_id": {
           "label": "Unique ID",
@@ -803,7 +969,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_profile_properties_to_set": {
           "label": "User Profile Properties to Set",
@@ -836,7 +1004,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "first_name": {
               "label": "First Name",
@@ -857,7 +1027,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "last_name": {
               "label": "Last Name",
@@ -878,7 +1050,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -899,7 +1073,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "phone": {
               "label": "Phone",
@@ -920,7 +1096,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "avatar": {
               "label": "Avatar",
@@ -941,7 +1119,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "created": {
               "label": "Created",
@@ -962,7 +1142,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -972,7 +1154,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "user_profile_properties_to_set_once": {
           "label": "User Profile Properties to Set Once",
@@ -993,7 +1177,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_profile_properties_to_increment": {
           "label": "User Profile Properties to Increment",
@@ -1014,7 +1200,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_details": {
           "label": "Group Details",
@@ -1047,7 +1235,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "group_id": {
               "label": "Group ID",
@@ -1068,7 +1258,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1078,7 +1270,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_set": {
           "label": "Group properties to Set",
@@ -1099,7 +1293,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_set_once": {
           "label": "Group properties to set once",
@@ -1120,7 +1316,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_union": {
           "label": "Group list properties to union",
@@ -1153,7 +1351,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "string_values": {
               "label": "Values",
@@ -1174,7 +1374,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1184,7 +1386,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "arrayeditor",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1196,7 +1400,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "unique_id": {
           "label": "Unique ID",
@@ -1219,7 +1423,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_profile_properties_to_set": {
           "label": "User Profile Properties to Set",
@@ -1274,7 +1480,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "first_name": {
               "label": "First Name",
@@ -1295,7 +1503,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "last_name": {
               "label": "Last Name",
@@ -1316,7 +1526,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -1337,7 +1549,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "phone": {
               "label": "Phone",
@@ -1358,7 +1572,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "avatar": {
               "label": "Avatar",
@@ -1379,7 +1595,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "created": {
               "label": "Created",
@@ -1400,7 +1618,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1410,7 +1630,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "user_profile_properties_to_set_once": {
           "label": "User Profile Properties to Set Once",
@@ -1431,7 +1653,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_profile_properties_to_increment": {
           "label": "User Profile Properties to Increment",
@@ -1452,7 +1676,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1464,7 +1690,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "group_details": {
           "label": "Group Details",
@@ -1504,7 +1730,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "group_id": {
               "label": "Group ID",
@@ -1525,7 +1753,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1535,7 +1765,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_set": {
           "label": "Group properties to Set",
@@ -1556,7 +1788,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_set_once": {
           "label": "Group properties to set once",
@@ -1577,7 +1811,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "group_profile_properties_to_union": {
           "label": "Group list properties to union",
@@ -1610,7 +1846,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "string_values": {
               "label": "Values",
@@ -1631,7 +1869,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1641,7 +1881,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "arrayeditor",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1653,7 +1895,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "alias": {
           "label": "Alias ID",
@@ -1676,7 +1918,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "original": {
           "label": "Original ID",
@@ -1699,7 +1943,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

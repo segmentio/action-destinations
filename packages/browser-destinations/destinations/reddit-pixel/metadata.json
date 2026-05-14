@@ -11,16 +11,20 @@
         "description": "Your Reddit Pixel ID",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "ldu": {
         "label": "Limited Data Use",
         "description": "Limited Data Use - When the LDU flag is enabled, it may impact campaign performance and limit the size of targetable audiences. See [this documentation](https://business.reddithelp.com/s/article/Limited-Data-Use) for more information. If enabling this toggle, also go into each event and configure the Country and Region in the Data Processing Options for each event being sent.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       }
     }
   },
@@ -34,7 +38,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "tracking_type": {
           "label": "Tracking Type",
@@ -88,7 +92,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "products": {
           "label": "Products",
@@ -136,7 +142,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id": {
               "label": "Product ID",
@@ -157,7 +165,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "name": {
               "label": "Product Name",
@@ -178,7 +188,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -188,7 +200,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user": {
           "label": "User",
@@ -267,7 +281,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "device_type": {
               "label": "Device Type",
@@ -288,7 +304,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -309,7 +327,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "externalId": {
               "label": "External ID",
@@ -330,7 +350,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "phoneNumber": {
               "label": "Phone Number",
@@ -351,7 +373,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -361,7 +385,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "data_processing_options": {
           "label": "Data Processing Options",
@@ -1383,7 +1409,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "region": {
               "label": "Region",
@@ -1404,7 +1432,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1414,7 +1444,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "event_metadata": {
           "label": "Event Metadata",
@@ -1492,7 +1524,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemCount": {
               "label": "Item Count",
@@ -1513,7 +1547,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "value": {
               "label": "Value Decimal",
@@ -1534,7 +1570,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1544,7 +1582,11 @@
               {
                 "fieldKey": "tracking_type",
                 "operator": "is",
-                "value": [null, null, ""]
+                "value": [
+                  null,
+                  null,
+                  ""
+                ]
               },
               {
                 "fieldKey": "tracking_type",
@@ -1578,7 +1620,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "conversion_id": {
           "label": "Conversion ID",
@@ -1601,7 +1645,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1613,7 +1659,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "conversion_id": {
           "label": "Conversion ID",
@@ -1636,7 +1682,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "event_metadata": {
           "label": "Event Metadata",
@@ -1714,7 +1762,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemCount": {
               "label": "Item Count",
@@ -1735,7 +1785,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "value": {
               "label": "Value Decimal",
@@ -1756,7 +1808,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1766,7 +1820,11 @@
               {
                 "fieldKey": "tracking_type",
                 "operator": "is",
-                "value": [null, null, ""]
+                "value": [
+                  null,
+                  null,
+                  ""
+                ]
               },
               {
                 "fieldKey": "tracking_type",
@@ -1800,7 +1858,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user": {
           "label": "User",
@@ -1879,7 +1939,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "device_type": {
               "label": "Device Type",
@@ -1900,7 +1962,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -1921,7 +1985,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "externalId": {
               "label": "External ID",
@@ -1942,7 +2008,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "phoneNumber": {
               "label": "Phone Number",
@@ -1963,7 +2031,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1973,7 +2043,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "products": {
           "label": "Products",
@@ -2021,7 +2093,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id": {
               "label": "Product ID",
@@ -2042,7 +2116,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "name": {
               "label": "Product Name",
@@ -2063,7 +2139,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -2073,7 +2151,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "data_processing_options": {
           "label": "Data Processing Options",
@@ -3095,7 +3175,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "region": {
               "label": "Region",
@@ -3116,7 +3198,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -3126,7 +3210,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "custom_event_name": {
           "label": "Custom Event Name",
@@ -3147,7 +3233,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

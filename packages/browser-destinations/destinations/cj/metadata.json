@@ -11,16 +11,20 @@
         "description": "Your Commission Junction Tag ID.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "actionTrackerId": {
         "label": "Action Tracker ID",
         "description": "Used with the \"Order\" Action only. Can be overridden at the Action level. This is a static value provided by CJ. Each account may have multiple actions and each will be referenced by a different actionTrackerId value.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -34,7 +38,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -57,7 +61,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enterpriseId": {
           "label": "Enterprise ID",
@@ -78,7 +84,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "pageType": {
           "label": "Page Type",
@@ -164,7 +172,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "referringChannel": {
           "label": "Referring Channel",
@@ -210,7 +220,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "cartSubtotal": {
           "label": "Cart Subtotal",
@@ -231,7 +243,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "items": {
           "label": "Items",
@@ -282,7 +296,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemId": {
               "label": "Item ID",
@@ -303,7 +319,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -324,7 +342,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "discount": {
               "label": "Discount",
@@ -345,7 +365,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -355,7 +377,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -367,7 +391,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "verticalType": {
           "label": "Vertical type",
@@ -401,7 +425,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "userId": {
           "label": "User ID",
@@ -424,7 +450,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enterpriseId": {
           "label": "Enterprise ID",
@@ -445,7 +473,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "pageType": {
           "label": "Page Type",
@@ -471,7 +501,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailHash": {
           "label": "Email address",
@@ -504,7 +536,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "orderId": {
           "label": "Order ID",
@@ -527,7 +561,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "actionTrackerId": {
           "label": "Action Tracker ID",
@@ -548,7 +584,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "currency": {
           "label": "Currency",
@@ -571,7 +609,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "amount": {
           "label": "Amount",
@@ -594,7 +634,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "discount": {
           "label": "Discount",
@@ -617,7 +659,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "coupon": {
           "label": "Coupon",
@@ -640,7 +684,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "cjeventOrderCookieName": {
           "label": "CJ Event Order Cookie Name",
@@ -661,7 +707,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "items": {
           "label": "Items",
@@ -712,7 +760,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemId": {
               "label": "Item ID",
@@ -733,7 +783,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -754,7 +806,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "discount": {
               "label": "Discount",
@@ -775,7 +829,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -785,7 +841,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allVerticals": {
           "label": "All Vertical Parameters",
@@ -984,7 +1042,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "brand": {
               "label": "Brand",
@@ -1005,7 +1065,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "brandId": {
               "label": "Brand ID",
@@ -1026,7 +1088,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "businessUnit": {
               "label": "Business Unit",
@@ -1047,7 +1111,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "campaignId": {
               "label": "Campaign ID",
@@ -1068,7 +1134,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "campaignName": {
               "label": "Campaign Name",
@@ -1089,7 +1157,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "category": {
               "label": "Category",
@@ -1110,7 +1180,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "class": {
               "label": "Class",
@@ -1131,7 +1203,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "confirmationNumber": {
               "label": "Confirmation Number",
@@ -1152,7 +1226,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "couponDiscount": {
               "label": "Coupon Discount",
@@ -1173,7 +1249,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "couponType": {
               "label": "Coupon Type",
@@ -1207,7 +1285,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "customerCountry": {
               "label": "Customer Country",
@@ -1228,7 +1308,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "customerSegment": {
               "label": "Customer Segment",
@@ -1249,7 +1331,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "customerStatus": {
               "label": "Customer Status",
@@ -1283,7 +1367,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "customerType": {
               "label": "Customer Type",
@@ -1304,7 +1390,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "delivery": {
               "label": "Delivery",
@@ -1354,7 +1442,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "description": {
               "label": "Description",
@@ -1375,7 +1465,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "duration": {
               "label": "Duration",
@@ -1396,7 +1488,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "endDateTime": {
               "label": "End Date Time",
@@ -1417,7 +1511,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "genre": {
               "label": "Genre",
@@ -1438,7 +1534,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemId": {
               "label": "Item ID",
@@ -1459,7 +1557,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemName": {
               "label": "Item Name",
@@ -1480,7 +1580,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itemType": {
               "label": "Item Type",
@@ -1501,7 +1603,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "lifestage": {
               "label": "Lifestage",
@@ -1522,7 +1626,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "location": {
               "label": "Location",
@@ -1543,7 +1649,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "loyaltyEarned": {
               "label": "Loyalty Earned",
@@ -1564,7 +1672,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "loyaltyFirstTimeSignup": {
               "label": "Loyalty First Time Signup",
@@ -1594,7 +1704,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "loyaltyLevel": {
               "label": "Loyalty Level",
@@ -1615,7 +1727,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "loyaltyRedeemed": {
               "label": "Loyalty Redeemed",
@@ -1636,7 +1750,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "loyaltyStatus": {
               "label": "Loyalty Status",
@@ -1666,7 +1782,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "margin": {
               "label": "Margin",
@@ -1687,7 +1805,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "marketingChannel": {
               "label": "Marketing Channel",
@@ -1733,7 +1853,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "noCancellation": {
               "label": "No Cancellation",
@@ -1763,7 +1885,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "orderSubtotal": {
               "label": "Order Subtotal",
@@ -1784,7 +1908,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "paymentMethod": {
               "label": "Payment Method",
@@ -1842,7 +1968,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "paymentModel": {
               "label": "Payment Model",
@@ -1863,7 +1991,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "platformId": {
               "label": "Platform ID",
@@ -1884,7 +2014,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "pointOfSale": {
               "label": "Point of Sale",
@@ -1942,7 +2074,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "preorder": {
               "label": "Preorder",
@@ -1972,7 +2106,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "prepaid": {
               "label": "Prepaid",
@@ -2002,7 +2138,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotion": {
               "label": "Promotion",
@@ -2023,7 +2161,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotionAmount": {
               "label": "Promotion Amount",
@@ -2044,7 +2184,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotionConditionThreshold": {
               "label": "Promotion Condition Threshold",
@@ -2065,7 +2207,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotionConditionType": {
               "label": "Promotion Condition Type",
@@ -2123,7 +2267,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotionEnds": {
               "label": "Promotion Ends",
@@ -2144,7 +2290,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotionStarts": {
               "label": "Promotion Starts",
@@ -2165,7 +2313,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "promotionType": {
               "label": "Promotion Type",
@@ -2215,7 +2365,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -2236,7 +2388,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "rating": {
               "label": "Rating",
@@ -2257,7 +2411,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "serviceType": {
               "label": "Service Type",
@@ -2351,7 +2507,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "startDateTime": {
               "label": "Start Date Time",
@@ -2372,7 +2530,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "subscriptionFee": {
               "label": "Subscription Fee",
@@ -2393,7 +2553,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "subscriptionLength": {
               "label": "Subscription Length",
@@ -2414,7 +2576,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "taxAmount": {
               "label": "Tax Amount",
@@ -2435,7 +2599,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "taxType": {
               "label": "Tax Type",
@@ -2501,7 +2667,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "upsell": {
               "label": "Upsell",
@@ -2531,7 +2699,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -2541,7 +2711,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "travelVerticals": {
           "label": "Travel Vertical Parameters",
@@ -2674,7 +2846,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "bookingStatus": {
               "label": "Booking Status",
@@ -2695,7 +2869,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "bookingValuePostTax": {
               "label": "Booking Value Post-Tax",
@@ -2716,7 +2892,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "bookingValuePreTax": {
               "label": "Booking Value Pre-Tax",
@@ -2737,7 +2915,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "carOptions": {
               "label": "Car Options",
@@ -2758,7 +2938,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "class": {
               "label": "Class",
@@ -2880,7 +3062,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "cruiseType": {
               "label": "Cruise Type",
@@ -2901,7 +3085,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "destinationCity": {
               "label": "Destination City",
@@ -2922,7 +3108,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "destinationCountry": {
               "label": "Destination Country",
@@ -2943,7 +3131,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "destinationState": {
               "label": "Destination State",
@@ -2964,7 +3154,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "domestic": {
               "label": "Domestic Travel",
@@ -2994,7 +3186,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "dropoffIata": {
               "label": "Dropoff IATA",
@@ -3015,7 +3209,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "dropoffId": {
               "label": "Dropoff ID",
@@ -3036,7 +3232,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "flightFareType": {
               "label": "Flight Fare Type",
@@ -3057,7 +3255,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "flightOptions": {
               "label": "Flight Options",
@@ -3078,7 +3278,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "flightType": {
               "label": "Flight Type",
@@ -3112,7 +3314,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "flyerMiles": {
               "label": "Flyer Miles",
@@ -3133,7 +3337,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "guests": {
               "label": "Guests",
@@ -3154,7 +3360,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "iata": {
               "label": "IATA",
@@ -3175,7 +3383,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "itineraryId": {
               "label": "Itinerary ID",
@@ -3196,7 +3406,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "minimumStayDuration": {
               "label": "Minimum Stay Duration",
@@ -3217,7 +3429,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "originCity": {
               "label": "Origin City",
@@ -3238,7 +3452,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "originCountry": {
               "label": "Origin Country",
@@ -3259,7 +3475,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "originState": {
               "label": "Origin State",
@@ -3280,7 +3498,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "paidAtBookingPostTax": {
               "label": "Paid at Booking (Post-Tax)",
@@ -3301,7 +3521,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "paidAtBookingPreTax": {
               "label": "Paid at Booking (Pre-Tax)",
@@ -3322,7 +3544,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "pickupIata": {
               "label": "Pickup IATA",
@@ -3343,7 +3567,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "pickupId": {
               "label": "Pickup ID",
@@ -3364,7 +3590,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "port": {
               "label": "Port",
@@ -3385,7 +3613,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "roomType": {
               "label": "Room Type",
@@ -3406,7 +3636,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "rooms": {
               "label": "Rooms",
@@ -3427,7 +3659,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "shipName": {
               "label": "Ship Name",
@@ -3448,7 +3682,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "travelType": {
               "label": "Travel Type",
@@ -3514,7 +3750,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -3524,7 +3762,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "financeVerticals": {
           "label": "Finance Verticals",
@@ -3618,7 +3858,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "applicationStatus": {
               "label": "Application Status",
@@ -3664,7 +3906,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "apr": {
               "label": "APR",
@@ -3685,7 +3929,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "aprTransfer": {
               "label": "APR Transfer",
@@ -3706,7 +3952,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "aprTransferTime": {
               "label": "APR Transfer Time",
@@ -3727,7 +3975,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "cardCategory": {
               "label": "Card Category",
@@ -3797,7 +4047,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "cashAdvanceFee": {
               "label": "Cash Advance Fee",
@@ -3818,7 +4070,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "contractLength": {
               "label": "Contract Length",
@@ -3839,7 +4093,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "contractType": {
               "label": "Contract Type",
@@ -3860,7 +4116,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "creditReport": {
               "label": "Credit Report",
@@ -3894,7 +4152,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "creditLine": {
               "label": "Credit Line",
@@ -3915,7 +4175,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "creditQuality": {
               "label": "Credit Quality",
@@ -3957,7 +4219,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "fundedAmount": {
               "label": "Funded Amount",
@@ -3978,7 +4242,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "fundedCurrency": {
               "label": "Funded Currency",
@@ -3999,7 +4265,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "introductoryApr": {
               "label": "Introductory APR",
@@ -4020,7 +4288,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "introductoryAprTime": {
               "label": "Introductory APR Time",
@@ -4041,7 +4311,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "minimumBalance": {
               "label": "Minimum Balance",
@@ -4062,7 +4334,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "minimumDeposit": {
               "label": "Minimum Deposit",
@@ -4083,7 +4357,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "prequalify": {
               "label": "Prequalify",
@@ -4113,7 +4389,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "transferFee": {
               "label": "Transfer Fee",
@@ -4134,7 +4412,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -4144,7 +4424,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "networkServicesVerticals": {
           "label": "Network Services Verticals",
@@ -4190,7 +4472,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "applicationStatus": {
               "label": "Application Status",
@@ -4236,7 +4520,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "contractLength": {
               "label": "Contract Length",
@@ -4257,7 +4543,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "contractType": {
               "label": "Contract Type",
@@ -4278,7 +4566,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -4288,7 +4578,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

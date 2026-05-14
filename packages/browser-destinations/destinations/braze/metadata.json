@@ -10,6 +10,7 @@
         "description": "The version of the Braze SDK to use",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "value": "3.1",
@@ -60,21 +61,25 @@
             "label": "6.1"
           }
         ],
-        "default": "6.1"
+        "default": "6.1",
+        "depends_on": null
       },
       "api_key": {
         "label": "API Key",
         "description": "Found in the Braze Dashboard under Manage Settings → Apps → Web",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "endpoint": {
         "label": "SDK Endpoint",
         "description": "Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/user_guide/administrative/access_braze/sdk_endpoints/)",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "US-01\t(https://dashboard-01.braze.com)",
@@ -137,183 +142,228 @@
             "value": "sdk.jp-01.braze.com"
           }
         ],
-        "default": "sdk.iad-01.braze.com"
+        "default": "sdk.iad-01.braze.com",
+        "depends_on": null
       },
       "allowCrawlerActivity": {
         "label": "Allow Crawler Activity",
         "description": "Allow Braze to log activity from crawlers. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "allowUserSuppliedJavascript": {
         "label": "Allow User Supplied Javascript",
         "description": "To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "deferUntilIdentified": {
         "label": "Only Track Known Users",
         "description": "If enabled, this setting delays initialization of the Braze SDK until the user has been identified. When enabled, events for anonymous users will no longer be sent to Braze.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "appVersion": {
         "label": "App Version",
         "description": "Version to which user events sent to Braze will be associated with. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "contentSecurityNonce": {
         "label": "Content Security nonce",
         "description": "Allows Braze to add the nonce to any <script> and <style> elements created by the SDK. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "devicePropertyAllowlist": {
         "label": "Device Property Allow List",
         "description": "By default, the Braze SDK automatically detects and collects all device properties in DeviceProperties. To override this behavior, provide an array of DeviceProperties. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "string",
         "required": false,
+        "multiple": true,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "disablePushTokenMaintenance": {
         "label": "Disable Push Token Maintenance",
         "description": "By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to true",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "doNotLoadFontAwesome": {
         "label": "Do Not Load Font Awesome",
         "description": "Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "enableLogging": {
         "label": "Enable Logging",
         "description": "Set to true to enable logging by default",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "enableSdkAuthentication": {
         "label": "Enable SDK Authentication",
         "description": "Set to true to enable the SDK Authentication feature.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "inAppMessageZIndex": {
         "label": "In-App Message Z Index",
         "description": "By default, the Braze SDK will show In-App Messages with a z-index of 1040 for the screen overlay, 1050 for the actual in-app message, and 1060 for the message's close button. Provide a value for this option to override these default z-indexes.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "localization": {
         "label": "Localization",
         "description": "By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "en"
+        "default": "en",
+        "depends_on": null
       },
       "automaticallyDisplayMessages": {
         "label": "Automatically Send In-App Messages",
         "description": "When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "manageServiceWorkerExternally": {
         "label": "Manage Service Worker Externally",
         "description": "If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "minimumIntervalBetweenTriggerActionsInSeconds": {
         "label": "Minimum Interval Between Trigger Actions in Seconds",
         "description": "Provide a value to override the default interval between trigger actions with a value of your own. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 30
+        "default": 30,
+        "depends_on": null
       },
       "noCookies": {
         "label": "No Cookies",
         "description": "By default, the Braze SDK will store small amounts of data (user ids, session ids), in cookies. Pass true for this option to disable cookie storage and rely entirely on HTML 5 localStorage to identify users and sessions. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "openCardsInNewTab": {
         "label": "Open Cards In New Tab",
         "description": "By default, links from Card objects load in the current tab or window. Set this option to true to make links from cards open in a new tab or window.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "openInAppMessagesInNewTab": {
         "label": "Open In-App Messages In New Tab",
         "description": "By default, links from in-app message clicks load in the current tab or a new tab as specified in the dashboard on a message-by-message basis. Set this option to true to force all links from in-app message clicks open in a new tab or window.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "requireExplicitInAppMessageDismissal": {
         "label": "Require Explicit In-App Message Dismissal",
         "description": "By default, when an in-app message is showing, pressing the escape button or a click on the greyed-out background of the page will dismiss the message. Set this option to true to prevent this behavior and require an explicit button click to dismiss messages.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "safariWebsitePushId": {
         "label": "Safari Website Push ID",
         "description": "If you support Safari push, you must specify this option with the website push ID that you provided to Apple when creating your Safari push certificate (starts with \"web\", e.g. \"web.com.example.domain\").",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "serviceWorkerLocation": {
         "label": "Service Worker Location",
         "description": "By default, when registering users for web push notifications Braze will look for the required service worker file in the root directory of your web server at /service-worker.js. If you want to host your service worker at a different path on that server, provide a value for this option that is the absolute path to the file, e.g. /mycustompath/my-worker.js. VERY IMPORTANT: setting a value here limits the scope of push notifications on your site. For instance, in the above example, because the service  ,worker file is located within the /mycustompath/ directory, appboy.registerAppboyPushMessages MAY ONLY BE CALLED from web pages that start with http://yoursite.com/mycustompath/.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "sessionTimeoutInSeconds": {
         "label": "Session Timeout in Seconds",
         "description": "By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 1800
+        "default": 1800,
+        "depends_on": null
       }
     }
   },
@@ -327,7 +377,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -350,7 +400,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -373,7 +425,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "current_location": {
           "label": "Current Location",
@@ -405,7 +459,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "latitude": {
               "label": "Latitude",
@@ -425,7 +481,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "longitude": {
               "label": "Longitude",
@@ -445,7 +503,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -455,7 +515,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "custom_attributes": {
           "label": "Custom Attributes",
@@ -478,7 +540,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "dob": {
           "label": "Date of Birth",
@@ -499,7 +563,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "email": {
           "label": "Email",
@@ -522,7 +588,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "email_subscribe": {
           "label": "Email Subscribe",
@@ -543,7 +611,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "first_name": {
           "label": "First Name",
@@ -566,7 +636,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "last_name": {
           "label": "Last Name",
@@ -589,7 +661,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "gender": {
           "label": "Gender",
@@ -612,7 +686,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "home_city": {
           "label": "Home City",
@@ -635,7 +711,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "image_url": {
           "label": "Image URL",
@@ -658,7 +736,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "language": {
           "label": "Language",
@@ -679,7 +759,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "phone": {
           "label": "Phone Number",
@@ -702,7 +784,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "push_subscribe": {
           "label": "Push Subscribe",
@@ -723,7 +807,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "subscription_groups": {
           "label": "Subscription Groups",
@@ -757,7 +843,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "subscription_group_state": {
               "label": "Subscription Group State",
@@ -786,7 +874,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -796,7 +886,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -808,7 +900,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "eventName": {
           "label": "Event Name",
@@ -831,7 +923,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "eventProperties": {
           "label": "Event Properties",
@@ -854,7 +948,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -866,7 +962,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "purchaseProperties": {
           "label": "Purchase Properties",
@@ -889,7 +985,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "products": {
           "label": "Products",
@@ -924,7 +1022,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "price": {
               "label": "Price",
@@ -945,7 +1045,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "currency": {
               "label": "Currency Code",
@@ -966,7 +1068,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -987,7 +1091,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -997,7 +1103,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1009,7 +1117,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {}
     }
   },

@@ -10,40 +10,50 @@
         "description": "The API client id of your Rupt project.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "new_account_url": {
         "label": "New Account URL",
         "description": "A URL to redirect the user to if they want to stop account sharing and create a new account.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "logout_url": {
         "label": "Logout URL",
         "description": "A URL to redirect the user to if they choose to logout or if they are removed by a verified owner.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "success_url": {
         "label": "Success URL",
         "description": "A URL to redirect the user to if they are successfully verified and are within the device limit.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "suspended_url": {
         "label": "Suspended URL",
         "description": "A URL to redirect the user to if they are suspended.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -57,7 +67,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "account": {
           "label": "Account",
@@ -80,7 +90,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "email": {
           "label": "Email",
@@ -113,7 +125,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "phone": {
           "label": "Phone",
@@ -146,7 +160,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "metadata": {
           "label": "Metadata",
@@ -167,7 +183,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "include_page": {
           "label": "Include Page",
@@ -188,7 +206,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

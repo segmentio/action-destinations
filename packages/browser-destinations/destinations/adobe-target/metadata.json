@@ -10,45 +10,55 @@
         "description": "Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "admin_number": {
         "label": "Admin number",
         "description": "Your Adobe Target admin number. To find your admin number, please follow the instructions in [Adobe Docs](https://experienceleague.adobe.com/docs/target/using/implement-target/client-side/at-js-implementation/deploy-at-js/implementing-target-without-a-tag-manager.html).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "version": {
         "label": "ATJS Version",
         "description": "The version of ATJS to use. Defaults to 2.8.0.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "value": "2.8.0",
             "label": "2.8.0"
           }
         ],
-        "default": "2.8.0"
+        "default": "2.8.0",
+        "depends_on": null
       },
       "mbox_name": {
         "label": "Mbox Name",
         "description": "The name of the Adobe Target mbox to use. Defaults to `target-global-mbox`.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "target-global-mbox"
+        "default": "target-global-mbox",
+        "depends_on": null
       },
       "cookie_domain": {
         "label": "Cookie Domain",
         "description": "The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top-level domain.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -62,7 +72,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userId": {
           "label": "Mbox 3rd Party ID",
@@ -95,7 +105,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits": {
           "label": "Profile Attributes",
@@ -116,7 +128,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -128,7 +142,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "viewName": {
           "label": "View Name",
@@ -151,7 +165,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "pageParameters": {
           "label": "Page Parameters",
@@ -174,7 +190,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sendNotification": {
           "label": "Send Notifications to Adobe Target.",
@@ -195,7 +213,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "userId": {
           "label": "Mbox 3rd Party ID",
@@ -228,7 +248,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -240,7 +262,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "type": {
           "label": "Event Type",
@@ -261,7 +283,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "eventName": {
           "label": "Event Name",
@@ -284,7 +308,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Event Parameters",
@@ -307,7 +333,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "userId": {
           "label": "Mbox 3rd Party ID",
@@ -340,7 +368,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

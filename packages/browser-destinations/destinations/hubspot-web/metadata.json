@@ -10,40 +10,50 @@
         "description": "The Hub ID of your HubSpot account.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "enableEuropeanDataCenter": {
         "label": "Enable the European Data Center SDK.",
         "description": "Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "flushIdentifyImmediately": {
         "label": "Flush Identify Calls Immediately",
         "description": "Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "formatCustomBehavioralEventNames": {
         "label": "Format Custom Behavioral Event Names",
         "description": "Format the event names for custom behavioral event automatically to standard HubSpot format (`pe<HubID>_event_name`).",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "loadFormsSDK": {
         "label": "Load Forms SDK",
         "description": "Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       }
     }
   },
@@ -57,7 +67,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "name": {
           "label": "Event Name",
@@ -80,7 +90,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Event Properties",
@@ -103,7 +115,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -115,7 +129,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "path": {
           "label": "Path String",
@@ -136,7 +150,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -148,7 +164,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "email": {
           "label": "Email Address",
@@ -171,7 +187,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "id": {
           "label": "External ID",
@@ -194,7 +212,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "custom_properties": {
           "label": "Custom Properties",
@@ -217,7 +237,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "company": {
           "label": "Company Name",
@@ -240,7 +262,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -263,7 +287,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "state": {
           "label": "State",
@@ -286,7 +312,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -309,7 +337,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "address": {
           "label": "Street Address",
@@ -332,7 +362,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "zip": {
           "label": "Postal Code",
@@ -365,7 +397,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

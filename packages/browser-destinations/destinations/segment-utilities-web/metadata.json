@@ -10,16 +10,20 @@
         "description": "The window of time in milliseconds to throttle events.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 3000
+        "default": 3000,
+        "depends_on": null
       },
       "passThroughCount": {
         "label": "Number of events to pass through",
         "description": "Number of events to pass through while waiting for the throttle time to expire.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 1
+        "default": 1,
+        "depends_on": null
       }
     }
   },
@@ -33,7 +37,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "passThroughCount": {
           "label": "Number of events to pass through",
@@ -54,7 +58,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "throttleWindow": {
           "label": "Throttle time",
@@ -75,7 +81,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

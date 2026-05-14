@@ -10,24 +10,30 @@
         "description": "The LogRocket app ID.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "networkSanitization": {
         "label": "Network Sanitization",
         "description": "Sanitize all network request and response bodies from session recordings.",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "inputSanitization": {
         "label": "Input Sanitization",
         "description": "Obfuscate all user-input elements (like <input> and <select>) from session recordings.",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       }
     }
   },
@@ -41,7 +47,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "name": {
           "label": "Name",
@@ -64,7 +70,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Properties",
@@ -87,7 +95,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -99,7 +109,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -122,7 +132,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits": {
           "label": "Traits",
@@ -145,7 +157,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

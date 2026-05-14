@@ -10,14 +10,17 @@
         "description": "Your Moengage Workspace ID.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "env": {
         "label": "Environment",
         "description": "The environment for your Moengage account.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "LIVE",
@@ -28,13 +31,15 @@
             "value": "TEST"
           }
         ],
-        "default": "LIVE"
+        "default": "LIVE",
+        "depends_on": null
       },
       "moeDataCenter": {
         "label": "Datacenter",
         "description": "The datacenter for your Moengage account.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "DC-01",
@@ -61,103 +66,152 @@
             "value": "dc_6"
           }
         ],
-        "default": "dc_1"
+        "default": "dc_1",
+        "depends_on": null
       },
       "project_id": {
         "label": "Project ID",
         "description": "Your Moengage Project ID.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "swPath": {
         "label": "Service Worker Path",
         "description": "The path to the service worker file for MoEngage web push notifications. if provided here, you need to host this file on your server.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "enableSPA": {
         "label": "Enable Single Page Application (SPA) Support",
         "description": "Enable Single Page Application (SPA) support in the Moengage SDK. Enable this if your website is a single page application to ensure proper tracking.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "disable_onsite": {
         "label": "Disable Onsite Messaging",
         "description": "Disable Moengage from showing Onsite Messaging on your website.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "customProxyDomain": {
         "label": "Custom Proxy Domain",
         "description": "A custom domain name where the MoEngage web SDK is hosted. Data will be sent to this domain.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "bots_list": {
         "label": "Bots List",
         "description": "A comma delimited list of bot user agents to ignore when tracking events.",
         "type": "string",
         "required": false,
+        "multiple": true,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "disableCookies": {
         "label": "Disable Cookies",
         "description": "Disable Moengage from setting cookies on your website when the page loads.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "disableSdk": {
         "label": "Disable SDK",
         "description": "Disable the Moengage SDK from initializing on your website when the page loads. You can use this to conditionally load the SDK based on user consent.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "cards_enabled": {
         "label": "Enable Cards",
         "description": "Enable MoEngage Cards on your website to engage users with personalized content.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "css_selector_inbox_icon": {
         "label": "CSS Selector for Inbox Icon",
         "description": "The CSS selector for the MoEngage Inbox icon on your website. The user will click this icon to open the inbox.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "cards_enabled",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       },
       "floating_bell_icon_desktop": {
         "label": "Enable Floating Bell Icon on Desktop",
         "description": "Enable the floating bell icon for MoEngage notifications on desktop devices.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "cards_enabled",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       },
       "floating_bell_icon_mobile": {
         "label": "Enable Floating Bell Icon on Mobile",
         "description": "Enable the floating bell icon for MoEngage notifications on mobile devices.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "cards_enabled",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       }
     }
   },
@@ -171,7 +225,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "event_name": {
           "label": "Event Name",
@@ -194,7 +248,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "attributes": {
           "label": "Attributes",
@@ -217,7 +273,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -229,7 +287,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "identifiers": {
           "label": "Identifiers",
@@ -272,7 +330,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -293,7 +353,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "mobile": {
               "label": "Mobile",
@@ -314,7 +376,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -324,7 +388,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "attributes": {
           "label": "User Attributes",
@@ -379,7 +445,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "last_name": {
               "label": "Last Name",
@@ -400,7 +468,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -421,7 +491,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "mobile": {
               "label": "Mobile",
@@ -442,7 +514,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "username": {
               "label": "Username",
@@ -463,7 +537,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "gender": {
               "label": "Gender",
@@ -484,7 +560,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "birthday": {
               "label": "Birthday",
@@ -505,7 +583,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -515,7 +595,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         }
       }
     }

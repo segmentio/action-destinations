@@ -11,21 +11,25 @@
         "description": "Client identifier provided by CDP Resolution [Hashed Account ID]",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "endpoint": {
         "label": "CDP Resolution Endpoint",
         "description": "Identity resolution endpoint. [CDP Resolution documentation](https://www.cdpresolution.com/docs/)",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "CDPRes-Endpoint",
             "value": "https://a.usbrowserspeed.com/cs"
           }
         ],
-        "default": "https://a.usbrowserspeed.com/cs"
+        "default": "https://a.usbrowserspeed.com/cs",
+        "depends_on": null
       }
     }
   },
@@ -39,7 +43,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "anonymousId": {
           "label": "Anonymous Id",
@@ -62,7 +66,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

@@ -10,38 +10,47 @@
         "description": "In Campaign Manager, go to Floodlight -> Configuration, and Advertiser ID is located under the Configuration heading.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "DC-"
+        "default": "DC-",
+        "depends_on": null
       },
       "allowAdPersonalizationSignals": {
         "label": "Allow Ad Personalization Signals",
         "description": "This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users.",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "conversionLinker": {
         "label": "Conversion Linker",
         "description": "This feature can be disabled if you do not want the global site tag to set first party cookies on your site domain.",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "enableConsentMode": {
         "label": "Enable Consent Mode",
         "description": "Set to true to enable Google’s [Consent Mode](https://support.google.com/analytics/answer/9976101?hl=en). Set to false by default.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "adUserDataConsentState": {
         "label": "Ad User Data Consent State",
         "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Granted",
@@ -52,13 +61,23 @@
             "value": "denied"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       },
       "adPersonalizationConsentState": {
         "label": "Ad Personalization Consent State",
         "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Granted",
@@ -69,13 +88,23 @@
             "value": "denied"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       },
       "defaultAdsStorageConsentState": {
         "label": "Default Ads Storage Consent State",
         "description": "The default value for ad cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Granted",
@@ -86,13 +115,23 @@
             "value": "denied"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       },
       "defaultAnalyticsStorageConsentState": {
         "label": "Default Analytics Storage Consent State",
         "description": "The default value for analytics cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Granted",
@@ -103,7 +142,16 @@
             "value": "denied"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       }
     }
   },
@@ -117,7 +165,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "activityGroupTagString": {
           "label": "Activity Group Tag String",
@@ -138,7 +186,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "activityTagString": {
           "label": "Activity Tag String",
@@ -159,7 +209,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enableDynamicTags": {
           "label": "Enable Dynamic Tags",
@@ -180,7 +232,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "countingMethod": {
           "label": "Counting Method",
@@ -214,7 +268,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sessionId": {
           "label": "Session ID",
@@ -235,7 +291,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "uVariables": {
           "label": "U Variables",
@@ -256,7 +314,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "dcCustomParams": {
           "label": "Custom Parameters",
@@ -277,7 +337,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -289,7 +351,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "activityGroupTagString": {
           "label": "Activity Group Tag String",
@@ -310,7 +372,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "activityTagString": {
           "label": "Activity Tag String",
@@ -331,7 +395,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enableDynamicTags": {
           "label": "Enable Dynamic Tags",
@@ -352,7 +418,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "countingMethod": {
           "label": "Counting Method",
@@ -382,7 +450,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "transactionId": {
           "label": "Transaction ID",
@@ -405,7 +475,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "value": {
           "label": "Value",
@@ -428,7 +500,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "quantity": {
           "label": "Quantity",
@@ -449,7 +523,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "uVariables": {
           "label": "U Variables",
@@ -470,7 +546,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "dcCustomParams": {
           "label": "Custom Parameters",
@@ -491,7 +569,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

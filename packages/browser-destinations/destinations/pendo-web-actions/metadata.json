@@ -11,14 +11,17 @@
         "description": "Pendo API Key",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "region": {
         "label": "Region",
         "description": "The region for your Pendo subscription.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "value": "https://cdn.pendo.io",
@@ -37,31 +40,38 @@
             "label": "Japan"
           }
         ],
-        "default": "https://cdn.pendo.io"
+        "default": "https://cdn.pendo.io",
+        "depends_on": null
       },
       "cnameContentHost": {
         "label": "Optional CNAME content host",
         "description": "If you are using Pendo's CNAME feature, this will update your Pendo install snippet with your content host.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "disableUserTraitsOnLoad": {
         "label": "Disable passing Segment's user traits to Pendo on start up",
         "description": "Override sending Segment's user traits on load. This will prevent Pendo from initializing with the user traits from Segment (analytics.user().traits()). Allowing you to adjust the mapping of visitor metadata in Segment's identify event.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       },
       "disableGroupIdAndTraitsOnLoad": {
         "label": "Disable passing Segment's group id and group traits to Pendo on start up",
         "description": "Override sending Segment's group id for Pendo's account id. This will prevent Pendo from initializing with the group id from Segment (analytics.group().id()). Allowing you to adjust the mapping of account id in Segment's group event.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": false
+        "default": false,
+        "depends_on": null
       }
     }
   },
@@ -75,7 +85,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "event": {
           "label": "Event name",
@@ -98,7 +108,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "metadata": {
           "label": "Metadata",
@@ -121,7 +133,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -133,7 +147,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "visitorId": {
           "label": "Visitor ID",
@@ -156,7 +170,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "visitorData": {
           "label": "Visitor Metadata",
@@ -179,7 +195,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "accountId": {
           "label": "Account ID",
@@ -212,7 +230,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -224,7 +244,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "visitorId": {
           "label": "Visitor ID",
@@ -247,7 +267,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "accountId": {
           "label": "Account ID",
@@ -270,7 +292,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "accountData": {
           "label": "Account Metadata",
@@ -293,7 +317,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "parentAccountData": {
           "label": "Parent Account Metadata",
@@ -327,7 +353,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -337,7 +365,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         }
       }
     }
