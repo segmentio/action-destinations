@@ -10,14 +10,17 @@
         "description": "Your Aampe API Key",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "region": {
         "label": "Region",
         "description": "Your data region",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Singapore",
@@ -32,7 +35,8 @@
             "value": "https://ingestion.us-east1.api.aampe.com/v1/"
           }
         ],
-        "default": "https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app/v1/"
+        "default": "https://ingestion-service-asia-southeast1-toqowp62ka-as.a.run.app/v1/",
+        "depends_on": null
       }
     }
   },
@@ -46,7 +50,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "contact_id": {
           "label": "Contact ID",
@@ -79,7 +83,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "event_name": {
           "label": "Event Name",
@@ -112,7 +118,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -135,7 +143,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timezone": {
           "label": "Timezone",
@@ -158,7 +168,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "metadata": {
           "label": "Metadata",
@@ -181,7 +193,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "event_id": {
           "label": "Event ID",
@@ -204,7 +218,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -216,7 +232,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "contact_id": {
           "label": "Contact ID",
@@ -249,7 +265,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "event_name": {
           "label": "Event Name",
@@ -270,7 +288,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -293,7 +313,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "metadata": {
           "label": "Metadata",
@@ -316,7 +338,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "event_id": {
           "label": "Event ID",
@@ -339,7 +363,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "user_properties": {
           "label": "User Properties",
@@ -372,7 +398,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

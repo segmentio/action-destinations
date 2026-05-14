@@ -10,16 +10,20 @@
         "description": "Your Listrak API client ID. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "client_secret": {
         "label": "API Client Secret",
         "description": "Your Lisrak API client secret. Find this on the setup tab of your Segment integration under Integrations > Integrations Management in https://admin.listrak.com.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -33,7 +37,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "listId": {
           "label": "List ID",
@@ -54,7 +58,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailAddress": {
           "label": "Email Address",
@@ -87,7 +93,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "profileFieldValues": {
           "label": "Profile Field Values",
@@ -108,7 +116,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits_or_props": {
           "label": "Traits or properties object",
@@ -141,7 +151,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "segment_audience_key": {
           "label": "Audience Key",
@@ -164,7 +176,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to Listrak",
@@ -185,7 +199,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

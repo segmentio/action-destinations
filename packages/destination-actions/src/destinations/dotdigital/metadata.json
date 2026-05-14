@@ -11,6 +11,7 @@
         "description": "The region your account is in",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "value": "https://r1-api.dotdigital.com",
@@ -25,23 +26,28 @@
             "label": "r3"
           }
         ],
-        "default": "https://r1-api.dotdigital.com"
+        "default": "https://r1-api.dotdigital.com",
+        "depends_on": null
       },
       "username": {
         "label": "Username",
         "description": "Your Dotdigital username",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "password": {
         "label": "Password",
         "description": "Your Dotdigital password.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -55,7 +61,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "channelIdentifier": {
           "label": "Contact Identifier type",
@@ -85,7 +91,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailIdentifier": {
           "label": "Email Address",
@@ -126,7 +134,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "mobileNumberIdentifier": {
           "label": "Mobile Number",
@@ -167,7 +177,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "listId": {
           "label": "List",
@@ -194,7 +206,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -206,7 +220,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "channelIdentifier": {
           "label": "Contact Identifier type",
@@ -236,7 +250,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailIdentifier": {
           "label": "Email Address",
@@ -277,7 +293,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "mobileNumberIdentifier": {
           "label": "Mobile Number",
@@ -318,7 +336,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "programId": {
           "label": "Program",
@@ -345,7 +365,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -357,7 +379,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "channelIdentifier": {
           "label": "Contact Identifier type",
@@ -387,7 +409,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailIdentifier": {
           "label": "Email Address",
@@ -428,7 +452,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "mobileNumberIdentifier": {
           "label": "Mobile Number",
@@ -469,7 +495,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailType": {
           "label": "Email Type",
@@ -507,7 +535,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "optInType": {
           "label": "Opt-in Type",
@@ -553,7 +583,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "updateEmailSubscription": {
           "label": "Update Email Subscription Status",
@@ -582,7 +614,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailSubscriptionStatus": {
           "label": "Email Subscription Status",
@@ -624,7 +658,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailResubscribe": {
           "label": "Resubscribe if Previously Unsubscribed",
@@ -659,7 +695,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "resubscribeWithoutChallengeEmail": {
           "label": "Resubscribe Without Challenge Email",
@@ -688,7 +726,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "preferredLocale": {
           "label": "Preferred Language",
@@ -804,7 +844,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "redirectUrlAfterChallenge": {
           "label": "Redirect URL",
@@ -839,7 +881,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "updateSmsSubscription": {
           "label": "Update SMS Subscription Status",
@@ -868,7 +912,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "smsSubscriptionStatus": {
           "label": "SMS Subscription Status",
@@ -910,7 +956,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "listId": {
           "label": "List",
@@ -937,7 +985,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "dataFields": {
           "label": "Data Fields",
@@ -964,7 +1014,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -976,7 +1028,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "to": {
           "label": "To",
@@ -1009,7 +1061,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "from": {
           "label": "From",
@@ -1030,7 +1084,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "message": {
           "label": "Message",
@@ -1051,7 +1107,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "link_shortening": {
           "label": "Link Shortening",
@@ -1072,7 +1130,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allow_unicode": {
           "label": "Allow Unicode Characters",
@@ -1093,7 +1153,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1105,7 +1167,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "to": {
           "label": "To",
@@ -1138,7 +1200,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "message": {
           "label": "Message",
@@ -1159,7 +1223,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1171,7 +1237,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -1204,7 +1270,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "campaignId": {
           "label": "Campaign",
@@ -1231,7 +1299,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sendDate": {
           "label": "Send Date",
@@ -1252,7 +1322,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sendTimeOptimised": {
           "label": "Send Time Optimised",
@@ -1273,7 +1345,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1285,7 +1359,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "fromAddress": {
           "label": "From Address",
@@ -1306,7 +1380,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "toAddresses": {
           "label": "To Address",
@@ -1339,7 +1415,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "subject": {
           "label": "Subject",
@@ -1360,7 +1438,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "htmlContent": {
           "label": "HTML Content",
@@ -1381,7 +1461,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "plainTextContent": {
           "label": "Plain Text Content",
@@ -1402,7 +1484,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "ccAddresses": {
           "label": "CC Addresses",
@@ -1423,7 +1507,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "bccAddresses": {
           "label": "BCC Addresses",
@@ -1444,7 +1530,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

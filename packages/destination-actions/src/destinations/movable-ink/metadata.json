@@ -11,24 +11,30 @@
         "description": "Your Movable Ink username",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "password": {
         "label": "Access Secret",
         "description": "Your Movable Ink Access Secret.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "movable_ink_url": {
         "label": "Movable Ink URL",
         "description": "The Movable Ink URL to send data to.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -42,7 +48,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "headers": {
           "label": "Headers",
@@ -63,7 +69,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "data": {
           "label": "Data",
@@ -86,7 +94,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

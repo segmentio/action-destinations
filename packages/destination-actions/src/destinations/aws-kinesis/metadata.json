@@ -10,16 +10,20 @@
         "description": "The ARN of the IAM Role to assume for sending data to Kinesis.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "iamExternalId": {
         "label": "IAM External ID",
         "description": "The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -33,7 +37,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "payload": {
           "label": "Payload",
@@ -56,7 +60,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "partitionKey": {
           "label": "Partition Key",
@@ -79,7 +85,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "streamName": {
           "label": "Stream Name",
@@ -100,7 +108,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": []
+          "disabledInputMethods": [],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "awsRegion": {
           "label": "AWS Region",
@@ -187,7 +197,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Max Batch Size",
@@ -213,7 +225,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_keys": {
           "label": "Batch Keys",
@@ -237,7 +251,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "max_batch_size": {
           "label": "Max Batch Size",
@@ -263,7 +279,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to Kinesis?",
@@ -284,7 +302,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_bytes": {
           "label": "Batch Bytes",
@@ -305,7 +325,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

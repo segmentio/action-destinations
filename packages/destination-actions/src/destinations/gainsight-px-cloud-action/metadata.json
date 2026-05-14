@@ -10,14 +10,17 @@
         "description": "Gainsight PX API key. You can find this key in the \"Administration/Products\" screen.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "dataCenter": {
         "label": "Data center",
         "description": "The PX data center where your PX subscription is hosted.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "North America",
@@ -32,7 +35,8 @@
             "value": "us2"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -46,7 +50,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "segmentEvent": {
           "label": "Segment Event",
@@ -69,7 +73,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

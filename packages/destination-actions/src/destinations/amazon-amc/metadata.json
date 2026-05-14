@@ -10,6 +10,7 @@
         "description": "Region for API Endpoint, either NA, EU, FE.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "North America (NA)",
@@ -24,7 +25,8 @@
             "value": "https://advertising-api-fe.amazon.com"
           }
         ],
-        "default": "https://advertising-api.amazon.com"
+        "default": "https://advertising-api.amazon.com",
+        "depends_on": null
       }
     }
   },
@@ -39,38 +41,47 @@
         "description": "The audience description. Must be an alphanumeric, non-null string between 0 to 1000 characters in length.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "countryCode": {
         "label": "Country Code",
         "description": "A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "externalAudienceId": {
         "label": "External Audience Id",
         "description": "The user-defined audience identifier.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "cpmCents": {
         "label": "CPM Cents",
         "description": "Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "currency": {
         "label": "Currency",
         "description": "Currency code for the CPM value.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "value": "USD",
@@ -125,25 +136,31 @@
             "label": "TRY"
           }
         ],
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "ttl": {
         "label": "Time-to-live",
         "description": "Time-to-live in seconds. The amount of time the record is associated with the audience.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "advertiserId": {
         "label": "Advertiser ID",
         "description": "Advertiser Id",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
-    }
+    },
+    "supportsAudienceFunctions": true
   },
   "actions": {
     "syncAudiencesToDSP": {
@@ -154,7 +171,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "event_name": {
           "label": "Event Name",
@@ -177,7 +194,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "externalUserId": {
           "label": "External User ID",
@@ -200,7 +219,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "email": {
           "label": "Email",
@@ -233,7 +254,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "firstName": {
           "label": "First name",
@@ -256,7 +279,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lastName": {
           "label": "Last name",
@@ -279,7 +304,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "phone": {
           "label": "Phone",
@@ -302,7 +329,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "postal": {
           "label": "Postal",
@@ -325,7 +354,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "state": {
           "label": "State",
@@ -348,7 +379,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -371,7 +404,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "address": {
           "label": "Address",
@@ -394,7 +429,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "audienceId": {
           "label": "Audience ID",
@@ -417,7 +454,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "consent": {
           "label": "Consent",
@@ -466,7 +505,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "amznAdStorage": {
               "label": "Ad Storage Consent",
@@ -496,7 +537,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "amznUserData": {
               "label": "User Data Consent",
@@ -526,7 +569,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "tcf": {
               "label": "TCF String",
@@ -547,7 +592,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "gpp": {
               "label": "GPP String",
@@ -568,7 +615,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -578,7 +627,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Enable Batching",
@@ -599,7 +650,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -620,7 +673,9 @@
           "minimum": 1500,
           "maximum": 10000,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

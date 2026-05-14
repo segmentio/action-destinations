@@ -11,7 +11,8 @@
       "type": "synced",
       "full_audience_sync": false
     },
-    "audienceFields": {}
+    "audienceFields": {},
+    "supportsAudienceFunctions": true
   },
   "actions": {
     "ingest": {
@@ -22,7 +23,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {}
     },
     "remove": {
@@ -33,7 +34,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {}
     }
   },

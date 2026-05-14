@@ -11,14 +11,17 @@
         "description": "Optionally forward Responses from Segment's requests to Responsys to a Segment Source.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "segmentWriteKeyRegion": {
         "label": "Segment WriteKey Region",
         "description": "Segment Region to forward responses from Responsys to. Segment Source WriteKey must also be populated",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "US",
@@ -29,69 +32,85 @@
             "value": "EU"
           }
         ],
-        "default": "US"
+        "default": "US",
+        "depends_on": null
       },
       "username": {
         "label": "Username",
         "description": "Responsys username",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "userPassword": {
         "label": "Password",
         "description": "Responsys password",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "baseUrl": {
         "label": "Responsys endpoint URL",
         "description": "Responsys endpoint URL. Refer to Responsys documentation for more details. Must start with 'HTTPS://'. See [Responsys docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "defaultFolderName": {
         "label": "Default Folder Name",
         "description": "Name of the folder where the Profile Extension Table is located.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "profileListName": {
         "label": "Default Profile List Name",
         "description": "Name of the Profile Extension Table's Contact List.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "profileExtensionTable": {
         "label": "Default PET Name",
         "description": "Default Profile Extension Table (PET) Name. Required if using the \"Send Custom Traits\" Action. Can be overridden in the mapping.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "insertOnNoMatch": {
         "label": "Insert On No Match",
         "description": "Indicates what should be done for records where a match is not found.",
         "type": "boolean",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "matchColumnName1": {
         "label": "First Column Match",
         "description": "First match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "RIID",
@@ -118,13 +137,15 @@
             "value": "EMAIL_SHA256_HASH"
           }
         ],
-        "default": "EMAIL_ADDRESS"
+        "default": "EMAIL_ADDRESS",
+        "depends_on": null
       },
       "matchColumnName2": {
         "label": "Second Column Match",
         "description": "Second match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "RIID",
@@ -151,13 +172,15 @@
             "value": "EMAIL_SHA256_HASH"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "updateOnMatch": {
         "label": "Update On Match",
         "description": "Controls how the existing record should be updated. Defaults to Replace All.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Replace All",
@@ -168,21 +191,25 @@
             "value": "NO_UPDATE"
           }
         ],
-        "default": "REPLACE_ALL"
+        "default": "REPLACE_ALL",
+        "depends_on": null
       },
       "textValue": {
         "label": "Text Value",
         "description": "Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "matchOperator": {
         "label": "Match Operator",
         "description": "Operator to join match column names.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "None",
@@ -193,29 +220,35 @@
             "value": "AND"
           }
         ],
-        "default": "AND"
+        "default": "AND",
+        "depends_on": null
       },
       "optoutValue": {
         "label": "Optout Value",
         "description": "Value of incoming opt-out status data that represents an optout status. For example, 'O' may represent an opt-out status.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "rejectRecordIfChannelEmpty": {
         "label": "Reject Record If Channel Empty",
         "description": "String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. See [Responsys API docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-members-post.html)",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "defaultPermissionStatus": {
         "label": "Default Permission Status",
         "description": "This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Opt In",
@@ -226,23 +259,28 @@
             "value": "OPTOUT"
           }
         ],
-        "default": "OPTOUT"
+        "default": "OPTOUT",
+        "depends_on": null
       },
       "htmlValue": {
         "label": "Preferred Email Format",
         "description": "Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "optinValue": {
         "label": "Optin Value",
         "description": "Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -256,7 +294,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -306,7 +344,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "CUSTOMER_ID_": {
               "label": "Customer ID",
@@ -327,7 +367,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -337,7 +379,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "computation_key": {
           "label": "Segment Audience Key",
@@ -360,7 +404,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits_or_props": {
           "label": "Traits or Properties",
@@ -393,7 +439,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "computation_class": {
           "label": "Segment Audience Computation Class",
@@ -425,7 +473,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Use Responsys Async API",
@@ -446,7 +496,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -467,7 +519,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "stringify": {
           "label": "Stringify Recipient Data",
@@ -488,7 +542,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -511,7 +567,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "retry": {
           "label": "Delay (seconds)",
@@ -557,7 +615,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -569,7 +629,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -619,7 +679,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "CUSTOMER_ID_": {
               "label": "Customer ID",
@@ -640,7 +702,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "RIID_": {
               "label": "Recipient ID",
@@ -661,7 +725,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -671,7 +737,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "folder_name": {
           "label": "Folder Name",
@@ -692,7 +760,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "pet_name": {
           "label": "Profile Extension Table Name",
@@ -715,7 +785,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "computation_key": {
           "label": "Segment Audience Key",
@@ -738,7 +810,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits_or_props": {
           "label": "Traits or Properties",
@@ -771,7 +845,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -794,7 +870,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "retry": {
           "label": "Delay (seconds)",
@@ -840,7 +918,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "default_permission_status": {
           "label": "Default Permission Status",
@@ -870,7 +950,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -882,7 +964,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -922,7 +1004,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "CUSTOMER_ID_": {
               "label": "Customer ID",
@@ -943,7 +1027,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -953,7 +1039,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "pet_name": {
           "label": "Profile Extension Table Name",
@@ -974,7 +1062,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Use Responsys Async API",
@@ -995,7 +1085,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -1016,7 +1108,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "stringify": {
           "label": "Stringify Recipient Data",
@@ -1037,7 +1131,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -1060,7 +1156,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "retry": {
           "label": "Delay (seconds)",
@@ -1106,7 +1204,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1118,7 +1218,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -1167,7 +1267,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "EMAIL_MD5_HASH_": {
               "label": "Email Address MD5 Hash",
@@ -1188,7 +1290,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "EMAIL_SHA256_HASH_": {
               "label": "Email Address SHA256 Hash",
@@ -1209,7 +1313,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "RIID_": {
               "label": "Recipient ID",
@@ -1230,7 +1336,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "CUSTOMER_ID_": {
               "label": "Customer ID",
@@ -1251,7 +1359,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "MOBILE_NUMBER_": {
               "label": "Mobile Number",
@@ -1272,7 +1382,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1282,7 +1394,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "stringify": {
           "label": "Stringify Recipient Data",
@@ -1303,7 +1417,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Use Responsys Async API",
@@ -1324,7 +1440,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -1345,7 +1463,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "default_permission_status": {
           "label": "Default Permission Status",
@@ -1375,7 +1495,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1387,7 +1509,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -1437,7 +1559,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "CUSTOMER_ID_": {
               "label": "Customer ID",
@@ -1458,7 +1582,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "RIID_": {
               "label": "Recipient ID",
@@ -1479,7 +1605,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1489,7 +1617,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "folder_name": {
           "label": "Folder Name",
@@ -1510,7 +1640,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "pet_name": {
           "label": "Profile Extension Table Name",
@@ -1531,7 +1663,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -1554,7 +1688,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "use_responsys_async_api": {
           "label": "Use Responsys Async API",
@@ -1575,7 +1711,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -1596,7 +1734,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "stringify": {
           "label": "Stringify Recipient Data",
@@ -1617,7 +1757,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "default_permission_status": {
           "label": "Default Permission Status",
@@ -1647,7 +1789,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

@@ -10,24 +10,30 @@
         "description": "Your service user Access Key Id. You can generate the service user and its Access Key Id in your m3ter console under \"Settings\" -> \"Access\" -> \"Service Users\" -> \"Create Service User\". Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "api_secret": {
         "label": "m3ter Api Secret",
         "description": "Your service user Api Secret. You can generate the service user and its Api Secret in your m3ter console under \"Settings\" -> \"Access\" -> \"Service Users\" -> \"Create Service User\". Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "org_id": {
         "label": "m3ter Organization Id",
         "description": "ID of your organization where your data will be submitted to",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -41,7 +47,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "uid": {
           "label": "m3ter UUID",
@@ -64,7 +70,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "meter": {
           "label": "Meter",
@@ -87,7 +95,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "account": {
           "label": "Account",
@@ -110,7 +120,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "ts": {
           "label": "Timestamp",
@@ -133,7 +145,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "ets": {
           "label": "End timestamp",
@@ -154,7 +168,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "who": {
           "label": "Who",
@@ -175,7 +191,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "where": {
           "label": "Where",
@@ -196,7 +214,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "what": {
           "label": "What",
@@ -217,7 +237,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "other": {
           "label": "Other",
@@ -238,7 +260,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "metadata": {
           "label": "Metadata",
@@ -259,7 +283,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "measure": {
           "label": "Measure",
@@ -280,7 +306,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "cost": {
           "label": "Cost",
@@ -301,7 +329,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "income": {
           "label": "Income",
@@ -322,7 +352,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Send data to m3ter in batches",
@@ -343,7 +375,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

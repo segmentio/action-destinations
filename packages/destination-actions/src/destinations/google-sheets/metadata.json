@@ -16,7 +16,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "record_identifier": {
           "label": "Record Identifier",
@@ -39,7 +39,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "operation_type": {
           "label": "Operation Type",
@@ -62,7 +64,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "spreadsheet_id": {
           "label": "Spreadsheet ID",
@@ -83,7 +87,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "spreadsheet_name": {
           "label": "Spreadsheet Name",
@@ -104,7 +110,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "data_format": {
           "label": "Data Format",
@@ -134,7 +142,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "fields": {
           "label": "Fields",
@@ -155,7 +165,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to Google Sheets",
@@ -176,7 +188,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -197,7 +211,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_bytes": {
           "label": "Batch Bytes",
@@ -218,7 +234,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -231,13 +249,24 @@
       "hasPerformBatch": true,
       "syncMode": {
         "default": "upsert",
-        "supportedModes": [
-          "upsert",
-          "add",
-          "update"
+        "label": "How to sync records",
+        "description": "Define how the records from your destination will be synced.",
+        "choices": [
+          {
+            "value": "upsert",
+            "label": "If a record with the specified identifier is found, it will be updated. If not, a new row will be created."
+          },
+          {
+            "value": "add",
+            "label": "Add a new record when the specified identifier doesn't exist. If it does, it will be skipped."
+          },
+          {
+            "value": "update",
+            "label": "Update a record if a match with the specified identifier is found. Do nothing if the row doesn't exist."
+          }
         ]
       },
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "record_identifier": {
           "label": "Record Identifier",
@@ -260,7 +289,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "spreadsheet_id": {
           "label": "Spreadsheet ID",
@@ -281,7 +312,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "spreadsheet_name": {
           "label": "Spreadsheet Name",
@@ -302,7 +335,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "data_format": {
           "label": "Data Format",
@@ -332,7 +367,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "fields": {
           "label": "Fields",
@@ -353,7 +390,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to Google Sheets",
@@ -374,7 +413,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -395,7 +436,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_bytes": {
           "label": "Batch Bytes",
@@ -416,7 +459,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

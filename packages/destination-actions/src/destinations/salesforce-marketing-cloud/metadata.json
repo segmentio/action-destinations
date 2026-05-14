@@ -10,32 +10,40 @@
         "description": "The unique subdomain Salesforce Marketing Cloud assigned to your account. Subdomains are tenant specific and should be a 28-character string starting with the letters \"mc\". Do not include the .rest.marketingcloudapis.com part of your subdomain URL. See more information on how to find your subdomain [here](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/your-subdomain-tenant-specific-endpoints.html).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "account_id": {
         "label": "Account ID",
         "description": "Your Salesforce Marketing Cloud account identifier (or MID). See more information on how to find your MID [here](https://help.salesforce.com/s/articleView?id=sf.mc_overview_determine_your_marketing_cloud_instance.htm&type=5).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "client_id": {
         "label": "Client ID",
         "description": "Your Salesforce Marketing Cloud client ID. The client ID is issued when you create an API integration in [Installed Packages](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/install-packages.html).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "client_secret": {
         "label": "Client Secret",
         "description": "Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -49,7 +57,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "contactKey": {
           "label": "Contact Key",
@@ -72,7 +80,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -84,7 +94,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "key": {
           "label": "Data Extension Key",
@@ -105,7 +115,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "id": {
           "label": "Data Extension ID",
@@ -126,7 +138,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "keys": {
           "label": "Data Extension Primary Key",
@@ -147,7 +161,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "values": {
           "label": "Data Extension Fields",
@@ -168,7 +184,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch data to SFMC",
@@ -189,7 +207,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -210,7 +230,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -222,7 +244,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "key": {
           "label": "Data Extension Key",
@@ -243,7 +265,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "id": {
           "label": "Data Extension ID",
@@ -264,7 +288,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "keys": {
           "label": "Data Extension Primary Key",
@@ -301,7 +327,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -311,7 +339,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "values": {
           "label": "Contact Fields",
@@ -332,7 +362,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch data to SFMC",
@@ -353,7 +385,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -374,7 +408,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -386,7 +422,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "eventDefinitionKey": {
           "label": "Event Definition Key",
@@ -407,7 +443,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contactKey": {
           "label": "Contact Key",
@@ -430,7 +468,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "data": {
           "label": "Event Data",
@@ -451,7 +491,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -463,10 +505,1100 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [
-        "retlOnMappingSave",
-        "onMappingSave"
-      ],
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "inputFields": {
+            "operation": {
+              "label": "Operation",
+              "description": "Whether to create a new data extension or select an existing one for data delivery.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Create a new Data Extension",
+                  "value": "create"
+                },
+                {
+                  "label": "Select an existing Data Extension",
+                  "value": "select"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dataExtensionId": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "categoryId": {
+              "label": "Category ID (Folder ID)",
+              "description": "The identifier for the folder that contains the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Data Extension Description",
+              "description": "The description of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "isSendable": {
+              "label": "Is Sendable",
+              "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableCustomObjectField": {
+              "label": "Sendable Custom Object Field",
+              "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableSubscriberField": {
+              "label": "Sendable Subscriber Field",
+              "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Subscriber Key",
+                  "value": "_SubscriberKey"
+                },
+                {
+                  "label": "Subscriber ID",
+                  "value": "_SubscriberID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "columns": {
+              "label": "Data Extension Fields",
+              "description": "A list of fields to create in the data extension.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "name": {
+                  "label": "Field Name",
+                  "description": "The name of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "type": {
+                  "label": "Field Type",
+                  "description": "The data type of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": [
+                    {
+                      "label": "Text",
+                      "value": "Text"
+                    },
+                    {
+                      "label": "Number",
+                      "value": "Number"
+                    },
+                    {
+                      "label": "Date",
+                      "value": "Date"
+                    },
+                    {
+                      "label": "Boolean",
+                      "value": "Boolean"
+                    },
+                    {
+                      "label": "EmailAddress",
+                      "value": "EmailAddress"
+                    },
+                    {
+                      "label": "Phone",
+                      "value": "Phone"
+                    },
+                    {
+                      "label": "Decimal",
+                      "value": "Decimal"
+                    },
+                    {
+                      "label": "Locale",
+                      "value": "Locale"
+                    }
+                  ],
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isNullable": {
+                  "label": "Is Nullable",
+                  "description": "Whether the field can be null.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isPrimaryKey": {
+                  "label": "Is Primary Key",
+                  "description": "Whether the field is a primary key.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "length": {
+                  "label": "Field Length",
+                  "description": "The length of the field. Required for non-boolean fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "scale": {
+                  "label": "Decimal Scale",
+                  "description": "The scale of the field. Required for Decimal fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "description": {
+                  "label": "Field Description",
+                  "description": "The description of the field.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "arrayeditor",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": true
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        },
+        "onMappingSave": {
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "inputFields": {
+            "operation": {
+              "label": "Operation",
+              "description": "Whether to create a new data extension or select an existing one for data delivery.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Create a new Data Extension",
+                  "value": "create"
+                },
+                {
+                  "label": "Select an existing Data Extension",
+                  "value": "select"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dataExtensionId": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "categoryId": {
+              "label": "Category ID (Folder ID)",
+              "description": "The identifier for the folder that contains the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Data Extension Description",
+              "description": "The description of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "isSendable": {
+              "label": "Is Sendable",
+              "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableCustomObjectField": {
+              "label": "Sendable Custom Object Field",
+              "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableSubscriberField": {
+              "label": "Sendable Subscriber Field",
+              "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Subscriber Key",
+                  "value": "_SubscriberKey"
+                },
+                {
+                  "label": "Subscriber ID",
+                  "value": "_SubscriberID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "columns": {
+              "label": "Data Extension Fields",
+              "description": "A list of fields to create in the data extension.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "name": {
+                  "label": "Field Name",
+                  "description": "The name of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "type": {
+                  "label": "Field Type",
+                  "description": "The data type of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": [
+                    {
+                      "label": "Text",
+                      "value": "Text"
+                    },
+                    {
+                      "label": "Number",
+                      "value": "Number"
+                    },
+                    {
+                      "label": "Date",
+                      "value": "Date"
+                    },
+                    {
+                      "label": "Boolean",
+                      "value": "Boolean"
+                    },
+                    {
+                      "label": "EmailAddress",
+                      "value": "EmailAddress"
+                    },
+                    {
+                      "label": "Phone",
+                      "value": "Phone"
+                    },
+                    {
+                      "label": "Decimal",
+                      "value": "Decimal"
+                    },
+                    {
+                      "label": "Locale",
+                      "value": "Locale"
+                    }
+                  ],
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isNullable": {
+                  "label": "Is Nullable",
+                  "description": "Whether the field can be null.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isPrimaryKey": {
+                  "label": "Is Primary Key",
+                  "description": "Whether the field is a primary key.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "length": {
+                  "label": "Field Length",
+                  "description": "The length of the field. Required for non-boolean fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "scale": {
+                  "label": "Decimal Scale",
+                  "description": "The scale of the field. Required for Decimal fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "description": {
+                  "label": "Field Description",
+                  "description": "The description of the field.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "arrayeditor",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": true
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
       "fields": {
         "keys": {
           "label": "Data Extension Primary Key",
@@ -487,7 +1619,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "values": {
           "label": "Data Extension Fields",
@@ -508,7 +1642,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch data to SFMC",
@@ -529,7 +1665,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -550,7 +1688,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -562,10 +1702,1100 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [
-        "retlOnMappingSave",
-        "onMappingSave"
-      ],
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "inputFields": {
+            "operation": {
+              "label": "Operation",
+              "description": "Whether to create a new data extension or select an existing one for data delivery.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Create a new Data Extension",
+                  "value": "create"
+                },
+                {
+                  "label": "Select an existing Data Extension",
+                  "value": "select"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dataExtensionId": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "categoryId": {
+              "label": "Category ID (Folder ID)",
+              "description": "The identifier for the folder that contains the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Data Extension Description",
+              "description": "The description of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "isSendable": {
+              "label": "Is Sendable",
+              "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableCustomObjectField": {
+              "label": "Sendable Custom Object Field",
+              "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableSubscriberField": {
+              "label": "Sendable Subscriber Field",
+              "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Subscriber Key",
+                  "value": "_SubscriberKey"
+                },
+                {
+                  "label": "Subscriber ID",
+                  "value": "_SubscriberID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "columns": {
+              "label": "Data Extension Fields",
+              "description": "A list of fields to create in the data extension.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "name": {
+                  "label": "Field Name",
+                  "description": "The name of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "type": {
+                  "label": "Field Type",
+                  "description": "The data type of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": [
+                    {
+                      "label": "Text",
+                      "value": "Text"
+                    },
+                    {
+                      "label": "Number",
+                      "value": "Number"
+                    },
+                    {
+                      "label": "Date",
+                      "value": "Date"
+                    },
+                    {
+                      "label": "Boolean",
+                      "value": "Boolean"
+                    },
+                    {
+                      "label": "EmailAddress",
+                      "value": "EmailAddress"
+                    },
+                    {
+                      "label": "Phone",
+                      "value": "Phone"
+                    },
+                    {
+                      "label": "Decimal",
+                      "value": "Decimal"
+                    },
+                    {
+                      "label": "Locale",
+                      "value": "Locale"
+                    }
+                  ],
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isNullable": {
+                  "label": "Is Nullable",
+                  "description": "Whether the field can be null.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isPrimaryKey": {
+                  "label": "Is Primary Key",
+                  "description": "Whether the field is a primary key.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "length": {
+                  "label": "Field Length",
+                  "description": "The length of the field. Required for non-boolean fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "scale": {
+                  "label": "Decimal Scale",
+                  "description": "The scale of the field. Required for Decimal fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "description": {
+                  "label": "Field Description",
+                  "description": "The description of the field.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "arrayeditor",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": true
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        },
+        "onMappingSave": {
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "inputFields": {
+            "operation": {
+              "label": "Operation",
+              "description": "Whether to create a new data extension or select an existing one for data delivery.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Create a new Data Extension",
+                  "value": "create"
+                },
+                {
+                  "label": "Select an existing Data Extension",
+                  "value": "select"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dataExtensionId": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "categoryId": {
+              "label": "Category ID (Folder ID)",
+              "description": "The identifier for the folder that contains the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Data Extension Description",
+              "description": "The description of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "isSendable": {
+              "label": "Is Sendable",
+              "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableCustomObjectField": {
+              "label": "Sendable Custom Object Field",
+              "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableSubscriberField": {
+              "label": "Sendable Subscriber Field",
+              "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Subscriber Key",
+                  "value": "_SubscriberKey"
+                },
+                {
+                  "label": "Subscriber ID",
+                  "value": "_SubscriberID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "columns": {
+              "label": "Data Extension Fields",
+              "description": "A list of fields to create in the data extension.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "name": {
+                  "label": "Field Name",
+                  "description": "The name of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "type": {
+                  "label": "Field Type",
+                  "description": "The data type of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": [
+                    {
+                      "label": "Text",
+                      "value": "Text"
+                    },
+                    {
+                      "label": "Number",
+                      "value": "Number"
+                    },
+                    {
+                      "label": "Date",
+                      "value": "Date"
+                    },
+                    {
+                      "label": "Boolean",
+                      "value": "Boolean"
+                    },
+                    {
+                      "label": "EmailAddress",
+                      "value": "EmailAddress"
+                    },
+                    {
+                      "label": "Phone",
+                      "value": "Phone"
+                    },
+                    {
+                      "label": "Decimal",
+                      "value": "Decimal"
+                    },
+                    {
+                      "label": "Locale",
+                      "value": "Locale"
+                    }
+                  ],
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isNullable": {
+                  "label": "Is Nullable",
+                  "description": "Whether the field can be null.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isPrimaryKey": {
+                  "label": "Is Primary Key",
+                  "description": "Whether the field is a primary key.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "length": {
+                  "label": "Field Length",
+                  "description": "The length of the field. Required for non-boolean fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "scale": {
+                  "label": "Decimal Scale",
+                  "description": "The scale of the field. Required for Decimal fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "description": {
+                  "label": "Field Description",
+                  "description": "The description of the field.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "arrayeditor",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": true
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
       "fields": {
         "keys": {
           "label": "Data Extension Primary Key",
@@ -602,7 +2832,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -612,7 +2844,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "values": {
           "label": "Contact Fields",
@@ -633,7 +2867,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch data to SFMC",
@@ -654,7 +2890,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -675,7 +2913,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -687,10 +2927,1100 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [
-        "retlOnMappingSave",
-        "onMappingSave"
-      ],
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "inputFields": {
+            "operation": {
+              "label": "Operation",
+              "description": "Whether to create a new data extension or select an existing one for data delivery.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Create a new Data Extension",
+                  "value": "create"
+                },
+                {
+                  "label": "Select an existing Data Extension",
+                  "value": "select"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dataExtensionId": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "categoryId": {
+              "label": "Category ID (Folder ID)",
+              "description": "The identifier for the folder that contains the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Data Extension Description",
+              "description": "The description of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "isSendable": {
+              "label": "Is Sendable",
+              "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableCustomObjectField": {
+              "label": "Sendable Custom Object Field",
+              "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableSubscriberField": {
+              "label": "Sendable Subscriber Field",
+              "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Subscriber Key",
+                  "value": "_SubscriberKey"
+                },
+                {
+                  "label": "Subscriber ID",
+                  "value": "_SubscriberID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "columns": {
+              "label": "Data Extension Fields",
+              "description": "A list of fields to create in the data extension.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "name": {
+                  "label": "Field Name",
+                  "description": "The name of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "type": {
+                  "label": "Field Type",
+                  "description": "The data type of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": [
+                    {
+                      "label": "Text",
+                      "value": "Text"
+                    },
+                    {
+                      "label": "Number",
+                      "value": "Number"
+                    },
+                    {
+                      "label": "Date",
+                      "value": "Date"
+                    },
+                    {
+                      "label": "Boolean",
+                      "value": "Boolean"
+                    },
+                    {
+                      "label": "EmailAddress",
+                      "value": "EmailAddress"
+                    },
+                    {
+                      "label": "Phone",
+                      "value": "Phone"
+                    },
+                    {
+                      "label": "Decimal",
+                      "value": "Decimal"
+                    },
+                    {
+                      "label": "Locale",
+                      "value": "Locale"
+                    }
+                  ],
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isNullable": {
+                  "label": "Is Nullable",
+                  "description": "Whether the field can be null.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isPrimaryKey": {
+                  "label": "Is Primary Key",
+                  "description": "Whether the field is a primary key.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "length": {
+                  "label": "Field Length",
+                  "description": "The length of the field. Required for non-boolean fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "scale": {
+                  "label": "Decimal Scale",
+                  "description": "The scale of the field. Required for Decimal fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "description": {
+                  "label": "Field Description",
+                  "description": "The description of the field.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "arrayeditor",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": true
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        },
+        "onMappingSave": {
+          "label": "Create or Select Data Extension",
+          "description": "Connect to an existing data extension or create a new one in Salesforce Marketing Cloud.",
+          "inputFields": {
+            "operation": {
+              "label": "Operation",
+              "description": "Whether to create a new data extension or select an existing one for data delivery.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Create a new Data Extension",
+                  "value": "create"
+                },
+                {
+                  "label": "Select an existing Data Extension",
+                  "value": "select"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dataExtensionId": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "categoryId": {
+              "label": "Category ID (Folder ID)",
+              "description": "The identifier for the folder that contains the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Data Extension Description",
+              "description": "The description of the data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "isSendable": {
+              "label": "Is Sendable",
+              "description": "Indicates whether the custom object can be used to send messages. If the value of this property is true, then the custom object is sendable",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableCustomObjectField": {
+              "label": "Sendable Custom Object Field",
+              "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sendableSubscriberField": {
+              "label": "Sendable Subscriber Field",
+              "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Subscriber Key",
+                  "value": "_SubscriberKey"
+                },
+                {
+                  "label": "Subscriber ID",
+                  "value": "_SubscriberID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "columns": {
+              "label": "Data Extension Fields",
+              "description": "A list of fields to create in the data extension.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "name": {
+                  "label": "Field Name",
+                  "description": "The name of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "type": {
+                  "label": "Field Type",
+                  "description": "The data type of the field.",
+                  "type": "string",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": [
+                    {
+                      "label": "Text",
+                      "value": "Text"
+                    },
+                    {
+                      "label": "Number",
+                      "value": "Number"
+                    },
+                    {
+                      "label": "Date",
+                      "value": "Date"
+                    },
+                    {
+                      "label": "Boolean",
+                      "value": "Boolean"
+                    },
+                    {
+                      "label": "EmailAddress",
+                      "value": "EmailAddress"
+                    },
+                    {
+                      "label": "Phone",
+                      "value": "Phone"
+                    },
+                    {
+                      "label": "Decimal",
+                      "value": "Decimal"
+                    },
+                    {
+                      "label": "Locale",
+                      "value": "Locale"
+                    }
+                  ],
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isNullable": {
+                  "label": "Is Nullable",
+                  "description": "Whether the field can be null.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "isPrimaryKey": {
+                  "label": "Is Primary Key",
+                  "description": "Whether the field is a primary key.",
+                  "type": "boolean",
+                  "required": true,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "length": {
+                  "label": "Field Length",
+                  "description": "The length of the field. Required for non-boolean fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "scale": {
+                  "label": "Decimal Scale",
+                  "description": "The scale of the field. Required for Decimal fields",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "description": {
+                  "label": "Field Description",
+                  "description": "The description of the field.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": false,
+                  "hidden": false,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "arrayeditor",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": true
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "Data Extension ID",
+              "description": "The identifier for the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Data Extension Name",
+              "description": "The name of the data extension.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
       "fields": {
         "keys": {
           "label": "Data Extension Primary Key",
@@ -711,7 +4041,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "values": {
           "label": "Data Extension Fields",
@@ -732,7 +4064,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch data to SFMC",
@@ -753,7 +4087,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_bytes": {
           "label": "Batch Bytes",
@@ -774,7 +4110,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -795,7 +4133,9 @@
           "minimum": 1000,
           "maximum": 30000,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

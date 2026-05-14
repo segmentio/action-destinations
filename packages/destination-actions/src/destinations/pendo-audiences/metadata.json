@@ -11,14 +11,17 @@
         "description": "Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "region": {
         "label": "Region",
         "description": "The region your Pendo account is hosted in.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "US",
@@ -41,7 +44,8 @@
             "value": "AU"
           }
         ],
-        "default": "DEFAULT"
+        "default": "DEFAULT",
+        "depends_on": null
       }
     }
   },
@@ -56,10 +60,13 @@
         "description": "A name for the Pendo Segment. Leave blank to use the Segment audience name.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
-    }
+    },
+    "supportsAudienceFunctions": true
   },
   "actions": {
     "syncAudience": {
@@ -70,7 +77,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "visitorId": {
           "label": "Visitor ID",
@@ -93,7 +100,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traitsOrProperties": {
           "label": "Traits or Properties",
@@ -126,7 +135,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "segmentAudienceKey": {
           "label": "Segment Audience Key",
@@ -149,7 +160,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "segmentAudienceId": {
           "label": "Segment External Audience ID",
@@ -172,7 +185,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch events",
@@ -193,7 +208,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Max Batch Size",
@@ -214,7 +231,9 @@
           "minimum": 1,
           "maximum": 1000,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

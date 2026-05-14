@@ -10,24 +10,30 @@
         "description": "Your Twilio API Key. You can find this in your [Twilio Console](https://console.twilio.com/) under Account > API Keys & Tokens.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "password": {
         "label": "API Secret",
         "description": "Your Twilio API Secret. This is provided when you create an API Key in your [Twilio Console](https://console.twilio.com/) under Account > API Keys & Tokens.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "twilioAccount": {
         "label": "Twilio Account ID",
         "description": "Your Twilio Account ID. This can be found at the top of your [Twilio Console Dashboard](https://console.twilio.com/).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -41,7 +47,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "enable_batching": {
           "label": "Enable Batching",
@@ -62,7 +68,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -83,7 +91,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "memora_store": {
           "label": "Memora Store",
@@ -110,7 +120,9 @@
             "function",
             "enrichment",
             "freeform"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "profile_identifiers": {
           "label": "Profile Identifiers",
@@ -131,7 +143,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "profile_traits": {
           "label": "Profile Traits",
@@ -152,7 +166,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         }
       }
     }

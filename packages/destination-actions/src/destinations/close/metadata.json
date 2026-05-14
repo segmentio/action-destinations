@@ -10,24 +10,30 @@
         "description": "Your Close API key.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "lead_custom_field_id_for_company_id": {
         "label": "Lead Custom Field ID for Company ID",
         "description": "Enter the ID of a Lead Custom Field that'll be used to store Company ID. You'll need to create this Lead Custom Field in Close first, and then the integration will use this field to store the Company ID when creating new contacts, and/or will be used as a lookup key when updating existing Lead. The Custom Field type must be a text. If this field is not filled out, it will only lookup and de-dupe based on Contact's email.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "contact_custom_field_id_for_user_id": {
         "label": "Contact Custom Field ID for User ID",
         "description": "Enter the ID of a Contact Custom Field that'll be used to store User ID. You'll need to create this Contact Custom Field in Close first, and then the integration will use this field to store the User ID when creating new contacts, and/or will be used as a lookup key when updating existing Contacts. The Custom Field type must be a text. If this field is not filled out, it will only look up and de-dupe based on email.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       }
     }
   },
@@ -41,7 +47,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "lead_name": {
           "label": "Lead Name",
@@ -64,7 +70,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lead_external_id": {
           "label": "Lead Company ID",
@@ -87,7 +95,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lead_description": {
           "label": "Lead Description",
@@ -108,7 +118,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lead_status_id": {
           "label": "Lead Status ID",
@@ -129,7 +141,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lead_custom_fields": {
           "label": "Lead Custom Fields",
@@ -150,7 +164,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_name": {
           "label": "Contact Name",
@@ -173,7 +189,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_email": {
           "label": "Contact Email",
@@ -196,7 +214,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_phone": {
           "label": "Contact Phone",
@@ -219,7 +239,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_url": {
           "label": "Contact URL",
@@ -242,7 +264,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_title": {
           "label": "Contact Title",
@@ -265,7 +289,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_external_id": {
           "label": "Contact User ID",
@@ -288,7 +314,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contact_custom_fields": {
           "label": "Contact Custom Fields",
@@ -309,7 +337,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allow_creating_new_leads": {
           "label": "Allow creating new Leads",
@@ -330,7 +360,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allow_updating_existing_leads": {
           "label": "Allow updating existing Leads",
@@ -351,7 +383,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allow_creating_new_contacts": {
           "label": "Allow creating new Contacts",
@@ -372,7 +406,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allow_updating_existing_contacts": {
           "label": "Allow updating existing Contacts",
@@ -393,7 +429,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "allow_creating_duplicate_contacts": {
           "label": "Allow creating duplicate Contacts under different Lead",
@@ -414,7 +452,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

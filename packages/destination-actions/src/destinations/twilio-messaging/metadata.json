@@ -11,24 +11,30 @@
         "description": "Twilio Account SID",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "apiKeySID": {
         "label": "Twilio API Key SID",
         "description": "Twilio API Key SID",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "apiKeySecret": {
         "label": "Twilio API Key Secret",
         "description": "Twilio API Key Secret",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -42,7 +48,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "channel": {
           "label": "Channel",
@@ -63,7 +69,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "senderType": {
           "label": "Sender Type",
@@ -84,7 +92,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contentTemplateType": {
           "label": "Content Template Type",
@@ -105,7 +115,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "toPhoneNumber": {
           "label": "To Phone Number",
@@ -135,7 +147,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "toMessengerUserId": {
           "label": "To Messenger User ID",
@@ -165,7 +179,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "fromPhoneNumber": {
           "label": "From Phone Number",
@@ -200,7 +216,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "fromFacebookPageId": {
           "label": "From Facebook Page ID",
@@ -230,7 +248,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "messagingServiceSid": {
           "label": "Messaging Service SID",
@@ -265,7 +285,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": []
+          "disabledInputMethods": [],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contentSid": {
           "label": "Content Template SID",
@@ -295,7 +317,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": []
+          "disabledInputMethods": [],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "contentVariables": {
           "label": "Content Variables",
@@ -325,7 +349,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "inlineBody": {
           "label": "Inline Template",
@@ -355,7 +381,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "inlineMediaUrls": {
           "label": "Inline Media URLs",
@@ -385,7 +413,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "validityPeriod": {
           "label": "Validity Period",
@@ -406,7 +436,9 @@
           "minimum": 1,
           "maximum": 14400,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sendAt": {
           "label": "Send At",
@@ -441,7 +473,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "tags": {
           "label": "Tags",
@@ -462,7 +496,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

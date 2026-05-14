@@ -11,22 +11,27 @@
         "description": "The client ID for your Kafka instance. Defaults to 'segment-actions-kafka-producer'.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "segment-actions-kafka-producer"
+        "default": "segment-actions-kafka-producer",
+        "depends_on": null
       },
       "brokers": {
         "label": "Brokers",
         "description": "The brokers for your Kafka instance, in the format of `host:port`. E.g. localhost:9092. Accepts a comma delimited string.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "mechanism": {
         "label": "Authentication Mechanism",
         "description": "Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Plain",
@@ -45,87 +50,186 @@
             "value": "client-cert-auth"
           }
         ],
-        "default": "plain"
+        "default": "plain",
+        "depends_on": null
       },
       "username": {
         "label": "Username",
         "description": "The username for your Kafka instance. Should be populated only if using PLAIN or SCRAM Authentication Mechanisms.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "match": "any",
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "plain"
+            },
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "scram-sha-256"
+            },
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "scram-sha-512"
+            }
+          ]
+        }
       },
       "password": {
         "label": "Password",
         "description": "The password for your Kafka instance. Should only be populated if using PLAIN or SCRAM Authentication Mechanisms.",
         "type": "password",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "match": "any",
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "plain"
+            },
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "scram-sha-256"
+            },
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "scram-sha-512"
+            }
+          ]
+        }
       },
       "accessKeyId": {
         "label": "AWS Access Key ID",
         "description": "The Access Key ID for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "aws"
+            }
+          ]
+        }
       },
       "secretAccessKey": {
         "label": "AWS Secret Key",
         "description": "The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.",
         "type": "password",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "aws"
+            }
+          ]
+        }
       },
       "authorizationIdentity": {
         "label": "AWS Authorization Identity",
         "description": "AWS IAM role ARN used for authorization. This field is optional, and should only be populated if using the AWS IAM Authentication Mechanism.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "aws"
+            }
+          ]
+        }
       },
       "ssl_enabled": {
         "label": "SSL Enabled",
         "description": "Indicates if SSL should be enabled.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       },
       "ssl_ca": {
         "label": "SSL Certificate Authority",
         "description": "The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "ssl_key": {
         "label": "SSL Client Key",
         "description": "The Client Key for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
         "type": "password",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "client-cert-auth"
+            }
+          ]
+        }
       },
       "ssl_cert": {
         "label": "SSL Client Certificate",
         "description": "The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "mechanism",
+              "operator": "is",
+              "value": "client-cert-auth"
+            }
+          ]
+        }
       },
       "ssl_reject_unauthorized_ca": {
         "label": "SSL - Reject Unauthorized Certificate Authority",
         "description": "Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.",
         "type": "boolean",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": true
+        "default": true,
+        "depends_on": null
       }
     }
   },
@@ -139,7 +243,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "topic": {
           "label": "Topic",
@@ -160,7 +264,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "payload": {
           "label": "Payload",
@@ -183,7 +289,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "headers": {
           "label": "Headers",
@@ -204,7 +312,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "partition": {
           "label": "Partition",
@@ -225,7 +335,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "default_partition": {
           "label": "Default Partition",
@@ -246,7 +358,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "key": {
           "label": "Message Key",
@@ -267,7 +381,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to Kafka?",
@@ -288,7 +404,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_keys": {
           "label": "Batch Keys",
@@ -313,7 +431,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_bytes": {
           "label": "Batch Bytes",
@@ -334,7 +454,9 @@
           "minimum": 5000,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -355,7 +477,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

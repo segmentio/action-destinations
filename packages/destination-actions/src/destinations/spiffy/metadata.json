@@ -10,22 +10,27 @@
         "description": "Spiffy Org ID",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "api_key": {
         "label": "API Key",
         "description": "Spiffy Org API Key",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "environment": {
         "label": "Spiffy Environment",
         "description": "Spiffy Org Environment",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "value": "prod",
@@ -36,7 +41,8 @@
             "label": "Development"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -50,7 +56,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "payload": {
           "label": "Payload",
@@ -73,7 +79,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "headers": {
           "label": "Headers",
@@ -94,7 +102,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

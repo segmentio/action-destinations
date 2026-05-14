@@ -11,48 +11,60 @@
         "description": "Use your Acoustic Org name but replace any spaces with an underscore, eg., AcmeCustomer_Prod",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "customer_org_"
+        "default": "customer_org_",
+        "depends_on": null
       },
       "s3_bucket_accesspoint_alias": {
         "label": "S3 Bucket Access Point Alias",
         "description": "The Alias of the Access Point created for your access to the S3 Bucket.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "s3_access_key": {
         "label": "S3 Access Key",
         "description": "S3 Access Key for the S3 bucket.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "s3_secret": {
         "label": "S3 Secret",
         "description": "S3 Secret credential for the S3 bucket.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "s3_region": {
         "label": "S3 Region",
         "description": "Should always be us-east-1 unless directed by Acoustic otherwise. ",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "us-east-1"
+        "default": "us-east-1",
+        "depends_on": null
       },
       "version": {
         "label": "Version:",
         "description": "\n\nLast-Modified: 02.01.2024 10.30.43\n\n",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "Version 2.3"
+        "default": "Version 2.3",
+        "depends_on": null
       }
     }
   },
@@ -66,7 +78,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "key_value_pairs": {
           "label": "Key-Value pairs",
@@ -87,7 +99,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "array_data": {
           "label": "Arrays",
@@ -108,7 +122,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "context": {
           "label": "Context",
@@ -129,7 +145,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Properties",
@@ -150,7 +168,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits": {
           "label": "Traits",
@@ -171,7 +191,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "uniqueRecipientId": {
           "label": "UniqueRecipientId",
@@ -204,7 +226,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "type": {
           "label": "Type",
@@ -227,7 +251,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -250,7 +276,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

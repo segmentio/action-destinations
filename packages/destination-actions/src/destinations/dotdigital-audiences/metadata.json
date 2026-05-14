@@ -10,6 +10,7 @@
         "description": "The region your account is in",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "value": "https://r1-api.dotdigital.com",
@@ -24,23 +25,28 @@
             "label": "r3"
           }
         ],
-        "default": "https://r1-api.dotdigital.com"
+        "default": "https://r1-api.dotdigital.com",
+        "depends_on": null
       },
       "username": {
         "label": "Username",
         "description": "Your Dotdigital API username",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "password": {
         "label": "Password",
         "description": "Your Dotdigital API password",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -55,14 +61,17 @@
         "description": "A Dotdigital list name. Leave blank to use the audience name from Segment.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "visibility": {
         "label": "Visibility",
         "description": "The visibility of the Dotdigital list",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Public",
@@ -73,9 +82,11 @@
             "value": "Private"
           }
         ],
-        "default": "Private"
+        "default": "Private",
+        "depends_on": null
       }
-    }
+    },
+    "supportsAudienceFunctions": true
   },
   "actions": {
     "syncAudience": {
@@ -86,7 +97,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "segment_computation_action": {
           "label": "Segment Computation Action",
@@ -118,7 +129,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "computation_key": {
           "label": "Audience Computation Key",
@@ -141,7 +154,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "external_audience_id": {
           "label": "Audience ID",
@@ -164,7 +179,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "emailIdentifier": {
           "label": "Email address",
@@ -197,7 +214,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "mobileNumberIdentifier": {
           "label": "Mobile Number",
@@ -230,7 +249,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits_or_props": {
           "label": "Traits or properties object",
@@ -263,7 +284,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "dataFields": {
           "label": "Data Fields",
@@ -284,7 +307,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

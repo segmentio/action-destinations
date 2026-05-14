@@ -10,8 +10,10 @@
         "description": "The Hub ID of your HubSpot account.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -25,7 +27,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "eventName": {
           "label": "Event Name",
@@ -46,7 +48,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "occurredAt": {
           "label": "Event Timestamp",
@@ -69,7 +73,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "email": {
           "label": "Email Address",
@@ -102,7 +108,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "utk": {
           "label": "User Token",
@@ -123,7 +131,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "objectId": {
           "label": "Object ID",
@@ -144,7 +154,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Event Properties",
@@ -165,7 +177,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -177,7 +191,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -200,7 +214,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "company": {
           "label": "Company Name",
@@ -223,7 +239,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "firstname": {
           "label": "First Name",
@@ -256,7 +274,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lastname": {
           "label": "Last Name",
@@ -289,7 +309,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "phone": {
           "label": "Phone",
@@ -312,7 +334,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "address": {
           "label": "Street Address",
@@ -335,7 +359,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -358,7 +384,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "state": {
           "label": "State",
@@ -381,7 +409,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -404,7 +434,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "zip": {
           "label": "Postal Code",
@@ -437,7 +469,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "website": {
           "label": "Website",
@@ -460,7 +494,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lifecyclestage": {
           "label": "Lifecycle Stage",
@@ -481,7 +517,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Other properties",
@@ -502,7 +540,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Send Batch Data to HubSpot",
@@ -523,7 +563,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -535,7 +577,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "groupid": {
           "label": "Unique Company Identifier",
@@ -568,7 +610,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "createNewCompany": {
           "label": "Create Company if Not Found",
@@ -589,7 +633,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "associateContact": {
           "label": "Associate Contact with Company",
@@ -610,7 +656,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "companysearchfields": {
           "label": "Company Search Fields",
@@ -631,7 +679,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "name": {
           "label": "Company Name",
@@ -654,7 +704,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "description": {
           "label": "Company Description",
@@ -677,7 +729,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "address": {
           "label": "Street Address",
@@ -700,7 +754,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -723,7 +779,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "state": {
           "label": "State",
@@ -746,7 +804,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "zip": {
           "label": "Postal Code",
@@ -779,7 +839,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "domain": {
           "label": "Domain",
@@ -802,7 +864,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "phone": {
           "label": "Phone",
@@ -825,7 +889,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "numberofemployees": {
           "label": "Number of Employees",
@@ -848,7 +914,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "industry": {
           "label": "Industry",
@@ -871,7 +939,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "lifecyclestage": {
           "label": "Lifecycle Stage",
@@ -892,7 +962,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Other Properties",
@@ -913,7 +985,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -925,7 +999,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "createNewCustomRecord": {
           "label": "Create Custom Object Record if Not Found",
@@ -946,7 +1020,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "customObjectSearchFields": {
           "label": "Custom Object Search Fields",
@@ -967,7 +1043,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "objectType": {
           "label": "Object Type",
@@ -994,7 +1072,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Properties",
@@ -1015,7 +1095,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "searchFieldsToAssociateCustomObjects": {
           "label": "Search Fields to Associate custom Object",
@@ -1036,7 +1118,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "toObjectType": {
           "label": "ObjectType to associate",
@@ -1063,7 +1147,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "associationLabel": {
           "label": "Association Label",
@@ -1084,7 +1170,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1097,13 +1185,24 @@
       "hasPerformBatch": true,
       "syncMode": {
         "default": "update",
-        "supportedModes": [
-          "upsert",
-          "add",
-          "update"
+        "label": "Sync Mode",
+        "description": "Specify how Segment should update Records in Hubspot",
+        "choices": [
+          {
+            "value": "upsert",
+            "label": "Create new records, and update existing records"
+          },
+          {
+            "value": "add",
+            "label": "Create new records, but do not update existing records"
+          },
+          {
+            "value": "update",
+            "label": "Update existing records, but do not create new records"
+          }
         ]
       },
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "object_details": {
           "label": "Object Details",
@@ -1142,7 +1241,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id_field_name": {
               "label": "Object ID Field Name",
@@ -1169,7 +1270,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id_field_value": {
               "label": "Object ID Field Value",
@@ -1190,7 +1293,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "property_group": {
               "label": "Property Group",
@@ -1217,7 +1322,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1227,7 +1334,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Properties",
@@ -1248,7 +1357,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "sensitive_properties": {
           "label": "Sensitive Properties",
@@ -1269,7 +1380,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "association_sync_mode": {
           "label": "Associated Record Sync Mode",
@@ -1305,7 +1418,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "associations": {
           "label": "Associations to add",
@@ -1344,7 +1459,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "association_label": {
               "label": "Association Label",
@@ -1371,7 +1488,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id_field_name": {
               "label": "To Object ID Field Name",
@@ -1398,7 +1517,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id_field_value": {
               "label": "To Object ID Field Value",
@@ -1419,7 +1540,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1429,7 +1552,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "arrayeditor",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "dissociations": {
           "label": "Associations to remove (BETA)",
@@ -1468,7 +1593,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "association_label": {
               "label": "Association Label",
@@ -1495,7 +1622,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id_field_name": {
               "label": "To Object ID Field Name",
@@ -1522,7 +1651,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "id_field_value": {
               "label": "To Object ID Field Value",
@@ -1543,7 +1674,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1553,7 +1686,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "arrayeditor",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "list_details": {
           "label": "List Details (BETA)",
@@ -1592,7 +1727,9 @@
               "disabledInputMethods": [
                 "literal",
                 "freeform"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "list_name": {
               "label": "List Name",
@@ -1613,7 +1750,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": []
+              "disabledInputMethods": [],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "list_action": {
               "label": "List Action",
@@ -1637,7 +1776,9 @@
               "disabledInputMethods": [
                 "literal",
                 "freeform"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "should_create_list": {
               "label": "Create List",
@@ -1661,7 +1802,9 @@
               "disabledInputMethods": [
                 "literal",
                 "freeform"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -1671,7 +1814,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to Hubspot by default",
@@ -1692,7 +1837,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -1713,7 +1860,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_keys": {
           "label": "Batch Keys",
@@ -1736,7 +1885,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -1765,7 +1916,9 @@
             "function",
             "freeform",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits_or_props": {
           "label": "traits or properties object",
@@ -1798,7 +1951,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "computation_key": {
           "label": "Engage Audience Computation Key",
@@ -1821,7 +1976,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "computation_class": {
           "label": "Engage Audience Computation Class",
@@ -1844,7 +2001,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1857,13 +2016,24 @@
       "hasPerformBatch": false,
       "syncMode": {
         "default": "update",
-        "supportedModes": [
-          "upsert",
-          "add",
-          "update"
+        "label": "Sync Mode",
+        "description": "Specify how Segment should update event schemas in Hubspot",
+        "choices": [
+          {
+            "value": "upsert",
+            "label": "Create new and update existing custom event definitions"
+          },
+          {
+            "value": "add",
+            "label": "Create new, but do not update existing custom event definitions"
+          },
+          {
+            "value": "update",
+            "label": "Update existing, but do not create new custom event definitions"
+          }
         ]
       },
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "event_name": {
           "label": "Event Name",
@@ -1884,7 +2054,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "record_details": {
           "label": "Associated Record Details",
@@ -1923,7 +2095,9 @@
                 "function",
                 "freeform",
                 "enrichment"
-              ]
+              ],
+              "displayMode": null,
+              "additionalProperties": false
             },
             "object_id": {
               "label": "Object ID",
@@ -1944,7 +2118,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email Address",
@@ -1986,7 +2162,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "utk": {
               "label": "User Token / UTK",
@@ -2016,7 +2194,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -2026,7 +2206,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue:only",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Properties",
@@ -2047,7 +2229,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "occurred_at": {
           "label": "Event Timestamp",
@@ -2070,7 +2254,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

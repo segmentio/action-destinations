@@ -11,14 +11,17 @@
         "description": "The AWS Account ID that the event bus belongs to. This is used to generate the ARN for the event bus.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "region": {
         "label": "AWS Region",
         "description": "The AWS region that the event bus belongs to.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "us-east-1",
@@ -81,7 +84,8 @@
             "value": "eu-central-1"
           }
         ],
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -95,10 +99,68 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [
-        "retlOnMappingSave",
-        "onMappingSave"
-      ],
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Create Partner Source",
+          "description": "Creates the Partner Event Source in Amazon EventBridge. This must be done before sending events.",
+          "inputFields": {},
+          "outputFields": {
+            "sourceId": {
+              "label": "Source ID",
+              "description": "The identifier for the source.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        },
+        "onMappingSave": {
+          "label": "Create Partner Source",
+          "description": "Creates the Partner Event Source in Amazon EventBridge. This must be done before sending events.",
+          "inputFields": {},
+          "outputFields": {
+            "sourceId": {
+              "label": "Source ID",
+              "description": "The identifier for the source.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
       "fields": {
         "data": {
           "label": "Detail",
@@ -121,7 +183,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "detailType": {
           "label": "Detail Type",
@@ -144,7 +208,9 @@
           "minimum": null,
           "maximum": 128,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "resources": {
           "label": "Resources",
@@ -165,7 +231,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "time": {
           "label": "Time",
@@ -188,7 +256,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "(Hidden field): Enable Batching",
@@ -209,7 +279,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "(Hidden field): Batch Size",
@@ -230,7 +302,9 @@
           "minimum": 1,
           "maximum": 20,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

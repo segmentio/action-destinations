@@ -10,30 +10,37 @@
         "description": "Enter your company’s name",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "apiKey": {
         "label": "API Key",
         "description": "The API Key is available via Ambee’s API Dashboard: https://api-dashboard.getambee.com. Paste the API key generated on the homepage. For bulk use, subscribe to enterprise plan on the dashboard",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "email": {
         "label": "Email",
         "description": "Enter the email address you used to sign up for Ambee’s API Key.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "segmentRegion": {
         "label": "Segment Region For Notifications",
         "description": "Your Segment Workspace is hosted in either the US or EU Region. Select which Segment Region Ambee should send notifications to. The default is US",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "US",
@@ -44,15 +51,18 @@
             "value": "EU"
           }
         ],
-        "default": "US"
+        "default": "US",
+        "depends_on": null
       },
       "segmentWriteKey": {
         "label": "Segment WriteKey For Notifications",
         "description": "This is your Segment Source WriteKey. Use this WriteKey to send data from Ambee to your destination",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -66,7 +76,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "segmentLibrary": {
           "label": "Segment Library",
@@ -89,7 +99,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "platform": {
           "label": "User Device Platform",
@@ -112,7 +124,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "campaignId": {
           "label": "Campaign ID",
@@ -133,7 +147,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "userId": {
           "label": "User ID",
@@ -166,7 +182,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "airQualitySubscription": {
           "label": "Air Quality Subscription",
@@ -212,7 +230,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "pollenSubscription": {
           "label": "Pollen Subscription",
@@ -250,7 +270,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "ipAddress": {
           "label": "User IP Address",
@@ -273,7 +295,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

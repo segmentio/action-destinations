@@ -10,14 +10,17 @@
         "description": "Pod Number for API Endpoint",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "2"
+        "default": "2",
+        "depends_on": null
       },
       "region": {
         "label": "Region",
         "description": "Region for API Endpoint, either US, EU, AP, or CA",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "US",
@@ -36,63 +39,78 @@
             "value": "CA"
           }
         ],
-        "default": "US"
+        "default": "US",
+        "depends_on": null
       },
       "tableName": {
         "label": "Acoustic Segment Table Name",
         "description": "The Segment Table Name in Acoustic Campaign Data dialog.",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": "Segment Events Table Name"
+        "default": "Segment Events Table Name",
+        "depends_on": null
       },
       "tableListId": {
         "label": "Acoustic Segment Table List Id",
         "description": "The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "a_clientId": {
         "label": "Acoustic App Definition ClientId",
         "description": "The Client Id from the App definition dialog in Acoustic Campaign",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "a_clientSecret": {
         "label": "Acoustic App Definition ClientSecret",
         "description": "The Client Secret from the App definition dialog in Acoustic Campaign",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "a_refreshToken": {
         "label": "Acoustic App Access Definition RefreshToken",
         "description": "The RefreshToken provided when defining access for the App in Acoustic Campaign",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "attributesMax": {
         "label": "Properties Max",
         "description": "A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 15
+        "default": 15,
+        "depends_on": null
       },
       "version": {
         "label": "Version:",
         "description": "\nLast-Modified: 06.28.2023 16.15.37\n",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": "Version 3.1   (nodeJS: v22.13.1)"
+        "default": "Version 3.1   (nodeJS: v22.13.1)",
+        "depends_on": null
       }
     }
   },
@@ -106,7 +124,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -129,7 +147,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "type": {
           "label": "Type",
@@ -152,7 +172,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "timestamp": {
           "label": "Timestamp",
@@ -175,7 +197,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "key_value_pairs": {
           "label": "Key-Value pairs",
@@ -196,7 +220,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "array_data": {
           "label": "Arrays",
@@ -217,7 +243,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "context": {
           "label": "Context",
@@ -238,7 +266,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "properties": {
           "label": "Properties",
@@ -259,7 +289,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits": {
           "label": "Traits",
@@ -280,7 +312,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

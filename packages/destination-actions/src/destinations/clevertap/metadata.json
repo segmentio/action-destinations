@@ -11,22 +11,27 @@
         "description": "CleverTap Account Id. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "clevertapPasscode": {
         "label": "CleverTap Account Passcode",
         "description": "CleverTap Passcode. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "clevertapEndpoint": {
         "label": "REST Endpoint",
         "description": "Learn More about [Account regions](https://docs.clevertap.com/docs/build-segment-destination#set-up-segment-destination-action).",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "SK",
@@ -49,7 +54,8 @@
             "value": "https://in1.api.clevertap.com"
           }
         ],
-        "default": "https://sk1.api.clevertap.com"
+        "default": "https://sk1.api.clevertap.com",
+        "depends_on": null
       }
     }
   },
@@ -63,7 +69,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "ts": {
           "label": "Created At",
@@ -86,7 +92,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "profileData": {
           "label": "Person Attributes",
@@ -109,7 +117,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "identity": {
           "label": "Identity",
@@ -132,7 +142,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -144,7 +156,7 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "identity": {
           "label": "Identity",
@@ -167,7 +179,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

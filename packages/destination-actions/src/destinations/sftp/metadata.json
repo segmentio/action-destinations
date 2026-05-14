@@ -11,6 +11,7 @@
         "description": "The type of authentication to use for the SFTP connection",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": [
           {
             "label": "Username and Password",
@@ -21,53 +22,81 @@
             "value": "ssh_key"
           }
         ],
-        "default": "password"
+        "default": "password",
+        "depends_on": null
       },
       "sftp_host": {
         "label": "SFTP Host",
         "description": "The hostname or IP address of the SFTP server",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "sftp_port": {
         "label": "SFTP Port",
         "description": "The port number for the SFTP connection",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 22
+        "default": 22,
+        "depends_on": null
       },
       "sftp_username": {
         "label": "Username",
         "description": "Username for establishing an SFTP connection",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "sftp_password": {
         "label": "Password",
         "description": "Password for establishing an SFTP connection",
         "type": "password",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "password"
+            }
+          ]
+        }
       },
       "sftp_ssh_key": {
         "label": "SSH Key",
         "description": "SSH Key for establishing an SFTP connection",
         "type": "password",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "ssh_key"
+            }
+          ]
+        }
       },
       "uploadStrategy": {
         "label": "Upload Strategy",
         "description": "Select the upload strategy to use when uploading files to the SFTP server.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "Standard [Supported by all SFTP servers]",
@@ -78,7 +107,8 @@
             "value": "concurrent"
           }
         ],
-        "default": "standard"
+        "default": "standard",
+        "depends_on": null
       }
     }
   },
@@ -92,7 +122,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "columns": {
           "label": "Columns",
@@ -188,7 +218,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "event_type": {
               "label": "Event Type",
@@ -209,7 +241,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "user_id": {
               "label": "User ID",
@@ -230,7 +264,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "anonymous_id": {
               "label": "Anonymous ID",
@@ -251,7 +287,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "email": {
               "label": "Email",
@@ -272,7 +310,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "properties": {
               "label": "Properties",
@@ -293,7 +333,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "traits": {
               "label": "Traits",
@@ -314,7 +356,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "context": {
               "label": "Context",
@@ -335,7 +379,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "timestamp": {
               "label": "Timestamp",
@@ -356,7 +402,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "message_id": {
               "label": "Message ID",
@@ -377,7 +425,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "integrations": {
               "label": "Integrations Object",
@@ -398,7 +448,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "audience_name": {
               "label": "Audience Name",
@@ -419,7 +471,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "audience_id": {
               "label": "Audience ID",
@@ -440,7 +494,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             },
             "audience_space_id": {
               "label": "Audience Space ID",
@@ -461,7 +517,9 @@
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
             }
           },
           "category": null,
@@ -471,7 +529,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "filename_prefix": {
           "label": "Filename prefix",
@@ -492,7 +552,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "file_extension": {
           "label": "File Extension",
@@ -530,7 +592,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "delimiter": {
           "label": "Delimiter",
@@ -576,7 +640,9 @@
             "enrichment",
             "function",
             "variable"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sftp_folder_path": {
           "label": "Folder Path",
@@ -599,7 +665,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Enable Batching",
@@ -620,7 +688,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -641,7 +711,9 @@
           "minimum": 1,
           "maximum": 100000,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size_column_name": {
           "label": "Batch Size Column Name",
@@ -666,7 +738,9 @@
             "variable",
             "function",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "audience_action_column_name": {
           "label": "Audience Action Column Name",
@@ -691,7 +765,9 @@
             "variable",
             "function",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "traits_or_props": {
           "label": "Traits or Props - Hidden Field",
@@ -724,7 +800,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "computation_key": {
           "label": "Audience_Key - Hidden Field",
@@ -747,7 +825,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     },
@@ -759,7 +839,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "columns": {
           "label": "Columns",
@@ -780,7 +860,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
         },
         "filename_prefix": {
           "label": "Filename prefix",
@@ -801,7 +883,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "file_extension": {
           "label": "File Extension",
@@ -839,7 +923,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "delimiter": {
           "label": "Delimiter",
@@ -885,7 +971,9 @@
             "enrichment",
             "function",
             "variable"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         },
         "sftp_folder_path": {
           "label": "Folder Path",
@@ -908,7 +996,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Enable Batching",
@@ -929,7 +1019,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size": {
           "label": "Batch Size",
@@ -950,7 +1042,9 @@
           "minimum": 1,
           "maximum": 100000,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_size_column_name": {
           "label": "Batch Size Column Name",
@@ -975,7 +1069,9 @@
             "variable",
             "function",
             "enrichment"
-          ]
+          ],
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }

@@ -10,8 +10,10 @@
         "description": "The ID of the Snap Ad Account",
         "type": "string",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       }
     }
   },
@@ -26,26 +28,33 @@
         "description": "Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "description": {
         "label": "Audience Description",
         "description": "Description of for the audience that will be created in Snap.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": ""
+        "default": "",
+        "depends_on": null
       },
       "retention_in_days": {
         "label": "Retention in days",
         "description": "Number of days to retain audience members. (Default retention is lifetime represented as 9999)",
         "type": "number",
         "required": false,
+        "multiple": false,
         "choices": null,
-        "default": 9999
+        "default": 9999,
+        "depends_on": null
       }
-    }
+    },
+    "supportsAudienceFunctions": true
   },
   "actions": {
     "syncAudience": {
@@ -56,7 +65,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
       "fields": {
         "external_audience_id": {
           "label": "External Audience ID",
@@ -79,7 +88,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "audienceKey": {
           "label": "Audience Key",
@@ -102,7 +113,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "props": {
           "label": "Properties object",
@@ -125,7 +138,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "phone": {
           "label": "Phone",
@@ -148,7 +163,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "email": {
           "label": "Email",
@@ -171,7 +188,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "advertising_id": {
           "label": "Mobile Advertising ID",
@@ -204,7 +223,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Enable Batching",
@@ -225,7 +246,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "max_batch_size": {
           "label": "Max Batch Size",
@@ -246,7 +269,9 @@
           "minimum": 1,
           "maximum": 100000,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         },
         "batch_keys": {
           "label": "Batch Keys",
@@ -269,7 +294,9 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
         }
       }
     }
