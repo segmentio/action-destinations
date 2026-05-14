@@ -416,8 +416,13 @@ export default class GenerateMetadataPayload extends Command {
     const filterModes: string[] | undefined = parsedFlags['mode']
     const filterPaths: string[] | undefined = parsedFlags['path']
 
-    // Extract destination directory names from --path values
+    // Extract destination directory names from --path values.
+    // If --path is provided but no paths match known layouts, generate nothing.
     const filterDirs: Set<string> | undefined = filterPaths ? extractDestinationDirs(filterPaths) : undefined
+    if (filterPaths && filterDirs && filterDirs.size === 0) {
+      this.log('No destination directories matched the provided --path values. Nothing to generate.')
+      return
+    }
 
     this.spinner.start('Loading destination manifest...')
     let manifest: Record<string, any>

@@ -821,6 +821,81 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
   })
 })
 
+describe('GenerateMetadataPayload — warehouse filesystem discovery', () => {
+  const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<(p: string) => Promise<boolean>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<any[]>>
+  const mockLoadDestination = loadDestination as jest.MockedFunction<typeof loadDestination>
+
+  const warehouseDef = {
+    name: 'My Warehouse',
+    mode: 'warehouse',
+    actions: { load: { title: 'Load', description: 'Load data', fields: {}, perform: () => undefined } }
+  } as unknown as DestinationDefinition
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockWriteFile.mockResolvedValue(undefined as never)
+    mockGetManifest.mockReturnValue({})
+  })
+
+  it('discovers warehouse destinations from filesystem', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('warehouse-destinations/src/destinations')) return true
+      if (p.endsWith('my-wh/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockImplementation(async (...args: any[]) => {
+      const p = args[0] as string
+      if (typeof p === 'string' && p.includes('warehouse-destinations')) return [makeDirent('my-wh')]
+      return []
+    })
+    mockLoadDestination.mockResolvedValue(warehouseDef)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).toHaveBeenCalledWith(expect.stringContaining('warehouse-destinations'))
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      expect.stringContaining('my-wh/metadata.json'),
+      expect.stringContaining('"name": "My Warehouse"')
+    )
+  })
+
+  it('filters warehouse destinations with --mode=warehouse', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('warehouse-destinations/src/destinations')) return true
+      if (p.endsWith('my-wh/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockImplementation(async (...args: any[]) => {
+      const p = args[0] as string
+      if (typeof p === 'string' && p.includes('warehouse-destinations')) return [makeDirent('my-wh')]
+      return []
+    })
+    mockLoadDestination.mockResolvedValue(warehouseDef)
+
+    await GenerateMetadataPayload.run(['--mode=warehouse'])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+  })
+
+  it('excludes warehouse destinations with --mode=cloud', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('warehouse-destinations/src/destinations')) return true
+      if (p.endsWith('my-wh/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockImplementation(async (...args: any[]) => {
+      const p = args[0] as string
+      if (typeof p === 'string' && p.includes('warehouse-destinations')) return [makeDirent('my-wh')]
+      return []
+    })
+    mockLoadDestination.mockResolvedValue(warehouseDef)
+
+    await GenerateMetadataPayload.run(['--mode=cloud'])
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+})
+
 describe('extractDestinationDirs', () => {
   it('extracts cloud destination directory names', () => {
     const dirs = extractDestinationDirs([
@@ -908,6 +983,20 @@ describe('--path filtering (Command E2E)', () => {
     } as any)
 
     await GenerateMetadataPayload.run(['--path', 'packages/destination-actions/src/destinations/nonexistent/index.ts'])
+
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('generates nothing when --path values do not match any known layout', async () => {
+    mockGetManifest.mockReturnValue({
+      'actions-amplitude': {
+        definition: { name: 'Amplitude', mode: 'cloud', actions: {} },
+        directory: 'amplitude',
+        path: '/root/packages/destination-actions/src/destinations/amplitude/index.ts'
+      }
+    } as any)
+
+    await GenerateMetadataPayload.run(['--path', 'packages/core/src/index.ts'])
 
     expect(mockWriteFile).not.toHaveBeenCalled()
   })
