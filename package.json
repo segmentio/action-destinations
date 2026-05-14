@@ -101,7 +101,9 @@
   "lint-staged": {
     "**/{browser-destinations,destinations}/**/*.ts": [
       "./bin/run generate:types -p",
-      "git add **/generated-types.ts"
+      "git add **/generated-types.ts",
+      "bash scripts/update-metadata-payload.sh",
+      "git add **/metadata.json"
     ],
     "!(**/templates/**)/*.ts": [
       "eslint --fix --cache",

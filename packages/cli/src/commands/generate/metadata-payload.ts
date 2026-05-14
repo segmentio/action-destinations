@@ -347,6 +347,32 @@ function resolveSourceDir(entryPath: string): string | null {
 
 export { resolveSourceDir }
 
+// Extracts destination directory names from file paths using known package layout patterns.
+export function extractDestinationDirs(paths: string[]): Set<string> {
+  const dirs = new Set<string>()
+  for (const p of paths) {
+    // Cloud: packages/destination-actions/src/destinations/<name>/...
+    const cloudMatch = p.match(/packages\/destination-actions\/src\/destinations\/([^/]+)/)
+    if (cloudMatch) {
+      dirs.add(cloudMatch[1])
+      continue
+    }
+    // Browser: packages/browser-destinations/destinations/<name>/...
+    const browserMatch = p.match(/packages\/browser-destinations\/destinations\/([^/]+)/)
+    if (browserMatch) {
+      dirs.add(browserMatch[1])
+      continue
+    }
+    // Warehouse: packages/warehouse-destinations/src/destinations/<name>/...
+    const warehouseMatch = p.match(/packages\/warehouse-destinations\/src\/destinations\/([^/]+)/)
+    if (warehouseMatch) {
+      dirs.add(warehouseMatch[1])
+      continue
+    }
+  }
+  return dirs
+}
+
 // ---- Command ----
 
 export default class GenerateMetadataPayload extends Command {
@@ -357,7 +383,8 @@ export default class GenerateMetadataPayload extends Command {
   static examples = [
     `$ ./bin/run generate:metadata-payload`,
     `$ ./bin/run generate:metadata-payload --slug=actions-amplitude`,
-    `$ ./bin/run generate:metadata-payload --mode=cloud`
+    `$ ./bin/run generate:metadata-payload --mode=cloud`,
+    `$ ./bin/run generate:metadata-payload -p packages/destination-actions/src/destinations/amplitude/index.ts`
   ]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -373,6 +400,11 @@ export default class GenerateMetadataPayload extends Command {
       description: 'Only generate payload for destinations matching this mode (cloud, device, warehouse)',
       options: ['cloud', 'device', 'warehouse'],
       multiple: true
+    }),
+    path: flags.string({
+      char: 'p',
+      description: 'Only generate for destinations matching these file paths (extracts directory names)',
+      multiple: true
     })
   }
 
@@ -382,6 +414,10 @@ export default class GenerateMetadataPayload extends Command {
     const { flags: parsedFlags } = this.parse(GenerateMetadataPayload)
     const filterSlugs: string[] | undefined = parsedFlags['slug']
     const filterModes: string[] | undefined = parsedFlags['mode']
+    const filterPaths: string[] | undefined = parsedFlags['path']
+
+    // Extract destination directory names from --path values
+    const filterDirs: Set<string> | undefined = filterPaths ? extractDestinationDirs(filterPaths) : undefined
 
     this.spinner.start('Loading destination manifest...')
     let manifest: Record<string, any>
@@ -467,6 +503,14 @@ export default class GenerateMetadataPayload extends Command {
       if (filterModes && filterModes.length > 0) {
         const definitionMode = ((definition as any).mode ?? 'cloud') as string
         if (!filterModes.includes(definitionMode)) {
+          skipped++
+          continue
+        }
+      }
+
+      if (filterDirs && filterDirs.size > 0) {
+        const entryDir: string = entry.directory?.split('/').pop() ?? ''
+        if (!filterDirs.has(entryDir)) {
           skipped++
           continue
         }

@@ -15,7 +15,7 @@ jest.mock('fs-extra', () => ({
 
 import fs from 'fs-extra'
 import { generatePublicMetadata } from '../commands/generate/metadata-payload'
-import { resolveSourceDir } from '../commands/generate/metadata-payload'
+import { resolveSourceDir, extractDestinationDirs } from '../commands/generate/metadata-payload'
 import GenerateMetadataPayload from '../commands/generate/metadata-payload'
 import { getManifest, loadDestination } from '../lib/destinations'
 import type { DestinationDefinition } from '../lib/destinations'
@@ -818,5 +818,97 @@ describe('GenerateMetadataPayload — filesystem discovery', () => {
 
     await GenerateMetadataPayload.run([])
     expect(mockLoadDestination).not.toHaveBeenCalled()
+  })
+})
+
+describe('extractDestinationDirs', () => {
+  it('extracts cloud destination directory names', () => {
+    const dirs = extractDestinationDirs([
+      'packages/destination-actions/src/destinations/amplitude/index.ts',
+      'packages/destination-actions/src/destinations/slack/track/index.ts'
+    ])
+    expect(dirs).toEqual(new Set(['amplitude', 'slack']))
+  })
+
+  it('extracts browser destination directory names', () => {
+    const dirs = extractDestinationDirs(['packages/browser-destinations/destinations/braze/src/index.ts'])
+    expect(dirs).toEqual(new Set(['braze']))
+  })
+
+  it('extracts warehouse destination directory names', () => {
+    const dirs = extractDestinationDirs(['packages/warehouse-destinations/src/destinations/snowflake/index.ts'])
+    expect(dirs).toEqual(new Set(['snowflake']))
+  })
+
+  it('deduplicates directories from multiple files in same destination', () => {
+    const dirs = extractDestinationDirs([
+      'packages/destination-actions/src/destinations/amplitude/track/index.ts',
+      'packages/destination-actions/src/destinations/amplitude/identify/index.ts'
+    ])
+    expect(dirs).toEqual(new Set(['amplitude']))
+  })
+
+  it('returns empty set for unrecognized paths', () => {
+    const dirs = extractDestinationDirs(['packages/core/src/index.ts', 'some/random/path.ts'])
+    expect(dirs.size).toBe(0)
+  })
+
+  it('handles mixed path types', () => {
+    const dirs = extractDestinationDirs([
+      'packages/destination-actions/src/destinations/amplitude/index.ts',
+      'packages/browser-destinations/destinations/braze/src/index.ts',
+      'packages/warehouse-destinations/src/destinations/snowflake/index.ts'
+    ])
+    expect(dirs).toEqual(new Set(['amplitude', 'braze', 'snowflake']))
+  })
+})
+
+describe('--path filtering (Command E2E)', () => {
+  const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<() => Promise<boolean>>
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockPathExists.mockResolvedValue(false)
+  })
+
+  it('generates metadata only for matching path destinations', async () => {
+    mockGetManifest.mockReturnValue({
+      'actions-amplitude': {
+        definition: { name: 'Amplitude', mode: 'cloud', actions: {} },
+        directory: 'amplitude',
+        path: '/root/packages/destination-actions/src/destinations/amplitude/index.ts'
+      },
+      'actions-slack': {
+        definition: { name: 'Slack', mode: 'cloud', actions: {} },
+        directory: 'slack',
+        path: '/root/packages/destination-actions/src/destinations/slack/index.ts'
+      }
+    } as any)
+
+    await GenerateMetadataPayload.run([
+      '--path',
+      'packages/destination-actions/src/destinations/amplitude/track/index.ts'
+    ])
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    const writtenPath = (mockWriteFile as any).mock.calls[0][0] as string
+    expect(writtenPath).toContain('amplitude')
+    expect(writtenPath).not.toContain('slack')
+  })
+
+  it('skips all destinations when path matches none', async () => {
+    mockGetManifest.mockReturnValue({
+      'actions-amplitude': {
+        definition: { name: 'Amplitude', mode: 'cloud', actions: {} },
+        directory: 'amplitude',
+        path: '/root/packages/destination-actions/src/destinations/amplitude/index.ts'
+      }
+    } as any)
+
+    await GenerateMetadataPayload.run(['--path', 'packages/destination-actions/src/destinations/nonexistent/index.ts'])
+
+    expect(mockWriteFile).not.toHaveBeenCalled()
   })
 })

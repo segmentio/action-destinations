@@ -5,7 +5,7 @@ echo "Checking if metadata payloads are up-to-date"
 
 yarn generate:metadata-payload
 
-STALE=$(git status --porcelain -- 'packages/destination-actions/src/destinations/*/metadata.json' 'packages/browser-destinations/destinations/*/metadata.json')
+STALE=$(git status --porcelain -- 'packages/destination-actions/src/destinations/*/metadata.json' 'packages/browser-destinations/destinations/*/metadata.json' 'packages/warehouse-destinations/src/destinations/*/metadata.json')
 
 if [ -n "$STALE" ]; then
   echo "The following metadata files are out of date:"
