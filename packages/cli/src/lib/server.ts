@@ -304,7 +304,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
               return Array.isArray(req.body.payload)
                 ? req.body.payload[0]?.context?.personas
                 : req.body.payload?.context?.personas
-            })() as Personas
+            })() as Personas | undefined
           }
 
           if (Array.isArray(eventParams.data)) {

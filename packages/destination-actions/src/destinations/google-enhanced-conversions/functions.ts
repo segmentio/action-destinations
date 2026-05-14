@@ -949,7 +949,7 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
-  features?: Features,  
+  features?: Features,
   audienceMemberships?: AudienceMembership[],
   personasContext?: Personas
 ) => {
