@@ -4,6 +4,7 @@ import type {
   DestinationDefinition as CloudDestinationDefinition
 } from '@segment/actions-core'
 import { hookTypeStrings } from '@segment/actions-core/destination-kit'
+import { execFileSync } from 'child_process'
 import fs from 'fs-extra'
 import path from 'path'
 import ora from 'ora'
@@ -526,6 +527,7 @@ export default class GenerateMetadataPayload extends Command {
     this.spinner.succeed(`Loaded ${Object.keys(manifest).length} destinations`)
 
     const entries = Object.entries(manifest)
+    const generatedFiles: string[] = []
     let generated = 0
     let skipped = 0
     let failed = 0
@@ -568,11 +570,22 @@ export default class GenerateMetadataPayload extends Command {
         const payload = generatePublicMetadata(slug, definition)
         const filePath = path.join(sourceDir, 'metadata.json')
         await fs.writeFile(filePath, JSON.stringify(payload, null, 2) + '\n')
+        generatedFiles.push(filePath)
         generated++
         this.spinner.succeed(`${definition.name} → ${filePath}`)
       } catch (err) {
         this.spinner.fail(`Failed for ${slug}: ${(err as Error).message}`)
         failed++
+      }
+    }
+
+    if (generatedFiles.length > 0) {
+      this.spinner.start('Formatting generated files with prettier...')
+      try {
+        execFileSync('npx', ['prettier', '--write', ...generatedFiles], { stdio: 'ignore' })
+        this.spinner.succeed('Formatted generated files with prettier')
+      } catch {
+        this.spinner.warn('prettier formatting failed — files may not match repo style')
       }
     }
 
