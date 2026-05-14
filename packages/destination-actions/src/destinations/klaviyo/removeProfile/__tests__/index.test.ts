@@ -25,6 +25,22 @@ describe('Remove Profile', () => {
     )
   })
 
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      properties: {}
+    })
+
+    const mapping = {
+      list_id: listId,
+      external_id: 'a'.repeat(256)
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
+      'Length of external_id must be no more than 255 characters.'
+    )
+  })
+
   it('should throw an error for invalid phone number format', async () => {
     const event = createTestEvent({
       type: 'track',

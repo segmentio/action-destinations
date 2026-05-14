@@ -2,6 +2,7 @@ import { KLAVIYO_REVISION_DATE } from './versioning-info'
 
 export const API_URL = 'https://a.klaviyo.com/api'
 export const REVISION_DATE = KLAVIYO_REVISION_DATE
+export const MAX_EXTERNAL_ID_LENGTH = 255
 export const COUNTRY_CODES = [
   { label: 'AD - Andorra', value: 'AD' },
   { label: 'AE - United Arab Emirates', value: 'AE' },
