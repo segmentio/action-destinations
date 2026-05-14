@@ -1,4 +1,4 @@
-import type { StatsContext } from '@segment/actions-core'
+import type { StatsContext, Features } from '@segment/actions-core'
 import { RequestClient, RetryableError, IntegrationError, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -12,11 +12,12 @@ export async function processPayload(
   settings: Settings,
   payloads: Payload[],
   statsContext: StatsContext | undefined,
-  stateContext?: StateContext
+  stateContext?: StateContext,
+  features?: Features
 ) {
   validate(settings, payloads)
 
-  const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request)
+  const linkedinApiClient: LinkedInAudiences = new LinkedInAudiences(request, features)
 
   const dmpSegmentId = await getDmpSegmentId(linkedinApiClient, settings, payloads[0], statsContext, stateContext)
   const elements = extractUsers(settings, payloads)
