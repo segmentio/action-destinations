@@ -68,10 +68,10 @@ const action: ActionDefinition<Settings, Payload> = {
     } = payload
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !external_id && !phone_number) {
-      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
+      throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
     }
     if (!validateEmail(email)) {
-      throw new PayloadValidationError(`${email} is not a valid email address.`)
+      throw new PayloadValidationError('Email must be a valid email address.')
     }
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
     return await addProfileToList(request, profileId, list_id)

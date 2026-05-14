@@ -373,7 +373,7 @@ describe('Add Profile To List', () => {
     }
 
     await expect(testDestination.testAction('addProfileToList', { event, mapping, settings })).rejects.toThrowError(
-      'user@domain.c is not a valid email address.'
+      'Email must be a valid email address.'
     )
   })
 
