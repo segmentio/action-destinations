@@ -1,0 +1,273 @@
+{
+  "slug": "actions-rokt-audiences",
+  "name": "Rokt Audiences (Actions)",
+  "mode": "cloud",
+  "description": "\n  This destination allows user to engage audiences using Rokt's Public APIs.\n  User can connect Rokt Audiences (Actions) as a destination to their Engage Audience in Segment,\n  which will create/update custom audiences in the Rokt data platform. Audiences can be defined with either\n  email values or hashed (sha256) email values.\n  ",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "rpub": {
+        "label": "Rokt public key",
+        "description": "Rokt public key, starts with `rpub-`",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "rsec": {
+        "label": "Rokt secret key",
+        "description": "Rokt secret key, starts with `rsec-`",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "accountid": {
+        "label": "Rokt Account ID",
+        "description": "Rokt ID assigned to your particular account.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "upsertCustomAudiences": {
+      "title": "Sync Engage Audience to Rokt",
+      "description": "Add/Remove users from Rokt custom audience list. Both identify() and track() calls are supported",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "custom_audience_name": {
+          "label": "Custom Audience Name",
+          "description": "Name of custom audience list to which emails should added/removed",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "segment_computation_action": {
+          "label": "Segment Computation Action",
+          "description": "Segment computation class used to determine if action is an 'Engage-Audience'",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "email": {
+          "label": "Email",
+          "description": "User's email address to be included/excluded from the custom audience.  One of either email_sha256 or email must be specified.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "email_sha256": {
+          "label": "Email SHA256",
+          "description": "User's SHA256-hashed email address to be included/excluded from the custom audience. One of either email_sha256 or email must be specified.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email_sha256"
+              },
+              "then": {
+                "@path": "$.context.traits.email_sha256"
+              },
+              "else": {
+                "@path": "$.traits.email_sha256"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "traits_or_props": {
+          "label": "traits or properties object",
+          "description": "Object which will be computed differently for track and identify events",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "enable_batching": {
+          "label": "enable batching to rokt api",
+          "description": "Set as true to ensure Segment infrastructure uses batching when possible.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Sync Engage Audience to Rokt",
+      "type": "automatic",
+      "partnerAction": "upsertCustomAudiences",
+      "subscribe": "type = \"track\" or type = \"identify\"",
+      "mapping": {
+        "custom_audience_name": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segment_computation_action": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "email_sha256": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email_sha256"
+            },
+            "then": {
+              "@path": "$.context.traits.email_sha256"
+            },
+            "else": {
+              "@path": "$.traits.email_sha256"
+            }
+          }
+        },
+        "traits_or_props": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "enable_batching": true
+      },
+      "eventSlug": null
+    }
+  ]
+}

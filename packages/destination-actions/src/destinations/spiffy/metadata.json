@@ -1,0 +1,103 @@
+{
+  "slug": "actions-spiffy",
+  "name": "Spiffy",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "org_id": {
+        "label": "Organization ID",
+        "description": "Spiffy Org ID",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "api_key": {
+        "label": "API Key",
+        "description": "Spiffy Org API Key",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "environment": {
+        "label": "Spiffy Environment",
+        "description": "Spiffy Org Environment",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "value": "prod",
+            "label": "Production"
+          },
+          {
+            "value": "dev",
+            "label": "Development"
+          }
+        ],
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send data to Spiffy.AI",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "payload": {
+          "label": "Payload",
+          "description": "The data to send to Spiffy.AI",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "headers": {
+          "label": "Headers",
+          "description": "Header data to send to Spiffy. Format is Header key, Header value (optional).",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

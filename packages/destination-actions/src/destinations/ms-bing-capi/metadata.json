@@ -1,0 +1,2869 @@
+{
+  "slug": "actions-ms-bing-capi",
+  "name": "Microsoft Bing CAPI (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "basic",
+    "fields": {
+      "UetTag": {
+        "label": "Bing UetTag",
+        "description": "Your Bing UetTag.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "ApiToken": {
+        "label": "Bing ApiToken",
+        "description": "Your Bing API Token. API token generation is not generally available. To obtain one, you’ll need to contact Microsoft Support, or alternatively, you can [fill out this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRwMZAe0PcMxHmZ0AjDaNRmxUM0o5UURRVktCRkxHNEFLTVNYQjI3NDNBUS4u) to request access.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "adStorageConsent": {
+        "label": "Ad Storage Consent",
+        "description": "Ad Storage Consent for GDPR compliance",
+        "type": "string",
+        "required": false,
+        "choices": [
+          {
+            "label": "Granted",
+            "value": "G"
+          },
+          {
+            "label": "Denied",
+            "value": "D"
+          }
+        ],
+        "default": "G"
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendEvent": {
+      "title": "Send CAPI Event",
+      "description": "Send a track or page event to Microsoft Bing CAPI.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "data": {
+          "label": "Data",
+          "description": "TODO - description for this field",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "eventType": "custom",
+            "eventId": {
+              "@path": "$.messageId"
+            },
+            "eventTime": {
+              "@path": "$.timestamp"
+            },
+            "eventName": {
+              "@path": "$.event"
+            },
+            "eventSourceUrl": {
+              "@path": "$.context.page.url"
+            },
+            "pageLoadId": {
+              "@path": "$.properties.page_load_id"
+            },
+            "referrerUrl": {
+              "@path": "$.context.page.referrer"
+            },
+            "pageTitle": {
+              "@path": "$.context.page.title"
+            },
+            "keywords": {
+              "@path": "$.properties.keywords"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "eventType": {
+              "label": "Event Type",
+              "description": "The type of event being sent to the Bing API.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Page Load",
+                  "value": "pageLoad"
+                },
+                {
+                  "label": "Custom",
+                  "value": "custom"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "eventId": {
+              "label": "Event ID",
+              "description": "EventID for deduplication. Defaults to the Segment messageId.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "eventName": {
+              "label": "Event Name",
+              "description": "Event action for custom conversion goals, if used.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "eventTime": {
+              "label": "Event Time",
+              "description": "The time the event occurred.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "eventSourceUrl": {
+              "label": "Event Source URL",
+              "description": "URL of the page, used for example: “destination URL” goals. Required for pageLoad events.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "pageLoadId": {
+              "label": "Page Load ID",
+              "description": "Page load id that links to 0+ custom events from the same page. Format as a v4 UUID. ",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "referrerUrl": {
+              "label": "Referrer URL",
+              "description": "Referrer of the page, used for example: \"referral\" remarketing lists.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "pageTitle": {
+              "label": "Page Title",
+              "description": "Title of the page.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "keywords": {
+              "label": "Keywords",
+              "description": "Page keywords - SEO meta keyworls.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "adStorageConsent": {
+              "label": "Ad Storage Consent",
+              "description": "Ad Storage Consent for GDPR compliance",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "G",
+              "choices": [
+                {
+                  "label": "Granted",
+                  "value": "G"
+                },
+                {
+                  "label": "Denied",
+                  "value": "D"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "dataProvider": {
+              "label": "Data Provider",
+              "description": "The source of the event data.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "SEGMENT",
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userData": {
+          "label": "User Data",
+          "description": "A list of user identifiers associated with the event.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "clientUserAgent": {
+              "@path": "$.context.userAgent"
+            },
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "externalId": {
+              "@path": "$.userId"
+            },
+            "em": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "ph": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "clientIpAddress": {
+              "@path": "$.context.ip"
+            },
+            "msclkid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.msclkid"
+                },
+                "then": {
+                  "@path": "$.properties.msclkid"
+                },
+                "else": {
+                  "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "clientUserAgent": {
+              "label": "Client User Agent",
+              "description": "User agent string of the client device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "anonymousId": {
+              "label": "Anonymous ID",
+              "description": "Guest user anonymous ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "externalId": {
+              "label": "External ID",
+              "description": "Authenticated user id (anonymized) if user is logged in. Also used for ID sync",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "em": {
+              "label": "Email",
+              "description": "Email address of the user. Accepts a clear text or hashed email address. Segment will ensure the email address is hashed before sending to Bing Ads.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ph": {
+              "label": "Phone",
+              "description": "Phone number of the user. Accepts a clear text or hashed phone number. Segment will ensure the phone number is hashed before sending to Bing Ads.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "clientIpAddress": {
+              "label": "Client IP Address",
+              "description": "IP address of the client device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "gaid": {
+              "label": "Google Advertising ID",
+              "description": "Google Advertising ID for mobile app tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "idfa": {
+              "label": "IDFA",
+              "description": "Identifier for Advertisers for iOS devices for mobile app tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "msclkid": {
+              "label": "MSCLKID",
+              "description": "Microsoft Last Click ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "customData": {
+          "label": "Custom Data",
+          "description": "Custom data to be sent to the Bing API. This can include additional properties that are not covered by the standard fields.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "eventCategory": {
+              "@path": "$.properties.event_category"
+            },
+            "eventLabel": {
+              "@path": "$.properties.event_label"
+            },
+            "eventValue": {
+              "@path": "$.properties.value"
+            },
+            "searchTerm": {
+              "@path": "$.properties.query"
+            },
+            "transactionId": {
+              "@path": "$.properties.order_id"
+            },
+            "value": {
+              "@path": "$.properties.value"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "itemIds": {
+              "@path": "$.properties.item_ids"
+            },
+            "pageType": {
+              "@path": "$.properties.page_type"
+            },
+            "ecommTotalValue": {
+              "@path": "$.properties.ecomm_total_value"
+            },
+            "ecommCategory": {
+              "@path": "$.properties.ecomm_category"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "eventCategory": {
+              "label": "Event Category",
+              "description": "The category for custom conversion goals, if used.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "eventLabel": {
+              "label": "Event Label",
+              "description": "The label for custom conversion goals.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "eventValue": {
+              "label": "Event Value",
+              "description": "The event value for custom conversion goals.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "searchTerm": {
+              "label": "Search Term",
+              "description": "The query used by the user for a search results page.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "transactionId": {
+              "label": "Transaction ID",
+              "description": "The unique identifier for the transaction. Required for purchase events.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "value": {
+              "label": "Value",
+              "description": "Revenue value (float) to report variable revenue for goals, if used",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "currency": {
+              "label": "Currency",
+              "description": "The currency of the event value, in ISO 4217 format.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "AED",
+                  "value": "AED"
+                },
+                {
+                  "label": "AFN",
+                  "value": "AFN"
+                },
+                {
+                  "label": "ALL",
+                  "value": "ALL"
+                },
+                {
+                  "label": "AMD",
+                  "value": "AMD"
+                },
+                {
+                  "label": "ANG",
+                  "value": "ANG"
+                },
+                {
+                  "label": "AOA",
+                  "value": "AOA"
+                },
+                {
+                  "label": "ARS",
+                  "value": "ARS"
+                },
+                {
+                  "label": "AUD",
+                  "value": "AUD"
+                },
+                {
+                  "label": "AWG",
+                  "value": "AWG"
+                },
+                {
+                  "label": "AZN",
+                  "value": "AZN"
+                },
+                {
+                  "label": "BAM",
+                  "value": "BAM"
+                },
+                {
+                  "label": "BBD",
+                  "value": "BBD"
+                },
+                {
+                  "label": "BDT",
+                  "value": "BDT"
+                },
+                {
+                  "label": "BGN",
+                  "value": "BGN"
+                },
+                {
+                  "label": "BHD",
+                  "value": "BHD"
+                },
+                {
+                  "label": "BIF",
+                  "value": "BIF"
+                },
+                {
+                  "label": "BMD",
+                  "value": "BMD"
+                },
+                {
+                  "label": "BND",
+                  "value": "BND"
+                },
+                {
+                  "label": "BOB",
+                  "value": "BOB"
+                },
+                {
+                  "label": "BOV",
+                  "value": "BOV"
+                },
+                {
+                  "label": "BRL",
+                  "value": "BRL"
+                },
+                {
+                  "label": "BSD",
+                  "value": "BSD"
+                },
+                {
+                  "label": "BTN",
+                  "value": "BTN"
+                },
+                {
+                  "label": "BWP",
+                  "value": "BWP"
+                },
+                {
+                  "label": "BYN",
+                  "value": "BYN"
+                },
+                {
+                  "label": "BZD",
+                  "value": "BZD"
+                },
+                {
+                  "label": "CAD",
+                  "value": "CAD"
+                },
+                {
+                  "label": "CDF",
+                  "value": "CDF"
+                },
+                {
+                  "label": "CHE",
+                  "value": "CHE"
+                },
+                {
+                  "label": "CHF",
+                  "value": "CHF"
+                },
+                {
+                  "label": "CHW",
+                  "value": "CHW"
+                },
+                {
+                  "label": "CLF",
+                  "value": "CLF"
+                },
+                {
+                  "label": "CLP",
+                  "value": "CLP"
+                },
+                {
+                  "label": "CNY",
+                  "value": "CNY"
+                },
+                {
+                  "label": "COP",
+                  "value": "COP"
+                },
+                {
+                  "label": "COU",
+                  "value": "COU"
+                },
+                {
+                  "label": "CRC",
+                  "value": "CRC"
+                },
+                {
+                  "label": "CUC",
+                  "value": "CUC"
+                },
+                {
+                  "label": "CUP",
+                  "value": "CUP"
+                },
+                {
+                  "label": "CVE",
+                  "value": "CVE"
+                },
+                {
+                  "label": "CZK",
+                  "value": "CZK"
+                },
+                {
+                  "label": "DJF",
+                  "value": "DJF"
+                },
+                {
+                  "label": "DKK",
+                  "value": "DKK"
+                },
+                {
+                  "label": "DOP",
+                  "value": "DOP"
+                },
+                {
+                  "label": "DZD",
+                  "value": "DZD"
+                },
+                {
+                  "label": "EGP",
+                  "value": "EGP"
+                },
+                {
+                  "label": "ERN",
+                  "value": "ERN"
+                },
+                {
+                  "label": "ETB",
+                  "value": "ETB"
+                },
+                {
+                  "label": "EUR",
+                  "value": "EUR"
+                },
+                {
+                  "label": "FJD",
+                  "value": "FJD"
+                },
+                {
+                  "label": "FKP",
+                  "value": "FKP"
+                },
+                {
+                  "label": "GBP",
+                  "value": "GBP"
+                },
+                {
+                  "label": "GEL",
+                  "value": "GEL"
+                },
+                {
+                  "label": "GHS",
+                  "value": "GHS"
+                },
+                {
+                  "label": "GIP",
+                  "value": "GIP"
+                },
+                {
+                  "label": "GMD",
+                  "value": "GMD"
+                },
+                {
+                  "label": "GNF",
+                  "value": "GNF"
+                },
+                {
+                  "label": "GTQ",
+                  "value": "GTQ"
+                },
+                {
+                  "label": "GYD",
+                  "value": "GYD"
+                },
+                {
+                  "label": "HKD",
+                  "value": "HKD"
+                },
+                {
+                  "label": "HNL",
+                  "value": "HNL"
+                },
+                {
+                  "label": "HRK",
+                  "value": "HRK"
+                },
+                {
+                  "label": "HTG",
+                  "value": "HTG"
+                },
+                {
+                  "label": "HUF",
+                  "value": "HUF"
+                },
+                {
+                  "label": "IDR",
+                  "value": "IDR"
+                },
+                {
+                  "label": "ILS",
+                  "value": "ILS"
+                },
+                {
+                  "label": "INR",
+                  "value": "INR"
+                },
+                {
+                  "label": "IQD",
+                  "value": "IQD"
+                },
+                {
+                  "label": "IRR",
+                  "value": "IRR"
+                },
+                {
+                  "label": "ISK",
+                  "value": "ISK"
+                },
+                {
+                  "label": "JMD",
+                  "value": "JMD"
+                },
+                {
+                  "label": "JOD",
+                  "value": "JOD"
+                },
+                {
+                  "label": "JPY",
+                  "value": "JPY"
+                },
+                {
+                  "label": "KES",
+                  "value": "KES"
+                },
+                {
+                  "label": "KGS",
+                  "value": "KGS"
+                },
+                {
+                  "label": "KHR",
+                  "value": "KHR"
+                },
+                {
+                  "label": "KMF",
+                  "value": "KMF"
+                },
+                {
+                  "label": "KPW",
+                  "value": "KPW"
+                },
+                {
+                  "label": "KRW",
+                  "value": "KRW"
+                },
+                {
+                  "label": "KWD",
+                  "value": "KWD"
+                },
+                {
+                  "label": "KYD",
+                  "value": "KYD"
+                },
+                {
+                  "label": "KZT",
+                  "value": "KZT"
+                },
+                {
+                  "label": "LAK",
+                  "value": "LAK"
+                },
+                {
+                  "label": "LBP",
+                  "value": "LBP"
+                },
+                {
+                  "label": "LKR",
+                  "value": "LKR"
+                },
+                {
+                  "label": "LRD",
+                  "value": "LRD"
+                },
+                {
+                  "label": "LSL",
+                  "value": "LSL"
+                },
+                {
+                  "label": "LYD",
+                  "value": "LYD"
+                },
+                {
+                  "label": "MAD",
+                  "value": "MAD"
+                },
+                {
+                  "label": "MDL",
+                  "value": "MDL"
+                },
+                {
+                  "label": "MGA",
+                  "value": "MGA"
+                },
+                {
+                  "label": "MKD",
+                  "value": "MKD"
+                },
+                {
+                  "label": "MMK",
+                  "value": "MMK"
+                },
+                {
+                  "label": "MNT",
+                  "value": "MNT"
+                },
+                {
+                  "label": "MOP",
+                  "value": "MOP"
+                },
+                {
+                  "label": "MRU",
+                  "value": "MRU"
+                },
+                {
+                  "label": "MUR",
+                  "value": "MUR"
+                },
+                {
+                  "label": "MVR",
+                  "value": "MVR"
+                },
+                {
+                  "label": "MWK",
+                  "value": "MWK"
+                },
+                {
+                  "label": "MXN",
+                  "value": "MXN"
+                },
+                {
+                  "label": "MXV",
+                  "value": "MXV"
+                },
+                {
+                  "label": "MYR",
+                  "value": "MYR"
+                },
+                {
+                  "label": "MZN",
+                  "value": "MZN"
+                },
+                {
+                  "label": "NAD",
+                  "value": "NAD"
+                },
+                {
+                  "label": "NGN",
+                  "value": "NGN"
+                },
+                {
+                  "label": "NIO",
+                  "value": "NIO"
+                },
+                {
+                  "label": "NOK",
+                  "value": "NOK"
+                },
+                {
+                  "label": "NPR",
+                  "value": "NPR"
+                },
+                {
+                  "label": "NZD",
+                  "value": "NZD"
+                },
+                {
+                  "label": "OMR",
+                  "value": "OMR"
+                },
+                {
+                  "label": "PAB",
+                  "value": "PAB"
+                },
+                {
+                  "label": "PEN",
+                  "value": "PEN"
+                },
+                {
+                  "label": "PGK",
+                  "value": "PGK"
+                },
+                {
+                  "label": "PHP",
+                  "value": "PHP"
+                },
+                {
+                  "label": "PKR",
+                  "value": "PKR"
+                },
+                {
+                  "label": "PLN",
+                  "value": "PLN"
+                },
+                {
+                  "label": "PYG",
+                  "value": "PYG"
+                },
+                {
+                  "label": "QAR",
+                  "value": "QAR"
+                },
+                {
+                  "label": "RON",
+                  "value": "RON"
+                },
+                {
+                  "label": "RSD",
+                  "value": "RSD"
+                },
+                {
+                  "label": "RUB",
+                  "value": "RUB"
+                },
+                {
+                  "label": "RWF",
+                  "value": "RWF"
+                },
+                {
+                  "label": "SAR",
+                  "value": "SAR"
+                },
+                {
+                  "label": "SBD",
+                  "value": "SBD"
+                },
+                {
+                  "label": "SCR",
+                  "value": "SCR"
+                },
+                {
+                  "label": "SDG",
+                  "value": "SDG"
+                },
+                {
+                  "label": "SEK",
+                  "value": "SEK"
+                },
+                {
+                  "label": "SGD",
+                  "value": "SGD"
+                },
+                {
+                  "label": "SHP",
+                  "value": "SHP"
+                },
+                {
+                  "label": "SLL",
+                  "value": "SLL"
+                },
+                {
+                  "label": "SOS",
+                  "value": "SOS"
+                },
+                {
+                  "label": "SRD",
+                  "value": "SRD"
+                },
+                {
+                  "label": "SSP",
+                  "value": "SSP"
+                },
+                {
+                  "label": "STN",
+                  "value": "STN"
+                },
+                {
+                  "label": "SVC",
+                  "value": "SVC"
+                },
+                {
+                  "label": "SYP",
+                  "value": "SYP"
+                },
+                {
+                  "label": "SZL",
+                  "value": "SZL"
+                },
+                {
+                  "label": "THB",
+                  "value": "THB"
+                },
+                {
+                  "label": "TJS",
+                  "value": "TJS"
+                },
+                {
+                  "label": "TMT",
+                  "value": "TMT"
+                },
+                {
+                  "label": "TND",
+                  "value": "TND"
+                },
+                {
+                  "label": "TOP",
+                  "value": "TOP"
+                },
+                {
+                  "label": "TRY",
+                  "value": "TRY"
+                },
+                {
+                  "label": "TTD",
+                  "value": "TTD"
+                },
+                {
+                  "label": "TWD",
+                  "value": "TWD"
+                },
+                {
+                  "label": "TZS",
+                  "value": "TZS"
+                },
+                {
+                  "label": "UAH",
+                  "value": "UAH"
+                },
+                {
+                  "label": "UGX",
+                  "value": "UGX"
+                },
+                {
+                  "label": "USD",
+                  "value": "USD"
+                },
+                {
+                  "label": "USN",
+                  "value": "USN"
+                },
+                {
+                  "label": "UYI",
+                  "value": "UYI"
+                },
+                {
+                  "label": "UYU",
+                  "value": "UYU"
+                },
+                {
+                  "label": "UYW",
+                  "value": "UYW"
+                },
+                {
+                  "label": "UZS",
+                  "value": "UZS"
+                },
+                {
+                  "label": "VES",
+                  "value": "VES"
+                },
+                {
+                  "label": "VND",
+                  "value": "VND"
+                },
+                {
+                  "label": "VUV",
+                  "value": "VUV"
+                },
+                {
+                  "label": "WST",
+                  "value": "WST"
+                },
+                {
+                  "label": "XAF",
+                  "value": "XAF"
+                },
+                {
+                  "label": "XAG",
+                  "value": "XAG"
+                },
+                {
+                  "label": "XAU",
+                  "value": "XAU"
+                },
+                {
+                  "label": "XBA",
+                  "value": "XBA"
+                },
+                {
+                  "label": "XBB",
+                  "value": "XBB"
+                },
+                {
+                  "label": "XBC",
+                  "value": "XBC"
+                },
+                {
+                  "label": "XBD",
+                  "value": "XBD"
+                },
+                {
+                  "label": "XCD",
+                  "value": "XCD"
+                },
+                {
+                  "label": "XDR",
+                  "value": "XDR"
+                },
+                {
+                  "label": "XOF",
+                  "value": "XOF"
+                },
+                {
+                  "label": "XPD",
+                  "value": "XPD"
+                },
+                {
+                  "label": "XPF",
+                  "value": "XPF"
+                },
+                {
+                  "label": "XPT",
+                  "value": "XPT"
+                },
+                {
+                  "label": "XSU",
+                  "value": "XSU"
+                },
+                {
+                  "label": "XTS",
+                  "value": "XTS"
+                },
+                {
+                  "label": "XUA",
+                  "value": "XUA"
+                },
+                {
+                  "label": "XXX",
+                  "value": "XXX"
+                },
+                {
+                  "label": "YER",
+                  "value": "YER"
+                },
+                {
+                  "label": "ZAR",
+                  "value": "ZAR"
+                },
+                {
+                  "label": "ZMW",
+                  "value": "ZMW"
+                },
+                {
+                  "label": "ZWC",
+                  "value": "ZWC"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "itemIds": {
+              "label": "Item IDs",
+              "description": "A comma separated list of product IDs, or an array of IDs.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "pageType": {
+              "label": "Page Type",
+              "description": "The type of page where the event occurred.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Home",
+                  "value": "home"
+                },
+                {
+                  "label": "Product",
+                  "value": "product"
+                },
+                {
+                  "label": "Category",
+                  "value": "category"
+                },
+                {
+                  "label": "Search Results",
+                  "value": "searchresults"
+                },
+                {
+                  "label": "Cart",
+                  "value": "cart"
+                },
+                {
+                  "label": "Purchase",
+                  "value": "purchase"
+                },
+                {
+                  "label": "Other",
+                  "value": "other"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ecommTotalValue": {
+              "label": "Ecomm Total Value",
+              "description": "Total value of the cart of purchase.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "ecommCategory": {
+              "label": "Ecomm Category",
+              "description": "Category ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "items": {
+          "label": "Items",
+          "description": "The list of items associated with the event. Must contain at least one item.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "$.id"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_price": {
+                  "@path": "$.price"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "Item ID",
+              "description": "The unique identifier for the item.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "name": {
+              "label": "Item Name",
+              "description": "The name of the item.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "price": {
+              "label": "Item Price",
+              "description": "The price of the item, after discounts.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "quantity": {
+              "label": "Item Quantity",
+              "description": "The quantity of the item.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "hotelData": {
+          "label": "Hotel Data",
+          "description": "Data specific to hotel events.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "totalPrice": {
+              "@path": "$.properties.hotel_total_price"
+            },
+            "basePrice": {
+              "@path": "$.properties.hotel_base_price"
+            },
+            "checkInDate": {
+              "@path": "$.properties.hotel_check_in_date"
+            },
+            "checkOutDate": {
+              "@path": "$.properties.hotel_check_out_date"
+            },
+            "lengthOfStay": {
+              "@path": "$.properties.hotel_length_of_stay"
+            },
+            "partnerHotelId": {
+              "@path": "$.properties.hotel_partner_id"
+            },
+            "bookingHref": {
+              "@path": "$.properties.hotel_booking_href"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "totalPrice": {
+              "label": "Total Price",
+              "description": "Total price of the booking, including taxes and fees.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "basePrice": {
+              "label": "Base Price",
+              "description": "Price of the booking, not including taxes or fees.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "checkInDate": {
+              "label": "Check-In Date",
+              "description": "The date of check-in for the hotel booking in the format YYYY-MM-DD",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "checkOutDate": {
+              "label": "Check-Out Date",
+              "description": "The date of check-out for the hotel booking in the format YYYY-MM-DD",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "lengthOfStay": {
+              "label": "Length of Stay",
+              "description": "The number of nights the booking is for. Not required if you specify hct_checkout_date.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "partnerHotelId": {
+              "label": "Partner Hotel ID",
+              "description": "The ID of the hotel as provided by the partner.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "bookingHref": {
+              "label": "Booking Href",
+              "description": "Encrypted or obfuscated booking refrence number",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching for this action.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "The max number of events to include in each batch.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "msclkidPlugin": {
+      "title": "Microsoft Bing msclkid Browser Plugin",
+      "description": "Enriches all Segment payloads with the Microsoft Bing msclkid Querystring value",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {}
+    }
+  },
+  "presets": [
+    {
+      "name": "Microsoft Bing CAPI msclkid Plugin",
+      "type": "automatic",
+      "partnerAction": "msclkidPlugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "eventSlug": null
+    },
+    {
+      "name": "Send Purchase Event",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Cart Event",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Add to Cart\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Search Results",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Custom Event",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event != \"Order Completed\" and event != \"Add to Cart\" and event != \"Products Searched\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Pageload",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "data": {
+          "eventType": "custom",
+          "eventId": {
+            "@path": "$.messageId"
+          },
+          "eventTime": {
+            "@path": "$.timestamp"
+          },
+          "eventName": {
+            "@path": "$.event"
+          },
+          "eventSourceUrl": {
+            "@path": "$.context.page.url"
+          },
+          "pageLoadId": {
+            "@path": "$.properties.page_load_id"
+          },
+          "referrerUrl": {
+            "@path": "$.context.page.referrer"
+          },
+          "pageTitle": {
+            "@path": "$.context.page.title"
+          },
+          "keywords": {
+            "@path": "$.properties.keywords"
+          }
+        },
+        "userData": {
+          "clientUserAgent": {
+            "@path": "$.context.userAgent"
+          },
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "externalId": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "ph": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "clientIpAddress": {
+            "@path": "$.context.ip"
+          },
+          "msclkid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.msclkid"
+              },
+              "then": {
+                "@path": "$.properties.msclkid"
+              },
+              "else": {
+                "@path": "$.integrations.Microsoft Bing CAPI (Actions).msclkid"
+              }
+            }
+          }
+        },
+        "customData": {
+          "eventCategory": {
+            "@path": "$.properties.event_category"
+          },
+          "eventLabel": {
+            "@path": "$.properties.event_label"
+          },
+          "eventValue": {
+            "@path": "$.properties.value"
+          },
+          "searchTerm": {
+            "@path": "$.properties.query"
+          },
+          "transactionId": {
+            "@path": "$.properties.order_id"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemIds": {
+            "@path": "$.properties.item_ids"
+          },
+          "pageType": {
+            "@path": "$.properties.page_type"
+          },
+          "ecommTotalValue": {
+            "@path": "$.properties.ecomm_total_value"
+          },
+          "ecommCategory": {
+            "@path": "$.properties.ecomm_category"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "hotelData": {
+          "totalPrice": {
+            "@path": "$.properties.hotel_total_price"
+          },
+          "basePrice": {
+            "@path": "$.properties.hotel_base_price"
+          },
+          "checkInDate": {
+            "@path": "$.properties.hotel_check_in_date"
+          },
+          "checkOutDate": {
+            "@path": "$.properties.hotel_check_out_date"
+          },
+          "lengthOfStay": {
+            "@path": "$.properties.hotel_length_of_stay"
+          },
+          "partnerHotelId": {
+            "@path": "$.properties.hotel_partner_id"
+          },
+          "bookingHref": {
+            "@path": "$.properties.hotel_booking_href"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": null
+    }
+  ]
+}

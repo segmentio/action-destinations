@@ -1,0 +1,56 @@
+{
+  "slug": "yotpo-actions",
+  "name": "Yotpo",
+  "mode": "cloud",
+  "description": "Send data to Yotpo",
+  "authentication": {
+    "scheme": "oauth-managed",
+    "fields": {
+      "store_id": {
+        "label": "Store ID",
+        "description": "The store ID for your Yotpo account",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendData": {
+      "title": "Send Data",
+      "description": "Send data to Yotpo",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "data": {
+          "label": "Data",
+          "description": "The data to send to Yotpo",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

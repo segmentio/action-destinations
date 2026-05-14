@@ -1,0 +1,227 @@
+{
+  "slug": "actions-the-trade-desk-crm",
+  "name": "The Trade Desk CRM",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "auth_token": {
+        "label": "Authentication Token",
+        "description": "Your long-lived Trade Desk authentication token. Please see The Trade Desk’s [authentication documentation](https://api.thetradedesk.com/v3/portal/api/doc/Authentication) for information on how to generate a long-lived API Token via the Manage API Tokens in the developer Portal.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "advertiser_id": {
+        "label": "Advertiser ID",
+        "description": "The platform ID of the advertiser for which to retrieve the status of the specified CRM data segment.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "__segment_internal_engage_force_full_sync": {
+        "label": "Force Full Sync",
+        "description": "Force Full Sync",
+        "type": "boolean",
+        "required": true,
+        "choices": null,
+        "default": true
+      },
+      "__segment_internal_engage_batch_sync": {
+        "label": "Supports batch sync via ADS",
+        "description": "Supports batch sync via ADS",
+        "type": "boolean",
+        "required": true,
+        "choices": null,
+        "default": true
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": true
+    },
+    "audienceFields": {
+      "region": {
+        "label": "Region",
+        "description": "The geographical region of the CRM data segment based on the origin of PII. Can be US (United States and Canada), EU (European Union and the UK), or APAC (Asia-Pacific)",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          },
+          {
+            "label": "APAC",
+            "value": "APAC"
+          }
+        ],
+        "default": null
+      }
+    }
+  },
+  "actions": {
+    "syncAudience": {
+      "title": "Sync Audience to CRM Data Segment",
+      "description": "Drop users into the given CRM Data Segment",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "external_id": {
+          "label": "External Audience ID",
+          "description": "The CRM Data ID for The Trade Desk Segment.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "pii_type": {
+          "label": "PII Type",
+          "description": "The type of personally identifiable data (PII) sent by the advertiser.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "Hashed Email",
+              "value": "EmailHashedUnifiedId2"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "email": {
+          "label": "User Email",
+          "description": "The user's email address to send to The Trade Desk.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to The Trade Desk CRM Segment.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

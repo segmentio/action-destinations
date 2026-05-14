@@ -1,0 +1,390 @@
+{
+  "slug": "actions-absmartly",
+  "name": "ABsmartly (Actions)",
+  "mode": "cloud",
+  "description": "ABsmartly is an online experimentation service. Send events to ABsmartly to track experiments and goals.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "collectorEndpoint": {
+        "label": "Collector Endpoint",
+        "description": "ABsmartly Collector endpoint, for example: https://you-subdomain.absmartly.io/v1 - Contact ABsmartly Support if you don't know your Collector Endpoint.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "apiKey": {
+        "label": "API Key",
+        "description": "ABsmartly SDK API Key. Create SDK Api Keys in the Settings > API Keys section of the ABsmartly Web Console",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "environment": {
+        "label": "Environment",
+        "description": "Environment name. Environment name needs to match what's in the Web Console. Create Environments in the Settings > Environments section of the ABsmartly Web Console",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackGoal": {
+      "title": "Track Goal",
+      "description": "Send a goal event to ABsmartly",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event != \"Experiment Viewed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "units": {
+          "label": "Units",
+          "description": "The units of the goal to track. Mapping of unit name to source property in the event payload. Create Units in the Settings > Units section of the ABsmartly Web Console",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "name": {
+          "label": "Goal Name",
+          "description": "The name of the goal to track",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Goal Properties",
+          "description": "Custom properties of the goal",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "agent": {
+          "label": "Agent",
+          "description": "Optional agent identifier that originated the event. Used to identify which SDK generated the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.library.name"
+              },
+              "then": {
+                "@path": "$.context.library.name"
+              },
+              "else": "segment"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "application": {
+          "label": "Application",
+          "description": "Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings > Applications section of the ABsmartly Web Console",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "trackExposure": {
+      "title": "Track Exposure",
+      "description": "Send an experiment exposure event to ABsmartly",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Experiment Viewed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "exposure": {
+          "label": "ABsmartly Exposure Payload",
+          "description": "The ABsmartly exposure payload without any goals. Generated by the ABsmartly SDK and should not be modified.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.exposure"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object:only",
+          "disabledInputMethods": null
+        },
+        "agent": {
+          "label": "Agent",
+          "description": "Optional agent identifier that originated the event. Used to identify which SDK generated the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.library.name"
+              },
+              "then": {
+                "@path": "$.context.library.name"
+              },
+              "else": "segment"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "application": {
+          "label": "Application",
+          "description": "Optional application name that originated this event. Must exist if not empty. Create Applications in the Settings > Applications section of the ABsmartly Web Console",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "trackGoal",
+      "subscribe": "type = \"track\" and event != \"Experiment Viewed\"",
+      "mapping": {
+        "units": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          }
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "agent": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.library.name"
+            },
+            "then": {
+              "@path": "$.context.library.name"
+            },
+            "else": "segment"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Calls",
+      "type": "automatic",
+      "partnerAction": "trackGoal",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "units": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          }
+        },
+        "name": {
+          "@template": "Page: {{ name }}"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "agent": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.library.name"
+            },
+            "then": {
+              "@path": "$.context.library.name"
+            },
+            "else": "segment"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Screen Calls",
+      "type": "automatic",
+      "partnerAction": "trackGoal",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "units": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          }
+        },
+        "name": {
+          "@template": "Screen: {{ name }}"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "agent": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.library.name"
+            },
+            "then": {
+              "@path": "$.context.library.name"
+            },
+            "else": "segment"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Exposures (Verbatim)",
+      "type": "automatic",
+      "partnerAction": "trackExposure",
+      "subscribe": "type = \"track\" and event = \"Experiment Viewed\"",
+      "mapping": {
+        "exposure": {
+          "@path": "$.properties.exposure"
+        },
+        "agent": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.library.name"
+            },
+            "then": {
+              "@path": "$.context.library.name"
+            },
+            "else": "segment"
+          }
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

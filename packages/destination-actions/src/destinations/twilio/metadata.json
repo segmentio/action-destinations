@@ -1,0 +1,113 @@
+{
+  "slug": "actions-twilio",
+  "name": "Twilio",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "basic",
+    "fields": {
+      "accountId": {
+        "label": "Account Id",
+        "description": "Your Twilio Account Id",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "token": {
+        "label": "Token",
+        "description": "Your Twilio Token.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "phoneNumber": {
+        "label": "Phone Number",
+        "description": "Your Twilio Phone Number with Country Code.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendSMS": {
+      "title": "Send SMS",
+      "description": "Sends an SMS message",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "To": {
+          "label": "To",
+          "description": "The Phone Number to send a SMS to",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "Body": {
+          "label": "Body",
+          "description": "The message body",
+          "type": "text",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "MediaUrl": {
+          "label": "Media URL",
+          "description": "The URL of the media to send with the message.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

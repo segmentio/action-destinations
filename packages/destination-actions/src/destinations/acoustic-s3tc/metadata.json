@@ -1,0 +1,316 @@
+{
+  "slug": "actions-acoustic",
+  "name": "Acoustic (Actions)",
+  "mode": "cloud",
+  "description": "Acoustic (S3TC) - Provide Segment Track and Identify Event Data to Acoustic Connect",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "fileNamePrefix": {
+        "label": "Customer Prefix",
+        "description": "Use your Acoustic Org name but replace any spaces with an underscore, eg., AcmeCustomer_Prod",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": "customer_org_"
+      },
+      "s3_bucket_accesspoint_alias": {
+        "label": "S3 Bucket Access Point Alias",
+        "description": "The Alias of the Access Point created for your access to the S3 Bucket.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": ""
+      },
+      "s3_access_key": {
+        "label": "S3 Access Key",
+        "description": "S3 Access Key for the S3 bucket.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "s3_secret": {
+        "label": "S3 Secret",
+        "description": "S3 Secret credential for the S3 bucket.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "s3_region": {
+        "label": "S3 Region",
+        "description": "Should always be us-east-1 unless directed by Acoustic otherwise. ",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": "us-east-1"
+      },
+      "version": {
+        "label": "Version:",
+        "description": "\n\nLast-Modified: 02.01.2024 10.30.43\n\n",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": "Version 2.3"
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "receiveEvents": {
+      "title": "Send Events",
+      "description": "Send Segment identify() and track() events to Acoustic Connect. At least one of the following optional fields should be populated: Key-Value pairs, Arrays, Context, Properties, Traits.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "key_value_pairs": {
+          "label": "Key-Value pairs",
+          "description": "Map simple Key-Value pairs (optional) ",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "array_data": {
+          "label": "Arrays",
+          "description": "If the data needed is in an array, use this section to Map Array data into useable attributes (optional) ",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "context": {
+          "label": "Context",
+          "description": "If the data is present in a Context section, use this to map the attributes of a Context Section (optional)",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "If the data is present in a Properties section, use this to map the attributes of a Properties Section (optional) ",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "If the data is present in a Traits section, use this to map the attributes of a Traits Section (optional) ",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "uniqueRecipientId": {
+          "label": "UniqueRecipientId",
+          "description": "The field to be used to uniquely identify the Recipient in Acoustic. This field is required with Email preferred but not required.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "type": {
+          "label": "Type",
+          "description": "Do Not Modify - The type of event. e.g. track or identify, this field is required",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "Do Not Modify - The timestamp for when the event took place. This field is required",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "receiveEvents",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "uniqueRecipientId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Calls",
+      "type": "automatic",
+      "partnerAction": "receiveEvents",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "uniqueRecipientId": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

@@ -1,0 +1,485 @@
+{
+  "slug": "actions-snap-audiences",
+  "name": "Snap Audiences (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "ad_account_id": {
+        "label": "Ad Account ID",
+        "description": "The ID of the Snap Ad Account",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "customAudienceName": {
+        "label": "Audience Name",
+        "description": "Name for the audience that will be created in Snap. Defaults to the snake_cased Segment audience name if left blank.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": ""
+      },
+      "description": {
+        "label": "Audience Description",
+        "description": "Description of for the audience that will be created in Snap.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": ""
+      },
+      "retention_in_days": {
+        "label": "Retention in days",
+        "description": "Number of days to retain audience members. (Default retention is lifetime represented as 9999)",
+        "type": "number",
+        "required": false,
+        "choices": null,
+        "default": 9999
+      }
+    }
+  },
+  "actions": {
+    "syncAudience": {
+      "title": "Sync Audience",
+      "description": "Sync Engage Audiences to Snap",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "external_audience_id": {
+          "label": "External Audience ID",
+          "description": "Unique Audience Identifier returned by the createAudience() function call.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "audienceKey": {
+          "label": "Audience Key",
+          "description": "Audience key.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "props": {
+          "label": "Properties object",
+          "description": "Object that contains audience name and value.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "phone": {
+          "label": "Phone",
+          "description": "If using phone as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'phone' is configured as an additional identifier in the Audience settings tab.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.phone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "email": {
+          "label": "Email",
+          "description": "The user's email address.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "advertising_id": {
+          "label": "Mobile Advertising ID",
+          "description": "If using Mobile Ad ID as the identifier an additional setup step is required when connecting the Destination to the Audience. Please ensure that 'ios.idfa' is configured to 'ios_idfa' and 'android.idfa' is configured to 'android_idfa' in the Audience settings tab.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.android_idfa"
+              },
+              "then": {
+                "@path": "$.properties.android_idfa"
+              },
+              "else": {
+                "@path": "$.properties.ios_idfa"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "When enabled, events will be batched before being sent to Snap.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "max_batch_size": {
+          "label": "Max Batch Size",
+          "description": "Maximum number of API calls to include in a batch. Defaults to 100,000 which is the maximum allowed by Snap.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": 1,
+          "maximum": 100000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events. Ensures events from different audiences are sent in separate batches. This is Segment default behavior with Engage Audiences anyway.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "external_audience_id"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": [
+          "external_audience_id"
+        ]
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": [
+          "external_audience_id"
+        ]
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": [
+          "external_audience_id"
+        ]
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": [
+          "external_audience_id"
+        ]
+      },
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Sync Engage Audience",
+      "type": "automatic",
+      "partnerAction": "syncAudience",
+      "subscribe": "type = \"track\" or type = \"identify\"",
+      "mapping": {
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "audienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "props": {
+          "@path": "$.properties"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "email": {
+          "@path": "$.properties.email"
+        },
+        "advertising_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.android_idfa"
+            },
+            "then": {
+              "@path": "$.properties.android_idfa"
+            },
+            "else": {
+              "@path": "$.properties.ios_idfa"
+            }
+          }
+        },
+        "enable_batching": true,
+        "max_batch_size": 100000,
+        "batch_keys": [
+          "external_audience_id"
+        ]
+      },
+      "eventSlug": null
+    }
+  ]
+}

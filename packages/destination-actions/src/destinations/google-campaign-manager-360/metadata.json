@@ -1,0 +1,2733 @@
+{
+  "slug": "actions-google-campaign-manager-360",
+  "name": "Google Campaign Manager 360",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "profileId": {
+        "label": "Profile ID",
+        "description": "The ID of the Campaign Manager 360 profile you want to use.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "defaultFloodlightActivityId": {
+        "label": "Default Floodlight Activity ID",
+        "description": "The Default Floodlight activity ID associated with all the mappings. Can be overridden in the mapping.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "defaultFloodlightConfigurationId": {
+        "label": "Default Floodlight Configuration ID",
+        "description": "The Default Floodlight configuration ID associated with all the mappings. Can be overridden in the mapping.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "conversionUpload": {
+      "title": "Conversion Upload",
+      "description": "Send a conversion to Campaign Manager 360.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "customVariables": {
+          "label": "Custom Variables",
+          "description": "Custom variables associated with the conversion.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.customVariables",
+              {
+                "type": {
+                  "@path": "$.type"
+                },
+                "value": {
+                  "@path": "$.value"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "type": {
+              "label": "Type",
+              "description": "The type of the custom variable.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "U1",
+                  "value": "U1"
+                },
+                {
+                  "label": "U2",
+                  "value": "U2"
+                },
+                {
+                  "label": "U3",
+                  "value": "U3"
+                },
+                {
+                  "label": "U4",
+                  "value": "U4"
+                },
+                {
+                  "label": "U5",
+                  "value": "U5"
+                },
+                {
+                  "label": "U6",
+                  "value": "U6"
+                },
+                {
+                  "label": "U7",
+                  "value": "U7"
+                },
+                {
+                  "label": "U8",
+                  "value": "U8"
+                },
+                {
+                  "label": "U9",
+                  "value": "U9"
+                },
+                {
+                  "label": "U10",
+                  "value": "U10"
+                },
+                {
+                  "label": "U11",
+                  "value": "U11"
+                },
+                {
+                  "label": "U12",
+                  "value": "U12"
+                },
+                {
+                  "label": "U13",
+                  "value": "U13"
+                },
+                {
+                  "label": "U14",
+                  "value": "U14"
+                },
+                {
+                  "label": "U15",
+                  "value": "U15"
+                },
+                {
+                  "label": "U16",
+                  "value": "U16"
+                },
+                {
+                  "label": "U17",
+                  "value": "U17"
+                },
+                {
+                  "label": "U18",
+                  "value": "U18"
+                },
+                {
+                  "label": "U19",
+                  "value": "U19"
+                },
+                {
+                  "label": "U20",
+                  "value": "U20"
+                },
+                {
+                  "label": "U21",
+                  "value": "U21"
+                },
+                {
+                  "label": "U22",
+                  "value": "U22"
+                },
+                {
+                  "label": "U23",
+                  "value": "U23"
+                },
+                {
+                  "label": "U24",
+                  "value": "U24"
+                },
+                {
+                  "label": "U25",
+                  "value": "U25"
+                },
+                {
+                  "label": "U26",
+                  "value": "U26"
+                },
+                {
+                  "label": "U27",
+                  "value": "U27"
+                },
+                {
+                  "label": "U28",
+                  "value": "U28"
+                },
+                {
+                  "label": "U29",
+                  "value": "U29"
+                },
+                {
+                  "label": "U30",
+                  "value": "U30"
+                },
+                {
+                  "label": "U31",
+                  "value": "U31"
+                },
+                {
+                  "label": "U32",
+                  "value": "U32"
+                },
+                {
+                  "label": "U33",
+                  "value": "U33"
+                },
+                {
+                  "label": "U34",
+                  "value": "U34"
+                },
+                {
+                  "label": "U35",
+                  "value": "U35"
+                },
+                {
+                  "label": "U36",
+                  "value": "U36"
+                },
+                {
+                  "label": "U37",
+                  "value": "U37"
+                },
+                {
+                  "label": "U38",
+                  "value": "U38"
+                },
+                {
+                  "label": "U39",
+                  "value": "U39"
+                },
+                {
+                  "label": "U40",
+                  "value": "U40"
+                },
+                {
+                  "label": "U41",
+                  "value": "U41"
+                },
+                {
+                  "label": "U42",
+                  "value": "U42"
+                },
+                {
+                  "label": "U43",
+                  "value": "U43"
+                },
+                {
+                  "label": "U44",
+                  "value": "U44"
+                },
+                {
+                  "label": "U45",
+                  "value": "U45"
+                },
+                {
+                  "label": "U46",
+                  "value": "U46"
+                },
+                {
+                  "label": "U47",
+                  "value": "U47"
+                },
+                {
+                  "label": "U48",
+                  "value": "U48"
+                },
+                {
+                  "label": "U49",
+                  "value": "U49"
+                },
+                {
+                  "label": "U50",
+                  "value": "U50"
+                },
+                {
+                  "label": "U51",
+                  "value": "U51"
+                },
+                {
+                  "label": "U52",
+                  "value": "U52"
+                },
+                {
+                  "label": "U53",
+                  "value": "U53"
+                },
+                {
+                  "label": "U54",
+                  "value": "U54"
+                },
+                {
+                  "label": "U55",
+                  "value": "U55"
+                },
+                {
+                  "label": "U56",
+                  "value": "U56"
+                },
+                {
+                  "label": "U57",
+                  "value": "U57"
+                },
+                {
+                  "label": "U58",
+                  "value": "U58"
+                },
+                {
+                  "label": "U59",
+                  "value": "U59"
+                },
+                {
+                  "label": "U60",
+                  "value": "U60"
+                },
+                {
+                  "label": "U61",
+                  "value": "U61"
+                },
+                {
+                  "label": "U62",
+                  "value": "U62"
+                },
+                {
+                  "label": "U63",
+                  "value": "U63"
+                },
+                {
+                  "label": "U64",
+                  "value": "U64"
+                },
+                {
+                  "label": "U65",
+                  "value": "U65"
+                },
+                {
+                  "label": "U66",
+                  "value": "U66"
+                },
+                {
+                  "label": "U67",
+                  "value": "U67"
+                },
+                {
+                  "label": "U68",
+                  "value": "U68"
+                },
+                {
+                  "label": "U69",
+                  "value": "U69"
+                },
+                {
+                  "label": "U70",
+                  "value": "U70"
+                },
+                {
+                  "label": "U71",
+                  "value": "U71"
+                },
+                {
+                  "label": "U72",
+                  "value": "U72"
+                },
+                {
+                  "label": "U73",
+                  "value": "U73"
+                },
+                {
+                  "label": "U74",
+                  "value": "U74"
+                },
+                {
+                  "label": "U75",
+                  "value": "U75"
+                },
+                {
+                  "label": "U76",
+                  "value": "U76"
+                },
+                {
+                  "label": "U77",
+                  "value": "U77"
+                },
+                {
+                  "label": "U78",
+                  "value": "U78"
+                },
+                {
+                  "label": "U79",
+                  "value": "U79"
+                },
+                {
+                  "label": "U80",
+                  "value": "U80"
+                },
+                {
+                  "label": "U81",
+                  "value": "U81"
+                },
+                {
+                  "label": "U82",
+                  "value": "U82"
+                },
+                {
+                  "label": "U83",
+                  "value": "U83"
+                },
+                {
+                  "label": "U84",
+                  "value": "U84"
+                },
+                {
+                  "label": "U85",
+                  "value": "U85"
+                },
+                {
+                  "label": "U86",
+                  "value": "U86"
+                },
+                {
+                  "label": "U87",
+                  "value": "U87"
+                },
+                {
+                  "label": "U88",
+                  "value": "U88"
+                },
+                {
+                  "label": "U89",
+                  "value": "U89"
+                },
+                {
+                  "label": "U90",
+                  "value": "U90"
+                },
+                {
+                  "label": "U91",
+                  "value": "U91"
+                },
+                {
+                  "label": "U92",
+                  "value": "U92"
+                },
+                {
+                  "label": "U93",
+                  "value": "U93"
+                },
+                {
+                  "label": "U94",
+                  "value": "U94"
+                },
+                {
+                  "label": "U95",
+                  "value": "U95"
+                },
+                {
+                  "label": "U96",
+                  "value": "U96"
+                },
+                {
+                  "label": "U97",
+                  "value": "U97"
+                },
+                {
+                  "label": "U98",
+                  "value": "U98"
+                },
+                {
+                  "label": "U99",
+                  "value": "U99"
+                },
+                {
+                  "label": "U100",
+                  "value": "U100"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "value": {
+              "label": "Value",
+              "description": "The value of the custom variable.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "requiredId": {
+          "label": "Required ID",
+          "description": "A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID, Impression ID or Encrypted User ID Candidates must be provided.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "gclid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Campaign Manager 360.gclid"
+                },
+                "then": {
+                  "@path": "$.integrations.Campaign Manager 360.gclid"
+                },
+                "else": {
+                  "@path": "$.properties.gclid"
+                }
+              }
+            },
+            "dclid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Campaign Manager 360.dclid"
+                },
+                "then": {
+                  "@path": "$.integrations.Campaign Manager 360.dclid"
+                },
+                "else": {
+                  "@path": "$.properties.dclid"
+                }
+              }
+            },
+            "encryptedUserId": {
+              "@path": "$.userId"
+            },
+            "mobileDeviceId": {
+              "@path": "$.context.device.id"
+            },
+            "matchId": {
+              "@path": "$.properties.matchId"
+            },
+            "impressionId": {
+              "@path": "$.properties.impressionId"
+            },
+            "encryptedUserIdCandidates": {
+              "@path": "$.properties.encryptedUserIdCandidates"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "gclid": {
+              "label": "Google Click ID",
+              "description": "The Google Click ID (gclid) associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "dclid": {
+              "label": "Display Click ID",
+              "description": "The Display Click ID (dclid) associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptedUserId": {
+              "label": "Encrypted User ID",
+              "description": "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "mobileDeviceId": {
+              "label": "Mobile Device ID",
+              "description": "The mobile device ID associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@path": "$.context.device.id"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "matchId": {
+              "label": "Match ID",
+              "description": "The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "impressionId": {
+              "label": "Impression ID",
+              "description": "The impression ID associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptedUserIdCandidates": {
+              "label": "Encrypted User ID Candidates",
+              "description": "A comma separated list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "floodlightConfigurationId": {
+          "label": "Floodlight Configuration ID",
+          "description": "The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "floodlightActivityId": {
+          "label": "Floodlight Activity ID",
+          "description": "The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "encryptionInfo": {
+          "label": "Encryption Info",
+          "description": "The encryption information associated with the conversion. Required if Encrypted User ID or Encryption User ID Candidates fields are populated.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "encryptionEntityId": {
+              "label": "Encryption Entity ID",
+              "description": "The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptionEntityType": {
+              "label": "Encryption Entity Type",
+              "description": "The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "ADWORDS_CUSTOMER",
+                  "value": "ADWORDS_CUSTOMER"
+                },
+                {
+                  "label": "DBM_ADVERTISER",
+                  "value": "DBM_ADVERTISER"
+                },
+                {
+                  "label": "DBM_PARTNER",
+                  "value": "DBM_PARTNER"
+                },
+                {
+                  "label": "DCM_ACCOUNT",
+                  "value": "DCM_ACCOUNT"
+                },
+                {
+                  "label": "DCM_ADVERTISER",
+                  "value": "DCM_ADVERTISER"
+                },
+                {
+                  "label": "ENCRYPTION_ENTITY_TYPE_UNKNOWN",
+                  "value": "ENCRYPTION_ENTITY_TYPE_UNKNOWN"
+                },
+                {
+                  "label": "DFP_NETWORK_CODE",
+                  "value": "DFP_NETWORK_CODE"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptionSource": {
+              "label": "Encryption Source",
+              "description": "The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "AD_SERVING",
+                  "value": "AD_SERVING"
+                },
+                {
+                  "label": "ENCRYPTION_SCOPE_UNKNOWN",
+                  "value": "ENCRYPTION_SCOPE_UNKNOWN"
+                },
+                {
+                  "label": "DATA_TRANSFER",
+                  "value": "DATA_TRANSFER"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userDetails": {
+          "label": "User Details",
+          "description": "User details associated with the conversion.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.context.traits.phone"
+                }
+              }
+            },
+            "firstName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.context.traits.first_name"
+                }
+              }
+            },
+            "lastName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.context.traits.last_name"
+                }
+              }
+            },
+            "streetAddress": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.street"
+                },
+                "then": {
+                  "@path": "$.traits.address.street"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            },
+            "postalCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            },
+            "countryCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email",
+              "description": "The user's email address. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "phone": {
+              "label": "Phone",
+              "description": "The user's phone number. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "firstName": {
+              "label": "First Name",
+              "description": "First name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "lastName": {
+              "label": "Last Name",
+              "description": "Last name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "streetAddress": {
+              "label": "Street Address",
+              "description": "The street address of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "city": {
+              "label": "City",
+              "description": "The user's city",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "state": {
+              "label": "State",
+              "description": "The user's state",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "postalCode": {
+              "label": "Postal Code",
+              "description": "The user's postal code",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "countryCode": {
+              "label": "Country Code",
+              "description": "2-letter country code in ISO-3166-1 alpha-2 of the user's address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp (ISO-8601)",
+          "description": "The timestamp of the conversion in a ISO-8601 string.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "value": {
+          "label": "Value",
+          "description": "The value of the conversion.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.total"
+              },
+              "then": {
+                "@path": "$.properties.total"
+              },
+              "else": {
+                "@path": "$.properties.revenue"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "quantity": {
+          "label": "Quantity",
+          "description": "The quantity of the conversion.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.quantity"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "ordinal": {
+          "label": "Ordinal",
+          "description": "The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "limitAdTracking": {
+          "label": "Limit Ad Tracking",
+          "description": "Whether Limit Ad Tracking is enabled. When set to true, the conversion will be used for reporting but not targeting. This will prevent remarketing.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "childDirectedTreatment": {
+          "label": "Child Directed Treatment",
+          "description": "Whether this particular request may come from a user under the age of 13, under COPPA compliance.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "nonPersonalizedAd": {
+          "label": "Non-Personalized Ad",
+          "description": "Whether the conversion was for a non personalized ad.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "treatmentForUnderage": {
+          "label": "Treatment For Underage",
+          "description": "Whether this particular request may come from a user under the age of 16 (may differ by country), under compliance with the European Union's General Data Protection Regulation (GDPR).",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "adUserDataConsent": {
+          "label": "Ad User Data Consent",
+          "description": "The user data consent status for the conversion.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "GRANTED",
+              "value": "GRANTED"
+            },
+            {
+              "label": "DENIED",
+              "value": "DENIED"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "merchantId": {
+          "label": "Cart Data Merchant ID",
+          "description": "The Merchant Center ID where the items are uploaded. Required if the cart data is provided.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "merchantFeedLabel": {
+          "label": "Cart Data Merchant Feed Label",
+          "description": "The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to https://support.google.com/merchants/answer/12453549.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "merchantFeedLanguage": {
+          "label": "Cart Data Merchant Feed Language",
+          "description": "The language associated with the feed where your items are uploaded. Use ISO 639-1 language codes. This field is needed only when item IDs are not unique across multiple Merchant Center feeds.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "cartDataItems": {
+          "label": "Cart Data Items",
+          "description": "The items in the cart.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "itemId": {
+                  "@path": "$.product_id"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "unitPrice": {
+                  "@path": "$.price"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "itemId": {
+              "label": "Item ID",
+              "description": "The item ID associated with the conversion.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The quantity of the item.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "unitPrice": {
+              "label": "Value",
+              "description": "The value of the item.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Max number of events to upload in each batch request.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 2000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "conversionAdjustmentUpload": {
+      "title": "Conversion Adjustment Upload",
+      "description": "Adjust an conversion in Campaign Manager 360.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "requiredId": {
+          "label": "Required ID",
+          "description": "A user identifier record the conversion against. Exactly one of Google Click ID, Display Click ID, Encrypted User ID, Mobile Device ID, Match ID, Impression ID or Encrypted User ID Candidates must be provided.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "gclid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Campaign Manager 360.gclid"
+                },
+                "then": {
+                  "@path": "$.integrations.Campaign Manager 360.gclid"
+                },
+                "else": {
+                  "@path": "$.properties.gclid"
+                }
+              }
+            },
+            "dclid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.Campaign Manager 360.dclid"
+                },
+                "then": {
+                  "@path": "$.integrations.Campaign Manager 360.dclid"
+                },
+                "else": {
+                  "@path": "$.properties.dclid"
+                }
+              }
+            },
+            "encryptedUserId": {
+              "@path": "$.userId"
+            },
+            "mobileDeviceId": {
+              "@path": "$.context.device.id"
+            },
+            "matchId": {
+              "@path": "$.properties.matchId"
+            },
+            "impressionId": {
+              "@path": "$.properties.impressionId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "gclid": {
+              "label": "Google Click ID",
+              "description": "The Google Click ID (gclid) associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "dclid": {
+              "label": "Display Click ID",
+              "description": "The Display Click ID (dclid) associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptedUserId": {
+              "label": "Encrypted User ID",
+              "description": "The encrypted user ID associated with the conversion. If this field is set then 'Encryption Entity ID', 'Encryption Entity Type' and 'Encryption Source' should also be specified.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "mobileDeviceId": {
+              "label": "Mobile Device ID",
+              "description": "The mobile device ID associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@path": "$.context.device.id"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "matchId": {
+              "label": "Match ID",
+              "description": "The match ID field. A match ID is your own first-party identifier that has been synced with Google using the match ID feature in Floodlight.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "impressionId": {
+              "label": "Impression ID",
+              "description": "The impression ID associated with the conversion.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "floodlightConfigurationId": {
+          "label": "Floodlight Configuration ID",
+          "description": "The Floodlight configuration ID associated with the conversion. Overrides the default Floodlight Configuration ID defined in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "floodlightActivityId": {
+          "label": "Floodlight Activity ID",
+          "description": "The Floodlight activity ID associated with the conversion. Overrides the default Floodlight Activity ID defined in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "encryptionInfo": {
+          "label": "Encryption Info",
+          "description": "The encryption information associated with the conversion. Required if Encrypted User ID or Encryption User ID Candidates fields are populated.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "encryptionEntityId": {
+              "label": "Encryption Entity ID",
+              "description": "The encryption entity ID. This should match the encryption type configuration for ad serving or Data Transfer.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptionEntityType": {
+              "label": "Encryption Entity Type",
+              "description": "The encryption entity type. This should match the encryption type configuration for ad serving or Data Transfer.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "ADWORDS_CUSTOMER",
+                  "value": "ADWORDS_CUSTOMER"
+                },
+                {
+                  "label": "DBM_ADVERTISER",
+                  "value": "DBM_ADVERTISER"
+                },
+                {
+                  "label": "DBM_PARTNER",
+                  "value": "DBM_PARTNER"
+                },
+                {
+                  "label": "DCM_ACCOUNT",
+                  "value": "DCM_ACCOUNT"
+                },
+                {
+                  "label": "DCM_ADVERTISER",
+                  "value": "DCM_ADVERTISER"
+                },
+                {
+                  "label": "ENCRYPTION_ENTITY_TYPE_UNKNOWN",
+                  "value": "ENCRYPTION_ENTITY_TYPE_UNKNOWN"
+                },
+                {
+                  "label": "DFP_NETWORK_CODE",
+                  "value": "DFP_NETWORK_CODE"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "encryptionSource": {
+              "label": "Encryption Source",
+              "description": "The encryption source. This should match the encryption type configuration for ad serving or Data Transfer.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "AD_SERVING",
+                  "value": "AD_SERVING"
+                },
+                {
+                  "label": "ENCRYPTION_SCOPE_UNKNOWN",
+                  "value": "ENCRYPTION_SCOPE_UNKNOWN"
+                },
+                {
+                  "label": "DATA_TRANSFER",
+                  "value": "DATA_TRANSFER"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userDetails": {
+          "label": "User Details",
+          "description": "User details associated with the conversion.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.context.traits.phone"
+                }
+              }
+            },
+            "firstName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.context.traits.first_name"
+                }
+              }
+            },
+            "lastName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.context.traits.last_name"
+                }
+              }
+            },
+            "streetAddress": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.street"
+                },
+                "then": {
+                  "@path": "$.traits.address.street"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            },
+            "postalCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            },
+            "countryCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email",
+              "description": "The user's email address. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "phone": {
+              "label": "Phone",
+              "description": "The user's phone number. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "firstName": {
+              "label": "First Name",
+              "description": "First name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "lastName": {
+              "label": "Last Name",
+              "description": "Last name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "streetAddress": {
+              "label": "Street Address",
+              "description": "The street address of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "city": {
+              "label": "City",
+              "description": "The user's city",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "state": {
+              "label": "State",
+              "description": "The user's state",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "postalCode": {
+              "label": "Postal Code",
+              "description": "The user's postal code",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "countryCode": {
+              "label": "Country Code",
+              "description": "2-letter country code in ISO-3166-1 alpha-2 of the user's address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp (ISO-8601)",
+          "description": "The timestamp of the conversion in a ISO-8601 string.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "value": {
+          "label": "Value",
+          "description": "The value of the conversion.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.total"
+              },
+              "then": {
+                "@path": "$.properties.total"
+              },
+              "else": {
+                "@path": "$.properties.revenue"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "quantity": {
+          "label": "Quantity",
+          "description": "The quantity of the conversion.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.quantity"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "ordinal": {
+          "label": "Ordinal",
+          "description": "The ordinal of the conversion. Use this field to control how conversions of the same user and day are de-duplicated.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "limitAdTracking": {
+          "label": "Limit Ad Tracking",
+          "description": "Whether Limit Ad Tracking is enabled. When set to true, the conversion will be used for reporting but not targeting. This will prevent remarketing.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "childDirectedTreatment": {
+          "label": "Child Directed Treatment",
+          "description": "Whether this particular request may come from a user under the age of 13, under COPPA compliance.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "nonPersonalizedAd": {
+          "label": "Non-Personalized Ad",
+          "description": "Whether the conversion was for a non personalized ad.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "treatmentForUnderage": {
+          "label": "Treatment For Underage",
+          "description": "Whether this particular request may come from a user under the age of 16 (may differ by country), under compliance with the European Union's General Data Protection Regulation (GDPR).",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "adUserDataConsent": {
+          "label": "Ad User Data Consent",
+          "description": "The user data consent status for the conversion.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "GRANTED",
+              "value": "GRANTED"
+            },
+            {
+              "label": "DENIED",
+              "value": "DENIED"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "merchantId": {
+          "label": "Cart Data Merchant ID",
+          "description": "The Merchant Center ID where the items are uploaded. Required if the cart data is provided.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "merchantFeedLabel": {
+          "label": "Cart Data Merchant Feed Label",
+          "description": "The feed labels associated with the feed where your items are uploaded. Required if the cart data is provided. For more information, please refer to https://support.google.com/merchants/answer/12453549.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "merchantFeedLanguage": {
+          "label": "Cart Data Merchant Feed Language",
+          "description": "The language associated with the feed where your items are uploaded. Use ISO 639-1 language codes. This field is needed only when item IDs are not unique across multiple Merchant Center feeds.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "cartDataItems": {
+          "label": "Cart Data Items",
+          "description": "The items in the cart.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "itemId": {
+                  "@path": "$.product_id"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "unitPrice": {
+                  "@path": "$.price"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "itemId": {
+              "label": "Item ID",
+              "description": "The item ID associated with the conversion.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The quantity of the item.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "unitPrice": {
+              "label": "Value",
+              "description": "The value of the item.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Max number of events to upload in each batch request.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 2000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

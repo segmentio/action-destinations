@@ -1,0 +1,888 @@
+{
+  "slug": "actions-podscribe",
+  "name": "Podscribe (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "advertiser": {
+        "label": "Advertiser",
+        "description": "Podscribe advertiser lookup key",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "userId": {
+        "label": "User ID",
+        "description": "Podscribe user ID",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "track": {
+      "title": "Track",
+      "description": "Send user events to Podscribe",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The anonymous ID associated with the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "referrer": {
+          "label": "Page Referrer",
+          "description": "The page referrer",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.referrer"
+              },
+              "then": {
+                "@path": "$.context.page.referrer"
+              },
+              "else": {
+                "@path": "$.properties.referrer"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "url": {
+          "label": "Page URL",
+          "description": "The page URL",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.url"
+              },
+              "then": {
+                "@path": "$.context.page.url"
+              },
+              "else": {
+                "@path": "$.properties.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "ip": {
+          "label": "User IP address",
+          "description": "The IP address of the device sending the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "library": {
+          "label": "Segment Library",
+          "description": "The library sending the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "The user agent of the device sending the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "email": {
+          "label": "Email address",
+          "description": "Email address of the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Event properties",
+          "description": "Properties to send with the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "total": {
+              "@path": "$.properties.total"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "coupon": {
+              "@path": "$.properties.coupon"
+            },
+            "num_items_purchased": {
+              "@path": "$.properties.num_items_purchased"
+            },
+            "is_new_customer": {
+              "@path": "$.properties.is_new_customer"
+            },
+            "is_subscription": {
+              "@path": "$.properties.is_subscription"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "total": {
+              "label": "Total Value",
+              "description": "The total value of the order",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "order_id": {
+              "label": "Order id",
+              "description": "The order ID. A unique identifier for the order",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "currency": {
+              "label": "Currency",
+              "description": "Currency code. e.g. USD for US dollar, EUR for Euro",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "coupon": {
+              "label": "Coupon",
+              "description": "Coupon Code. A Discount code for the purchase",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "num_items_purchased": {
+              "label": "Number of Items Purchased",
+              "description": "The number of items purchased in this order",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "is_new_customer": {
+              "label": "Is New Customer",
+              "description": "true value indicates if the user is a new customer",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "is_subscription": {
+              "label": "Is Subscription",
+              "description": "true value indicates a subscription",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "podscribeEvent": {
+          "label": "Podscribe event type",
+          "description": "Podscribe type of event to send",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.podscribeEvent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "page": {
+      "title": "Page",
+      "description": "Register page view in Podscribe",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The anonymous ID associated with the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "referrer": {
+          "label": "Page Referrer",
+          "description": "The page referrer",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.referrer"
+              },
+              "then": {
+                "@path": "$.context.page.referrer"
+              },
+              "else": {
+                "@path": "$.properties.referrer"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "url": {
+          "label": "Page URL",
+          "description": "The page URL",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.page.url"
+              },
+              "then": {
+                "@path": "$.context.page.url"
+              },
+              "else": {
+                "@path": "$.properties.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "ip": {
+          "label": "User IP address",
+          "description": "The IP address of the device sending the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "library": {
+          "label": "Segment Library",
+          "description": "The library sending the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "The user agent of the device sending the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Order Completed Calls",
+      "type": "automatic",
+      "partnerAction": "track",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.url"
+            },
+            "then": {
+              "@path": "$.context.page.url"
+            },
+            "else": {
+              "@path": "$.properties.url"
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "library": {
+          "@path": "$.context.library"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "properties": {
+          "total": {
+            "@path": "$.properties.total"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "coupon": {
+            "@path": "$.properties.coupon"
+          },
+          "num_items_purchased": {
+            "@path": "$.properties.num_items_purchased"
+          },
+          "is_new_customer": {
+            "@path": "$.properties.is_new_customer"
+          },
+          "is_subscription": {
+            "@path": "$.properties.is_subscription"
+          }
+        },
+        "podscribeEvent": "purchase"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Signed Up Calls",
+      "type": "automatic",
+      "partnerAction": "track",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.url"
+            },
+            "then": {
+              "@path": "$.context.page.url"
+            },
+            "else": {
+              "@path": "$.properties.url"
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "library": {
+          "@path": "$.context.library"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "properties": {
+          "total": {
+            "@path": "$.properties.total"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "coupon": {
+            "@path": "$.properties.coupon"
+          },
+          "num_items_purchased": {
+            "@path": "$.properties.num_items_purchased"
+          },
+          "is_new_customer": {
+            "@path": "$.properties.is_new_customer"
+          },
+          "is_subscription": {
+            "@path": "$.properties.is_subscription"
+          }
+        },
+        "podscribeEvent": "signup"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Calls",
+      "type": "automatic",
+      "partnerAction": "page",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "referrer": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.referrer"
+            },
+            "then": {
+              "@path": "$.context.page.referrer"
+            },
+            "else": {
+              "@path": "$.properties.referrer"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.page.url"
+            },
+            "then": {
+              "@path": "$.context.page.url"
+            },
+            "else": {
+              "@path": "$.properties.url"
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "library": {
+          "@path": "$.context.library"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

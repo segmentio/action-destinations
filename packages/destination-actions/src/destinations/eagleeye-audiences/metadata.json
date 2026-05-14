@@ -1,0 +1,127 @@
+{
+  "slug": "actions-eagleeye",
+  "name": "Eagle Eye",
+  "mode": "cloud",
+  "description": "Synchronize Segment audiences to trigger behavioral actions in Eagle Eye AIR, enabling customer rewards.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "connectorUrl": {
+        "label": "Connector URL",
+        "description": "Eagle Eye URL of the Segment connector provided by your EagleEye CSM",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "externalKey": {
+        "label": "Connector External Key",
+        "description": "Key to authenticate with the connector provided by your EagleEye CSM",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "behavioralActionTriggerReferences": {
+        "label": "Behavioral Action trigger reference",
+        "description": "Required if connecting to an Engage Audience. Accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "actions": {
+    "triggerBehavioralAction": {
+      "title": "Trigger Behavioral Action",
+      "description": "Trigger behavioral actions in AIR based on tracked events",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "identityValue": {
+          "label": "User identity value",
+          "description": "Customer wallet identity value in AIR for this event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "walletTransactionReference": {
+          "label": "Wallet transaction reference",
+          "description": "Optional wallet transaction reference from the event triggering this Behavioral Action",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "behavioralActionTriggerReferences": {
+          "label": "Behavioral Action trigger reference",
+          "description": "If connecting to an Engage Audience the default mapping should be left as is. This field accepts a comma delimited list of reference strings for the Behavioral Action to be executed. E.g.: A0001,P0001",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.audience_settings.behavioralActionTriggerReferences"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

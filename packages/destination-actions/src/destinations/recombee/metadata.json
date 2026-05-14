@@ -1,0 +1,2720 @@
+{
+  "slug": "actions-recombee",
+  "name": "Recombee",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "databaseId": {
+        "label": "Database ID",
+        "description": "The ID of the Recombee Database into which the interactions will be sent.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "privateToken": {
+        "label": "Private Token",
+        "description": "The private token for the Recombee Database used.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "databaseRegion": {
+        "label": "Database Region",
+        "description": "The Recombee cluster where your Database is located. [Learn more](https://docs.recombee.com/regions)",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "value": "eu-west",
+            "label": "EU"
+          },
+          {
+            "value": "ca-east",
+            "label": "Canada (East Coast)"
+          },
+          {
+            "value": "ap-se",
+            "label": "Australia"
+          },
+          {
+            "value": "us-west",
+            "label": "US (West Coast)"
+          },
+          {
+            "value": "custom",
+            "label": "Custom"
+          }
+        ],
+        "default": "eu-west"
+      },
+      "apiUri": {
+        "label": "API URI",
+        "description": "URI of the Recombee API that should be used. *Keep this field empty unless you are calling the Recombee cluster based in a specific region or you were assigned a custom URI by the Recombee Support team.*",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "addBookmark": {
+      "title": "Add Bookmark",
+      "description": "Adds a bookmark of the given item made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who bookmarked the item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The bookmarked item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the bookmark event occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the bookmark is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the bookmark.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the bookmark. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "addCartAddition": {
+      "title": "Add Cart Addition",
+      "description": "Adds a cart addition of the given item made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Added\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who added the item to the cart.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "item": {
+          "label": "Item",
+          "description": "The item that was added to the cart.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "itemId": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.product_id"
+                },
+                "then": {
+                  "@path": "$.properties.product_id"
+                },
+                "else": {
+                  "@path": "$.properties.sku"
+                }
+              }
+            },
+            "amount": {
+              "@path": "$.properties.quantity"
+            },
+            "price": {
+              "@path": "$.properties.price"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "itemId": {
+              "label": "Item ID",
+              "description": "ID of the item.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "amount": {
+              "label": "Amount",
+              "description": "The amount (number) of the item added to the cart.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": 1,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "price": {
+              "label": "Price (per item)",
+              "description": "The price of the added item. If `amount` is greater than 1, the price of one item should be given.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the cart addition occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the cart addition is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the cart addition.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the cart addition. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "addDetailView": {
+      "title": "Add Detail View",
+      "description": "Adds a detail view of the given item made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who viewed the item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The viewed item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the view occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "duration": {
+          "label": "Duration",
+          "description": "The duration of the view in seconds.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the view is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the view.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the view. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "addPurchase": {
+      "title": "Add Purchase",
+      "description": "Adds a purchase of the given item(s) made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who purchased the item(s).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "items": {
+          "label": "Items",
+          "description": "The items that were purchased.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "itemId": {
+                  "@if": {
+                    "exists": {
+                      "@path": "$.product_id"
+                    },
+                    "then": {
+                      "@path": "$.product_id"
+                    },
+                    "else": {
+                      "@path": "$.sku"
+                    }
+                  }
+                },
+                "amount": {
+                  "@path": "$.quantity"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "profit": {
+                  "@path": "$.profit"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "itemId": {
+              "label": "Item ID",
+              "description": "ID of the item.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "amount": {
+              "label": "Amount",
+              "description": "The amount (number) of the item purchased.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": 1,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "price": {
+              "label": "Price (per item)",
+              "description": "The price of the purchased item. If `amount` is greater than 1, the price of one item should be given.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "profit": {
+              "label": "Profit (per item)",
+              "description": "The profit of the purchased item. If `amount` is greater than 1, the profit per one item should be given.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the purchase occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the purchase is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the purchase.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the purchase. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "addRating": {
+      "title": "Add Rating",
+      "description": "Adds a rating of the given item made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who submitted the rating.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The rated item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the rating occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "rating": {
+          "label": "Rating",
+          "description": "The rating of the item rescaled to interval [-1.0,1.0], where -1.0 means the worst rating possible, 0.0 means neutral, and 1.0 means absolutely positive rating. For example, in the case of 5-star evaluations, rating = (numStars-3)/2 formula may be used for the conversion.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.rating"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the rating is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the rating.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the rating. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "deleteBookmark": {
+      "title": "Delete Bookmark",
+      "description": "Deletes a bookmark of the given item made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Removed from Wishlist\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who bookmarked the item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The item that was bookmarked.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the bookmark occurred. If the timestamp is omitted, then all the bookmarks with the given `userId` and `itemId` are deleted.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "deleteCartAddition": {
+      "title": "Delete Cart Addition",
+      "description": "Deletes a cart addition of the given item made by the given user.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Removed\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who added the item to the cart.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The item that was added to the cart.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the cart addition occurred. If the timestamp is omitted, then all the cart additions with the given `userId` and `itemId` are deleted.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "mergeUsers": {
+      "title": "Merge Users",
+      "description": "Merges interactions (purchases, ratings, bookmarks, detail views, ...) of two different users under a single user ID.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "targetUserId": {
+          "label": "Target User ID",
+          "description": "The ID of the target user that will be **kept** after the merge.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "sourceUserId": {
+          "label": "Source User ID",
+          "description": "The ID of the source user that will be **deleted** after the merge.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.previousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "setViewPortion": {
+      "title": "Set View Portion",
+      "description": "Sets the viewed portion of a given item (e.g. a video or article) by the given user. **Use this action when you have the viewed portion as a number between 0 and 1.**",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who viewed a portion of the item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The viewed item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the view portion occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "portion": {
+          "label": "Portion",
+          "description": "The viewed portion of the item as a number in the interval [0.0,1.0], where 0.0 means the user viewed nothing and 1.0 means the full item was viewed. It should be the actual viewed part of the item, no matter the seeking. For example, if the user seeked immediately to half of the item and then viewed 10% of the item, the `portion` should still be `0.1`.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.portion"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": 0,
+          "maximum": 1,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "sessionId": {
+          "label": "Session ID",
+          "description": "The ID of the session in which the user viewed the item.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.session"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the view portion is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the view portion.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the view portion. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "setViewPortionFromWatchTime": {
+      "title": "Set View Portion from Watch Time",
+      "description": "Sets the viewed portion of a given item (e.g. a video or article) by the given user. **Use this action when you have the watch time of the item (e.g. in seconds) instead of the portion watched.**",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user who viewed a portion of the item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "itemId": {
+          "label": "Item ID",
+          "description": "The viewed item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.asset_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The UTC timestamp of when the view portion occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "portion": {
+          "label": "Portion",
+          "description": "The portion of the item that the user viewed.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "totalLength": {
+              "@path": "$.properties.total_length"
+            },
+            "watchTime": {
+              "@path": "$.properties.position"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "totalLength": {
+              "label": "Total Length",
+              "description": "The total length of the item that the user can view (for example, in seconds or minutes).",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": 0,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "watchTime": {
+              "label": "Watch Time",
+              "description": "The user's watched time of the item (measured in the same units as Total Length).",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": 0,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "sessionId": {
+          "label": "Session ID",
+          "description": "The ID of the session in which the user viewed the item.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.session"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "recommId": {
+          "label": "Recommendation ID",
+          "description": "The ID of the clicked recommendation (if the view portion is based on a recommendation request).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recomm_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "internalAdditionalData": {
+          "label": "Internal Additional Data",
+          "description": "Internal additional data to be stored with the view portion.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "segmentEventType": {
+              "@path": "$.type"
+            },
+            "segmentEventName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.event"
+                },
+                "then": {
+                  "@path": "$.event"
+                },
+                "else": {
+                  "@path": "$.name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        },
+        "additionalData": {
+          "label": "Additional Data",
+          "description": "Additional data to be stored with the view portion. *Keep this field empty unless instructed by the Recombee Support team.*",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Page - Viewed",
+      "type": "automatic",
+      "partnerAction": "addDetailView",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@path": "$.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Product Viewed",
+      "type": "automatic",
+      "partnerAction": "addDetailView",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Product Added",
+      "type": "automatic",
+      "partnerAction": "addCartAddition",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "item": {
+          "itemId": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.product_id"
+              },
+              "then": {
+                "@path": "$.properties.product_id"
+              },
+              "else": {
+                "@path": "$.properties.sku"
+              }
+            }
+          },
+          "amount": {
+            "@path": "$.properties.quantity"
+          },
+          "price": {
+            "@path": "$.properties.price"
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Product Removed",
+      "type": "automatic",
+      "partnerAction": "deleteCartAddition",
+      "subscribe": "type = \"track\" and event = \"Product Removed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Order Completed",
+      "type": "automatic",
+      "partnerAction": "addPurchase",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "itemId": {
+                "@if": {
+                  "exists": {
+                    "@path": "$.product_id"
+                  },
+                  "then": {
+                    "@path": "$.product_id"
+                  },
+                  "else": {
+                    "@path": "$.sku"
+                  }
+                }
+              },
+              "amount": {
+                "@path": "$.quantity"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "profit": {
+                "@path": "$.profit"
+              }
+            }
+          ]
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Product Added to Wishlist",
+      "type": "automatic",
+      "partnerAction": "addBookmark",
+      "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Product Removed from Wishlist",
+      "type": "automatic",
+      "partnerAction": "deleteBookmark",
+      "subscribe": "type = \"track\" and event = \"Product Removed from Wishlist\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Ecommerce - Product Shared",
+      "type": "automatic",
+      "partnerAction": "addBookmark",
+      "subscribe": "type = \"track\" and event = \"Product Shared\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.product_id"
+            },
+            "then": {
+              "@path": "$.properties.product_id"
+            },
+            "else": {
+              "@path": "$.properties.sku"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Video - Playback Started",
+      "type": "automatic",
+      "partnerAction": "setViewPortion",
+      "subscribe": "type = \"track\" and event = \"Video Playback Started\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "then": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "else": {
+              "@path": "$.properties.content_asset_ids[0]"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": 0,
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Video - Content Playing",
+      "type": "automatic",
+      "partnerAction": "setViewPortionFromWatchTime",
+      "subscribe": "type = \"track\" and event = \"Video Content Playing\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "then": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "else": {
+              "@path": "$.properties.content_asset_ids[0]"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": {
+          "totalLength": {
+            "@path": "$.properties.total_length"
+          },
+          "watchTime": {
+            "@path": "$.properties.position"
+          }
+        },
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Video - Playback Paused",
+      "type": "automatic",
+      "partnerAction": "setViewPortionFromWatchTime",
+      "subscribe": "type = \"track\" and event = \"Video Playback Paused\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@path": "$.properties.content_asset_id"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": {
+          "totalLength": {
+            "@path": "$.properties.total_length"
+          },
+          "watchTime": {
+            "@path": "$.properties.position"
+          }
+        },
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Video - Playback Completed",
+      "type": "automatic",
+      "partnerAction": "setViewPortion",
+      "subscribe": "type = \"track\" and event = \"Video Playback Completed\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "then": {
+              "@path": "$.properties.content_asset_id"
+            },
+            "else": {
+              "@path": "$.properties.content_asset_ids[0]"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "portion": 1,
+        "sessionId": {
+          "@path": "$.properties.session"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Screen - Viewed",
+      "type": "automatic",
+      "partnerAction": "addDetailView",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "userId": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "itemId": {
+          "@path": "$.name"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "recommId": {
+          "@path": "$.properties.recomm_id"
+        },
+        "internalAdditionalData": {
+          "segmentEventType": {
+            "@path": "$.type"
+          },
+          "segmentEventName": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Alias",
+      "type": "automatic",
+      "partnerAction": "mergeUsers",
+      "subscribe": "type = \"alias\"",
+      "mapping": {
+        "targetUserId": {
+          "@path": "$.userId"
+        },
+        "sourceUserId": {
+          "@path": "$.previousId"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

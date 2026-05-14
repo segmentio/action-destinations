@@ -1,0 +1,1453 @@
+{
+  "slug": "actions-dotdigital",
+  "name": "Dotdigital",
+  "mode": "cloud",
+  "description": "Send Segment events and user profile data to Dotdigital.",
+  "authentication": {
+    "scheme": "basic",
+    "fields": {
+      "api_host": {
+        "label": "Region",
+        "description": "The region your account is in",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "value": "https://r1-api.dotdigital.com",
+            "label": "r1"
+          },
+          {
+            "value": "https://r2-api.dotdigital.com",
+            "label": "r2"
+          },
+          {
+            "value": "https://r3-api.dotdigital.com",
+            "label": "r3"
+          }
+        ],
+        "default": "https://r1-api.dotdigital.com"
+      },
+      "username": {
+        "label": "Username",
+        "description": "Your Dotdigital username",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "password": {
+        "label": "Password",
+        "description": "Your Dotdigital password.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "removeContactFromList": {
+      "title": "Remove Contact from List",
+      "description": "Removes a Contact from a List.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Remove Contact from List\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "channelIdentifier": {
+          "label": "Contact Identifier type",
+          "description": "Select the field to identify contacts.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "email",
+          "choices": [
+            {
+              "label": "Email address",
+              "value": "email"
+            },
+            {
+              "label": "Mobile number",
+              "value": "mobileNumber"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "emailIdentifier": {
+          "label": "Email Address",
+          "description": "The Contact's email address.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "mobileNumberIdentifier": {
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "listId": {
+          "label": "List",
+          "description": "The List to remove the Contact from.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        }
+      }
+    },
+    "enrolContact": {
+      "title": "Enrol Contact to Program",
+      "description": "Creates a program enrolment.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Enrol Contact to Program\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "channelIdentifier": {
+          "label": "Contact Identifier type",
+          "description": "Select the field to identify contacts.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "email",
+          "choices": [
+            {
+              "label": "Email address",
+              "value": "email"
+            },
+            {
+              "label": "Mobile number",
+              "value": "mobileNumber"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "emailIdentifier": {
+          "label": "Email Address",
+          "description": "The Contact's email address.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "mobileNumberIdentifier": {
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "programId": {
+          "label": "Program",
+          "description": "List of active programs",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        }
+      }
+    },
+    "addContactToList": {
+      "title": "Add or Update Contact",
+      "description": "Adds or updates a contact.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Add or Update Contact\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "channelIdentifier": {
+          "label": "Contact Identifier type",
+          "description": "Select the field to identify contacts.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "email",
+          "choices": [
+            {
+              "label": "Email address",
+              "value": "email"
+            },
+            {
+              "label": "Mobile number",
+              "value": "mobileNumber"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "emailIdentifier": {
+          "label": "Email Address",
+          "description": "The Contact's email address.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "mobileNumberIdentifier": {
+          "label": "Mobile Number",
+          "description": "The Contact's mobile number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "emailType": {
+          "label": "Email Type",
+          "description": "The type of email the contact prefers to receive.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "html",
+          "choices": [
+            {
+              "label": "HTML",
+              "value": "html"
+            },
+            {
+              "label": "Plain Text",
+              "value": "plainText"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "optInType": {
+          "label": "Opt-in Type",
+          "description": "The type of opt-in used for this contact. [Learn more](https://support.dotdigital.com/en/articles/8198810-email-opt-in-types)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "single",
+          "choices": [
+            {
+              "label": "Unknown",
+              "value": "unknown"
+            },
+            {
+              "label": "Single",
+              "value": "single"
+            },
+            {
+              "label": "Double",
+              "value": "double"
+            },
+            {
+              "label": "Verified Double",
+              "value": "verifiedDouble"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "updateEmailSubscription": {
+          "label": "Update Email Subscription Status",
+          "description": "Choose whether to update the email subscription status.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "emailSubscriptionStatus": {
+          "label": "Email Subscription Status",
+          "description": "The subscription status for the email channel.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "subscribed",
+          "choices": [
+            {
+              "label": "Subscribed",
+              "value": "subscribed"
+            },
+            {
+              "label": "Unsubscribed",
+              "value": "unsubscribed"
+            },
+            {
+              "label": "Suppressed",
+              "value": "suppressed"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "updateEmailSubscription",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "emailResubscribe": {
+          "label": "Resubscribe if Previously Unsubscribed",
+          "description": "When Yes, the action will send a \"subscribed\" status in the API call for email.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "updateEmailSubscription",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "emailSubscriptionStatus",
+                "operator": "is",
+                "value": "subscribed"
+              }
+            ],
+            "match": "all"
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "resubscribeWithoutChallengeEmail": {
+          "label": "Resubscribe Without Challenge Email",
+          "description": "If Yes, no resubscription confirmation email will be sent.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "emailResubscribe",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "preferredLocale": {
+          "label": "Preferred Language",
+          "description": "Choose the language that you would like the resubscribe request email to be sent in.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "cs-CS",
+              "value": "cs-CS"
+            },
+            {
+              "label": "da-DA",
+              "value": "da-DA"
+            },
+            {
+              "label": "de-DE",
+              "value": "de-DE"
+            },
+            {
+              "label": "el-EL",
+              "value": "el-EL"
+            },
+            {
+              "label": "en-EN",
+              "value": "en-EN"
+            },
+            {
+              "label": "es-ES",
+              "value": "es-ES"
+            },
+            {
+              "label": "es",
+              "value": "es"
+            },
+            {
+              "label": "fi-FI",
+              "value": "fi-FI"
+            },
+            {
+              "label": "fr-FR",
+              "value": "fr-FR"
+            },
+            {
+              "label": "hu-HU",
+              "value": "hu-HU"
+            },
+            {
+              "label": "it-IT",
+              "value": "it-IT"
+            },
+            {
+              "label": "nl-NL",
+              "value": "nl-NL"
+            },
+            {
+              "label": "nb-NO",
+              "value": "nb-NO"
+            },
+            {
+              "label": "pl-PL",
+              "value": "pl-PL"
+            },
+            {
+              "label": "pt-PT",
+              "value": "pt-PT"
+            },
+            {
+              "label": "ru-RU",
+              "value": "ru-RU"
+            },
+            {
+              "label": "se-SE",
+              "value": "se-SE"
+            },
+            {
+              "label": "sk-SK",
+              "value": "sk-SK"
+            },
+            {
+              "label": "tr-TR",
+              "value": "tr-TR"
+            },
+            {
+              "label": "zh-CN",
+              "value": "zh-CN"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "emailResubscribe",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "resubscribeWithoutChallengeEmail",
+                "operator": "is",
+                "value": false
+              }
+            ],
+            "match": "all"
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "redirectUrlAfterChallenge": {
+          "label": "Redirect URL",
+          "description": "The URL you would like to redirect challenged contacts to after they have completed their resubscription.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "emailResubscribe",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "resubscribeWithoutChallengeEmail",
+                "operator": "is",
+                "value": false
+              }
+            ],
+            "match": "all"
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "updateSmsSubscription": {
+          "label": "Update SMS Subscription Status",
+          "description": "Choose whether to update the SMS subscription status.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "smsSubscriptionStatus": {
+          "label": "SMS Subscription Status",
+          "description": "The subscription status for the SMS channel.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "subscribed",
+          "choices": [
+            {
+              "label": "Subscribed",
+              "value": "subscribed"
+            },
+            {
+              "label": "Unsubscribed",
+              "value": "unsubscribed"
+            },
+            {
+              "label": "Suppressed",
+              "value": "suppressed"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "updateSmsSubscription",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "listId": {
+          "label": "List",
+          "description": "The list to add the contact to.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        },
+        "dataFields": {
+          "label": "Data Fields",
+          "description": "An object containing key/value pairs for data fields assigned to this Contact. Custom Data Fields must already be defined in Dotdigital.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        }
+      }
+    },
+    "sendTransactionalSms": {
+      "title": "Send Transactional SMS",
+      "description": "Sends a transactional SMS.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Send Transactional SMS\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "to": {
+          "label": "To",
+          "description": "Only valid mobile numbers with an international dialling prefix will be accepted (e.g. 447777123123).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "from": {
+          "label": "From",
+          "description": "Enter a custom From name, or leave blank to use a random number. From name format varies by region. [Learn more](https://support.dotdigital.com/en/articles/8199187-sender-ids-and-originators)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "message": {
+          "label": "Message",
+          "description": "The content of the SMS, up to 160 non-encoded characters per message.",
+          "type": "text",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "link_shortening": {
+          "label": "Link Shortening",
+          "description": "[Link shortening](https://developer.dotdigital.com/v2/reference/additional-options#link-shortening) will automatically shorten your links to save character count and track who clicked on them for better reporting. Defaults to No.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "allow_unicode": {
+          "label": "Allow Unicode Characters",
+          "description": "If Yes, Unicode characters will be allowed in the message body. If No, any messages containing Unicode will not be sent. Please [read why Unicode](https://developer.dotdigital.com/reference/channel-sms#section-why-is-unicode-important-with-sms) is important before switching this on. Defaults to No.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "sendSms": {
+      "title": "Send SMS",
+      "description": "Sends a marketing SMS to a contact.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Send SMS\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "to": {
+          "label": "To",
+          "description": "The mobile number of the contact in E.164 format (e.g. 14155552671).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "message": {
+          "label": "Message",
+          "description": "The message to send in the SMS.",
+          "type": "text",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "sendEmailCampaign": {
+      "title": "Send Email Campaign",
+      "description": "Sends a marketing email to a contact.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Send Email Campaign\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "email": {
+          "label": "Email",
+          "description": "A single email address to send the campaign to. If the contact does not exist in your Dotdigital account, the campaign won't be sent.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "campaignId": {
+          "label": "Campaign",
+          "description": "The campaign to email to a contact.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        },
+        "sendDate": {
+          "label": "Send Date",
+          "description": "The campaign will be sent immediately if the send date is left blank.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "sendTimeOptimised": {
+          "label": "Send Time Optimised",
+          "description": "Send the campaign at the most appropriate time based upon their previous opens.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "sendTransactionalEmail": {
+      "title": "Send Transactional Email",
+      "description": "Sends a transactional email.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Send Transactional Email\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "fromAddress": {
+          "label": "From Address",
+          "description": "Use either your default transactional email from address, or another custom from address you have added to your account. If you set a from address that is not listed in your available from addresses, Dotdigital will replace it with your default from address. You may set a from name as well as an email address, for example \"My Company <`Dotmailer123@r1.dotdigital-email.com`>\". [Read more about using transactional email](https://support.dotdigital.com/en/articles/8199068-use-transactional-email).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "toAddresses": {
+          "label": "To Address",
+          "description": "The email address(es) to send to.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "subject": {
+          "label": "Subject",
+          "description": "The subject line for your email.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "htmlContent": {
+          "label": "HTML Content",
+          "description": "The HTML content for your email.",
+          "type": "text",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "plainTextContent": {
+          "label": "Plain Text Content",
+          "description": "The plain text content for your email.",
+          "type": "text",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "ccAddresses": {
+          "label": "CC Addresses",
+          "description": "The CC email address(es) to send to. Separate email addresses with a comma. Maximum: 100.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "bccAddresses": {
+          "label": "BCC Addresses",
+          "description": "The BCC email address(es) to send to. Separate email addresses with a comma. Maximum: 100.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

@@ -1,0 +1,265 @@
+{
+  "slug": "actions-amplitude-cohorts",
+  "name": "Amplitude Cohorts",
+  "mode": "cloud",
+  "description": "Sync Segment Engage audiences to Amplitude Cohorts",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "api_key": {
+        "label": "API Key",
+        "description": "Amplitude project API key. You can find this key in the \"General\" tab of your Amplitude project.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "secret_key": {
+        "label": "Secret Key",
+        "description": "Amplitude project secret key. You can find this key in the \"General\" tab of your Amplitude project.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "app_id": {
+        "label": "Amplitude App ID",
+        "description": "The Amplitude App ID for the cohort you want to sync to. You can find this in the \"General\" tab of your Amplitude project.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "default_owner_email": {
+        "label": "Cohort Owner Email",
+        "description": "The email of the user who will own the cohorts in Amplitude. This can be overriden per Audience, but if left blank, all cohorts will be owned by this user.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "endpoint": {
+        "label": "Endpoint Region",
+        "description": "The region to send your data.",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "North America",
+            "value": "north_america"
+          },
+          {
+            "label": "Europe",
+            "value": "europe"
+          }
+        ],
+        "default": "north_america"
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "owner_email": {
+        "label": "Cohort Owner Email",
+        "description": "The email of the user who will own the cohort in Amplitude. Overrides the default Cohort Owner Email value from Settings.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "id_type": {
+        "label": "ID Type",
+        "description": "The type of ID that will be used to sync users to the Amplitude Cohort.",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "User ID",
+            "value": "BY_USER_ID"
+          },
+          {
+            "label": "Amplitude ID",
+            "value": "BY_AMP_ID"
+          }
+        ],
+        "default": "BY_USER_ID"
+      },
+      "audience_name": {
+        "label": "Cohort Name",
+        "description": "The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "actions": {
+    "syncAudience": {
+      "title": "Sync To Amplitude Cohort",
+      "description": "Sync Segment Audience to Amplitude Cohort",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "user_id": {
+          "label": "User ID",
+          "description": "Required if \"ID Type\" is set to \"User ID\".",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "amplitude_id": {
+          "label": "Amplitude ID",
+          "description": "Required if \"ID Type\" is set to \"Amplitude ID\".",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "segment_external_audience_id": {
+          "label": "Segment External Audience ID",
+          "description": "Hidden field containing the Cohort ID which was returned when the Amplitude Cohort was created in the Audience Settings.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_size": {
+          "label": "Max Batch Size",
+          "description": "The maximum number of users to process in a single batch request.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 500,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "segment_external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "batch_size": 100
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "segment_external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "batch_size": 100
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "segment_external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "batch_size": 100
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "segment_external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "batch_size": 100
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

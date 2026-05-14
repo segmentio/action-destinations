@@ -1,0 +1,314 @@
+{
+  "slug": "actions-aws-kinesis",
+  "name": "Aws Kinesis",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "iamRoleArn": {
+        "label": "IAM Role ARN",
+        "description": "The ARN of the IAM Role to assume for sending data to Kinesis.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "iamExternalId": {
+        "label": "IAM External ID",
+        "description": "The external ID to use when assuming the IAM Role. Generate a secure string and treat it like a password.  This is often used as an additional security measure.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send event to AWS Kinesis",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "payload": {
+          "label": "Payload",
+          "description": "The data to send to AWS Kinesis",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "partitionKey": {
+          "label": "Partition Key",
+          "description": "The partition key to use for the record",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "streamName": {
+          "label": "Stream Name",
+          "description": "The name of the Kinesis stream to send records to",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": []
+        },
+        "awsRegion": {
+          "label": "AWS Region",
+          "description": "The AWS region where the Kinesis stream is located",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "us-east-1",
+              "value": "us-east-1"
+            },
+            {
+              "label": "us-east-2",
+              "value": "us-east-2"
+            },
+            {
+              "label": "us-west-1",
+              "value": "us-west-1"
+            },
+            {
+              "label": "us-west-2",
+              "value": "us-west-2"
+            },
+            {
+              "label": "eu-west-1",
+              "value": "eu-west-1"
+            },
+            {
+              "label": "eu-west-2",
+              "value": "eu-west-2"
+            },
+            {
+              "label": "eu-west-3",
+              "value": "eu-west-3"
+            },
+            {
+              "label": "ap-southeast-1",
+              "value": "ap-southeast-1"
+            },
+            {
+              "label": "ap-southeast-2",
+              "value": "ap-southeast-2"
+            },
+            {
+              "label": "sa-east-1",
+              "value": "sa-east-1"
+            },
+            {
+              "label": "ap-northeast-1",
+              "value": "ap-northeast-1"
+            },
+            {
+              "label": "ap-northeast-2",
+              "value": "ap-northeast-2"
+            },
+            {
+              "label": "ap-south-1",
+              "value": "ap-south-1"
+            },
+            {
+              "label": "ca-central-1",
+              "value": "ca-central-1"
+            },
+            {
+              "label": "eu-central-1",
+              "value": "eu-central-1"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        },
+        "batch_size": {
+          "label": "Max Batch Size",
+          "description": "The maximum number of payloads to include in a batch.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 500,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "awsRegion",
+            "streamName"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "max_batch_size": {
+          "label": "Max Batch Size",
+          "description": "The maximum number of payloads to include in a batch.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": 1,
+          "maximum": 500,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ]
+        },
+        "enable_batching": {
+          "label": "Batch Data to Kinesis?",
+          "description": "If true, Segment will batch events before sending to Kinesis",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_bytes": {
+          "label": "Batch Bytes",
+          "description": "The number of bytes to write to the kinesis shard in a single batch. Limit is 1MB.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

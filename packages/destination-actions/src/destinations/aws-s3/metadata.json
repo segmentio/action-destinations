@@ -1,0 +1,1030 @@
+{
+  "slug": "actions-s3-csv",
+  "name": "AWS S3 CSV",
+  "mode": "cloud",
+  "description": "Sync Segment event and Audience data to AWS S3.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "iam_role_arn": {
+        "label": "IAM Role ARN",
+        "description": "IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "s3_aws_bucket_name": {
+        "label": "AWS Bucket Name",
+        "description": "Name of the S3 bucket where the files will be uploaded to.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "s3_aws_region": {
+        "label": "AWS Region Code (S3 only)",
+        "description": "Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "iam_external_id": {
+        "label": "IAM External ID",
+        "description": "The External ID to your IAM role. Generate a secure string and treat it like a password.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "s3_aws_folder_name": {
+        "label": "AWS Subfolder Name",
+        "description": "Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "filename": {
+        "label": "Filename prefix",
+        "description": "Prefix to append to the name of the uploaded file. A lower cased audience name and timestamp will be appended by default to the filename to ensure uniqueness.\n                    Format: <PREFIX>_<AUDIENCE NAME>_<TIMESTAMP>.csv",
+        "type": "string",
+        "required": false,
+        "choices": null,
+        "default": null
+      },
+      "delimiter": {
+        "label": "Delimeter",
+        "description": "Character used to separate tokens in the resulting file.",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "comma",
+            "value": ","
+          },
+          {
+            "label": "pipe",
+            "value": "|"
+          },
+          {
+            "label": "tab",
+            "value": "tab"
+          },
+          {
+            "label": "semicolon",
+            "value": ";"
+          },
+          {
+            "label": "colon",
+            "value": ":"
+          }
+        ],
+        "default": ","
+      }
+    }
+  },
+  "actions": {
+    "syncAudienceToCSV": {
+      "title": "Upload CSV",
+      "description": "Uploads audience membership data to a CSV file in S3.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "columns": {
+          "label": "Columns",
+          "description": "Column names to write to S3 CSV file.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "audience_name": "audience_name",
+            "audience_id": "audience_id",
+            "audience_action": "audience_action",
+            "email": "email",
+            "user_id": "user_id",
+            "anonymous_id": "anonymous_id",
+            "timestamp": "timestamp",
+            "message_id": "message_id",
+            "space_id": "space_id",
+            "integrations_object": "integrations_object",
+            "properties_or_traits": "properties_or_traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "audience_name": {
+              "label": "Audience Name column",
+              "description": "Name of column for the Audience Name",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "audience_id": {
+              "label": "Audience ID column",
+              "description": "Name of column for the Audience ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "audience_action": {
+              "label": "Audience Action column",
+              "description": "Indicates if the user has been added or removed from the Audience. true = added, false = removed.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "email": {
+              "label": "Email column",
+              "description": "Name of column for email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "user_id": {
+              "label": "User ID column",
+              "description": "Name of column for user ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "anonymous_id": {
+              "label": "Anonymous ID column",
+              "description": "Name of column for anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "timestamp": {
+              "label": "Timestamp",
+              "description": "Name of column for timestamp for when the user was added or removed from the Audience",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "message_id": {
+              "label": "Message ID",
+              "description": "Name of column for the unique identifier for the message.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "space_id": {
+              "label": "Space ID",
+              "description": "Name of column for the unique identifier for the Segment Engage Space that generated the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "integrations_object": {
+              "label": "Integrations Object",
+              "description": "Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "properties_or_traits": {
+              "label": "Properties or Traits",
+              "description": "Name of column for properties and traits. This data contains the entire properties object from a track() call or the traits object from an identify() call emitted from Engage when a user is added to or removed from an Audience",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null
+        },
+        "audienceName": {
+          "label": "Audience Name Hidden Field",
+          "description": "Audience Name Hidden Field",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "audienceId": {
+          "label": "Audience ID Hidden Field",
+          "description": "Audience ID Hidden Field",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "email": {
+          "label": "Email Hidden Field",
+          "description": "Email Hidden Field",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "userId": {
+          "label": "User ID Hidden Field",
+          "description": "User ID Hidden Field",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "anonymousId": {
+          "label": "Anonymous ID Hidden Field",
+          "description": "Anonymous ID Hidden Field",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timestamp": {
+          "label": "Timestamp Hidden Field",
+          "description": "Timestamp Hidden Field",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "messageId": {
+          "label": "Message ID Hidden Field",
+          "description": "Message ID Hidden Field",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "spaceId": {
+          "label": "Space ID Hidden Field",
+          "description": "Space ID Hidden Field",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.space_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "integrationsObject": {
+          "label": "Integrations Object Hidden Field",
+          "description": "Integrations Object Hidden Field",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.integrations"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "propertiesOrTraits": {
+          "label": "Properties or Traits Hidden Field",
+          "description": "Properties or Traits Hidden Field",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "additional_identifiers_and_traits_columns": {
+          "label": "Additional Identifier and Trait Columns",
+          "description": "Additional user identifiers and traits to include as separate columns in the CSV file. Each item should contain a key and a value. The key is the trait or identifier name from the payload, and the value is the column name to be written to the CSV file.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable"
+          ]
+        },
+        "enable_batching": {
+          "label": "Batch data",
+          "description": "Receive events in a batch payload. This is required for LiveRamp audiences ingestion.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 25000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "computation_class": {
+          "label": "Segment Audience Computation Class",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "choices": [
+            {
+              "label": "Audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudienceToCSV",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "syncAudienceToCSV",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudienceToCSV",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "syncAudienceToCSV",
+      "mapping": {
+        "columns": {
+          "audience_name": "audience_name",
+          "audience_id": "audience_id",
+          "audience_action": "audience_action",
+          "email": "email",
+          "user_id": "user_id",
+          "anonymous_id": "anonymous_id",
+          "timestamp": "timestamp",
+          "message_id": "message_id",
+          "space_id": "space_id",
+          "integrations_object": "integrations_object",
+          "properties_or_traits": "properties_or_traits"
+        },
+        "audienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.computation_id"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "spaceId": {
+          "@path": "$.context.personas.space_id"
+        },
+        "integrationsObject": {
+          "@path": "$.integrations"
+        },
+        "propertiesOrTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 25000,
+        "computation_class": {
+          "@path": "$.context.personas.computation_class"
+        }
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

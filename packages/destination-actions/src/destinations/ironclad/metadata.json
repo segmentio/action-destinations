@@ -1,0 +1,253 @@
+{
+  "slug": "actions-ironclad",
+  "name": "Ironclad",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "sid": {
+        "label": "Site Access ID",
+        "description": "Site Access ID. An ID that’s unique for each site within your account. Information on finding your sid can be found in the authentication section.",
+        "type": "string",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "staging_endpoint": {
+        "label": "Staging Endpoint",
+        "description": "Turn this ON, to send requests to the staging server, ONLY if Clickwrap support instructs you to do so.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      },
+      "test_mode": {
+        "label": "Test Mode",
+        "description": "Test Mode, whether or not to process the acceptance in test_mode. Defaults to false, Toggle to ON to enable it.",
+        "type": "boolean",
+        "required": false,
+        "choices": null,
+        "default": false
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "recordAction": {
+      "title": "Record Action",
+      "description": "Based on the action destination configuration, this will record an action to Clickwrap either agreeing, disagreeing, or agreeing to a contract configured in the event.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "sig": {
+          "label": "Signer ID",
+          "description": "The unique identifier used to save your signer’s signature. Can be email, mobile number, UUID, or any integer. Should be URL encoded.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the event coming from the source, this is an additional information field before the call goes to Ironclad.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "group_id": {
+          "label": "Clickwrap Group Id",
+          "description": "The ID of the Clickwrap Group associated with the acceptance event. Needs to be an integer",
+          "type": "integer",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "event_type": {
+          "label": "Event Type",
+          "description": "The type of event being logged, the available choices are displayed, agreed, and disagreed.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "displayed",
+          "choices": [
+            {
+              "label": "Displayed",
+              "value": "displayed"
+            },
+            {
+              "label": "Agreed",
+              "value": "agreed"
+            },
+            {
+              "label": "Disagreed",
+              "value": "disagreed"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "contextParameters": {
+          "label": "Context Parameters",
+          "description": "Context Parameters including page, time and other information.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "addr": {
+              "@path": "$.ip"
+            },
+            "ts": {
+              "@path": "$.timestamp"
+            },
+            "pat": {
+              "@path": "$.context.page.title"
+            },
+            "pau": {
+              "@path": "$.context.page.url"
+            },
+            "pap": {
+              "@path": "$.context.page.path"
+            },
+            "paq": {
+              "@path": "$.context.page.search"
+            },
+            "ref": {
+              "@path": "$.context.page.referrer"
+            },
+            "btz": {
+              "@path": "$.context.timezone"
+            },
+            "bl": {
+              "@path": "$.context.locale"
+            },
+            "os": {
+              "@path": "$.context.os.name"
+            },
+            "res": {
+              "@path": "$.context.screen"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "customData": {
+          "label": "Custom Data",
+          "description": "Optional, located in the properties object, used to attach custom data to your Activity. The example is URL encoded for { \"first name\": \"Eric\" } Using this in an updated activity will append the data to the signer, otherwise it will be added to the specific activity call/transaction.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "first_name": {
+              "@path": "$.properties.first_name"
+            },
+            "last_name": {
+              "@path": "$.properties.last_name"
+            },
+            "company_name": {
+              "@path": "$.properties.company_name"
+            },
+            "title": {
+              "@path": "$.properties.title"
+            },
+            "customer_id": {
+              "@path": "$.properties.customer_id"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": []
+}

@@ -1,0 +1,1467 @@
+{
+  "slug": "actions-airship",
+  "name": "Airship (Actions)",
+  "mode": "cloud",
+  "description": "Send events from Segment to Airship for message triggering, audience targeting, personalization, and analytics.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "access_token": {
+        "label": "Access Token",
+        "description": "Create in the Airship Go dashboard in Settings->Partner Integrations->Segment",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "app_key": {
+        "label": "App Key",
+        "description": "The App Key identifies the Airship Project to which API requests are made.",
+        "type": "password",
+        "required": true,
+        "choices": null,
+        "default": null
+      },
+      "endpoint": {
+        "label": "Data Center",
+        "description": "US or EU",
+        "type": "string",
+        "required": true,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          }
+        ],
+        "default": "US"
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "customEvents": {
+      "title": "Custom Events",
+      "description": "Set Custom Events on Users",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "named_user_id": {
+          "label": "Airship Named User ID",
+          "description": "The identifier assigned in Airship as the Named User",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "name": {
+          "label": "Name",
+          "description": "Event Name",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "occurred": {
+          "label": "Occurred",
+          "description": "When the event occurred.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "properties": {
+          "label": "Event Properties",
+          "description": "Properties of the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "enable_batching": {
+          "label": "Batch Data to Airship",
+          "description": "If true, Segment will batch events before sending to Airship. Limit 100 events per request.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "setAttributes": {
+      "title": "Set Attributes",
+      "description": "Set user attributes in Airship with data from Segment. Some common user attributes are predefined in the attributes field, however note that all must be created in Airship before use. More information here: https://docs.airship.com/guides/messaging/user-guide/audience/segmentation/attributes/project/#adding-attributes",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "named_user_id": {
+          "label": "Airship Named User ID",
+          "description": "The identifier assigned in Airship as the Named User",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "occurred": {
+          "label": "Occurred",
+          "description": "When the Trait was set",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "attributes": {
+          "label": "Attributes",
+          "description": "User Attributes. Attributes should exist in Airship in order to be set, including the predifined ones defaulted here.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "title": {
+              "@path": "$.traits.title"
+            },
+            "first_name": {
+              "@path": "$.traits.first_name"
+            },
+            "last_name": {
+              "@path": "$.traits.last_name"
+            },
+            "full_name": {
+              "@path": "$.traits.full_name"
+            },
+            "gender": {
+              "@path": "$.traits.gender"
+            },
+            "zipcode": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "region": {
+              "@path": "$.traits.address.region"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            },
+            "birthdate": {
+              "@path": "$.traits.birthday"
+            },
+            "age": {
+              "@path": "$.traits.age"
+            },
+            "mobile_phone": {
+              "@path": "$.traits.phone"
+            },
+            "home_phone": {
+              "@path": "$.traits.home_phone"
+            },
+            "work_phone": {
+              "@path": "$.traits.work_phone"
+            },
+            "loyalty_tier": {
+              "@path": "$.traits.loyalty_tier"
+            },
+            "company": {
+              "@path": "$.traits.company_name"
+            },
+            "username": {
+              "@path": "$.traits.username"
+            },
+            "account_creation": {
+              "@path": "$.traits.account_creation"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "altitude": {
+              "@path": "$.traits.altitude"
+            },
+            "latitude": {
+              "@path": "$.traits.latitude"
+            },
+            "longitude": {
+              "@path": "$.traits.longitude"
+            },
+            "advertising_id": {
+              "@path": "$.context.device.advertisingId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "title": {
+              "label": "Title",
+              "description": "Title (Mr, Mrs, Professor, ...",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "first_name": {
+              "label": "First Name",
+              "description": "The user's first name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "last_name": {
+              "label": "Last Name",
+              "description": "The user's last name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "full_name": {
+              "label": "Full Name",
+              "description": "The user's full name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "gender": {
+              "label": "Gender",
+              "description": "The user's gender.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "zipcode": {
+              "label": "Zipcode",
+              "description": "The user's zipcode.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "city": {
+              "label": "City",
+              "description": "The user's city.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "region": {
+              "label": "Region",
+              "description": "The user's region.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "country": {
+              "label": "Country",
+              "description": "The user's country.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "birthdate": {
+              "label": "Birthdate",
+              "description": "The user's birthdate.",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "age": {
+              "label": "Age",
+              "description": "The user's age in years.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "mobile_phone": {
+              "label": "Mobile Phone Number",
+              "description": "The user's mobile phone number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "home_phone": {
+              "label": "Home Phone Number",
+              "description": "The user's home phone number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "work_phone": {
+              "label": "Work Phone Number",
+              "description": "The user's work phone number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "loyalty_tier": {
+              "label": "Loyalty Tier",
+              "description": "The user's loyalty tier.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "company": {
+              "label": "Company Name",
+              "description": "The user's company name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "username": {
+              "label": "Username",
+              "description": "The user's username.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "account_creation": {
+              "label": "Account Creation Date",
+              "description": "The user's account creation date.",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "email": {
+              "label": "Email Address",
+              "description": "The user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "altitude": {
+              "label": "Altitude",
+              "description": "The user's altitude.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "latitude": {
+              "label": "Latitude",
+              "description": "The user's latitude.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "longitude": {
+              "label": "Longitude",
+              "description": "The user's longitude.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "advertising_id": {
+              "label": "Advertising ID (IDFA/AAID)",
+              "description": "The user's advertising ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "manageTags": {
+      "title": "Manage Tags",
+      "description": "Associate tags with users in your audience for segmentation and automation",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "named_user_id": {
+          "label": "Airship Named User ID",
+          "description": "The identifier assigned in Airship as the Named User",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "tags": {
+          "label": "Tag Name",
+          "description": "Tag name to add or remove. Values for each tag should be boolean only. A true value creates a tag, a false value removes a tag. Non-boolean values will be ignored.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.airship_tags"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "tag_group": {
+          "label": "Tag Group",
+          "description": "The Tag Group to sync your tags to. This defaults to`segment-integration` but can be overridden with this field. Note: the Tag Group used must be valid and exist in Airship.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "segment-integration",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        }
+      }
+    },
+    "registerAndAssociate": {
+      "title": "Register And Associate",
+      "description": "Register an Email address or SMS number and associate it with a Named User ID.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event=\"Address Registered\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": [],
+      "fields": {
+        "channel_type": {
+          "label": "Channel Type",
+          "description": "Email (default) or SMS",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "email",
+          "choices": [
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "SMS",
+              "value": "sms"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "sms_sender": {
+          "label": "SMS Sender",
+          "description": "A long or short code the app is configured to send from (if using for SMS).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "named_user_id": {
+          "label": "Airship Named User ID",
+          "description": "The identifier assigned in Airship as the Named User",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "locale": {
+          "label": "Locale",
+          "description": "Locale includes country and language",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.locale"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "timezone": {
+          "label": "Timezone",
+          "description": "Timezone",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.timezone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "opt_in_choices": {
+          "label": "Registration Type",
+          "description": "Classic or Double",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "classic",
+          "choices": [
+            {
+              "label": "Classic",
+              "value": "classic"
+            },
+            {
+              "label": "Double",
+              "value": "double"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null
+        },
+        "channel_object": {
+          "label": "Channel",
+          "description": "Information about the email registration.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "address": {
+              "@path": "$.properties.address"
+            },
+            "new_address": {
+              "@path": "$.properties.new_email"
+            },
+            "commercial_opted_in": {
+              "@path": "$.properties.commercial_opted_in"
+            },
+            "commercial_opted_out": {
+              "@path": "$.properties.commercial_opted_out"
+            },
+            "click_tracking_opted_in": {
+              "@path": "$.properties.click_tracking_opted_in"
+            },
+            "click_tracking_opted_out": {
+              "@path": "$.properties.click_tracking_opted_out"
+            },
+            "open_tracking_opted_in": {
+              "@path": "$.properties.open_tracking_opted_in"
+            },
+            "open_tracking_opted_out": {
+              "@path": "$.properties.open_tracking_opted_out"
+            },
+            "transactional_opted_in": {
+              "@path": "$.properties.transactional_opted_in"
+            },
+            "transactional_opted_out": {
+              "@path": "$.properties.transactional_opted_out"
+            },
+            "suppression_state": {
+              "@path": "$.context.suppression_state"
+            },
+            "sms_opted_in": {
+              "@path": "$.properties.sms_opted_in"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "address": {
+              "label": "Email Address or MSISDN",
+              "description": "Email address or mobile number to register (required)",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "new_address": {
+              "label": "New Email Address",
+              "description": "Email address to replace old one",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "commercial_opted_in": {
+              "label": "Commercial Opted In Date-Time",
+              "description": "The date-time when a user gave explicit permission to receive commercial emails",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "commercial_opted_out": {
+              "label": "Commercial Opted Out Date-Time",
+              "description": "The date-time when a user explicitly denied permission to receive commercial emails.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "click_tracking_opted_in": {
+              "label": "Click Tracking Opted in Date-Time",
+              "description": "The date-time when a user opted in to click tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "click_tracking_opted_out": {
+              "label": "Click Tracking Opted out Date-Time",
+              "description": "The date-time when a user opted out of click tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "open_tracking_opted_in": {
+              "label": "Open Tracking Opted in Date-Time",
+              "description": "The date-time when a user opted in to open tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "open_tracking_opted_out": {
+              "label": "Open Tracking Opted out Date-Time",
+              "description": "The date-time when a user opted out of open tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "transactional_opted_in": {
+              "label": "Transactional Email Opt In Date-Time",
+              "description": "The date-time when a user gave explicit permission to receive transactional emails. Users do not need to opt-in to receive transactional emails unless they have previously opted out.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "transactional_opted_out": {
+              "label": "Transactional Email Opt Out Date-Time",
+              "description": "The date-time when a user explicitly denied permission to receive transactional emails.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "suppression_state": {
+              "label": "Suppression State",
+              "description": "If an email channel is suppressed, the reason for its suppression. Email channels with any suppression state set will not have any delivery to them fulfilled. If a more specific reason is not known, use imported. Possible values: spam_complaint, bounce, imported",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            },
+            "sms_opted_in": {
+              "label": "SMS Opt In Date-Time",
+              "description": "The date-time when a user gave explicit permission to receive SMS messages.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Custom Events",
+      "type": "automatic",
+      "partnerAction": "customEvents",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "named_user_id": {
+          "@path": "$.userId"
+        },
+        "name": {
+          "@path": "$.event"
+        },
+        "occurred": {
+          "@path": "$.timestamp"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "enable_batching": false
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Set Attributes",
+      "type": "automatic",
+      "partnerAction": "setAttributes",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "named_user_id": {
+          "@path": "$.userId"
+        },
+        "occurred": {
+          "@path": "$.timestamp"
+        },
+        "attributes": {
+          "title": {
+            "@path": "$.traits.title"
+          },
+          "first_name": {
+            "@path": "$.traits.first_name"
+          },
+          "last_name": {
+            "@path": "$.traits.last_name"
+          },
+          "full_name": {
+            "@path": "$.traits.full_name"
+          },
+          "gender": {
+            "@path": "$.traits.gender"
+          },
+          "zipcode": {
+            "@path": "$.traits.address.postalCode"
+          },
+          "city": {
+            "@path": "$.traits.address.city"
+          },
+          "region": {
+            "@path": "$.traits.address.region"
+          },
+          "country": {
+            "@path": "$.traits.address.country"
+          },
+          "birthdate": {
+            "@path": "$.traits.birthday"
+          },
+          "age": {
+            "@path": "$.traits.age"
+          },
+          "mobile_phone": {
+            "@path": "$.traits.phone"
+          },
+          "home_phone": {
+            "@path": "$.traits.home_phone"
+          },
+          "work_phone": {
+            "@path": "$.traits.work_phone"
+          },
+          "loyalty_tier": {
+            "@path": "$.traits.loyalty_tier"
+          },
+          "company": {
+            "@path": "$.traits.company_name"
+          },
+          "username": {
+            "@path": "$.traits.username"
+          },
+          "account_creation": {
+            "@path": "$.traits.account_creation"
+          },
+          "email": {
+            "@path": "$.traits.email"
+          },
+          "altitude": {
+            "@path": "$.traits.altitude"
+          },
+          "latitude": {
+            "@path": "$.traits.latitude"
+          },
+          "longitude": {
+            "@path": "$.traits.longitude"
+          },
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          }
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}
