@@ -335,6 +335,16 @@ export const convertToAppendValueEventData = (
     throw new PayloadValidationError('If sending an AppendValue, Append Event Details field "Original Event Time" is required')
   }
 
+  if(!original_event_order_id && !original_event_id) {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided')
+  }
+
+  if(typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number') {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number')
+  }
+
   const appendValueEventData: AppendValueEventData = {
       ...data,
       event_name: 'AppendValue',
