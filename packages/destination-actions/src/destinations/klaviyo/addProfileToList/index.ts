@@ -1,7 +1,13 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
-import { createProfile, addProfileToList, processPhoneNumber, sendBatchedProfileImportJobRequest } from '../functions'
+import {
+  createProfile,
+  addProfileToList,
+  processPhoneNumber,
+  sendBatchedProfileImportJobRequest,
+  validateEmail
+} from '../functions'
 import {
   email,
   external_id,
@@ -63,6 +69,9 @@ const action: ActionDefinition<Settings, Payload> = {
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
+    }
+    if (!validateEmail(email)) {
+      throw new PayloadValidationError(`${email} is not a valid email address.`)
     }
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
     return await addProfileToList(request, profileId, list_id)
