@@ -38,8 +38,8 @@ export interface PublicActionField {
   properties: Record<string, PublicActionField> | null
   category: string | null
   depends_on: unknown
-  readOnly: boolean
-  hidden: boolean
+  readOnly: boolean | null
+  hidden: boolean | null
   minimum: number | null
   maximum: number | null
   defaultObjectUI: string | null
@@ -153,8 +153,8 @@ export function serializeActionField(field: any): PublicActionField {
     properties,
     category: field.category ?? null,
     depends_on: field.depends_on ?? null,
-    readOnly: field.readOnly ?? false,
-    hidden: field.unsafe_hidden ?? false,
+    readOnly: field.readOnly ?? null,
+    hidden: field.unsafe_hidden ?? null,
     minimum: field.minimum ?? null,
     maximum: field.maximum ?? null,
     defaultObjectUI: field.defaultObjectUI ?? null,
