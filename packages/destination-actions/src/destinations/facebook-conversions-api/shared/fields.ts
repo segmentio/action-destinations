@@ -1,18 +1,18 @@
 import { InputField } from '@segment/actions-core'
 
 export const is_append_event: InputField = {
-  label: 'Append Data to Existing Conversion',
+  label: '[Beta] Append Data to Existing Conversion',
   description:
-    'Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.',
+    'This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.',
   type: 'boolean',
   default: false,
   required: false
 }
 
 export const append_event_details: InputField = {
-  label: 'Append Event Details',
+  label: '[Beta] Append Event Details',
   description:
-    'Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.',
+    'This feature is in Beta. Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.',
   type: 'object',
   defaultObjectUI: 'keyvalue',
   properties: {

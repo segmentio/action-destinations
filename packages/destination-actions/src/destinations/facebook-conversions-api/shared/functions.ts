@@ -199,8 +199,13 @@ export function getCustomEventData(payload: CustomPayload | Custom2Payload, feat
     custom_data: { ...custom_data }
   }
 
-  if(features?.[FEATURE_FLAG_APPEND_VALUE] && is_append_event && append_event_details) {
-    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+  if(is_append_event) {
+    if(!features?.[FEATURE_FLAG_APPEND_VALUE]) {
+      throw new PayloadValidationError('AppendValue is not enabled for this destination. Please contact Segment support so the feature can be enabled for your Segment workspace.')
+    }
+    if(append_event_details) {
+      return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+    }
   }
 
   return data
@@ -261,11 +266,16 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
     }
   }
 
-  if(features?.[FEATURE_FLAG_APPEND_VALUE] && is_append_event && append_event_details) {
-    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+  if(is_append_event) {
+    if(!features?.[FEATURE_FLAG_APPEND_VALUE]) {
+      throw new PayloadValidationError('AppendValue is not enabled for this destination. Please contact Segment support so the feature can be enabled for your Segment workspace.')
+    }
+    if(append_event_details) {
+      return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+    }
   }
 
-  return data  
+  return data
 }
 
 export function getSearchEventData(payload: SearchPayload | Search2Payload): SearchEventData {

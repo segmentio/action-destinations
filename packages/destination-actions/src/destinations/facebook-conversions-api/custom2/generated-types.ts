@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.
+   * This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.
    */
   is_append_event?: boolean
   /**
-   * Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.
+   * This feature is in Beta. Details to append to the original event. Order Id, Event Id and Original Timestamp are used to match the original event. Net Revenue and Predicted Lifetime Value are the late-calculated values to append to the original event.
    */
   append_event_details?: {
     /**

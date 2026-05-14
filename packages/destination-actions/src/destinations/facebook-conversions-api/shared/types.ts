@@ -38,6 +38,7 @@ export type EventDataType =
   | PageEventData
   | CustomEventData
   | SearchEventData
+  | AppendValueEventData
 
 export type EventTypeKey = keyof typeof EventType
 
