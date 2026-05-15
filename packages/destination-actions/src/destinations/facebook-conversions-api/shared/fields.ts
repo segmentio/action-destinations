@@ -3,7 +3,7 @@ import { InputField } from '@segment/actions-core'
 export const is_append_event: InputField = {
   label: '[Beta] Append Data to Existing Conversion',
   description:
-    'This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net profit values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net profit values.',
+    'This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net revenue values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net revenue values.',
   type: 'boolean',
   default: false,
   required: false
