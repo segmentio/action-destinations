@@ -329,7 +329,7 @@ export const convertToAppendValueEventData = (
 
   const {
     event_name,
-    custom_data: { order_id, net_revenue, predicted_ltv, ...restCustomData }
+    custom_data: { order_id: _order_id, net_revenue: _net_revenue, predicted_ltv: _predicted_ltv, ...restCustomData }
   } = data
 
   const {
