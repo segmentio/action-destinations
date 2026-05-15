@@ -36,7 +36,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         ...event.properties,
         memora_store: 'test-store-id',
         profile_identifiers: {
-          email: 'test@example.com'
+          'Contact.$.email': 'test@example.com'
         },
         profile_traits: {
           'Contact.$.firstName': 'Test'
@@ -81,7 +81,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         ...event.properties,
         memora_store: 'test-store-id',
         profile_identifiers: {
-          email: 'test@example.com'
+          'Contact.$.email': 'test@example.com'
         },
         profile_traits: {
           'Contact.$.firstName': 'Test',
