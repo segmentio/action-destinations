@@ -477,6 +477,12 @@ export const clean = (value: string | undefined): string | undefined => {
  * @param payload
  * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
  */
+const trimIfString = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed || undefined
+}
+
 export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData => {
   const {
     email,
@@ -503,6 +509,17 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     partner_name,
     ctwa_clid
   } = payloadUserData ?? {}
+
+  const trimmedClientIpAddress = trimIfString(client_ip_address)
+  const trimmedClientUserAgent = trimIfString(client_user_agent)
+  const trimmedFbc = trimIfString(fbc)
+  const trimmedFbp = trimIfString(fbp)
+  const trimmedSubscriptionID = trimIfString(subscriptionID)
+  const trimmedAnonId = trimIfString(anonId)
+  const trimmedMadId = trimIfString(madId)
+  const trimmedPartnerId = trimIfString(partner_id)
+  const trimmedPartnerName = trimIfString(partner_name)
+  const trimmedCtwaClid = trimIfString(ctwa_clid)
 
   const em = cleanAndHash(email)
 
@@ -560,7 +577,6 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
   const external_id = hashArray(externalId)
 
   const userData: UserData = {
-    // Hashing this is recommended but not required
     ...(em ? { em } : {}),
     ...(ph ? { ph } : {}),
     ...(ge ? { ge } : {}),
@@ -572,18 +588,18 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     ...(zp ? { zp } : {}),
     ...(countryValue ? { country: countryValue } : {}),
     ...(external_id ? { external_id } : {}),
-    ...(client_ip_address ? { client_ip_address } : {}),
-    ...(client_user_agent ? { client_user_agent } : {}),
-    ...(fbc ? { fbc } : {}),
-    ...(fbp ? { fbp } : {}),
-    ...(subscriptionID ? { subscription_id: subscriptionID } : {}),
+    ...(trimmedClientIpAddress ? { client_ip_address: trimmedClientIpAddress } : {}),
+    ...(trimmedClientUserAgent ? { client_user_agent: trimmedClientUserAgent } : {}),
+    ...(trimmedFbc ? { fbc: trimmedFbc } : {}),
+    ...(trimmedFbp ? { fbp: trimmedFbp } : {}),
+    ...(trimmedSubscriptionID ? { subscription_id: trimmedSubscriptionID } : {}),
     ...(typeof leadID === 'number' ? { lead_id: leadID } : {}),
-    ...(anonId ? { anon_id: anonId } : {}),
-    ...(madId ? { madid: madId } : {}),
+    ...(trimmedAnonId ? { anon_id: trimmedAnonId } : {}),
+    ...(trimmedMadId ? { madid: trimmedMadId } : {}),
     ...(typeof fbLoginID === 'number' ? { fb_login_id: fbLoginID } : {}),
-    ...(partner_id ? { partner_id } : {}),
-    ...(partner_name ? { partner_name } : {}),
-    ...(ctwa_clid ? { ctwa_clid } : {})
+    ...(trimmedPartnerId ? { partner_id: trimmedPartnerId } : {}),
+    ...(trimmedPartnerName ? { partner_name: trimmedPartnerName } : {}),
+    ...(trimmedCtwaClid ? { ctwa_clid: trimmedCtwaClid } : {})
   }
   return userData
 }
