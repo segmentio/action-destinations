@@ -228,6 +228,37 @@ describe('TwilioMessaging.sendMessage', () => {
     })
   })
 
+  it('should stringify non-string ContentVariables values (numbers, booleans)', async () => {
+    const expectedBody = 'To=%2B1234567890&MessagingServiceSid=MG1234567890abcdef1234567890abcdef&ContentSid=HX1234567890abcdef1234567890abcdef&ContentVariables=%7B%22amount_to_finance%22%3A%2212899%22%2C%22cash_price%22%3A%2212500%22%2C%22monthly_payment%22%3A%22285.28%22%2C%22term%22%3A%2260%22%2C%22is_approved%22%3A%22true%22%2C%22vehicle%22%3A%22500+Mhev%22%7D'
+
+    nock('https://api.twilio.com')
+      .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, expectedBody)
+      .reply(200, {
+        sid: 'SM1234567890abcdef1234567890abcdef',
+        status: 'sent'
+      })
+
+    await testDestination.testAction('sendMessage', {
+      settings: defaultSettings,
+      mapping: {
+        channel: CHANNELS.SMS,
+        senderType: SENDER_TYPE.MESSAGING_SERVICE,
+        toPhoneNumber: '+1234567890',
+        messagingServiceSid: 'SMS Service [MG1234567890abcdef1234567890abcdef]',
+        contentTemplateType: 'Text',
+        contentSid: 'Template Name [HX1234567890abcdef1234567890abcdef]',
+        contentVariables: {
+          amount_to_finance: 12899,
+          cash_price: 12500,
+          monthly_payment: 285.28,
+          term: 60,
+          is_approved: true,
+          vehicle: '500 Mhev'
+        }
+      }
+    })
+  })
+
   it('should send MMS with phone number and inline template', async () => {
     nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`).reply(200, {
       sid: 'SM1234567890abcdef1234567890abcdef',

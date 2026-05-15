@@ -96,7 +96,10 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
 
     if (Object.keys(contentVariables ?? {}).length > 0) {
-      contentTemplate.ContentVariables = JSON.stringify(contentVariables)
+      const stringified = Object.fromEntries(
+        Object.entries(contentVariables ?? {}).map(([k, v]) => [k, String(v)])
+      )
+      contentTemplate.ContentVariables = JSON.stringify(stringified)
     }
 
     return contentTemplate
@@ -190,7 +193,6 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }))()
 
   const encodedBody = encode(twilioPayload)
-
   return await request(SEND_SMS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID), {
     method: 'post',
     body: encodedBody
