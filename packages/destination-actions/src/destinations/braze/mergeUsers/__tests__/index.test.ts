@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, MultiStatusResponse } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -574,5 +574,126 @@ describe('Braze.mergeUsers batch', () => {
     expect(mergeUpdates[0].identifier_to_keep).not.toHaveProperty('prioritization')
     expect(mergeUpdates[1].identifier_to_merge).not.toHaveProperty('prioritization')
     expect(mergeUpdates[1].identifier_to_keep).not.toHaveProperty('prioritization')
+  })
+})
+
+describe('Braze.mergeUsers multiStatus', () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+
+  it('should handle a batch with mixed validation failures and successes', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' }),
+      createTestEvent({ type: 'alias', userId: '', previousId: 'merge-2' }),
+      createTestEvent({ type: 'alias', userId: 'keep-3', previousId: 'merge-3' }),
+      createTestEvent({ type: 'alias', userId: '', previousId: '' })
+    ]
+
+    const response = await testDestination.executeBatch('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: { '@path': '$.previousId' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 200,
+      body: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-1' }, identifier_to_keep: { external_id: 'keep-1' } }] }
+    })
+
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'ID value to keep must be provided.',
+      errorreporter: 'DESTINATION'
+    })
+
+    expect(response[2]).toMatchObject({
+      status: 200,
+      body: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-3' }, identifier_to_keep: { external_id: 'keep-3' } }] }
+    })
+
+    expect(response[3]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errorreporter: 'DESTINATION'
+    })
+  })
+
+  it('should handle a batch with validation failures and an unsuccessful HTTP response', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(400, { message: 'Invalid merge request' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' }),
+      createTestEvent({ type: 'alias', userId: '', previousId: 'merge-2' }),
+      createTestEvent({ type: 'alias', userId: 'keep-3', previousId: 'merge-3' })
+    ]
+
+    const response = await testDestination.executeBatch('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: { '@path': '$.previousId' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errorreporter: 'DESTINATION'
+    })
+
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'ID value to keep must be provided.',
+      errorreporter: 'DESTINATION'
+    })
+
+    expect(response[2]).toMatchObject({
+      status: 400,
+      errorreporter: 'DESTINATION'
+    })
+  })
+
+  it('should handle a batch where all payloads fail validation', async () => {
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: '', previousId: 'merge-1' }),
+      createTestEvent({ type: 'alias', userId: '', previousId: 'merge-2' })
+    ]
+
+    const response = await testDestination.executeBatch('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: { '@path': '$.previousId' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'ID value to keep must be provided.',
+      errorreporter: 'DESTINATION'
+    })
+
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'ID value to keep must be provided.',
+      errorreporter: 'DESTINATION'
+    })
   })
 })
