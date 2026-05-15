@@ -1,4 +1,4 @@
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, Features } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -13,7 +13,8 @@ import {
   CHANNELS,
   ALL_CONTENT_TYPES,
   MIN_SCHEDULE_TIME_MS,
-  MAX_SCHEDULE_TIME_MS
+  MAX_SCHEDULE_TIME_MS,
+  FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES
 } from './constants'
 import { 
   TwilioPayload, 
@@ -22,7 +23,7 @@ import {
   Schedule,
 } from './types'
 
-export async function send(request: RequestClient, payload: Payload, settings: Settings) {
+export async function send(request: RequestClient, payload: Payload, settings: Settings, features?: Features) {
   let { toPhoneNumber, contentSid, toMessengerUserId} = payload
 
   const {
@@ -96,10 +97,14 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
 
     if (Object.keys(contentVariables ?? {}).length > 0) {
-      const stringified = Object.fromEntries(
-        Object.entries(contentVariables ?? {}).map(([k, v]) => [k, String(v)])
-      )
-      contentTemplate.ContentVariables = JSON.stringify(stringified)
+      if (features && features[FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES]) {
+        const stringified = Object.fromEntries(
+          Object.entries(contentVariables ?? {}).map(([k, v]) => [k, String(v)])
+        )
+        contentTemplate.ContentVariables = JSON.stringify(stringified)
+      } else {
+        contentTemplate.ContentVariables = JSON.stringify(contentVariables)
+      }
     }
 
     return contentTemplate
@@ -193,6 +198,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }))()
 
   const encodedBody = encode(twilioPayload)
+  
   return await request(SEND_SMS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID), {
     method: 'post',
     body: encodedBody

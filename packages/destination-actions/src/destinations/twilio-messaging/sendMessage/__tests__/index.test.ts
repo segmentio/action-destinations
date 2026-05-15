@@ -2,7 +2,7 @@ import { createTestIntegration } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
-import { CHANNELS, SENDER_TYPE } from '../constants'
+import { CHANNELS, SENDER_TYPE, FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -240,6 +240,7 @@ describe('TwilioMessaging.sendMessage', () => {
 
     await testDestination.testAction('sendMessage', {
       settings: defaultSettings,
+      features: { [FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES]: true },
       mapping: {
         channel: CHANNELS.SMS,
         senderType: SENDER_TYPE.MESSAGING_SERVICE,
