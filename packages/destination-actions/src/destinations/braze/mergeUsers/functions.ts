@@ -1,19 +1,79 @@
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, MultiStatusResponse, JSONLikeObject, HTTPError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { Payload as MergeUsersPayload } from './generated-types'
 import { MergeUsersItem, MergeUsersJSON, MergeIdentifierType, Prioritization } from './types'
 import { UserAlias } from '../userAlias'
 
-export function mergeUsers(request: RequestClient, settings: Settings, payloads: MergeUsersPayload[]) {
-  const items: MergeUsersJSON = {
-    merge_updates: payloads.map(getJsonItem)
+export async function send(request: RequestClient, settings: Settings, payloads: MergeUsersPayload[], isBatch: boolean) {
+  const multiStatusResponse = new MultiStatusResponse()
+  const validItems: MergeUsersItem[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  payloads.forEach((payload, index) => {
+    try {
+      const item = getJsonItem(payload)
+      validItems.push(item)
+      validPayloadIndicesBitmap.push(index)
+    } catch (error) {
+      if (isBatch) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: (error as PayloadValidationError).message,
+          sent: payload as unknown as JSONLikeObject
+        })
+      } else {
+        throw error
+      }
+    }
+  })
+
+  if (validItems.length === 0) {
+    return multiStatusResponse
   }
 
-  return request(`${settings.endpoint}/users/merge`, {
-    method: 'post',
-    ...(payloads.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
-    json: items
-  })
+  const items: MergeUsersJSON = {
+    merge_updates: validItems
+  }
+
+  try {
+    const response = await request(`${settings.endpoint}/users/merge`, {
+      method: 'post',
+      ...(validItems.length > 1 ? { headers: { 'X-Braze-Batch': 'true' } } : undefined),
+      json: items
+    })
+
+    for (let i = 0; i < validPayloadIndicesBitmap.length; i++) {
+      const originalIndex = validPayloadIndicesBitmap[i]
+      if (multiStatusResponse.isErrorResponseAtIndex(originalIndex)) {
+        continue
+      }
+      multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+        status: response.status,
+        sent: payloads[originalIndex] as unknown as JSONLikeObject,
+        body: { merge_updates: [validItems[i]] } as unknown as JSONLikeObject
+      })
+    }
+  } catch (error) {
+    if (isBatch && error instanceof HTTPError) {
+      for (let i = 0; i < validPayloadIndicesBitmap.length; i++) {
+        const originalIndex = validPayloadIndicesBitmap[i]
+        if (multiStatusResponse.isErrorResponseAtIndex(originalIndex)) {
+          continue
+        }
+        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+          status: error.response.status,
+          errormessage: error.message,
+          sent: payloads[originalIndex] as unknown as JSONLikeObject,
+          body: { merge_updates: [validItems[i]] } as unknown as JSONLikeObject
+        })
+      }
+    } else {
+      throw error
+    }
+  }
+
+  return multiStatusResponse
 }
 
 function getJsonItem(payload: MergeUsersPayload): MergeUsersItem {
