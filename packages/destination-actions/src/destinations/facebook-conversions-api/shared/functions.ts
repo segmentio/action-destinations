@@ -500,7 +500,8 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     madId,
     fbLoginID,
     partner_id,
-    partner_name
+    partner_name,
+    ctwa_clid
   } = payloadUserData ?? {}
 
   const em = cleanAndHash(email)
@@ -581,7 +582,8 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     ...(madId ? { madid: madId } : {}),
     ...(typeof fbLoginID === 'number' ? { fb_login_id: fbLoginID } : {}),
     ...(partner_id ? { partner_id } : {}),
-    ...(partner_name ? { partner_name } : {})
+    ...(partner_name ? { partner_name } : {}),
+    ...(ctwa_clid ? { ctwa_clid } : {})
   }
   return userData
 }
