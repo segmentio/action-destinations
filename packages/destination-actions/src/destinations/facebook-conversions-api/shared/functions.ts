@@ -199,13 +199,11 @@ export function getCustomEventData(payload: CustomPayload | Custom2Payload, feat
     custom_data: { ...custom_data }
   }
 
-  if(is_append_event) {
-    if(!features?.[FEATURE_FLAG_APPEND_VALUE]) {
+  if (is_append_event) {
+    if (!features?.[FEATURE_FLAG_APPEND_VALUE]) {
       throw new PayloadValidationError('AppendValue is not enabled for this destination. Please contact Segment support so the feature can be enabled for your Segment workspace.')
     }
-    if(append_event_details) {
-      return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
-    }
+    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
   }
 
   return data
@@ -266,13 +264,14 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
     }
   }
 
-  if(is_append_event) {
-    if(!features?.[FEATURE_FLAG_APPEND_VALUE]) {
+  if (is_append_event) {
+    if (!features?.[FEATURE_FLAG_APPEND_VALUE]) {
       throw new PayloadValidationError('AppendValue is not enabled for this destination. Please contact Segment support so the feature can be enabled for your Segment workspace.')
     }
-    if(append_event_details) {
-      return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+    if (!append_event_details) {
+      throw new PayloadValidationError('If sending an AppendValue, Append Event Details must be provided.')
     }
+    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
   }
 
   return data
@@ -321,7 +320,7 @@ export function getViewContentEventData(payload: ViewContentPayload | ViewConten
 
 export const convertToAppendValueEventData = (
   data: CustomEventData | PurchaseEventData,
-  append_event_details: AppendEventDetails,
+  append_event_details?: AppendEventDetails,
   statsContext?: StatsContext
 ): AppendValueEventData => {
   const statsClient = statsContext?.statsClient
@@ -338,37 +337,42 @@ export const convertToAppendValueEventData = (
     original_event_id,
     net_revenue_to_append,
     predicted_ltv_to_append
-  } = append_event_details
+  } = append_event_details || {}
 
-  if(!original_event_time) {
+  if (!append_event_details) {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, Append Event Details must be provided.')
+  }
+
+  if (!original_event_time) {
     statsClient?.incr('append_value_event.error', 1, tags)
     throw new PayloadValidationError('If sending an AppendValue, Append Event Details field "Original Event Time" is required')
   }
 
-  if(!original_event_order_id && !original_event_id) {
+  if (!original_event_order_id && !original_event_id) {
     statsClient?.incr('append_value_event.error', 1, tags)
     throw new PayloadValidationError('If sending an AppendValue, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided')
   }
 
-  if(typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number') {
+  if (typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number') {
     statsClient?.incr('append_value_event.error', 1, tags)
     throw new PayloadValidationError('If sending an AppendValue, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number')
   }
 
   const appendValueEventData: AppendValueEventData = {
-      ...data,
-      event_name: 'AppendValue',
-      custom_data: {
-          ...restCustomData,
-          ...(typeof net_revenue_to_append ==='number' ? { net_revenue: net_revenue_to_append } : {}),
-          ...(typeof predicted_ltv_to_append ==='number' ? { predicted_ltv: predicted_ltv_to_append } : {})
-      },
-      original_event_data: {
-          event_name,
-          event_time: original_event_time,
-          ...(original_event_order_id ? {order_id: original_event_order_id} : {}),
-          ...(original_event_id ? {event_id: original_event_id} : {})
-      }
+    ...data,
+    event_name: 'AppendValue',
+    custom_data: {
+      ...restCustomData,
+      ...(typeof net_revenue_to_append === 'number' ? { net_revenue: net_revenue_to_append } : {}),
+      ...(typeof predicted_ltv_to_append === 'number' ? { predicted_ltv: predicted_ltv_to_append } : {})
+    },
+    original_event_data: {
+      event_name,
+      event_time: original_event_time,
+      ...(original_event_order_id ? { order_id: original_event_order_id } : {}),
+      ...(original_event_id ? { event_id: original_event_id } : {})
+    }
   }
 
   statsClient?.incr('append_value_event.success', 1, tags)

@@ -181,7 +181,7 @@ export interface AppendValueEventData extends BaseEventData {
 }
 
 export interface AppendEventDetails {
-  original_event_time?: string
+  original_event_time: string
   original_event_order_id?: string
   original_event_id?: string
   net_revenue_to_append?: number
