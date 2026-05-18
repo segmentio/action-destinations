@@ -114,7 +114,8 @@ export function serializeAuthField(schema: any): PublicAuthField {
     label: schema.label,
     description: schema.description,
     type: schema.type,
-    required: typeof schema.required === 'object' && schema.required !== null ? schema.required : schema.required === true,
+    required:
+      typeof schema.required === 'object' && schema.required !== null ? schema.required : schema.required === true,
     multiple: schema.multiple ?? false,
     choices: normalizeChoices(schema.choices),
     default: schema.default ?? null,
@@ -520,6 +521,38 @@ export default class GenerateMetadataPayload extends Command {
           }
         } catch (err) {
           this.debug(`Skipping warehouse destination "${dir}": ${(err as Error).message}`)
+        }
+      }
+    }
+
+    // Discover browser destinations from the filesystem that don't have their own manifest entry.
+    // Browser "plugin" destinations share a metadata ID with their cloud counterpart and get merged,
+    // so they never get a standalone metadata.json unless we discover them independently.
+    const browserDestDir = path.join(process.cwd(), 'packages', 'browser-destinations', 'destinations')
+    if (await fs.pathExists(browserDestDir)) {
+      const coveredBrowserDirs = new Set(
+        Object.values(manifest)
+          .map((entry: any) => resolveSourceDir(entry.path))
+          .filter((p): p is string => p !== null && p.startsWith(browserDestDir))
+          .map((p) => path.basename(p))
+      )
+      const browserEntries = await fs.readdir(browserDestDir, { withFileTypes: true })
+      for (const entry of browserEntries) {
+        if (!entry.isDirectory()) continue
+        const dir = entry.name
+        if (coveredBrowserDirs.has(dir)) continue
+        const indexPath = path.join(browserDestDir, dir, 'src', 'index.ts')
+        if (!(await fs.pathExists(indexPath))) continue
+        try {
+          const definition = await loadDestination(indexPath)
+          if (!definition) continue
+          manifest[`browser:${dir}`] = {
+            definition,
+            directory: dir,
+            path: indexPath
+          }
+        } catch (err) {
+          this.debug(`Skipping browser destination "${dir}": ${(err as Error).message}`)
         }
       }
     }
