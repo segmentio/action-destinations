@@ -17,7 +17,7 @@ export interface PublicAuthField {
   label: string | undefined
   description: string | undefined
   type: string
-  required: boolean
+  required: boolean | { conditions: Array<{ fieldKey: string; operator: string; value: unknown }> }
   multiple: boolean
   choices: Array<{ label: string; value: unknown }> | null
   default: unknown
@@ -114,7 +114,7 @@ export function serializeAuthField(schema: any): PublicAuthField {
     label: schema.label,
     description: schema.description,
     type: schema.type,
-    required: schema.required === true,
+    required: typeof schema.required === 'object' && schema.required !== null ? schema.required : schema.required === true,
     multiple: schema.multiple ?? false,
     choices: normalizeChoices(schema.choices),
     default: schema.default ?? null,

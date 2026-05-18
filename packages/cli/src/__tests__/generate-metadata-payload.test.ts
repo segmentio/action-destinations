@@ -125,9 +125,11 @@ describe('generatePublicMetadata() — authentication fields', () => {
     })
   })
 
-  it('flattens conditional required to false', () => {
+  it('preserves conditional required object', () => {
     const { authentication } = generatePublicMetadata('actions-cloud', cloudDef)
-    expect(authentication?.fields.modeField.required).toBe(false)
+    expect(authentication?.fields.modeField.required).toEqual({
+      conditions: [{ fieldKey: 'x', operator: 'is', value: 'y' }]
+    })
   })
 
   it('uses browser settings as auth fields for device-mode destinations', () => {
