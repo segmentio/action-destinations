@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_time: {
       label: 'Event Timestamp',
       description:
-        'Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.The event timestamp needs to be provided in UTC format. Segment will automatically convert it into epoch format before sending it to the destination.',
+        'The event timestamp needs to be provided in UTC format. Segment will automatically convert it into epoch format before sending it to the destination.',
       type: 'string',
       required: true,
       default: {
