@@ -2,8 +2,7 @@ import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 
-import addToAudience from './addToAudience'
-import removeFromAudience from './removeFromAudience'
+import syncAudience from './syncAudience'
 import { presets } from './presets'
 
 const MNTN_API_BASE = 'https://integrations.ex.mountain.com'
@@ -180,8 +179,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
 
   actions: {
-    addToAudience,
-    removeFromAudience
+    syncAudience
   },
 
   presets
