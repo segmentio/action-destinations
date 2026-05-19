@@ -221,6 +221,8 @@ const snakeCaseToPascalCase = (key: string): string => {
   return token.charAt(0).toUpperCase() + token.slice(1)
 }
 
+const SALESFORCE_DOMAIN_REGEX = /^https:\/\/[^/]+\.(salesforce\.com|salesforce-sites\.com|force\.com)(\/|$)/
+
 export const validateInstanceURL = (instanceUrl: string): string => {
   if (instanceUrl === undefined || instanceUrl === '') {
     throw new IntegrationError(
@@ -230,10 +232,7 @@ export const validateInstanceURL = (instanceUrl: string): string => {
     )
   }
 
-  const salesforceRegex = /^(https):\/\/.*\.salesforce\.com/
-  const isValid = salesforceRegex.test(instanceUrl)
-
-  if (isValid) {
+  if (SALESFORCE_DOMAIN_REGEX.test(instanceUrl)) {
     return instanceUrl
   }
 
@@ -242,4 +241,19 @@ export const validateInstanceURL = (instanceUrl: string): string => {
     'INVALID_INSTANCE_URL',
     400
   )
+}
+
+export const resolveLoginUrl = (customDomain?: string, isSandbox?: boolean): string => {
+  if (customDomain) {
+    const url = customDomain.replace(/\/+$/, '')
+    if (!SALESFORCE_DOMAIN_REGEX.test(customDomain)) {
+      throw new IntegrationError(
+        'Invalid custom domain. Must be a valid Salesforce URL (e.g., https://mycompany.my.salesforce.com).',
+        'INVALID_CUSTOM_DOMAIN',
+        400
+      )
+    }
+    return url
+  }
+  return isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
 }
