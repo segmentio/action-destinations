@@ -16,6 +16,8 @@ export const OPERATIONS = {
     REMOVE: 'REMOVE'
 }
 
+export const REMOVAL_AWAIT_THRESHOLD_MS = 3000
+
 export const endpoints = {
   usersearch: {
     north_america: `https://amplitude.com/api/${AMPLITUDE_API_USER_SEARCH_VERSION}/usersearch`,

@@ -1,8 +1,5 @@
 import { Payload } from './generated-types'
 import { ErrorCodes } from '@segment/actions-core'
-import { Operation, UploadToCohortJSON } from '../types'
-
-export type { UploadToCohortJSON, Operation }
 
 export type PayloadMap = Map<number, Payload>
 

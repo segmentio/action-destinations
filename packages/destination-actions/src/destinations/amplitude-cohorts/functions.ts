@@ -2,7 +2,7 @@ import { Region, CreateAudienceJSON, CreateAudienceResponse, GetAudienceResponse
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Settings } from './generated-types'
-import { endpoints } from './constants'
+import { endpoints, REMOVAL_AWAIT_THRESHOLD_MS } from './constants'
 
 export function getEndpointByRegion(endpoint: keyof typeof endpoints, region?: string): string {
   return endpoints[endpoint][region as Region] ?? endpoints[endpoint]['north_america']
@@ -21,7 +21,6 @@ export async function createAudience(
   const { statsClient, tags } = statsContext || {}
   const statsName = 'actions_amplitude_cohorts'
   const startTime = Date.now()
-  const REMOVAL_AWAIT_THRESHOLD_MS = 3000
 
   if (!name) {
     statsClient?.incr(`${statsName}.create_audience.error.missing_name`, 1, tags)
@@ -91,6 +90,18 @@ export async function createAudience(
   }
 }
 
+/**
+ * Amplitude's Cohorts API requires at least one valid user ID in the `ids` array when creating a cohort.
+ * Empty arrays are rejected. Since at cohort-creation time we don't yet have a real audience member to
+ * reference, we search for any existing user in the Amplitude project to use as a temporary "seed" user.
+ * This seed user is added during creation and immediately removed afterward.
+ *
+ * We use Amplitude's User Search API with single-digit numeric prefixes ('1', '2', '3', etc.) because
+ * prefix matching is broad enough to find a user in most projects. Searches are batched in groups of 3
+ * to balance parallelism against rate limits. We validate that `match.user_id` is non-null because the
+ * search endpoint can return phantom matches (amplitude_id-only results with null user_id) which are not
+ * valid for cohort creation.
+ */
 export async function fetchSeedUserId(request: RequestClient, endpoint: string): Promise<string> {
   const url = getEndpointByRegion('usersearch', endpoint)
   const batches = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']]

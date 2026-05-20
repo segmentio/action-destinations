@@ -1,10 +1,10 @@
 import { RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError, ErrorCodes, AudienceMembership } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { PayloadMap, Operation, UploadToCohortJSON, UploadToCohortResponse, ResponseError, PossibleErrorCodes } from './types'
+import { PayloadMap, UploadToCohortResponse, ResponseError, PossibleErrorCodes } from './types'
 import { ID_TYPES } from '../constants'
 import { getEndpointByRegion } from '../functions'
-import { IDType } from '../types'
+import { IDType, MembershipIdType, Operation, UploadToCohortJSON } from '../types'
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean, audienceSettings?: AudienceSettings, audienceMemberships?: AudienceMembership[]) {
   const { 
@@ -99,7 +99,7 @@ export function failAllPayloads(payloads: Payload[], msResponse: MultiStatusResp
   throw new PayloadValidationError(message)
 }
 
-export function getMembershipIdType(id_type: IDType): string {
+export function getMembershipIdType(id_type: IDType): MembershipIdType {
   return id_type === ID_TYPES.BY_USER_ID ? 'BY_NAME' : 'BY_AMP_ID'
 }
 
@@ -108,16 +108,16 @@ export function getJSON(map: PayloadMap, id_type: IDType, audienceId: string, ms
   if(ids.length === 0){
     return undefined
   }
-  const json = {
+  const json: UploadToCohortJSON = {
     cohort_id: audienceId,
-    skip_invalid_ids: true as const,
+    skip_invalid_ids: true,
     memberships: [{
       ids,
       id_type: getMembershipIdType(id_type),
       operation
     }]
   }
-  return json as unknown as UploadToCohortJSON
+  return json
 }
 
 export function getIds(map: PayloadMap, id_type: IDType, msResponse: MultiStatusResponse, isBatch: boolean): string[] {

@@ -25,12 +25,14 @@ export type IDType = keyof typeof ID_TYPES
 
 export type Operation = keyof typeof OPERATIONS
 
+export type MembershipIdType = 'BY_NAME' | 'BY_AMP_ID'
+
 export type UploadToCohortJSON = {
     cohort_id: string
     skip_invalid_ids: true
     memberships: Array<{
         ids: Array<string>
-        id_type: IDType
+        id_type: MembershipIdType
         operation: Operation
     }>
 }
