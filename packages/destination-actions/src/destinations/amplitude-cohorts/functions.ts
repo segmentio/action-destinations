@@ -49,6 +49,8 @@ export async function createAudience(
 
   const url = getEndpointByRegion('cohorts_upload', endpoint)
 
+  // Amplitude's upload endpoint requires BY_USER_ID with a valid user_id to create a cohort,
+  // regardless of the id_type used for subsequent membership operations.
   const json: CreateAudienceJSON = {
     name,
     app_id,
