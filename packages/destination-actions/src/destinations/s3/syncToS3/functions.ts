@@ -1,4 +1,5 @@
-import { PayloadValidationError, Features } from '@segment/actions-core'
+import { PayloadValidationError } from '@segment/actions-core'
+import type { Features } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'

@@ -1,6 +1,5 @@
-import { generateFile, validateColumnsToHash } from '../functions'
+import { generateFile, validateColumnsToHash, clean, encodeString, getAudienceAction } from '../functions'
 import { Payload } from '../generated-types'
-import { clean, encodeString, getAudienceAction } from '../functions'
 import { ColumnHeader, HashAlgorithm } from '../types'
 import { PayloadValidationError } from '@segment/actions-core'
 import { processHashing } from '../../../../lib/hashing-utils'
