@@ -3,7 +3,7 @@ import { Payload } from '../generated-types'
 import { clean, encodeString, getAudienceAction } from '../functions'
 import { ColumnHeader, HashAlgorithm } from '../types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { createHash } from 'crypto'
+import { processHashing } from '../../../../lib/hashing-utils'
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
@@ -170,7 +170,7 @@ describe('generateFile', () => {
     const dataRow = rows[1].split(',')
 
     const emailIndex = headerRow.indexOf('email')
-    const expectedHash = createHash('sha256').update('test@test.com').digest('hex')
+    const expectedHash = processHashing('test@test.com', 'sha256', 'hex')
     expect(dataRow[emailIndex]).toBe(`"${expectedHash}"`)
   })
 
@@ -197,7 +197,7 @@ describe('generateFile', () => {
     const dataRow = rows[1].split(',')
 
     expect(dataRow[0]).toBe('""')
-    const expectedHash = createHash('sha256').update('user_1').digest('hex')
+    const expectedHash = processHashing('user_1', 'sha256', 'hex')
     expect(dataRow[1]).toBe(`"${expectedHash}"`)
   })
 
@@ -214,8 +214,8 @@ describe('generateFile', () => {
     const emailIndex = headerRow.indexOf('email')
     const userIdIndex = headerRow.indexOf('user_id')
 
-    const expectedEmailHash = createHash('sha256').update('test@test.com').digest('hex')
-    const expectedUserIdHash = createHash('sha256').update('user_id_1').digest('hex')
+    const expectedEmailHash = processHashing('test@test.com', 'sha256', 'hex')
+    const expectedUserIdHash = processHashing('user_id_1', 'sha256', 'hex')
 
     expect(dataRow[emailIndex]).toBe(`"${expectedEmailHash}"`)
     expect(dataRow[userIdIndex]).toBe(`"${expectedUserIdHash}"`)

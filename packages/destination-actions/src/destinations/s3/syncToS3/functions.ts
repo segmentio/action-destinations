@@ -1,11 +1,12 @@
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, Features } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { Client } from './client'
 import { RawMapping, ColumnHeader, HashAlgorithm } from './types'
+import { S3_HASHING_FEATURE_FLAG } from '../constants'
 
-export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, signal?: AbortSignal) {
+export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, features?: Features, signal?: AbortSignal) {
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
@@ -24,8 +25,10 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
     headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
   }
 
-  const headerNames = new Set(headers.map((h) => h.originalName))
-  const columnsToHash = validateColumnsToHash(payloads[0]?.columns_to_hash ?? [], headerNames)
+  const columnsToHash =
+    features && features[S3_HASHING_FEATURE_FLAG]
+      ? validateColumnsToHash(payloads[0]?.columns_to_hash ?? [], new Set(headers.map((h) => h.originalName)))
+      : new Map<string, HashAlgorithm>()
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
 
