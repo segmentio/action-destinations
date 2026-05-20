@@ -1,7 +1,9 @@
-import { generateFile } from '../functions' // Adjust the import path
+import { generateFile, validateColumnsToHash } from '../functions'
 import { Payload } from '../generated-types'
 import { clean, encodeString, getAudienceAction } from '../functions'
-import { ColumnHeader } from '../types'
+import { ColumnHeader, HashAlgorithm } from '../types'
+import { PayloadValidationError } from '@segment/actions-core'
+import { createHash } from 'crypto'
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
@@ -158,5 +160,129 @@ describe('generateFile', () => {
   it('should generate a CSV file with correct content', () => {
     const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size')
     expect(result.toString()).toEqual(output)
+  })
+
+  it('should hash specified columns with sha256', () => {
+    const columnsToHash = new Map<string, HashAlgorithm>([['email', 'sha256']])
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size', columnsToHash)
+    const rows = result.toString().split('\n')
+    const headerRow = rows[0].split(',')
+    const dataRow = rows[1].split(',')
+
+    const emailIndex = headerRow.indexOf('email')
+    const expectedHash = createHash('sha256').update('test@test.com').digest('hex')
+    expect(dataRow[emailIndex]).toBe(`"${expectedHash}"`)
+  })
+
+  it('should not hash empty or null values', () => {
+    const payloadWithEmpty: Payload[] = [
+      {
+        columns: { email: '', user_id: 'user_1' },
+        delimiter: ',',
+        enable_batching: true,
+        file_extension: 'csv'
+      }
+    ]
+    const testHeaders: ColumnHeader[] = [
+      { cleanName: 'email', originalName: 'email' },
+      { cleanName: 'user_id', originalName: 'user_id' }
+    ]
+    const columnsToHash = new Map<string, HashAlgorithm>([
+      ['email', 'sha256'],
+      ['user_id', 'sha256']
+    ])
+
+    const result = generateFile(payloadWithEmpty, testHeaders, ',', undefined, undefined, columnsToHash)
+    const rows = result.toString().split('\n')
+    const dataRow = rows[1].split(',')
+
+    expect(dataRow[0]).toBe('""')
+    const expectedHash = createHash('sha256').update('user_1').digest('hex')
+    expect(dataRow[1]).toBe(`"${expectedHash}"`)
+  })
+
+  it('should hash multiple columns independently', () => {
+    const columnsToHash = new Map<string, HashAlgorithm>([
+      ['email', 'sha256'],
+      ['user_id', 'sha256']
+    ])
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size', columnsToHash)
+    const rows = result.toString().split('\n')
+    const headerRow = rows[0].split(',')
+    const dataRow = rows[1].split(',')
+
+    const emailIndex = headerRow.indexOf('email')
+    const userIdIndex = headerRow.indexOf('user_id')
+
+    const expectedEmailHash = createHash('sha256').update('test@test.com').digest('hex')
+    const expectedUserIdHash = createHash('sha256').update('user_id_1').digest('hex')
+
+    expect(dataRow[emailIndex]).toBe(`"${expectedEmailHash}"`)
+    expect(dataRow[userIdIndex]).toBe(`"${expectedUserIdHash}"`)
+  })
+
+  it('should not hash columns not in columnsToHash', () => {
+    const columnsToHash = new Map<string, HashAlgorithm>([['email', 'sha256']])
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size', columnsToHash)
+    const rows = result.toString().split('\n')
+    const headerRow = rows[0].split(',')
+    const dataRow = rows[1].split(',')
+
+    const userIdIndex = headerRow.indexOf('user_id')
+    expect(dataRow[userIdIndex]).toBe('"user_id_1"')
+  })
+})
+
+describe('validateColumnsToHash', () => {
+  const validColumnNames = new Set(['email', 'user_id', 'anonymous_id', 'event_name'])
+
+  it('should return a valid map when all entries are correct', () => {
+    const entries = [
+      { column_name: 'email', hash_algorithm: 'sha256' },
+      { column_name: 'user_id', hash_algorithm: 'sha256' }
+    ]
+    const result = validateColumnsToHash(entries, validColumnNames)
+    expect(result.size).toBe(2)
+    expect(result.get('email')).toBe('sha256')
+    expect(result.get('user_id')).toBe('sha256')
+  })
+
+  it('should throw when column_name is empty', () => {
+    const entries = [{ column_name: '', hash_algorithm: 'sha256' }]
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow('column_name is required')
+  })
+
+  it('should throw when hash_algorithm is empty', () => {
+    const entries = [{ column_name: 'email', hash_algorithm: '' }]
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow('hash_algorithm is required')
+  })
+
+  it('should throw when hash_algorithm is unsupported', () => {
+    const entries = [{ column_name: 'email', hash_algorithm: 'md5' }]
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow('unsupported hash_algorithm "md5"')
+  })
+
+  it('should throw when column_name does not exist in valid columns', () => {
+    const entries = [{ column_name: 'nonexistent_column', hash_algorithm: 'sha256' }]
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow(
+      'columns_to_hash contains columns that do not exist: nonexistent_column'
+    )
+  })
+
+  it('should list all invalid columns in the error message', () => {
+    const entries = [
+      { column_name: 'bad_col_1', hash_algorithm: 'sha256' },
+      { column_name: 'bad_col_2', hash_algorithm: 'sha256' }
+    ]
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow('bad_col_1, bad_col_2')
+  })
+
+  it('should return an empty map when entries is empty', () => {
+    const result = validateColumnsToHash([], validColumnNames)
+    expect(result.size).toBe(0)
   })
 })
