@@ -33,8 +33,9 @@ export async function createAudience(
   }
 
   let seedUserId: string
-  if (user_id) {
-    seedUserId = user_id
+  const trimmedUserId = user_id?.trim()
+  if (trimmedUserId) {
+    seedUserId = trimmedUserId
     statsClient?.incr(`${statsName}.create_audience.seed_user_provided`, 1, tags)
   } else {
     try {
