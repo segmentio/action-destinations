@@ -24,24 +24,8 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
     headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
   }
 
-  const columnsToHash = new Map<string, string>()
-  for (const entry of payloads[0]?.columns_to_hash ?? []) {
-    if (!entry.column_name) {
-      throw new PayloadValidationError('columns_to_hash: column_name is required.')
-    }
-    if (!entry.hash_algorithm) {
-      throw new PayloadValidationError('columns_to_hash: hash_algorithm is required.')
-    }
-    columnsToHash.set(entry.column_name, entry.hash_algorithm)
-  }
-
   const headerNames = new Set(headers.map((h) => h.originalName))
-  const invalidColumns = [...columnsToHash.keys()].filter((col) => !headerNames.has(col))
-  if (invalidColumns.length > 0) {
-    throw new PayloadValidationError(
-      `columns_to_hash contains columns that do not exist: ${invalidColumns.join(', ')}`
-    )
-  }
+  const columnsToHash = validateColumnsToHash(payloads[0]?.columns_to_hash ?? [], headerNames)
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
 
@@ -118,4 +102,30 @@ export function getAudienceAction(payload: Payload): boolean | undefined {
   }
 
   return (payload?.traits_or_props as Record<string, boolean> | undefined)?.[payload.computation_key] ?? undefined
+}
+
+export function validateColumnsToHash(
+  entries: { column_name: string; hash_algorithm: string }[],
+  validColumnNames: Set<string>
+): Map<string, string> {
+  const columnsToHash = new Map<string, string>()
+
+  for (const entry of entries) {
+    if (!entry.column_name) {
+      throw new PayloadValidationError('columns_to_hash: column_name is required.')
+    }
+    if (!entry.hash_algorithm) {
+      throw new PayloadValidationError('columns_to_hash: hash_algorithm is required.')
+    }
+    columnsToHash.set(entry.column_name, entry.hash_algorithm)
+  }
+
+  const invalidColumns = [...columnsToHash.keys()].filter((col) => !validColumnNames.has(col))
+  if (invalidColumns.length > 0) {
+    throw new PayloadValidationError(
+      `columns_to_hash contains columns that do not exist: ${invalidColumns.join(', ')}`
+    )
+  }
+
+  return columnsToHash
 }
