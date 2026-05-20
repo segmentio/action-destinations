@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { Client } from './client'
@@ -22,7 +23,11 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
     headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
   }
 
-  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName)
+  const columnsToHash = new Set(
+    (payloads[0]?.columns_to_hash ?? []).map((entry) => entry.column_name).filter(Boolean)
+  )
+
+  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
 
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
@@ -43,14 +48,19 @@ export function clean(delimiter: string, str?: string) {
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
 }
 
-function processField(value: unknown | undefined): string {
-  return encodeString(
+function processField(value: unknown | undefined, shouldHash: boolean): string {
+  const str =
     value === undefined || value === null
       ? ''
       : typeof value === 'object'
       ? String(JSON.stringify(value))
       : String(value)
-  )
+
+  if (shouldHash && str !== '') {
+    return encodeString(createHash('sha256').update(str).digest('hex'))
+  }
+
+  return encodeString(str)
 }
 
 export function generateFile(
@@ -58,18 +68,19 @@ export function generateFile(
   headers: ColumnHeader[],
   delimiter: string,
   actionColName?: string,
-  batchColName?: string
+  batchColName?: string,
+  columnsToHash: Set<string> = new Set()
 ): Buffer {
   const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row = headers.map((header): string => {
       if (header.originalName === actionColName) {
-        return processField(getAudienceAction(payload))
+        return processField(getAudienceAction(payload), false)
       }
       if (header.originalName === batchColName) {
-        return processField(payloads.length)
+        return processField(payloads.length, false)
       }
-      return processField(payload.columns[header.originalName])
+      return processField(payload.columns[header.originalName], columnsToHash.has(header.originalName))
     })
 
     return Buffer.from(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)

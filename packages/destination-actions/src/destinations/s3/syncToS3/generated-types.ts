@@ -114,6 +114,15 @@ export interface Payload {
    */
   file_extension: string
   /**
+   * Columns whose values will be SHA256 hashed before writing to the file.
+   */
+  columns_to_hash?: {
+    /**
+     * The name of the column to hash.
+     */
+    column_name: string
+  }[]
+  /**
    * The keys to use for batching the events.
    */
   batch_keys?: string[]

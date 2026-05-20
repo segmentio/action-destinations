@@ -233,6 +233,25 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     ],
     default: 'csv'
   },
+  columns_to_hash: {
+    label: 'Columns to SHA256 Hash',
+    description: 'Columns whose values will be SHA256 hashed before writing to the file.',
+    type: 'object',
+    multiple: true,
+    required: false,
+    defaultObjectUI: 'arrayeditor',
+    additionalProperties: false,
+    properties: {
+      column_name: {
+        label: 'Column Name',
+        description: 'The name of the column to hash.',
+        type: 'string',
+        required: true,
+        allowNull: false,
+        disabledInputMethods: ['variable', 'function', 'enrichment']
+      }
+    }
+  },
   batch_keys: {
     label: 'Batch Keys',
     description: 'The keys to use for batching the events.',
