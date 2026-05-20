@@ -23,9 +23,12 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
     headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
   }
 
-  const columnsToHash = new Set(
-    (payloads[0]?.columns_to_hash ?? []).map((entry) => entry.column_name).filter(Boolean)
-  )
+  const columnsToHash = new Map<string, string>()
+  for (const entry of payloads[0]?.columns_to_hash ?? []) {
+    if (entry.column_name) {
+      columnsToHash.set(entry.column_name, entry.hash_algorithm ?? 'sha256')
+    }
+  }
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
 
@@ -48,7 +51,7 @@ export function clean(delimiter: string, str?: string) {
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
 }
 
-function processField(value: unknown | undefined, shouldHash: boolean): string {
+function processField(value: unknown | undefined, hashAlgorithm?: string): string {
   const str =
     value === undefined || value === null
       ? ''
@@ -56,8 +59,8 @@ function processField(value: unknown | undefined, shouldHash: boolean): string {
       ? String(JSON.stringify(value))
       : String(value)
 
-  if (shouldHash && str !== '') {
-    return encodeString(createHash('sha256').update(str).digest('hex'))
+  if (hashAlgorithm && str !== '') {
+    return encodeString(createHash(hashAlgorithm).update(str).digest('hex'))
   }
 
   return encodeString(str)
@@ -69,18 +72,18 @@ export function generateFile(
   delimiter: string,
   actionColName?: string,
   batchColName?: string,
-  columnsToHash: Set<string> = new Set()
+  columnsToHash: Map<string, string> = new Map()
 ): Buffer {
   const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row = headers.map((header): string => {
       if (header.originalName === actionColName) {
-        return processField(getAudienceAction(payload), false)
+        return processField(getAudienceAction(payload))
       }
       if (header.originalName === batchColName) {
-        return processField(payloads.length, false)
+        return processField(payloads.length)
       }
-      return processField(payload.columns[header.originalName], columnsToHash.has(header.originalName))
+      return processField(payload.columns[header.originalName], columnsToHash.get(header.originalName))
     })
 
     return Buffer.from(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
