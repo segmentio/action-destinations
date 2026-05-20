@@ -39,7 +39,7 @@ export type UploadToCohortJSON = {
 
 export type UserSearchResponse = {
     matches: Array<{
-        user_id: string
+        user_id?: string | null
         amplitude_id?: number
         [key: string]: unknown
     }>
