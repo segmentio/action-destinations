@@ -8,7 +8,7 @@ export type CreateAudienceJSON = {
     id_type: 'BY_AMP_ID' | 'BY_USER_ID' // Device ID not supported by Amplitude Cohorts. Only a few customers will have access to an Amplitude ID.
     cg?: string                         // Cohort Grouping
     ids: Array<string>                  // List of User IDs or Amplitude IDs. Must contain at least one User ID to create the cohort.
-    owner: string                       // Cohort owner. The login email of the user who will own the cohort in Ampltitude
+    owner: string                       // Cohort owner. The login email of the user who will own the cohort in Amplitude
     published: true                     // Whether the cohort should be published immediately
 }
 
