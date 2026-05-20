@@ -78,10 +78,10 @@ export function generateFile(
     const isLastRow = index === payloads.length - 1
     const row = headers.map((header): string => {
       if (header.originalName === actionColName) {
-        return processField(getAudienceAction(payload))
+        return processField(getAudienceAction(payload), columnsToHash.get(header.originalName))
       }
       if (header.originalName === batchColName) {
-        return processField(payloads.length)
+        return processField(payloads.length, columnsToHash.get(header.originalName))
       }
       return processField(payload.columns[header.originalName], columnsToHash.get(header.originalName))
     })
