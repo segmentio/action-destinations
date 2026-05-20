@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import { PayloadValidationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { Client } from './client'
@@ -25,9 +26,21 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
 
   const columnsToHash = new Map<string, string>()
   for (const entry of payloads[0]?.columns_to_hash ?? []) {
-    if (entry.column_name) {
-      columnsToHash.set(entry.column_name, entry.hash_algorithm ?? 'sha256')
+    if (!entry.column_name) {
+      throw new PayloadValidationError('columns_to_hash: column_name is required.')
     }
+    if (!entry.hash_algorithm) {
+      throw new PayloadValidationError('columns_to_hash: hash_algorithm is required.')
+    }
+    columnsToHash.set(entry.column_name, entry.hash_algorithm)
+  }
+
+  const headerNames = new Set(headers.map((h) => h.originalName))
+  const invalidColumns = [...columnsToHash.keys()].filter((col) => !headerNames.has(col))
+  if (invalidColumns.length > 0) {
+    throw new PayloadValidationError(
+      `columns_to_hash contains columns that do not exist: ${invalidColumns.join(', ')}`
+    )
   }
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
