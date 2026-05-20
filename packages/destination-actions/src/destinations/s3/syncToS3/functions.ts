@@ -1,9 +1,9 @@
-import { createHash } from 'crypto'
 import { PayloadValidationError } from '@segment/actions-core'
+import { processHashing } from '../../../lib/hashing-utils'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { Client } from './client'
-import { RawMapping, ColumnHeader } from './types'
+import { RawMapping, ColumnHeader, HashAlgorithm } from './types'
 
 export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, signal?: AbortSignal) {
   const delimiter = payloads[0]?.delimiter
@@ -48,7 +48,7 @@ export function clean(delimiter: string, str?: string) {
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
 }
 
-function processField(value: unknown | undefined, hashAlgorithm?: string): string {
+function processField(value: unknown | undefined, hashAlgorithm?: HashAlgorithm): string {
   const str =
     value === undefined || value === null
       ? ''
@@ -57,7 +57,7 @@ function processField(value: unknown | undefined, hashAlgorithm?: string): strin
       : String(value)
 
   if (hashAlgorithm && str !== '') {
-    return encodeString(createHash(hashAlgorithm).update(str).digest('hex'))
+    return encodeString(processHashing(str, hashAlgorithm, 'hex'))
   }
 
   return encodeString(str)
@@ -69,7 +69,7 @@ export function generateFile(
   delimiter: string,
   actionColName?: string,
   batchColName?: string,
-  columnsToHash: Map<string, string> = new Map()
+  columnsToHash: Map<string, HashAlgorithm> = new Map()
 ): Buffer {
   const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
@@ -104,20 +104,31 @@ export function getAudienceAction(payload: Payload): boolean | undefined {
   return (payload?.traits_or_props as Record<string, boolean> | undefined)?.[payload.computation_key] ?? undefined
 }
 
+const SUPPORTED_HASH_ALGORITHMS: HashAlgorithm[] = ['sha256']
+
 export function validateColumnsToHash(
-  entries: { column_name: string; hash_algorithm: string }[],
+  entries: NonNullable<Payload['columns_to_hash']>,
   validColumnNames: Set<string>
-): Map<string, string> {
-  const columnsToHash = new Map<string, string>()
+): Map<string, HashAlgorithm> {
+  const columnsToHash = new Map<string, HashAlgorithm>()
 
   for (const entry of entries) {
-    if (!entry.column_name) {
+    const columnName = String(entry.column_name ?? '')
+    const hashAlgorithm = String(entry.hash_algorithm ?? '')
+
+    if (!columnName) {
       throw new PayloadValidationError('columns_to_hash: column_name is required.')
     }
-    if (!entry.hash_algorithm) {
+    if (!hashAlgorithm) {
       throw new PayloadValidationError('columns_to_hash: hash_algorithm is required.')
     }
-    columnsToHash.set(entry.column_name, entry.hash_algorithm)
+    const algorithm = SUPPORTED_HASH_ALGORITHMS.find((a) => a === hashAlgorithm)
+    if (!algorithm) {
+      throw new PayloadValidationError(
+        `columns_to_hash: unsupported hash_algorithm "${hashAlgorithm}". Supported: ${SUPPORTED_HASH_ALGORITHMS.join(', ')}`
+      )
+    }
+    columnsToHash.set(columnName, algorithm)
   }
 
   const invalidColumns = [...columnsToHash.keys()].filter((col) => !validColumnNames.has(col))

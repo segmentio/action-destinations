@@ -14,7 +14,11 @@ export interface RawMapping {
   }
 }
 
+import type { EncryptionMethod } from '../../../lib/hashing-utils'
+
+export type HashAlgorithm = Extract<EncryptionMethod, 'sha256'>
+
 export interface ColumnHeader {
-  cleanName: string 
+  cleanName: string
   originalName: string
 }
