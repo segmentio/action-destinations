@@ -280,6 +280,15 @@ describe('validateColumnsToHash', () => {
     expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow('bad_col_1, bad_col_2')
   })
 
+  it('should throw when column_name is duplicated', () => {
+    const entries = [
+      { column_name: 'email', hash_algorithm: 'sha256' },
+      { column_name: 'email', hash_algorithm: 'sha256' }
+    ]
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => validateColumnsToHash(entries, validColumnNames)).toThrow('duplicate column_name "email"')
+  })
+
   it('should return an empty map when entries is empty', () => {
     const result = validateColumnsToHash([], validColumnNames)
     expect(result.size).toBe(0)

@@ -132,6 +132,9 @@ export function validateColumnsToHash(
         `columns_to_hash: unsupported hash_algorithm "${hashAlgorithm}". Supported: ${SUPPORTED_HASH_ALGORITHMS.join(', ')}`
       )
     }
+    if (columnsToHash.has(columnName)) {
+      throw new PayloadValidationError(`columns_to_hash: duplicate column_name "${columnName}".`)
+    }
     columnsToHash.set(columnName, algorithm)
   }
 
