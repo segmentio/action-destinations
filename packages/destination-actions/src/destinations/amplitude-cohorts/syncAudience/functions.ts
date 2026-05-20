@@ -51,30 +51,31 @@ export async function send(request: RequestClient, payloads: Payload[], settings
     }
   })
 
-  const requests: Promise<void>[] = []
+  // Amplitude returns 429 if a cohort is accessed concurrently, so ADD and REMOVE must run sequentially.
+  let hasRequests = false
 
   if (addMap.size > 0) {
     const json = getJSON(addMap, id_type, audienceId, msResponse, 'ADD', isBatch)
     if(json){
-      requests.push(sendRequest(request, addMap, msResponse, json, id_type, endpoint, isBatch))
+      hasRequests = true
+      await sendRequest(request, addMap, msResponse, json, id_type, endpoint, isBatch)
     }
   }
 
   if (deleteMap.size > 0) {
     const json = getJSON(deleteMap, id_type, audienceId, msResponse, 'REMOVE', isBatch)
     if(json){
-      requests.push(sendRequest(request, deleteMap, msResponse, json, id_type, endpoint, isBatch))
+      hasRequests = true
+      await sendRequest(request, deleteMap, msResponse, json, id_type, endpoint, isBatch)
     }
   }
 
-  if(requests.length === 0) {
+  if(!hasRequests) {
     if(isBatch) {
       return msResponse
     }
     throw new PayloadValidationError("The payload is invalid and cannot be sent to Amplitude. Check that it contains the correct type of identifier")
   }
-
-  await Promise.all(requests)
 
   if (isBatch) {
     return msResponse
@@ -98,21 +99,25 @@ export function failAllPayloads(payloads: Payload[], msResponse: MultiStatusResp
   throw new PayloadValidationError(message)
 }
 
+export function getMembershipIdType(id_type: IDType): string {
+  return id_type === ID_TYPES.BY_USER_ID ? 'BY_NAME' : 'BY_AMP_ID'
+}
+
 export function getJSON(map: PayloadMap, id_type: IDType, audienceId: string, msResponse: MultiStatusResponse, operation: Operation, isBatch: boolean): UploadToCohortJSON | undefined {
   const ids: string[] = getIds(map, id_type, msResponse, isBatch)
   if(ids.length === 0){
     return undefined
   }
-  const json: UploadToCohortJSON = {
+  const json = {
     cohort_id: audienceId,
-    skip_invalid_ids: true,
+    skip_invalid_ids: true as const,
     memberships: [{
       ids,
-      id_type,
+      id_type: getMembershipIdType(id_type),
       operation
     }]
   }
-  return json
+  return json as unknown as UploadToCohortJSON
 }
 
 export function getIds(map: PayloadMap, id_type: IDType, msResponse: MultiStatusResponse, isBatch: boolean): string[] {

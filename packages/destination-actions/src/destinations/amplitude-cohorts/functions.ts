@@ -1,8 +1,8 @@
-import { Region, CreateAudienceJSON, CreateAudienceResponse } from './types'
+import { Region, CreateAudienceJSON, CreateAudienceResponse, IDType, UserSearchResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Settings } from './generated-types'
 import { endpoints } from './constants'
-import { IDType } from './types'
 
 export function getEndpointByRegion(endpoint: keyof typeof endpoints, region?: string): string {
   return endpoints[endpoint][region as Region] ?? endpoints[endpoint]['north_america']
@@ -13,16 +13,38 @@ export async function createAudience(
   settings: Settings,
   name: string,
   id_type: IDType,
-  owner_email?: string
+  owner_email?: string,
+  user_id?: string,
+  statsContext?: StatsContext
 ): Promise<string> {
   const { endpoint, app_id, default_owner_email } = settings
+  const { statsClient, tags } = statsContext || {}
+  const statsName = 'actions_amplitude_cohorts'
+  const startTime = Date.now()
+  const REMOVAL_AWAIT_THRESHOLD_MS = 3000
 
   if (!name) {
+    statsClient?.incr(`${statsName}.create_audience.error.missing_name`, 1, tags)
     throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
   }
 
   if (!id_type) {
+    statsClient?.incr(`${statsName}.create_audience.error.missing_id_type`, 1, tags)
     throw new IntegrationError('Missing id_type value', 'MISSING_REQUIRED_FIELD', 400)
+  }
+
+  let seedUserId: string
+  if (user_id) {
+    seedUserId = user_id
+    statsClient?.incr(`${statsName}.create_audience.seed_user_provided`, 1, tags)
+  } else {
+    try {
+      seedUserId = await fetchSeedUserId(request, endpoint)
+      statsClient?.incr(`${statsName}.create_audience.seed_user_fetched`, 1, tags)
+    } catch (e) {
+      statsClient?.incr(`${statsName}.create_audience.error.seed_user_fetch_failed`, 1, tags)
+      throw e
+    }
   }
 
   const url = getEndpointByRegion('cohorts_upload', endpoint)
@@ -30,27 +52,100 @@ export async function createAudience(
   const json: CreateAudienceJSON = {
     name,
     app_id,
-    id_type,
-    ids: [],
+    id_type: 'BY_USER_ID',
+    ids: [seedUserId],
     owner: owner_email ?? default_owner_email,
     published: true
   }
 
-  const response = await request<CreateAudienceResponse>(url, {
-    method: 'post',
-    json
-  })
+  try {
+    const response = await request<CreateAudienceResponse>(url, {
+      method: 'post',
+      json
+    })
 
-  const id = response?.data?.cohortId
+    const id = response?.data?.cohortId
 
-  if (!id) {
-    throw new IntegrationError(
-      'Invalid response from Amplitude Cohorts API when attempting to create new Cohort: Missing cohortId',
-      'INVALID_RESPONSE',
-      500
-    )
+    if (!id) {
+      statsClient?.incr(`${statsName}.create_audience.error.missing_cohort_id`, 1, tags)
+      throw new IntegrationError(
+        'Invalid response from Amplitude Cohorts API when attempting to create new Cohort: Missing cohortId',
+        'INVALID_RESPONSE',
+        500
+      )
+    }
+
+    statsClient?.incr(`${statsName}.create_audience.success`, 1, tags)
+
+    const elapsed = Date.now() - startTime
+    if (elapsed < REMOVAL_AWAIT_THRESHOLD_MS) {
+      await removeSeedUser(request, id, endpoint, seedUserId, statsContext)
+    } else {
+      void removeSeedUser(request, id, endpoint, seedUserId, statsContext)
+    }
+
+    return id
+  } catch (e) {
+    statsClient?.incr(`${statsName}.create_audience.error.cohort_creation_failed`, 1, tags)
+    throw e
   }
-  return id
+}
+
+export async function fetchSeedUserId(request: RequestClient, endpoint: string): Promise<string> {
+  const url = getEndpointByRegion('usersearch', endpoint)
+  const batches = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']]
+
+  for (const batch of batches) {
+    const results = await Promise.all(
+      batch.map(async (prefix) => {
+        const response = await request<UserSearchResponse>(`${url}?user=${prefix}`)
+        const matches = response?.data?.matches || []
+        for (const match of matches) {
+          if (match.user_id) {
+            return match.user_id
+          }
+        }
+        return undefined
+      })
+    )
+
+    const found = results.find((id) => id !== undefined)
+    if (found) {
+      return found
+    }
+  }
+
+  throw new IntegrationError(
+    'Unable to fetch a seed user from Amplitude. The project must contain at least one user with a User ID.',
+    'INVALID_RESPONSE',
+    400
+  )
+}
+
+export async function removeSeedUser(request: RequestClient, cohortId: string, endpoint: string, seedUserId: string, statsContext?: StatsContext): Promise<void> {
+  const { statsClient, tags } = statsContext || {}
+  const statsName = 'actions_amplitude_cohorts'
+  const url = getEndpointByRegion('cohorts_membership', endpoint)
+
+  const json = {
+    cohort_id: cohortId,
+    skip_invalid_ids: true,
+    memberships: [{
+      ids: [seedUserId],
+      id_type: 'BY_NAME',
+      operation: 'REMOVE'
+    }]
+  }
+
+  try {
+    await request(url, {
+      method: 'POST',
+      json
+    })
+    statsClient?.incr(`${statsName}.create_audience.seed_user_removal.success`, 1, tags)
+  } catch {
+    statsClient?.incr(`${statsName}.create_audience.seed_user_removal.error`, 1, tags)
+  }
 }
 
 export async function getAudience(request: RequestClient, settings: Settings, externalId: string): Promise<void> {
