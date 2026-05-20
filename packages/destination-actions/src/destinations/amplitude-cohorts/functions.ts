@@ -1,4 +1,4 @@
-import { Region, CreateAudienceJSON, CreateAudienceResponse, IDType, UserSearchResponse } from './types'
+import { Region, CreateAudienceJSON, CreateAudienceResponse, GetAudienceResponse, IDType, UserSearchResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Settings } from './generated-types'
@@ -152,12 +152,12 @@ export async function getAudience(request: RequestClient, settings: Settings, ex
   const { endpoint } = settings
 
   const url = `${getEndpointByRegion('cohorts_get_one', endpoint)}/${externalId}`
-  const response = await request<CreateAudienceResponse>(url)
-  const id = response?.data?.cohortId
+  const response = await request<GetAudienceResponse>(url)
+  const id = response?.data?.cohort_id
 
   if (!id) {
     throw new IntegrationError(
-      'Invalid response from Amplitude Cohorts API when attempting to get Cohort: Missing cohortId',
+      'Invalid response from Amplitude Cohorts API when attempting to get Cohort: Missing cohort_id',
       'INVALID_RESPONSE',
       500
     )

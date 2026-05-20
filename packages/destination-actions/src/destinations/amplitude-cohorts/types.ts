@@ -17,7 +17,8 @@ export type CreateAudienceResponse = {
 }
 
 export type GetAudienceResponse = {
-    cohortId: string
+    cohort_id: string
+    request_id: string
 }
 
 export type IDType = keyof typeof ID_TYPES
