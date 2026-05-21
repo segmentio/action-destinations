@@ -133,7 +133,6 @@ export interface OrderRefundedEvent extends MultiProductBaseEvent {
     name: OrderRefundedEventName
     properties: MultiProductBaseEvent['properties'] & {
         order_id: string
-        subtotal_value?: number
         total_discounts?: number
         discounts?: Array<{
             code: string

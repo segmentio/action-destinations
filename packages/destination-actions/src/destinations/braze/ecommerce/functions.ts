@@ -265,7 +265,6 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         case EVENT_NAMES.ORDER_REFUNDED: {
           const {
             order_id,
-            subtotal_value,
             total_discounts,
             discounts
           } = payload as Payload
@@ -276,7 +275,6 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
             properties: {
               ...multiProductEvent.properties,
               order_id: order_id as string,
-              ...(typeof subtotal_value === 'number' ? { subtotal_value } : {}),
               ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
               ...(discounts ? { discounts } : {})
             }

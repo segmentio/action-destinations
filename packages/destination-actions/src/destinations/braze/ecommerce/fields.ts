@@ -341,11 +341,6 @@ const subtotal_value: InputField = {
                 fieldKey: 'name',
                 operator: 'is',
                 value: EVENT_NAMES.ORDER_CANCELLED
-            },
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.ORDER_REFUNDED
             }
         ]
     }
