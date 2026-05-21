@@ -45,7 +45,7 @@ export interface Payload {
    */
   order_id?: string
   /**
-   * Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.
+   * Unique identifier for the cart. Required for cart_updated. For checkout and order events, if no value is passed, Braze will determine a default value for the user cart mapping.
    */
   cart_id?: string
   /**

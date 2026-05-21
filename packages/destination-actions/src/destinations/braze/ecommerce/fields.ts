@@ -198,9 +198,19 @@ const order_id: InputField = {
 
 const cart_id: InputField = {
     label: 'Cart ID',
-    description: 'Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.',
+    description: 'Unique identifier for the cart. Required for cart_updated. For checkout and order events, if no value is passed, Braze will determine a default value for the user cart mapping.',
     type: 'string',
     default: {'@path': '$.properties.cart_id'},
+    required: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
+    },
     depends_on: {
         match: 'any',
         conditions: [

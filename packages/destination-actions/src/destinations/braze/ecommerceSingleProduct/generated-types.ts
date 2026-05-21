@@ -45,13 +45,29 @@ export interface Payload {
    */
   order_id?: string
   /**
-   * Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.
+   * Unique identifier for the cart. Required for cart_updated. For checkout and order events, if no value is passed, Braze will determine a default value for the user cart mapping.
    */
   cart_id?: string
   /**
    * Total monetary value of the cart.
    */
   total_value?: number
+  /**
+   * The cart action that was performed (add, remove, or replace).
+   */
+  action?: string
+  /**
+   * Subtotal monetary value of the cart before tax and shipping.
+   */
+  subtotal_value?: number
+  /**
+   * Tax amount applied to the transaction.
+   */
+  tax?: number
+  /**
+   * Shipping cost for the transaction.
+   */
+  shipping?: number
   /**
    * Total amount of discounts applied to the order.
    */
@@ -72,10 +88,6 @@ export interface Payload {
    */
   source: string
   /**
-   * Required to use Braze catalog trigger features. Accepted values: price_drop, back_in_stock.
-   */
-  catalog_type?: string[]
-  /**
    * Additional metadata for the ecommerce event.
    */
   metadata?: {
@@ -89,6 +101,10 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size: number
+  /**
+   * Required to use Braze catalog trigger features. Accepted values: price_drop, back_in_stock.
+   */
+  catalog_type?: string[]
   /**
    * Product details associated with the ecommerce event.
    */
