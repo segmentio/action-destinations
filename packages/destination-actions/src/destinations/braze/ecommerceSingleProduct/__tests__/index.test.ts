@@ -154,8 +154,7 @@ describe('Braze.ecommerce', () => {
       })
     
       expect(response.length).toBe(1)
-    })  
-  })
+    })
 
     it('should send Product Viewed event with catalog_type correctly', async () => {
 
