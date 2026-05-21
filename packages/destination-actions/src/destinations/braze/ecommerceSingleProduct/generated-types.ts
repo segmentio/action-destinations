@@ -72,6 +72,10 @@ export interface Payload {
    */
   source: string
   /**
+   * Required to use Braze catalog trigger features. Accepted values: price_drop, back_in_stock.
+   */
+  catalog_type?: string[]
+  /**
    * Additional metadata for the ecommerce event.
    */
   metadata?: {

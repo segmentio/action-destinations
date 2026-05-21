@@ -159,7 +159,8 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
   switch(name) {
     case EVENT_NAMES.PRODUCT_VIEWED: {
       const {
-        product
+        product,
+        catalog_type
       } = payload as SingleProductPayload
 
       const event: ProductViewedEvent = {
@@ -167,7 +168,8 @@ function getJSONItem(payload: Payload | SingleProductPayload, settings: Settings
         name: EVENT_NAMES.PRODUCT_VIEWED,
         properties: {
           ...baseEvent.properties,
-          ...product
+          ...product,
+          ...(catalog_type && catalog_type.length > 0 ? { type: catalog_type } : {})
         }
       }
       return event

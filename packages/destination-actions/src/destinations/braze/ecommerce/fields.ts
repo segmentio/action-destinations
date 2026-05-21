@@ -639,6 +639,29 @@ const metadata: InputField = {
     defaultObjectUI: 'keyvalue'
 }
 
+const catalog_type: InputField = {
+    label: 'Catalog Trigger Type',
+    description: 'Required to use Braze catalog trigger features. Accepted values: price_drop, back_in_stock.',
+    type: 'string',
+    multiple: true,
+    choices: [
+        { label: 'Price Drop', value: 'price_drop' },
+        { label: 'Back In Stock', value: 'back_in_stock' }
+    ],
+    default: { '@path': '$.properties.type' },
+    required: false,
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.PRODUCT_VIEWED
+            }
+        ]
+    }
+}
+
 const enable_batching: InputField = {
     type: 'boolean',
     label: 'Batch Data to Braze',
@@ -682,3 +705,5 @@ export const commonFields = {
     enable_batching,
     batch_size
 }
+
+export { catalog_type }

@@ -58,7 +58,9 @@ export interface BaseEvent {
 
 export interface ProductViewedEvent extends BaseEvent {
     name: ProductViewedEventName
-    properties: BaseEvent['properties'] & BaseProduct
+    properties: BaseEvent['properties'] & BaseProduct & {
+        type?: string[]
+    }
 }
 
 export interface MultiProductBaseEvent extends BaseEvent {
