@@ -525,22 +525,16 @@ export default class GenerateMetadataPayload extends Command {
       }
     }
 
-    // Discover browser destinations from the filesystem that don't have their own manifest entry.
-    // Browser "plugin" destinations share a metadata ID with their cloud counterpart and get merged,
-    // so they never get a standalone metadata.json unless we discover them independently.
+    // Discover ALL browser destinations from the filesystem independently.
+    // Browser destinations that share a metadataId with cloud get merged into the cloud entry,
+    // which means resolveSourceDir points to the cloud directory — so the browser directory
+    // never gets its own metadata.json unless we discover it here unconditionally.
     const browserDestDir = path.join(process.cwd(), 'packages', 'browser-destinations', 'destinations')
     if (await fs.pathExists(browserDestDir)) {
-      const coveredBrowserDirs = new Set(
-        Object.values(manifest)
-          .map((entry: any) => resolveSourceDir(entry.path))
-          .filter((p): p is string => p !== null && p.startsWith(browserDestDir))
-          .map((p) => path.basename(p))
-      )
       const browserEntries = await fs.readdir(browserDestDir, { withFileTypes: true })
       for (const entry of browserEntries) {
         if (!entry.isDirectory()) continue
         const dir = entry.name
-        if (coveredBrowserDirs.has(dir)) continue
         const indexPath = path.join(browserDestDir, dir, 'src', 'index.ts')
         if (!(await fs.pathExists(indexPath))) continue
         try {
