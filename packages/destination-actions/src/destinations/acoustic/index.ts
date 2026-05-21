@@ -3,9 +3,6 @@ import type { Settings } from './generated-types'
 import receiveEvents from './receiveEvents'
 import { getAccessToken } from './Utility/tablemaintutilities'
 
-const mod = `
-Last-Modified: 06.28.2023 16.15.37
-`
 //May 30th, refactor for additional Customers
 export interface refreshTokenResult {
   access_token: string
