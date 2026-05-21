@@ -119,13 +119,6 @@ const destination: DestinationDefinition<Settings> = {
         default: 15,
         type: 'number',
         required: false
-      },
-      version: {
-        label: `Version:`,
-        description: `${mod}`,
-        default: `Version 3.1   (nodeJS: ${process.version})`,
-        type: 'string',
-        required: false
       }
     },
     refreshAccessToken: async (request, { settings }) => {
