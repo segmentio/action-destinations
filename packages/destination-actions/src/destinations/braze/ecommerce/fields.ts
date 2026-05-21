@@ -9,7 +9,7 @@ const name: InputField = {
     required: true,
     choices: [
         { label: 'Product Viewed', value: EVENT_NAMES.PRODUCT_VIEWED },
-        //{ label: 'Cart Updated', value: EVENT_NAMES.CART_UPDATED },
+        { label: 'Cart Updated', value: EVENT_NAMES.CART_UPDATED },
         { label: 'Checkout Started', value: EVENT_NAMES.CHECKOUT_STARTED },
         { label: 'Order Placed', value: EVENT_NAMES.ORDER_PLACED },
         { label: 'Order Cancelled', value: EVENT_NAMES.ORDER_CANCELLED },
@@ -201,24 +201,14 @@ const cart_id: InputField = {
     description: 'Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.',
     type: 'string',
     default: {'@path': '$.properties.cart_id'},
-    // required: {
-    //     match: 'any',
-    //     conditions: [
-    //         {
-    //             fieldKey: 'name',
-    //             operator: 'is',
-    //             value: [EVENT_NAMES.CART_UPDATED]
-    //         }
-    //     ]
-    // },
     depends_on: {
         match: 'any',
         conditions: [
-            // {
-            //     fieldKey: 'name',
-            //     operator: 'is',
-            //     value: EVENT_NAMES.CART_UPDATED
-            // },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
             {
                 fieldKey: 'name',
                 operator: 'is',
@@ -244,13 +234,13 @@ const total_value: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
                 value: EVENT_NAMES.CHECKOUT_STARTED
             },
-            // {
-            //     fieldKey: 'name',
-            //     operator: 'is',
-            //     value: EVENT_NAMES.CART_UPDATED
-            // },
             {
                 fieldKey: 'name',
                 operator: 'is',
@@ -274,13 +264,13 @@ const total_value: InputField = {
             {
                 fieldKey: 'name',
                 operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
                 value: EVENT_NAMES.CHECKOUT_STARTED
             },
-            // {
-            //     fieldKey: 'name',
-            //     operator: 'is',
-            //     value: EVENT_NAMES.CART_UPDATED
-            // },
             {
                 fieldKey: 'name',
                 operator: 'is',
@@ -295,6 +285,133 @@ const total_value: InputField = {
                 fieldKey: 'name',
                 operator: 'is',
                 value: EVENT_NAMES.ORDER_REFUNDED
+            }
+        ]
+    }
+}
+
+const action: InputField = {
+    label: 'Action',
+    description: 'The cart action that was performed (add, remove, or replace).',
+    type: 'string',
+    default: {'@path': '$.properties.action'},
+    choices: [
+        { label: 'Add', value: 'add' },
+        { label: 'Remove', value: 'remove' },
+        { label: 'Replace', value: 'replace' }
+    ],
+    required: false,
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            }
+        ]
+    }
+}
+
+const subtotal_value: InputField = {
+    label: 'Subtotal Value',
+    description: 'Subtotal monetary value of the cart before tax and shipping.',
+    type: 'number',
+    default: { '@path': '$.properties.subtotal'},
+    required: false,
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_REFUNDED
+            }
+        ]
+    }
+}
+
+const tax: InputField = {
+    label: 'Tax',
+    description: 'Tax amount applied to the transaction.',
+    type: 'number',
+    default: { '@path': '$.properties.tax'},
+    required: false,
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
+            }
+        ]
+    }
+}
+
+const shipping: InputField = {
+    label: 'Shipping',
+    description: 'Shipping cost for the transaction.',
+    type: 'number',
+    default: { '@path': '$.properties.shipping'},
+    required: false,
+    depends_on: {
+        match: 'any',
+        conditions: [
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CART_UPDATED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.CHECKOUT_STARTED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_PLACED
+            },
+            {
+                fieldKey: 'name',
+                operator: 'is',
+                value: EVENT_NAMES.ORDER_CANCELLED
             }
         ]
     }
@@ -558,6 +675,10 @@ export const commonFields = {
     order_id,
     cart_id,
     total_value,
+    action,
+    subtotal_value,
+    tax,
+    shipping,
     total_discounts,
     discounts,
     currency,

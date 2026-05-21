@@ -53,6 +53,22 @@ export interface Payload {
    */
   total_value?: number
   /**
+   * The cart action that was performed (add, remove, or replace).
+   */
+  action?: string
+  /**
+   * Subtotal monetary value of the cart before tax and shipping.
+   */
+  subtotal_value?: number
+  /**
+   * Tax amount applied to the transaction.
+   */
+  tax?: number
+  /**
+   * Shipping cost for the transaction.
+   */
+  shipping?: number
+  /**
    * Total amount of discounts applied to the order.
    */
   total_discounts?: number
