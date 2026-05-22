@@ -269,10 +269,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       description:
         "The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.",
       type: 'string',
-      required: false,
-      default: {
-        '@path': '$.context.ip'
-      }
+      required: false
     },
     googleAID: {
       label: 'Google Advertising ID',
