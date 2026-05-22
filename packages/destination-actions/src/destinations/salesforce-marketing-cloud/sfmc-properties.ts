@@ -143,8 +143,8 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       type: 'string',
       required: CREATE_OPERATION,
       depends_on: CREATE_OPERATION,
-      dynamic: async (request, { settings }) => {
-        return await getCategories(request, settings)
+      dynamic: async (request, { settings, features }) => {
+        return await getCategories(request, settings, features)
       }
     },
     name: {
