@@ -1,0 +1,146 @@
+import {
+  RequestClient,
+  MultiStatusResponse,
+  JSONLikeObject,
+  AudienceMembership,
+  HTTPError
+} from '@segment/actions-core'
+import { processHashing } from '../../../lib/hashing-utils'
+import type { Payload } from './generated-types'
+import type { IdentifierKind, IdentityPayload, PayloadWithIndex } from './types'
+import { MNTN_API_BASE } from '../constants'
+
+function sha256(value: string): string {
+  return processHashing(value, 'sha256', 'hex')
+}
+
+export function buildIdentity(payload: Payload): IdentityPayload {
+  const { email, phone, ip, maid, identity_id, timestamp } = payload
+  const identifiers: Array<{ kind: IdentifierKind; value: string }> = [
+    ...(email
+      ? [
+          { kind: 'email' as const, value: email.toLowerCase().trim() },
+          { kind: 'email_sha256' as const, value: sha256(email.toLowerCase().trim()) }
+        ]
+      : []),
+    ...(phone
+      ? [
+          { kind: 'phone' as const, value: phone.replace(/\D/g, '') },
+          { kind: 'phone_sha256' as const, value: sha256(phone.replace(/\D/g, '')) }
+        ]
+      : []),
+    ...(ip ? [{ kind: 'ipv4' as const, value: ip.trim() }] : []),
+    ...(maid ? [{ kind: 'maid' as const, value: maid.trim() }] : [])
+  ]
+
+  return {
+    id: identity_id,
+    source: 'segment',
+    ...(timestamp ? { source_time: { rfc3339: timestamp } } : {}),
+    identifiers
+  }
+}
+
+function markSuccess(msResponse: MultiStatusResponse | undefined, entries: PayloadWithIndex[]) {
+  entries.forEach(({ index, p, identity }) => {
+    msResponse?.setSuccessResponseAtIndex(index, {
+      status: 202,
+      sent: p as unknown as JSONLikeObject,
+      body: identity as unknown as JSONLikeObject
+    })
+  })
+}
+
+function markError(msResponse: MultiStatusResponse | undefined, entries: PayloadWithIndex[], error: unknown) {
+  const status = (error as HTTPError)?.response?.status ?? 500
+  const errormessage = error instanceof Error ? error.message : 'Request to MNTN failed.'
+  entries.forEach(({ index, p, identity }) => {
+    msResponse?.setErrorResponseAtIndex(index, {
+      status,
+      errormessage,
+      sent: p as unknown as JSONLikeObject,
+      body: identity as unknown as JSONLikeObject
+    })
+  })
+}
+
+export async function syncAudience(
+  request: RequestClient,
+  payloads: Payload[],
+  audienceMemberships: AudienceMembership[],
+  isBatch: boolean
+) {
+  const msResponse = isBatch ? new MultiStatusResponse() : undefined
+  const adds: PayloadWithIndex[] = []
+  const removes: PayloadWithIndex[] = []
+  const seen = new Set<string>()
+  const segment_id = payloads[0].segment_id // batch_keys ensure this is static for a batch of events
+
+  payloads.forEach((p, index) => {
+    const { identity_id } = p
+
+    if (seen.has(identity_id)) {
+      msResponse?.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage: `Duplicate identity_id "${identity_id}".`,
+        sent: p as unknown as JSONLikeObject,
+        body: {}
+      })
+      return
+    }
+    seen.add(identity_id)
+
+    const identity = buildIdentity(p)
+    if (audienceMemberships[index]) {
+      adds.push({ index, p, identity })
+    } else {
+      removes.push({ index, p, identity })
+    }
+  })
+
+  const encodedSegmentId = encodeURIComponent(segment_id)
+
+  if (adds.length > 0) {
+    const json = adds.length === 1
+      ? { identity: adds[0].identity }
+      : { identities: adds.map(({ identity }) => identity) }
+
+    try {
+      const response = await request(`${MNTN_API_BASE}/v2026/audience/segments/${encodedSegmentId}/identities`, {
+        method: 'POST',
+        json
+      })
+      if (!isBatch) {
+        return response
+      }
+      markSuccess(msResponse, adds)
+    } catch (error) {
+      if (!isBatch) {
+        throw error
+      }
+      markError(msResponse, adds, error)
+    }
+  }
+
+  if (removes.length > 0) {
+    const encodedIds = encodeURIComponent(removes.map(({ identity: { id } }) => id).join(','))
+
+    try {
+      const response = await request(
+        `${MNTN_API_BASE}/v2026/audience/segments/${encodedSegmentId}/identities/${encodedIds}`,
+        { method: 'DELETE' }
+      )
+      if (!isBatch) {
+        return response
+      }
+      markSuccess(msResponse, removes)
+    } catch (error) {
+      if (!isBatch) {
+        throw error
+      }
+      markError(msResponse, removes, error)
+    }
+  }
+
+  return msResponse
+}
