@@ -292,8 +292,9 @@ function sanitize(obj: Record<string, unknown> | undefined, allowedTypes: ('stri
 }
 
 function trimmed(value: string | undefined | null): string | undefined {
-    if (typeof value === 'string' && value.trim().length > 0) {
-        return value.trim()
+    if (typeof value === 'string') {
+        const trimmed = value.trim()
+        return trimmed || undefined
     }
     return undefined
 }
