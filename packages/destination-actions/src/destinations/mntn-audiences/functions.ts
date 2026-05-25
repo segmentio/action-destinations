@@ -1,9 +1,10 @@
 import { IntegrationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { MNTN_API_BASE } from './constants'
+import { MNTN_API_VERSION } from './versioning-info'
 import type { CreateAudienceInput, GetAudienceInput, SegmentResponse } from './types'
 
 export async function testAuthentication(request: RequestClient) {
-  return request(`${MNTN_API_BASE}/v2026/audience/segments?limit=1`, {
+  return request(`${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments?limit=1`, {
     method: 'GET'
   })
 }
@@ -21,7 +22,7 @@ export async function createAudience(request: RequestClient, createAudienceInput
     )
   }
 
-  const response = await request<SegmentResponse>(`${MNTN_API_BASE}/v2026/audience/segments`, {
+  const response = await request<SegmentResponse>(`${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments`, {
     method: 'POST',
     json: {
       segment: {
@@ -57,7 +58,7 @@ export async function getAudience(request: RequestClient, getAudienceInput: GetA
   }
 
   const response = await request<SegmentResponse>(
-    `${MNTN_API_BASE}/v2026/audience/segments/${encodeURIComponent(segmentId)}`,
+    `${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments/${encodeURIComponent(segmentId)}`,
     { method: 'GET' }
   )
 

@@ -16,6 +16,7 @@ import nock from 'nock'
 import { createHash } from 'crypto'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
+import { MNTN_API_VERSION } from '../versioning-info'
 
 const testDestination = createTestIntegration(Destination as any)
 
@@ -56,7 +57,7 @@ afterAll(() => {
 describe('syncAudience — perform: add', () => {
   it('sends POST when audienceMembership is true', async () => {
     const scope = nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`)
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`)
       .reply(202, {})
 
     await testDestination.testAction('syncAudience', {
@@ -84,7 +85,7 @@ describe('syncAudience — perform: add', () => {
     let capturedBody: any
 
     nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`, (body) => {
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`, (body) => {
         capturedBody = body
         return true
       })
@@ -117,7 +118,7 @@ describe('syncAudience — perform: add', () => {
     let capturedBody: any
 
     nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`, (body) => {
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`, (body) => {
         capturedBody = body
         return true
       })
@@ -148,7 +149,7 @@ describe('syncAudience — perform: add', () => {
     let capturedBody: any
 
     nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`, (body) => {
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`, (body) => {
         capturedBody = body
         return true
       })
@@ -185,7 +186,7 @@ describe('syncAudience — perform: add', () => {
 describe('syncAudience — perform: remove', () => {
   it('sends DELETE when audienceMembership is false', async () => {
     const scope = nock(MNTN_BASE)
-      .delete(`/v2026/audience/segments/${SEGMENT_ID}/identities/${USER_ID}`)
+      .delete(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities/${USER_ID}`)
       .reply(202, {})
 
     await testDestination.testAction('syncAudience', {
@@ -210,7 +211,7 @@ describe('syncAudience — perform: remove', () => {
 
   it('falls back to anonymousId when userId is absent', async () => {
     const scope = nock(MNTN_BASE)
-      .delete(`/v2026/audience/segments/${SEGMENT_ID}/identities/${ANON_ID}`)
+      .delete(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities/${ANON_ID}`)
       .reply(202, {})
 
     await testDestination.testAction('syncAudience', {
@@ -242,7 +243,7 @@ describe('syncAudience — phone normalization', () => {
     let capturedBody: any
 
     nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`, (body) => {
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`, (body) => {
         capturedBody = body
         return true
       })
@@ -280,7 +281,7 @@ describe('syncAudience — phone normalization', () => {
     let capturedBody: any
 
     nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`, (body) => {
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`, (body) => {
         capturedBody = body
         return true
       })
@@ -319,7 +320,7 @@ describe('syncAudience — email normalization', () => {
     let capturedBody: any
 
     nock(MNTN_BASE)
-      .post(`/v2026/audience/segments/${SEGMENT_ID}/identities`, (body) => {
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`, (body) => {
         capturedBody = body
         return true
       })
@@ -379,7 +380,7 @@ describe('syncAudience — performBatch: adds', () => {
 
     expect(mockRequest).toHaveBeenCalledTimes(1)
     const [url, options] = mockRequest.mock.calls[0]
-    expect(url).toContain(`/v2026/audience/segments/${SEGMENT_ID}/identities`)
+    expect(url).toContain(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`)
     expect(options.method).toBe('POST')
     expect(options.json.identities).toHaveLength(2)
     expect(options.json.identity).toBeUndefined()

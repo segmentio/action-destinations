@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration, IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import Destination from '../index'
+import { MNTN_API_VERSION } from '../versioning-info'
 
 const testDestination = createTestIntegration(Destination as any)
 
@@ -24,7 +25,7 @@ afterAll(() => {
 describe('testAuthentication', () => {
   it('succeeds when the API responds 200', async () => {
     nock(MNTN_BASE, { reqheaders: { authorization: `Bearer ${TEST_SETTINGS.api_key}` } })
-      .get('/v2026/audience/segments')
+      .get(`/${MNTN_API_VERSION}/audience/segments`)
       .query({ limit: '1' })
       .reply(200, { segments: [] })
 
@@ -33,7 +34,7 @@ describe('testAuthentication', () => {
 
   it('throws when the API responds 401', async () => {
     nock(MNTN_BASE)
-      .get('/v2026/audience/segments')
+      .get(`/${MNTN_API_VERSION}/audience/segments`)
       .query({ limit: '1' })
       .reply(401, { error: { code: 'Unauthenticated' } })
 
@@ -46,7 +47,7 @@ describe('testAuthentication', () => {
 describe('createAudience', () => {
   it('POSTs to create a new segment and returns its ID as externalId', async () => {
     nock(MNTN_BASE)
-      .post('/v2026/audience/segments', { segment: { name: 'High Value Users' } })
+      .post(`/${MNTN_API_VERSION}/audience/segments`, { segment: { name: 'High Value Users' } })
       .reply(200, { segment: { id: 'mntn-new-id', name: 'High Value Users' } })
 
     const result = await testDestination.createAudience({
@@ -79,7 +80,7 @@ describe('createAudience', () => {
   })
 
   it('throws IntegrationError if the API response has no segment.id', async () => {
-    nock(MNTN_BASE).post('/v2026/audience/segments').reply(200, { segment: {} })
+    nock(MNTN_BASE).post(`/${MNTN_API_VERSION}/audience/segments`).reply(200, { segment: {} })
 
     await expect(
       testDestination.createAudience({
@@ -97,7 +98,7 @@ describe('getAudience', () => {
   it('GETs the segment by externalId and returns it', async () => {
     const segmentId = 'existing-seg-abc'
 
-    nock(MNTN_BASE).get(`/v2026/audience/segments/${segmentId}`).reply(200, { segment: { id: segmentId } })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/${segmentId}`).reply(200, { segment: { id: segmentId } })
 
     const result = await testDestination.getAudience({
       externalId: segmentId,
@@ -111,7 +112,7 @@ describe('getAudience', () => {
   it('prefers audienceSettings.segment_id over externalId', async () => {
     const overrideId = 'override-seg-999'
 
-    nock(MNTN_BASE).get(`/v2026/audience/segments/${overrideId}`).reply(200, { segment: { id: overrideId } })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/${overrideId}`).reply(200, { segment: { id: overrideId } })
 
     const result = await testDestination.getAudience({
       externalId: 'stale-id',
@@ -133,7 +134,7 @@ describe('getAudience', () => {
   })
 
   it('throws when the API responds 404', async () => {
-    nock(MNTN_BASE).get('/v2026/audience/segments/does-not-exist').reply(404, { error: { code: 'NotFound' } })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/does-not-exist`).reply(404, { error: { code: 'NotFound' } })
 
     await expect(
       testDestination.getAudience({
@@ -145,7 +146,7 @@ describe('getAudience', () => {
   })
 
   it('throws IntegrationError if the API response has no segment.id', async () => {
-    nock(MNTN_BASE).get('/v2026/audience/segments/seg-abc').reply(200, { segment: {} })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/seg-abc`).reply(200, { segment: {} })
 
     await expect(
       testDestination.getAudience({

@@ -9,6 +9,7 @@ import { processHashing } from '../../../lib/hashing-utils'
 import type { Payload } from './generated-types'
 import type { IdentifierKind, IdentityPayload, PayloadWithIndex } from './types'
 import { MNTN_API_BASE } from '../constants'
+import { MNTN_API_VERSION } from '../versioning-info'
 
 function sha256(value: string): string {
   return processHashing(value, 'sha256', 'hex')
@@ -106,7 +107,7 @@ export async function syncAudience(
       : { identities: adds.map(({ identity }) => identity) }
 
     try {
-      const response = await request(`${MNTN_API_BASE}/v2026/audience/segments/${encodedSegmentId}/identities`, {
+      const response = await request(`${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments/${encodedSegmentId}/identities`, {
         method: 'POST',
         json
       })
@@ -127,7 +128,7 @@ export async function syncAudience(
 
     try {
       const response = await request(
-        `${MNTN_API_BASE}/v2026/audience/segments/${encodedSegmentId}/identities/${encodedIds}`,
+        `${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments/${encodedSegmentId}/identities/${encodedIds}`,
         { method: 'DELETE' }
       )
       if (!isBatch) {
