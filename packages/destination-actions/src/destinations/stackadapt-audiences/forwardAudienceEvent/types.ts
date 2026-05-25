@@ -35,8 +35,18 @@ export interface Mapping {
   destinationKey: string
   label: string
   type: string
-  isPii: boolean  
+  isPii: boolean
   value?: string
 }
 
 export type MarketingStatus = typeof MarketingStatus[keyof typeof MarketingStatus]
+
+/** Destination action mapping config (unresolved DSL) passed via perform context. */
+export interface RawMapping {
+  custom_traits?: Record<string, unknown>
+  [key: string]: unknown
+}
+
+export interface PerformData {
+  rawMapping: RawMapping
+}

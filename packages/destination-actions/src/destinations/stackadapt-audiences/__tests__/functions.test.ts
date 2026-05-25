@@ -1,4 +1,69 @@
-import { stringifyJsonWithEscapedQuotes, stringifyMappingSchemaForGraphQL } from '../forwardAudienceEvent/functions'
+import {
+  getConfiguredFieldsToMap,
+  getConfiguredFieldTypes,
+  stringifyJsonWithEscapedQuotes,
+  stringifyMappingSchemaForGraphQL
+} from '../forwardAudienceEvent/functions'
+
+describe('getConfiguredFieldsToMap', () => {
+  it('includes default profile fields and custom traits from destination mapping', () => {
+    const fields = getConfiguredFieldsToMap({
+      custom_traits: {
+        stackadapt_audience_membership: { '@path': '$.traits.stackadapt_audience_membership' },
+        custom_trait_1: { '@path': '$.traits.custom_trait_1' }
+      }
+    })
+
+    expect(fields.has('email')).toBe(true)
+    expect(fields.has('first_name')).toBe(true)
+    expect(fields.has('stackadapt_audience_membership')).toBe(true)
+    expect(fields.has('custom_trait_1')).toBe(true)
+  })
+
+  it('excludes reserved audience computation keys from custom trait mappings', () => {
+    const fields = getConfiguredFieldsToMap(
+      {
+        custom_traits: {
+          first_time_buyer: { '@path': '$.traits.first_time_buyer' },
+          aud_123: { '@path': '$.traits.aud_123' },
+          other_trait: { '@path': '$.traits.other_trait' }
+        }
+      },
+      ['first_time_buyer', 'aud_123']
+    )
+
+    expect(fields.has('first_time_buyer')).toBe(false)
+    expect(fields.has('aud_123')).toBe(false)
+    expect(fields.has('other_trait')).toBe(true)
+  })
+
+  it('returns the same configured fields when custom traits are absent from batch payloads', () => {
+    const rawMapping = {
+      custom_traits: {
+        stackadapt_audience_membership: { '@path': '$.traits.stackadapt_audience_membership' }
+      }
+    }
+
+    const fieldsWithTrait = getConfiguredFieldsToMap(rawMapping)
+    const fieldsWithoutTrait = getConfiguredFieldsToMap(rawMapping)
+
+    expect(fieldsWithTrait).toEqual(fieldsWithoutTrait)
+    expect(fieldsWithTrait.has('stackadapt_audience_membership')).toBe(true)
+  })
+})
+
+describe('getConfiguredFieldTypes', () => {
+  it('defaults configured custom traits to STRING type', () => {
+    const fieldTypes = getConfiguredFieldTypes({
+      custom_traits: {
+        stackadapt_audience_membership: { '@path': '$.traits.stackadapt_audience_membership' }
+      }
+    })
+
+    expect(fieldTypes.birth_date).toBe('DATE')
+    expect(fieldTypes.stackadapt_audience_membership).toBe('STRING')
+  })
+})
 
 describe('stringifyJsonWithEscapedQuotes', () => {
   it('should escape quotes in a simple object', () => {
@@ -37,7 +102,6 @@ describe('stringifyJsonWithEscapedQuotes', () => {
     expect(stringifyJsonWithEscapedQuotes(true)).toBe('true')
     expect(stringifyJsonWithEscapedQuotes(null)).toBe('null')
   })
-
 })
 
 describe('stringifyMappingSchemaForGraphQL', () => {
@@ -59,7 +123,7 @@ describe('stringifyMappingSchemaForGraphQL', () => {
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
 
-  it('should transform type field when it\'s already uppercase', () => {
+  it("should transform type field when it's already uppercase", () => {
     const input = { type: 'STRING' }
     const expected = '{type:STRING}'
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
@@ -82,7 +146,8 @@ describe('stringifyMappingSchemaForGraphQL', () => {
         label: 'Email Address'
       }
     ]
-    const expected = '[{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"},{incomingKey:"email",destinationKey:"email",type:STRING,isPii:true,label:"Email Address"}]'
+    const expected =
+      '[{incomingKey:"userId",destinationKey:"external_id",type:STRING,isPii:false,label:"External Profile ID"},{incomingKey:"email",destinationKey:"email",type:STRING,isPii:true,label:"Email Address"}]'
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
 
@@ -130,4 +195,4 @@ describe('stringifyMappingSchemaForGraphQL', () => {
     const expected = '{field:{incomingKey:"nested",type:STRING},type:OBJECT}'
     expect(stringifyMappingSchemaForGraphQL(input)).toBe(expected)
   })
-}) 
+})
