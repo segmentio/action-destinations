@@ -453,9 +453,7 @@ describe('Iterable.updateUser', () => {
           type: 'identify',
           userId: 'seg_user_01',
           traits: {
-            email: 'megaman7@gmail.com'
-          },
-          properties: {
+            email: 'megaman7@gmail.com',
             newEmail: 'megaman8@gmail.com'
           }
         }),
@@ -463,9 +461,7 @@ describe('Iterable.updateUser', () => {
           type: 'identify',
           userId: 'gen_seg_01',
           traits: {
-            email: 'goldenaxe7@gmail.com'
-          },
-          properties: {
+            email: 'goldenaxe7@gmail.com',
             newEmail: 'goldenaxe8@gmail.com'
           }
         })
@@ -478,7 +474,7 @@ describe('Iterable.updateUser', () => {
         mapping: {
           email: { '@path': '$.traits.email' },
           userId: { '@path': '$.userId' },
-          newEmail: { '@path': '$.properties.newEmail' }
+          newEmail: { '@path': '$.traits.newEmail' }
         }
       })
 
