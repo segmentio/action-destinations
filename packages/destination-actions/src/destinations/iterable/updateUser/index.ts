@@ -100,30 +100,32 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 1001
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: async (request, { payload, settings }) => {
     if (!payload.email && !payload.userId) {
       throw new PayloadValidationError('Must include email or userId.')
     }
 
-    if (payload.newEmail) {
-      const endpoint = getRegionalEndpoint('updateEmail', settings.dataCenterLocation as DataCenterLocation)
-      return request(endpoint, {
-        method: 'post',
-        json: {
-          ...(payload.email ? { currentEmail: payload.email } : {}),
-          ...(payload.userId ? { currentUserId: payload.userId } : {}),
-          newEmail: payload.newEmail
-        },
-        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
-      })
-    }
-
     const updateUserRequestPayload: UserUpdateRequestPayload = transformIterableUserPayload(payload)
 
-    const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
-    return request(endpoint, {
+    const updateUserEndpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
+    const response = await request(updateUserEndpoint, {
       method: 'post',
       json: updateUserRequestPayload,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+    })
+
+    if (!payload.newEmail) {
+      return response
+    }
+
+    const updateEmailEndpoint = getRegionalEndpoint('updateEmail', settings.dataCenterLocation as DataCenterLocation)
+    return request(updateEmailEndpoint, {
+      method: 'post',
+      json: {
+        ...(payload.email ? { currentEmail: payload.email } : {}),
+        ...(payload.userId ? { currentUserId: payload.userId } : {}),
+        newEmail: payload.newEmail
+      },
       timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   },

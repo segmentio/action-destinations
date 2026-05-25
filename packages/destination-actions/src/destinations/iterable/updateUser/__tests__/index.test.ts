@@ -160,7 +160,7 @@ describe('Iterable.updateUser', () => {
   })
 
   describe('perform updateEmail', () => {
-    it('calls updateEmail endpoint with currentEmail when only email is provided', async () => {
+    it('calls updateUser first, then updateEmail with currentEmail when only email is provided', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: undefined,
@@ -169,6 +169,7 @@ describe('Iterable.updateUser', () => {
         }
       })
 
+      nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
       nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
 
       const responses = await testDestination.testAction('updateUser', {
@@ -179,15 +180,16 @@ describe('Iterable.updateUser', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].options.json).toEqual({
+      expect(responses.length).toBe(2)
+      expect(responses[0].url).toContain('/users/update')
+      expect(responses[1].url).toContain('/users/updateEmail')
+      expect(responses[1].options.json).toEqual({
         currentEmail: 'old@example.com',
         newEmail: 'new@example.com'
       })
     })
 
-    it('calls updateEmail endpoint when newEmail is provided with currentUserId', async () => {
+    it('calls updateUser first, then updateEmail with currentUserId when only userId is provided', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'seg_user_01',
@@ -196,6 +198,7 @@ describe('Iterable.updateUser', () => {
         }
       })
 
+      nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
       nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
 
       const responses = await testDestination.testAction('updateUser', {
@@ -206,9 +209,10 @@ describe('Iterable.updateUser', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(responses[0].options.json).toEqual({
+      expect(responses.length).toBe(2)
+      expect(responses[0].url).toContain('/users/update')
+      expect(responses[1].url).toContain('/users/updateEmail')
+      expect(responses[1].options.json).toEqual({
         currentUserId: 'seg_user_01',
         newEmail: 'updated@example.com'
       })
@@ -223,6 +227,7 @@ describe('Iterable.updateUser', () => {
         }
       })
 
+      nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
       nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
 
       const responses = await testDestination.testAction('updateUser', {
@@ -233,8 +238,48 @@ describe('Iterable.updateUser', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].options.json).toEqual({
+      expect(responses.length).toBe(2)
+      expect(responses[1].options.json).toEqual({
+        currentEmail: 'old@example.com',
+        currentUserId: 'seg_user_01',
+        newEmail: 'new@example.com'
+      })
+    })
+
+    it('calls updateUser with dataFields and then updateEmail', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'seg_user_01',
+        traits: {
+          email: 'old@example.com',
+          firstName: 'Jim',
+          phone: '+14158675309'
+        }
+      })
+
+      nock('https://api.iterable.com/api').post('/users/update').reply(200, {})
+      nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUser', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          newEmail: 'new@example.com'
+        }
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0].url).toContain('/users/update')
+      expect(responses[0].options.json).toMatchObject({
+        email: 'old@example.com',
+        userId: 'seg_user_01',
+        dataFields: {
+          firstName: 'Jim',
+          phoneNumber: '+14158675309'
+        }
+      })
+      expect(responses[1].url).toContain('/users/updateEmail')
+      expect(responses[1].options.json).toEqual({
         currentEmail: 'old@example.com',
         currentUserId: 'seg_user_01',
         newEmail: 'new@example.com'
@@ -249,6 +294,7 @@ describe('Iterable.updateUser', () => {
         }
       })
 
+      nock('https://api.eu.iterable.com/api').post('/users/update').reply(200, {})
       nock('https://api.eu.iterable.com/api').post('/users/updateEmail').reply(200, {})
 
       const responses = await testDestination.testAction('updateUser', {
@@ -260,8 +306,9 @@ describe('Iterable.updateUser', () => {
         }
       })
 
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
+      expect(responses.length).toBe(2)
+      expect(responses[0].url).toContain('/users/update')
+      expect(responses[1].url).toContain('/users/updateEmail')
     })
   })
 
