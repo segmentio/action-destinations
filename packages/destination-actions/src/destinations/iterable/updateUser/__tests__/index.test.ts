@@ -406,20 +406,20 @@ describe('Iterable.updateUser', () => {
       expect(responses[0].options.json).not.toHaveProperty('updateOnly')
     })
 
-    it('includes newEmail in dataFields.email for batch processing', async () => {
+    it('does not set newEmail in dataFields.email when newEmail is not provided', async () => {
       const events = [
         createTestEvent({
           type: 'identify',
           userId: 'seg_user_01',
           traits: {
-            email: 'old1@example.com'
+            name: 'User One'
           }
         }),
         createTestEvent({
           type: 'identify',
           userId: 'seg_user_02',
           traits: {
-            email: 'old2@example.com'
+            name: 'User Two'
           }
         })
       ]
@@ -429,9 +429,6 @@ describe('Iterable.updateUser', () => {
       const responses = await testDestination.testBatchAction('updateUser', {
         events,
         useDefaultMappings: true,
-        mapping: {
-          newEmail: { '@path': '$.properties.newEmail' }
-        },
         settings: { apiKey: 'testApiKey', dataCenterLocation: 'united_states' }
       })
 
@@ -439,15 +436,15 @@ describe('Iterable.updateUser', () => {
       expect(responses[0].options.json).toMatchObject({
         users: [
           {
-            email: 'old1@example.com',
             userId: 'seg_user_01'
           },
           {
-            email: 'old2@example.com',
             userId: 'seg_user_02'
           }
         ]
       })
+      expect(responses[0].options.json.users[0].dataFields).not.toHaveProperty('email')
+      expect(responses[0].options.json.users[1].dataFields).not.toHaveProperty('email')
     })
 
     it('includes newEmail in dataFields.email when newEmail is provided in batch', async () => {

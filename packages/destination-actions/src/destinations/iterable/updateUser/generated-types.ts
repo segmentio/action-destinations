@@ -10,7 +10,7 @@ export interface Payload {
    */
   userId?: string
   /**
-   * The new email address to assign to the user. For single event processing, Segment will call Iterable's updateEmail API using both userId and email as identifiers when available. For batch processing, the new email is set via the bulkUpdate API by including it in dataFields — this only works for hybrid projects, not email-only projects.
+   * The new email address to assign to the user. For single event processing, Segment makes a separate API call to set the new email address. Batch updating a profile email address is only supported for Hybrid projects.
    */
   newEmail?: string
   /**
