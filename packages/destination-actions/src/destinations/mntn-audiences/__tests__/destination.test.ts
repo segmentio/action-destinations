@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration, IntegrationError, PayloadValidationError } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 import { MNTN_API_VERSION } from '../versioning-info'
 
@@ -7,7 +7,6 @@ const testDestination = createTestIntegration(Destination as any)
 
 const MNTN_BASE = 'https://integrations.ex.mountain.com'
 const TEST_SETTINGS = {
-  advertiser_id: 'adv-001',
   api_key: 'test-api-key-secret'
 }
 

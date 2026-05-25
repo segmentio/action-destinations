@@ -14,13 +14,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      advertiser_id: {
-        label: 'Advertiser ID',
-        description:
-          'Your MNTN Advertiser ID, provided when you register as an MNTN advertiser. Contact your MNTN account manager if you need help locating this.',
-        type: 'string',
-        required: true
-      },
       api_key: {
         label: 'API Key',
         description:

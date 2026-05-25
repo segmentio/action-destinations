@@ -32,7 +32,6 @@ const IP = '9.165.155.19'
 const TIMESTAMP = '2026-03-25T10:00:00.000Z'
 
 const TEST_SETTINGS = {
-  advertiser_id: 'adv-001',
   api_key: 'test-api-key-secret'
 }
 

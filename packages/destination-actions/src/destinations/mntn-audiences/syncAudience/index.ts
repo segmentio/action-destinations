@@ -46,7 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
     phone: {
       label: 'Phone Number',
       description:
-        "The user's phone number. Non-numeric characters (including the + prefix) are removed, and the number is hashed before sending to MNTN.",
+        "The user's phone number. Non-numeric characters (including the + prefix) are removed. Sent to MNTN in normalized plaintext and as a SHA-256 hash for audience matching.",
       type: 'string',
       default: {
         '@if': {

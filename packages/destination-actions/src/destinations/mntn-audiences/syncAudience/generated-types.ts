@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * The ID of the MNTN audience segment to sync this user into or out of. Automatically populated from the audience setup — do not change unless overriding.
+   * The ID of the MNTN audience segment to sync to. Customers should not need to edit this field.
    */
   segment_id: string
   /**
-   * A stable identifier for this user in MNTN. Must be consistent between add and remove operations for the same user. Defaults to userId, falling back to anonymousId.
+   * A stable identifier for this user in MNTN. Defaults to userId, falling back to anonymousId.
    */
   identity_id: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   email?: string
   /**
-   * The user's phone number. All non-numeric characters (including the + prefix) are stripped before sending and hashing per MNTN API spec. Sent in normalized form and as a SHA-256 hash.
+   * The user's phone number. Non-numeric characters (including the + prefix) are removed. Sent to MNTN in normalized plaintext and as a SHA-256 hash for audience matching.
    */
   phone?: string
   /**

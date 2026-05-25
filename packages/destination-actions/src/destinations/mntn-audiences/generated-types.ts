@@ -2,10 +2,6 @@
 
 export interface Settings {
   /**
-   * Your MNTN Advertiser ID, provided when you register as an MNTN advertiser. Contact your MNTN account manager if you need help locating this.
-   */
-  advertiser_id: string
-  /**
    * Your MNTN Audience API key, issued via the MNTN Integrations Marketplace. Treat this value as a secret — do not share it or commit it to source control.
    */
   api_key: string
