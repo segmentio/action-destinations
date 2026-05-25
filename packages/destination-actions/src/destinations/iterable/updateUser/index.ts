@@ -53,7 +53,7 @@ const action: ActionDefinition<Settings, Payload> = {
     newEmail: {
       label: 'New Email Address',
       description:
-        "The new email address to assign to the user. When provided, Segment will call Iterable's updateEmail API to change the user's email. The userId field will be used to identify the user if present, otherwise the email field will be used as the current email identifier.",
+        "The new email address to assign to the user. For single event processing, Segment will call Iterable's updateEmail API using both userId and email as identifiers when available. For batch processing, the new email is set via the bulkUpdate API by including it in dataFields — this only works for hybrid projects, not email-only projects.",
       type: 'string',
       format: 'email',
       required: false
@@ -110,7 +110,8 @@ const action: ActionDefinition<Settings, Payload> = {
       return request(endpoint, {
         method: 'post',
         json: {
-          ...(payload.userId ? { currentUserId: payload.userId } : { currentEmail: payload.email }),
+          ...(payload.email ? { currentEmail: payload.email } : {}),
+          ...(payload.userId ? { currentUserId: payload.userId } : {}),
           newEmail: payload.newEmail
         },
         timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
@@ -128,9 +129,19 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: (request, { settings, payload }) => {
     const { updateOnly } = payload[0]
+    const users = payload.map((p) => {
+      const user = transformIterableUserPayload(p)
+      if (p.newEmail) {
+        user.dataFields = {
+          ...user.dataFields,
+          email: p.newEmail
+        }
+      }
+      return user
+    })
     const bulkUpdateUserRequestPayload: BulkUserUpdateRequestPayload = {
-      ...( updateOnly ? { updateOnly } : {}),
-      users: payload.map(transformIterableUserPayload)
+      ...(updateOnly ? { updateOnly } : {}),
+      users
     }
 
     const endpoint = getRegionalEndpoint('bulkUpdateUser', settings.dataCenterLocation as DataCenterLocation)
