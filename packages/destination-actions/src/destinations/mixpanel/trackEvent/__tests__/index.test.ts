@@ -4,7 +4,6 @@ import Destination from '../../index'
 import { ApiRegions, StrictMode } from '../../common/utils'
 
 const testDestination = createTestIntegration(Destination)
-const MIXPANEL_API_SECRET = 'test-api-key'
 const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
 const timestamp = '2021-08-17T15:21:15.449Z'
 
@@ -31,7 +30,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -56,7 +54,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.EU
       }
     })
@@ -81,7 +78,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.IN
       }
     })
@@ -106,7 +102,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       }
     })
     expect(responses.length).toBe(1)
@@ -130,7 +125,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         sourceName: 'example segment source name'
       }
     })
@@ -157,7 +151,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       }
     })
     expect(responses.length).toBe(1)
@@ -183,7 +176,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -208,7 +200,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US,
         strictMode: StrictMode.ON
       }
@@ -234,7 +225,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US,
         strictMode: StrictMode.OFF
       }
@@ -272,7 +262,6 @@ describe('Mixpanel.trackEvent', () => {
       event,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       },
       useDefaultMappings: true,
       mapping: {
@@ -306,7 +295,6 @@ describe('Mixpanel.trackEvent', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
