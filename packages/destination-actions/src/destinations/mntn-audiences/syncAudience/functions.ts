@@ -17,22 +17,37 @@ function sha256(value: string): string {
 
 export function buildIdentity(payload: Payload): IdentityPayload {
   const { email, phone, ip, maid, identity_id, timestamp } = payload
-  const identifiers: Array<{ kind: IdentifierKind; value: string }> = [
-    ...(email
-      ? [
-          { kind: 'email' as const, value: email.toLowerCase().trim() },
-          { kind: 'email_sha256' as const, value: sha256(email.toLowerCase().trim()) }
-        ]
-      : []),
-    ...(phone
-      ? [
-          { kind: 'phone' as const, value: phone.replace(/\D/g, '') },
-          { kind: 'phone_sha256' as const, value: sha256(phone.replace(/\D/g, '')) }
-        ]
-      : []),
-    ...(ip ? [{ kind: 'ipv4' as const, value: ip.trim() }] : []),
-    ...(maid ? [{ kind: 'maid' as const, value: maid.trim() }] : [])
-  ]
+  const identifiers: Array<{ kind: IdentifierKind; value: string }> = []
+
+  if (email) {
+    const normalized = email.toLowerCase().trim()
+    if (normalized) {
+      identifiers.push({ kind: 'email', value: normalized })
+      identifiers.push({ kind: 'email_sha256', value: sha256(normalized) })
+    }
+  }
+
+  if (phone) {
+    const normalized = phone.replace(/\D/g, '')
+    if (normalized) {
+      identifiers.push({ kind: 'phone', value: normalized })
+      identifiers.push({ kind: 'phone_sha256', value: sha256(normalized) })
+    }
+  }
+
+  if (ip) {
+    const normalized = ip.trim()
+    if (normalized) {
+      identifiers.push({ kind: 'ipv4', value: normalized })
+    }
+  }
+
+  if (maid) {
+    const normalized = maid.trim()
+    if (normalized) {
+      identifiers.push({ kind: 'maid', value: normalized })
+    }
+  }
 
   return {
     id: identity_id,
