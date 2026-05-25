@@ -29,7 +29,7 @@ const transformIterableUserPayload: (payload: Payload) => UserUpdateRequestPaylo
   const phoneNumber = payload.phoneNumber
   const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
   const userUpdateRequest: UserUpdateRequestPayload = {
-    ...omit(payload, ['updateOnly', 'enable_batching', 'batch_size', 'phoneNumber']),
+    ...omit(payload, ['newEmail', 'updateOnly', 'enable_batching', 'batch_size', 'phoneNumber']),
     dataFields: {
       ...formattedDataFields,
       phoneNumber: phoneNumber
@@ -49,6 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userId: {
       ...USER_ID_FIELD
+    },
+    newEmail: {
+      label: 'New Email Address',
+      description:
+        "The new email address to assign to the user. When provided, Segment will call Iterable's updateEmail API to change the user's email. The userId field will be used to identify the user if present, otherwise the email field will be used as the current email identifier.",
+      type: 'string',
+      format: 'email',
+      required: false
     },
     dataFields: {
       ...USER_DATA_FIELDS
@@ -95,6 +103,18 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     if (!payload.email && !payload.userId) {
       throw new PayloadValidationError('Must include email or userId.')
+    }
+
+    if (payload.newEmail) {
+      const endpoint = getRegionalEndpoint('updateEmail', settings.dataCenterLocation as DataCenterLocation)
+      return request(endpoint, {
+        method: 'post',
+        json: {
+          ...(payload.userId ? { currentUserId: payload.userId } : { currentEmail: payload.email }),
+          newEmail: payload.newEmail
+        },
+        timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+      })
     }
 
     const updateUserRequestPayload: UserUpdateRequestPayload = transformIterableUserPayload(payload)

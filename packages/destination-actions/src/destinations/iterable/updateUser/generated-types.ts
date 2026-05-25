@@ -10,6 +10,10 @@ export interface Payload {
    */
   userId?: string
   /**
+   * The new email address to assign to the user. When provided, Segment will call Iterable's updateEmail API to change the user's email. The userId field will be used to identify the user if present, otherwise the email field will be used as the current email identifier.
+   */
+  newEmail?: string
+  /**
    * Data to store on the user profile.
    */
   dataFields?: {

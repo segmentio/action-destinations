@@ -158,6 +158,112 @@ describe('Iterable.updateUser', () => {
       })
     })
   })
+
+  describe('perform updateEmail', () => {
+    it('calls updateEmail endpoint when newEmail is provided with currentEmail', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: undefined,
+        traits: {
+          email: 'old@example.com'
+        }
+      })
+
+      nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUser', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          newEmail: 'new@example.com'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual({
+        currentEmail: 'old@example.com',
+        newEmail: 'new@example.com'
+      })
+    })
+
+    it('calls updateEmail endpoint when newEmail is provided with currentUserId', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'seg_user_01',
+        traits: {
+          firstName: 'Test'
+        }
+      })
+
+      nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUser', {
+        event,
+        mapping: {
+          userId: { '@path': '$.userId' },
+          newEmail: 'updated@example.com'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toEqual({
+        currentUserId: 'seg_user_01',
+        newEmail: 'updated@example.com'
+      })
+    })
+
+    it('prefers currentUserId over currentEmail when both are provided with newEmail', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'seg_user_01',
+        traits: {
+          email: 'old@example.com'
+        }
+      })
+
+      nock('https://api.iterable.com/api').post('/users/updateEmail').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUser', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          newEmail: 'new@example.com'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].options.json).toEqual({
+        currentUserId: 'seg_user_01',
+        newEmail: 'new@example.com'
+      })
+    })
+
+    it('uses EU endpoint for updateEmail when dataCenterLocation is europe', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        traits: {
+          email: 'old@example.com'
+        }
+      })
+
+      nock('https://api.eu.iterable.com/api').post('/users/updateEmail').reply(200, {})
+
+      const responses = await testDestination.testAction('updateUser', {
+        event,
+        useDefaultMappings: true,
+        settings: { apiKey: 'testApiKey', dataCenterLocation: 'europe' },
+        mapping: {
+          newEmail: 'new@example.com'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+  })
+
   describe('performBatch', () => {
     it('works with default mappings', async () => {
       const events = [createTestEvent({ type: 'identify' }), createTestEvent({ type: 'identify' })]
