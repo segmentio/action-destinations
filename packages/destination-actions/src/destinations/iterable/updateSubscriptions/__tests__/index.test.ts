@@ -446,7 +446,17 @@ describe('Iterable.updateSubscriptions', () => {
         }
       })
 
-      expect(response[0].status).toBe(200)
+      const multistatus = testDestination.results[0].multistatus
+
+      expect(multistatus).toBeDefined()
+      expect(multistatus![0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Must include email or userId in identifier.'
+      })
+      expect(multistatus![1]).toMatchObject({
+        status: 200
+      })
     })
 
     it('marks all payloads as failed when API call fails', async () => {
@@ -472,7 +482,17 @@ describe('Iterable.updateSubscriptions', () => {
         mapping: defaultMapping
       })
 
-      expect(response[0].status).toBe(400)
+      const multistatus = testDestination.results[0].multistatus
+
+      expect(multistatus).toBeDefined()
+      expect(multistatus![0]).toMatchObject({
+        status: 400,
+        errortype: 'UNKNOWN_ERROR'
+      })
+      expect(multistatus![1]).toMatchObject({
+        status: 400,
+        errortype: 'UNKNOWN_ERROR'
+      })
     })
   })
 })

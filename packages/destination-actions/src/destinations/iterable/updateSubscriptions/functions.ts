@@ -10,6 +10,10 @@ export async function performUpdateSubscriptions(request: RequestClient, payload
   const { subscriptions } = payload
   const subscriptionCount = subscriptions.length
 
+  if (subscriptionCount === 0) {
+    throw new PayloadValidationError('At least one subscription item is required.')
+  }
+
   if (subscriptionCount > MAX_SUBSCRIPTION_ITEMS) {
     throw new PayloadValidationError(`Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`)
   }
@@ -35,6 +39,16 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   payloads.forEach((payload, index) => {
     const sent = payload as unknown as JSONLikeObject
     const subscriptionCount = payload.subscriptions.length
+
+    if (subscriptionCount === 0) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'At least one subscription item is required.',
+        sent
+      })
+      return
+    }
 
     if (subscriptionCount > MAX_SUBSCRIPTION_ITEMS) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
@@ -111,7 +125,8 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
         status,
         errortype: 'UNKNOWN_ERROR',
         errormessage,
-        sent: sentBody as unknown as JSONLikeObject
+        sent: payloads[index] as unknown as JSONLikeObject,
+        body: sentBody as unknown as JSONLikeObject
       })
     })
   }
