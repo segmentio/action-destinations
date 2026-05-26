@@ -1,7 +1,17 @@
 import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
+import fetch from 'node-fetch'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp, timestampToEpochMicroseconds } from '../functions'
+import {
+  CANARY_API_VERSION,
+  DATA_MANAGER_BASE_URL,
+  formatToE164,
+  commonEmailValidation,
+  convertTimestamp,
+  timestampToEpochMicroseconds,
+  createDataManagerUserList,
+  getDataManagerUserList
+} from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -23,6 +33,7 @@ describe('.getConversionActionId', () => {
       auth
     })) as DynamicFieldResponse
 
+    console.log(DATA_MANAGER_BASE_URL, 'DATA_MANAGER_BASE_URL')
     expect(responses.choices.length).toBeGreaterThanOrEqual(0)
   })
 })
@@ -207,3 +218,151 @@ describe('timestampToEpochMicroseconds', () => {
   })
 })
 
+// Minimal request client stub for unit testing Data Manager functions
+const makeRequest = (nockFn: () => void) => {
+  nockFn()
+  // Return a RequestClient-compatible function that delegates to nock via fetch
+  const requestClient = async (url: string, options: any) => {
+    const res = await fetch(url, {
+      method: options.method ?? 'GET',
+      headers: { ...options.headers, 'content-type': 'application/json' },
+      body: options.json ? JSON.stringify(options.json) : undefined
+    })
+    const data = await res.json()
+    return { data, status: res.status, content: JSON.stringify(data) }
+  }
+  return requestClient as any
+}
+
+describe('createDataManagerUserList', () => {
+  const OLD_ENV = process.env
+
+  beforeEach(() => {
+    process.env = { ...OLD_ENV, GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID: '9999999999' }
+  })
+
+  afterEach(() => {
+    process.env = OLD_ENV
+    nock.cleanAll()
+  })
+
+  it('creates a CONTACT_INFO user list and returns the response', async () => {
+    const mockResponse = {
+      name: 'accountTypes/GOOGLE_ADS/accounts/1234567890/userLists/111',
+      id: '111',
+      displayName: 'Test List'
+    }
+
+    nock('https://datamanager.googleapis.com')
+      .post('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists', (body: any) => {
+        return body.displayName === 'Test List' && body.uploadKeyTypes[0] === 'CONTACT_ID'
+      })
+      .reply(200, mockResponse)
+
+    const request = makeRequest(() => {})
+    // Use nock intercept directly with node-fetch — re-stub here
+    nock('https://datamanager.googleapis.com')
+      .post('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists')
+      .reply(200, mockResponse)
+
+    const result = await createDataManagerUserList(request, '1234567890', 'Test List', 'CONTACT_INFO')
+    expect(result.id).toBe('111')
+    expect(result.displayName).toBe('Test List')
+  })
+
+  it('maps MOBILE_ADVERTISING_ID to MOBILE_ID uploadKeyType', async () => {
+    const mockResponse = {
+      name: 'accountTypes/GOOGLE_ADS/accounts/1234567890/userLists/222',
+      id: '222',
+      displayName: 'Mobile List'
+    }
+
+    nock('https://datamanager.googleapis.com')
+      .post('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists', (body: any) => {
+        return body.uploadKeyTypes[0] === 'MOBILE_ID'
+      })
+      .reply(200, mockResponse)
+
+    const request = makeRequest(() => {})
+    nock('https://datamanager.googleapis.com')
+      .post('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists')
+      .reply(200, mockResponse)
+
+    const result = await createDataManagerUserList(request, '1234567890', 'Mobile List', 'MOBILE_ADVERTISING_ID')
+    expect(result.id).toBe('222')
+  })
+
+  it('maps CRM_ID to USER_ID uploadKeyType', async () => {
+    const mockResponse = {
+      name: 'accountTypes/GOOGLE_ADS/accounts/1234567890/userLists/333',
+      id: '333',
+      displayName: 'CRM List'
+    }
+
+    nock('https://datamanager.googleapis.com')
+      .post('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists', (body: any) => {
+        return body.uploadKeyTypes[0] === 'USER_ID'
+      })
+      .reply(200, mockResponse)
+
+    const request = makeRequest(() => {})
+    nock('https://datamanager.googleapis.com')
+      .post('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists')
+      .reply(200, mockResponse)
+
+    const result = await createDataManagerUserList(request, '1234567890', 'CRM List', 'CRM_ID')
+    expect(result.id).toBe('333')
+  })
+
+  it('throws if GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID is not set', async () => {
+    delete process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+
+    const request = makeRequest(() => {})
+    await expect(createDataManagerUserList(request, '1234567890', 'Test List', 'CONTACT_INFO')).rejects.toThrow(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var is not set.'
+    )
+  })
+})
+
+describe('getDataManagerUserList', () => {
+  const OLD_ENV = process.env
+
+  beforeEach(() => {
+    process.env = { ...OLD_ENV, GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID: '9999999999' }
+  })
+
+  afterEach(() => {
+    process.env = OLD_ENV
+    nock.cleanAll()
+  })
+
+  it('retrieves a user list by ID', async () => {
+    const mockResponse = {
+      name: 'accountTypes/GOOGLE_ADS/accounts/1234567890/userLists/111',
+      id: '111',
+      displayName: 'Existing List'
+    }
+
+    nock('https://datamanager.googleapis.com')
+      .get('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists/111')
+      .reply(200, mockResponse)
+
+    const request = makeRequest(() => {})
+    nock('https://datamanager.googleapis.com')
+      .get('/v1/accountTypes/GOOGLE_ADS/accounts/1234567890/userLists/111')
+      .reply(200, mockResponse)
+
+    const result = await getDataManagerUserList(request, '1234567890', '111')
+    expect(result.id).toBe('111')
+    expect(result.displayName).toBe('Existing List')
+  })
+
+  it('throws if GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID is not set', async () => {
+    delete process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+
+    const request = makeRequest(() => {})
+    await expect(getDataManagerUserList(request, '1234567890', '111')).rejects.toThrow(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var is not set.'
+    )
+  })
+})

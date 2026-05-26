@@ -104,14 +104,14 @@ export interface ClickConversionRequestObjectInterface {
 export type KeyValuePairList = Array<KeyValueItem>
 
 export type KeyValueItem = {
-  sessionAttributeKey: 
-    'gad_source' 
-  | 'gad_campaignid' 
-  | 'landing_page_url' 
-  | 'session_start_time_usec' 
-  | 'landing_page_referrer' 
-  | 'landing_page_user_agent'
-  sessionAttributeValue?: string 
+  sessionAttributeKey:
+    | 'gad_source'
+    | 'gad_campaignid'
+    | 'landing_page_url'
+    | 'session_start_time_usec'
+    | 'landing_page_referrer'
+    | 'landing_page_user_agent'
+  sessionAttributeValue?: string
 }
 
 export interface ConversionActionId {
@@ -157,6 +157,7 @@ export interface CreateAudienceInput {
   audienceName: string
   settings: {
     customerId?: string
+    loginCustomerId?: string
     conversionTrackingId?: string
     oauth?: {
       refresh_token?: string
@@ -213,4 +214,92 @@ export interface AddOperationPayload {
   operations: any[]
   enablePartialFailure?: boolean
   enableWarnings?: boolean
+}
+
+// Data Manager API types
+export interface DataManagerProductAccount {
+  accountId: string
+  accountType:
+    | 'GOOGLE_ADS'
+    | 'DATA_PARTNER'
+    | 'DISPLAY_VIDEO_ADVERTISER'
+    | 'DISPLAY_VIDEO_PARTNER'
+    | 'GOOGLE_ANALYTICS_PROPERTY'
+}
+
+export interface DataManagerDestination {
+  operatingAccount: DataManagerProductAccount
+  loginAccount: DataManagerProductAccount
+  linkedAccount?: DataManagerProductAccount
+  productDestinationId: string
+  reference?: string
+}
+
+export interface DataManagerConsent {
+  adUserData: string
+  adPersonalization: string
+}
+
+export interface DataManagerUserIdentifier {
+  emailAddress?: string
+  phoneNumber?: string
+  address?: {
+    givenName?: string
+    familyName?: string
+    postalCode?: string
+    regionCode?: string
+  }
+}
+
+export interface DataManagerUserData {
+  userIdentifiers: DataManagerUserIdentifier[]
+}
+
+export interface DataManagerMobileData {
+  mobileIds: string[]
+  keySpace?: 'IOS' | 'ANDROID'
+}
+
+export interface DataManagerUserIdData {
+  userId: string
+}
+
+export interface DataManagerAudienceMember {
+  userData?: DataManagerUserData
+  mobileData?: DataManagerMobileData
+  userIdData?: DataManagerUserIdData
+  consent?: DataManagerConsent
+  destinationReferences?: string[]
+}
+
+export interface IngestAudienceMembersRequest {
+  destinations: DataManagerDestination[]
+  audienceMembers: DataManagerAudienceMember[]
+  consent?: DataManagerConsent
+  encoding?: string
+  termsOfService?: {
+    customerMatchTermsOfServiceStatus: 'ACCEPTED' | 'REJECTED' | 'UNSPECIFIED'
+  }
+  validateOnly?: boolean
+}
+
+export interface IngestAudienceMembersResponse {
+  requestId: string
+}
+
+export interface PartnerLinkResponse {
+  name: string // "accountTypes/GOOGLE_ADS/accounts/{CID}/partnerLinks/{ID}"
+  partnerLinkId: string
+  owningAccount: DataManagerProductAccount
+  partnerAccount: DataManagerProductAccount
+}
+
+export interface DataManagerUserList {
+  name: string // "accountTypes/GOOGLE_ADS/accounts/{CID}/userLists/{ID}"
+  id: string
+  displayName: string
+  description?: string
+  membershipDuration?: string
+  uploadKeyTypes?: string[]
+  membershipStatus?: string
 }

@@ -14,7 +14,13 @@ import {
   OfflineUserJobPayload,
   AddOperationPayload,
   KeyValuePairList,
-  KeyValueItem
+  KeyValueItem,
+  DataManagerDestination,
+  DataManagerAudienceMember,
+  IngestAudienceMembersRequest,
+  IngestAudienceMembersResponse,
+  PartnerLinkResponse,
+  DataManagerUserList
 } from './types'
 import {
   ModifiedResponse,
@@ -46,6 +52,155 @@ export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+export const FLAGON_NAME_DATA_MANAGER = 'google-enhanced-conversions-data-manager'
+export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
+
+/**
+ * Creates a one-time partner link between the advertiser's Google Ads account
+ * and Segment's Data Partner account.
+ *
+ * Called once during customer onboarding (retlOnMappingSave hook).
+ * Uses the advertiser's short-lived partnerlink-scoped token, NOT Segment's token.
+ * After this call succeeds, that token is never used again.
+ *
+ * Requires:
+ *   - advertiserPartnerLinkToken: advertiser's OAuth token with scope
+ *       https://www.googleapis.com/auth/datamanager.partnerlink
+ *   - advertiserCustomerId: the advertiser's Google Ads CID (digits only)
+ *   - GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var: Segment's data partner CID
+ */
+export const createPartnerLink = async (
+  request: RequestClient,
+  advertiserPartnerLinkToken: string,
+  advertiserCustomerId: string
+): Promise<PartnerLinkResponse> => {
+  const partnerAccountId = process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+  if (!partnerAccountId) {
+    throw new IntegrationError(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var is not set.',
+      'MISSING_PARTNER_ACCOUNT_ID',
+      400
+    )
+  }
+
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${advertiserCustomerId}/partnerLinks`
+
+  const response = await request<PartnerLinkResponse>(url, {
+    method: 'POST',
+    headers: {
+      // Use the advertiser's partnerlink-scoped token directly,
+      // not Segment's own token injected by extendRequest.
+      authorization: `Bearer ${advertiserPartnerLinkToken}`
+    },
+    json: {
+      owningAccount: {
+        accountId: advertiserCustomerId,
+        accountType: 'GOOGLE_ADS'
+      },
+      partnerAccount: {
+        accountId: partnerAccountId,
+        accountType: 'DATA_PARTNER'
+      }
+    }
+  })
+
+  return response.data
+}
+
+/**
+ * Creates a user list via the Data Manager API.
+ * Called from both the retlOnMappingSave hook (userList action) and createAudience (index.ts).
+ * Uses Segment's OAuth token (injected by extendRequest), not the advertiser's token.
+ */
+export const createDataManagerUserList = async (
+  request: RequestClient,
+  advertiserCustomerId: string,
+  displayName: string,
+  uploadKeyType: string,
+  loginCustomerId?: string,
+  appId?: string,
+  membershipDuration?: string
+): Promise<DataManagerUserList> => {
+  const partnerAccountId = process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+  if (!partnerAccountId) {
+    throw new IntegrationError(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var is not set.',
+      'MISSING_PARTNER_ACCOUNT_ID',
+      400
+    )
+  }
+
+  // Map legacy Google Ads uploadKeyType values to Data Manager uploadKeyTypes
+  const uploadKeyTypeMap: Record<string, string> = {
+    CONTACT_INFO: 'CONTACT_ID',
+    CRM_ID: 'USER_ID',
+    MOBILE_ADVERTISING_ID: 'MOBILE_ID'
+  }
+  const dmUploadKeyType = uploadKeyTypeMap[uploadKeyType] ?? uploadKeyType
+
+  const parent = `accountTypes/GOOGLE_ADS/accounts/${advertiserCustomerId}`
+  const url = `${DATA_MANAGER_BASE_URL}/${parent}/userLists`
+
+  const body: Record<string, unknown> = {
+    displayName,
+    uploadKeyTypes: [dmUploadKeyType],
+    ...(membershipDuration && { membershipDuration }),
+    ...(appId && dmUploadKeyType === 'MOBILE_ID' && { mobileIdInfo: { appId } })
+  }
+
+  const headers: Record<string, string> = {
+    'login-account': `accountTypes/DATA_PARTNER/accounts/${partnerAccountId}`
+  }
+  if (loginCustomerId) {
+    headers['linked-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId.replace(/-/g, '')}`
+  }
+
+  const response = await request<DataManagerUserList>(url, {
+    method: 'POST',
+    headers,
+    json: body
+  })
+
+  return response.data
+}
+
+/**
+ * Retrieves a user list via the Data Manager API.
+ * Called from both the retlOnMappingSave hook (userList action) and getAudience (index.ts).
+ */
+export const getDataManagerUserList = async (
+  request: RequestClient,
+  advertiserCustomerId: string,
+  userListId: string,
+  loginCustomerId?: string
+): Promise<DataManagerUserList> => {
+  const partnerAccountId = process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+  if (!partnerAccountId) {
+    throw new IntegrationError(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var is not set.',
+      'MISSING_PARTNER_ACCOUNT_ID',
+      400
+    )
+  }
+
+  const name = `accountTypes/GOOGLE_ADS/accounts/${advertiserCustomerId}/userLists/${userListId}`
+  const url = `${DATA_MANAGER_BASE_URL}/${name}`
+
+  const headers: Record<string, string> = {
+    'login-account': `accountTypes/DATA_PARTNER/accounts/${partnerAccountId}`
+  }
+  if (loginCustomerId) {
+    headers['linked-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId.replace(/-/g, '')}`
+  }
+
+  const response = await request<DataManagerUserList>(url, {
+    method: 'GET',
+    headers
+  })
+
+  return response.data
+}
+
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
@@ -321,6 +476,28 @@ export async function createGoogleAudience(
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
   }
 
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  // Data Manager path
+  if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+    const userList = await createDataManagerUserList(
+      request,
+      input.settings.customerId!,
+      input.audienceName,
+      input.audienceSettings.external_id_type ?? 'CONTACT_INFO',
+      input.settings.loginCustomerId,
+      input.audienceSettings.app_id
+    )
+    if (!userList.id) {
+      statsClient?.incr('createAudience.error', 1, statsTags)
+      throw new IntegrationError('Failed to receive a created customer list id.', 'INVALID_RESPONSE', 400)
+    }
+    statsClient?.incr('createAudience.success', 1, statsTags)
+    return userList.id
+  }
+
+  // Legacy Google Ads API path
   if (
     !auth?.refresh_token ||
     !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
@@ -341,8 +518,6 @@ export async function createGoogleAudience(
 
   const accessToken = res.data.access_token
 
-  const statsClient = statsContext?.statsClient
-  const statsTags = statsContext?.tags
   const json = {
     operations: [
       {
@@ -392,6 +567,25 @@ export async function getGoogleAudience(
   features?: Features | undefined,
   statsContext?: StatsContext
 ) {
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  // Data Manager path
+  if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+    const userList = await getDataManagerUserList(request, settings.customerId!, externalId, settings.loginCustomerId)
+    if (!userList.id) {
+      statsClient?.incr('getAudience.error', 1, statsTags)
+      throw new IntegrationError('Failed to receive a customer list.', 'INVALID_RESPONSE', 400)
+    }
+    statsClient?.incr('getAudience.success', 1, statsTags)
+    // Return in UserListResponse shape so callers that use .results[0].userList still work
+    return {
+      results: [{ userList: { resourceName: userList.name, id: userList.id, name: userList.displayName } }],
+      fieldMask: ''
+    } as UserListResponse
+  }
+
+  // Legacy Google Ads API path
   if (
     !auth?.refresh_token ||
     !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
@@ -411,8 +605,6 @@ export async function getGoogleAudience(
   })
 
   const accessToken = res.data.access_token
-  const statsClient = statsContext?.statsClient
-  const statsTags = statsContext?.tags
   const json = {
     query: `SELECT user_list.id, user_list.name FROM user_list where user_list.id = '${externalId}'`
   }
@@ -702,7 +894,36 @@ export const handleUpdate = async (
     throw new PayloadValidationError('External Audience ID is required.')
   }
   const id_type = hookListType ?? audienceSettings.external_id_type
-  // Format the user data for Google Ads API
+
+  // Data Manager path (new)
+  if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+    const destination = buildDataManagerDestination(settings.customerId!, externalAudienceId, settings.loginCustomerId)
+    const { addMembers, removeMembers } = buildDataManagerAudienceMembers(
+      payloads,
+      id_type,
+      syncMode,
+      features,
+      statsContext
+    )
+    if (addMembers.length > 0) {
+      const result = await ingestDataManagerAudienceMembers(request, addMembers, destination, payloads[0], statsContext)
+      if (!result.success) throw result.error
+    }
+    if (removeMembers.length > 0) {
+      const result = await removeDataManagerAudienceMembers(
+        request,
+        removeMembers,
+        destination,
+        payloads[0],
+        statsContext
+      )
+      if (!result.success) throw result.error
+    }
+    statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+    return
+  }
+
+  // Legacy OfflineUserDataJobs path
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(
     payloads,
     id_type,
@@ -711,7 +932,6 @@ export const handleUpdate = async (
     statsContext
   )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
-  // Create an offline user data job
   const offlineUserJobResponse = await createOfflineUserJob(
     request,
     offlineUserJobPayload,
@@ -723,7 +943,6 @@ export const handleUpdate = async (
     return handleGoogleAdsError(offlineUserJobResponse.error)
   }
   const resourceName = offlineUserJobResponse.data
-  // Add operations to the offline user data job
   if (adduserIdentifiers.length > 0) {
     const addOperationPayload = { operations: adduserIdentifiers, enable_warnings: true }
     const addResponse = await addOperations(request, addOperationPayload, resourceName, features, statsContext)
@@ -731,7 +950,6 @@ export const handleUpdate = async (
       return handleGoogleAdsError(addResponse.error)
     }
   }
-
   if (removeUserIdentifiers.length > 0) {
     const removeOperationPayload = { operations: removeUserIdentifiers, enable_warnings: true }
     const removeResponse = await addOperations(request, removeOperationPayload, resourceName, features, statsContext)
@@ -739,15 +957,11 @@ export const handleUpdate = async (
       return handleGoogleAdsError(removeResponse.error)
     }
   }
-
-  // Run the offline user data job
   const executedJob = await runOfflineUserJob(request, resourceName, features, statsContext)
   if (!executedJob.success) {
     return handleGoogleAdsError(executedJob.error)
   }
-
   statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
-
   return executedJob.data
 }
 
@@ -866,6 +1080,181 @@ const runOfflineUserJob = async (
   }
 }
 
+const buildDataManagerDestination = (
+  advertiserCustomerId: string,
+  listId: string,
+  loginCustomerId?: string
+): DataManagerDestination => {
+  const partnerAccountId = process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+  if (!partnerAccountId) {
+    throw new IntegrationError(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID env var is not set.',
+      'MISSING_PARTNER_ACCOUNT_ID',
+      400
+    )
+  }
+
+  const destination: DataManagerDestination = {
+    operatingAccount: {
+      accountId: advertiserCustomerId,
+      accountType: 'GOOGLE_ADS'
+    },
+    loginAccount: {
+      accountId: partnerAccountId,
+      accountType: 'DATA_PARTNER'
+    },
+    productDestinationId: listId
+  }
+
+  // Scenario B: manager partner link — set linkedAccount to the MCC
+  if (loginCustomerId) {
+    destination.linkedAccount = {
+      accountId: loginCustomerId.replace(/-/g, ''),
+      accountType: 'GOOGLE_ADS'
+    }
+  }
+
+  return destination
+}
+
+const buildDataManagerAudienceMembers = (
+  payloads: UserListPayload[],
+  idType: string,
+  syncMode: string | undefined,
+  features?: Features,
+  statsContext?: StatsContext
+): { addMembers: DataManagerAudienceMember[]; removeMembers: DataManagerAudienceMember[] } => {
+  const addMembers: DataManagerAudienceMember[] = []
+  const removeMembers: DataManagerAudienceMember[] = []
+
+  for (const payload of payloads) {
+    const isAdd =
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
+    const isRemove =
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted')
+
+    if (!isAdd && !isRemove) continue
+
+    let member: DataManagerAudienceMember | null = null
+
+    if (idType === 'CONTACT_INFO') {
+      const userIdentifiers: import('./types').DataManagerUserIdentifier[] = []
+      if (payload.email) {
+        userIdentifiers.push({
+          emailAddress: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
+        })
+      }
+      if (payload.phone) {
+        userIdentifiers.push({
+          phoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code, features, statsContext)
+          )
+        })
+      }
+      if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
+        userIdentifiers.push({
+          address: {
+            givenName: payload.first_name ? processHashing(payload.first_name, 'sha256', 'hex') : undefined,
+            familyName: payload.last_name ? processHashing(payload.last_name, 'sha256', 'hex') : undefined,
+            postalCode: payload.postal_code,
+            regionCode: payload.country_code
+          }
+        })
+      }
+      if (userIdentifiers.length > 0) {
+        member = { userData: { userIdentifiers } }
+      }
+    } else if (idType === 'MOBILE_ADVERTISING_ID') {
+      const mobileId = payload.mobile_advertising_id?.trim()
+      if (mobileId) {
+        member = { mobileData: { mobileIds: [mobileId] } }
+      }
+    } else if (idType === 'CRM_ID') {
+      const crmId = payload.crm_id?.trim()
+      if (crmId) {
+        member = { userIdData: { userId: crmId } }
+      }
+    }
+
+    if (!member) continue
+
+    if (isAdd) addMembers.push(member)
+    else removeMembers.push(member)
+  }
+
+  return { addMembers, removeMembers }
+}
+
+const ingestDataManagerAudienceMembers = async (
+  request: RequestClient,
+  members: DataManagerAudienceMember[],
+  destination: DataManagerDestination,
+  payload: UserListPayload,
+  statsContext?: StatsContext
+): Promise<{ success: boolean; data?: IngestAudienceMembersResponse; error?: any }> => {
+  const body: IngestAudienceMembersRequest = {
+    destinations: [destination],
+    audienceMembers: members,
+    consent: {
+      adUserData: payload.ad_user_data_consent_state,
+      adPersonalization: payload.ad_personalization_consent_state
+    },
+    encoding: 'HEX',
+    termsOfService: {
+      customerMatchTermsOfServiceStatus: 'ACCEPTED'
+    }
+  }
+
+  try {
+    const response = await request<IngestAudienceMembersResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
+      method: 'post',
+      json: body
+    })
+    statsContext?.statsClient?.incr('datamanager.ingest.success', 1, statsContext.tags)
+    return { success: true, data: response.data }
+  } catch (error) {
+    statsContext?.statsClient?.incr('datamanager.ingest.error', 1, statsContext.tags)
+    return { success: false, error }
+  }
+}
+
+const removeDataManagerAudienceMembers = async (
+  request: RequestClient,
+  members: DataManagerAudienceMember[],
+  destination: DataManagerDestination,
+  payload: UserListPayload,
+  statsContext?: StatsContext
+): Promise<{ success: boolean; data?: IngestAudienceMembersResponse; error?: any }> => {
+  const body: IngestAudienceMembersRequest = {
+    destinations: [destination],
+    audienceMembers: members,
+    consent: {
+      adUserData: payload.ad_user_data_consent_state,
+      adPersonalization: payload.ad_personalization_consent_state
+    },
+    encoding: 'HEX',
+    termsOfService: {
+      customerMatchTermsOfServiceStatus: 'ACCEPTED'
+    }
+  }
+
+  try {
+    const response = await request<IngestAudienceMembersResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
+      method: 'post',
+      json: body
+    })
+    statsContext?.statsClient?.incr('datamanager.remove.success', 1, statsContext.tags)
+    return { success: true, data: response.data }
+  } catch (error) {
+    statsContext?.statsClient?.incr('datamanager.remove.error', 1, statsContext.tags)
+    return { success: false, error }
+  }
+}
+
 export const createIdentifierExtractors = (features?: Features) => ({
   MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
     return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
@@ -918,7 +1307,6 @@ const extractBatchUserIdentifiers = (
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
 
-  //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
 
   payloads.forEach((payload, index) => {
@@ -1011,9 +1399,61 @@ export const processBatchPayload = async (
   if (!externalAudienceId) {
     throw new PayloadValidationError('External Audience ID is required.')
   }
-  const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
-  // Extract user identifiers and validPayloadIndicesBitmap from payloads
+  const multiStatusResponse = new MultiStatusResponse()
+
+  // Data Manager path (new)
+  if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+    const destination = buildDataManagerDestination(settings.customerId!, externalAudienceId, settings.loginCustomerId)
+    const { addMembers, removeMembers } = buildDataManagerAudienceMembers(
+      payloads,
+      id_type,
+      syncMode,
+      features,
+      statsContext
+    )
+    const allIndices = payloads.map((_, i) => i)
+
+    if (addMembers.length > 0) {
+      const result = await ingestDataManagerAudienceMembers(request, addMembers, destination, payloads[0], statsContext)
+      if (!result.success) {
+        allIndices.forEach((i) =>
+          multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: 500,
+            errormessage: result.error?.message ?? 'Data Manager ingest failed',
+            body: result.error
+          })
+        )
+        return multiStatusResponse
+      }
+    }
+
+    if (removeMembers.length > 0) {
+      const result = await removeDataManagerAudienceMembers(
+        request,
+        removeMembers,
+        destination,
+        payloads[0],
+        statsContext
+      )
+      if (!result.success) {
+        allIndices.forEach((i) =>
+          multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: 500,
+            errormessage: result.error?.message ?? 'Data Manager remove failed',
+            body: result.error
+          })
+        )
+        return multiStatusResponse
+      }
+    }
+
+    statsContext?.statsClient?.incr('success.dataManagerBatchAudience', 1, statsContext?.tags)
+    allIndices.forEach((i) => multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: {} }))
+    return multiStatusResponse
+  }
+
+  // Legacy OfflineUserDataJobs path
   const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
     payloads,
     id_type,
@@ -1021,9 +1461,7 @@ export const processBatchPayload = async (
     syncMode,
     features
   )
-  // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
-  // Step1 :- Create an Offline user data job
   const {
     success,
     data: resourceName,
@@ -1039,7 +1477,6 @@ export const processBatchPayload = async (
     return multiStatusResponse
   }
   const failedPayloadIndices: Set<number> = new Set()
-  // Step 2:- Add operations to the Offline user data job
   if (addUserIdentifiers.length > 0) {
     await processOperations(
       request,
@@ -1052,7 +1489,6 @@ export const processBatchPayload = async (
       statsContext
     )
   }
-
   if (removeUserIdentifiers.length > 0) {
     await processOperations(
       request,
@@ -1066,13 +1502,10 @@ export const processBatchPayload = async (
     )
   }
   if (failedPayloadIndices.size === validPayloadIndicesBitmap.length) {
-    return multiStatusResponse // Return multi-status response if all operations failed
+    return multiStatusResponse
   }
-
-  //Step 3:- Run the offline user data job
   const executedJob: any = await runOfflineUserJob(request, resourceName, features, statsContext)
   statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
-
   const sentBody = `/${resourceName}:run`
   if (!executedJob.success) {
     handleJobExecutionError(executedJob, validPayloadIndicesBitmap, multiStatusResponse, sentBody, failedPayloadIndices)
