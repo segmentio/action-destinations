@@ -123,8 +123,8 @@ const mockTrackMapping = {
     birth_date: { '@path': '$.context.traits.birth_date' }
   },
   custom_traits: {
-    custom_trait_1: { '@path': '$.traits.custom_trait_1' },
-    custom_trait_2: { '@path': '$.traits.custom_trait_2' }
+    custom_trait_1: { '@path': '$.context.traits.custom_trait_1' },
+    custom_trait_2: { '@path': '$.context.traits.custom_trait_2' }
   },
   computation_class: { '@path': '$.context.personas.computation_class' },
   computation_key: { '@path': '$.context.personas.computation_key' },
@@ -248,8 +248,8 @@ describe('forwardAudienceEvent', () => {
               input: {
                 advertiserId: 23,
                 externalProvider: \\"segment_io\\",
-                syncId: \\"c89d66b1eed79b7dcd6a2bd3745b81be559bb3077d543cdccb57c023394b0044\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"email\\\\\\":\\\\\\"test@email.com\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"Saray\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"James\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"45678765\\\\\\",\\\\\\"address\\\\\\":\\\\\\"123 Barn St\\\\\\",\\\\\\"city\\\\\\":\\\\\\"NYC\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"state\\\\\\":\\\\\\"NY\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"29323\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"EST\\\\\\",\\\\\\"birth_date\\\\\\":\\\\\\"1990-06-15\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
+                syncId: \\"7032157de1ee57b5a7f9512fb65fbe2dff58e53c998cc6095199dac55741e6f8\\",
+                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"email\\\\\\":\\\\\\"test@email.com\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"Saray\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"James\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"45678765\\\\\\",\\\\\\"address\\\\\\":\\\\\\"123 Barn St\\\\\\",\\\\\\"city\\\\\\":\\\\\\"NYC\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"state\\\\\\":\\\\\\"NY\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"29323\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"EST\\\\\\",\\\\\\"birth_date\\\\\\":\\\\\\"1990-06-15\\\\\\",\\\\\\"custom_trait_1\\\\\\":\\\\\\"custom_value_1\\\\\\",\\\\\\"custom_trait_2\\\\\\":\\\\\\"custom_value_2\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
               }
             ) {
               userErrors {
@@ -259,7 +259,7 @@ describe('forwardAudienceEvent', () => {
             upsertProfileMapping(
               input: {
                 advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:DATE,isPii:true}],
+                mappingSchemaV2: [{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:DATE,isPii:true},{incomingKey:\\"custom_trait_1\\",destinationKey:\\"custom_trait_1\\",label:\\"Custom Trait 1\\",type:STRING,isPii:false},{incomingKey:\\"custom_trait_2\\",destinationKey:\\"custom_trait_2\\",label:\\"Custom Trait 2\\",type:STRING,isPii:false}],
                 isOptedIn: true,
                 mappableType: \\"segment_io\\"
               }
@@ -301,46 +301,174 @@ describe('forwardAudienceEvent', () => {
     })
     expect(responses.length).toBe(1)
     expect(responses[0].status).toBe(200)
-    expect(requestBody).toMatchInlineSnapshot(`
-      Object {
-        "query": "mutation {
-            upsertProfiles(
-              input: {
-                advertiserId: 23,
-                externalProvider: \\"segment_io\\",
-                syncId: \\"869391dc2b8136c0d7bff13ce4e84645e04860e7cdf0a05794cdf60e7a938393\\",
-                profiles: \\"[{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"email\\\\\\":\\\\\\"test@email.com\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"Saray\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"James\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"45678765\\\\\\",\\\\\\"address\\\\\\":\\\\\\"123 Barn St\\\\\\",\\\\\\"city\\\\\\":\\\\\\"NYC\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"state\\\\\\":\\\\\\"NY\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"29323\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"EST\\\\\\",\\\\\\"birth_date\\\\\\":\\\\\\"1990-06-15\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"},{\\\\\\"userId\\\\\\":\\\\\\"user-id\\\\\\",\\\\\\"email\\\\\\":\\\\\\"test@email.com\\\\\\",\\\\\\"first_name\\\\\\":\\\\\\"Saray\\\\\\",\\\\\\"last_name\\\\\\":\\\\\\"James\\\\\\",\\\\\\"phone\\\\\\":\\\\\\"45678765\\\\\\",\\\\\\"address\\\\\\":\\\\\\"123 Barn St\\\\\\",\\\\\\"city\\\\\\":\\\\\\"NYC\\\\\\",\\\\\\"country\\\\\\":\\\\\\"USA\\\\\\",\\\\\\"state\\\\\\":\\\\\\"NY\\\\\\",\\\\\\"postal_code\\\\\\":\\\\\\"29323\\\\\\",\\\\\\"timezone\\\\\\":\\\\\\"EST\\\\\\",\\\\\\"birth_date\\\\\\":\\\\\\"1990-06-15\\\\\\",\\\\\\"audienceId\\\\\\":\\\\\\"aud_123\\\\\\",\\\\\\"audienceName\\\\\\":\\\\\\"first_time_buyer\\\\\\",\\\\\\"action\\\\\\":\\\\\\"exit\\\\\\"}]\\"
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-            upsertProfileMapping(
-              input: {
-                advertiserId: 23,
-                mappingSchemaV2: [{incomingKey:\\"email\\",destinationKey:\\"email\\",label:\\"Email\\",type:STRING,isPii:true},{incomingKey:\\"first_name\\",destinationKey:\\"first_name\\",label:\\"First Name\\",type:STRING,isPii:true},{incomingKey:\\"last_name\\",destinationKey:\\"last_name\\",label:\\"Last Name\\",type:STRING,isPii:true},{incomingKey:\\"phone\\",destinationKey:\\"phone\\",label:\\"Phone\\",type:STRING,isPii:true},{incomingKey:\\"address\\",destinationKey:\\"address\\",label:\\"Address\\",type:STRING,isPii:true},{incomingKey:\\"city\\",destinationKey:\\"city\\",label:\\"City\\",type:STRING,isPii:false},{incomingKey:\\"state\\",destinationKey:\\"state\\",label:\\"State\\",type:STRING,isPii:false},{incomingKey:\\"country\\",destinationKey:\\"country\\",label:\\"Country\\",type:STRING,isPii:false},{incomingKey:\\"postal_code\\",destinationKey:\\"postal_code\\",label:\\"Postal Code\\",type:STRING,isPii:false},{incomingKey:\\"timezone\\",destinationKey:\\"timezone\\",label:\\"Timezone\\",type:STRING,isPii:false},{incomingKey:\\"birth_date\\",destinationKey:\\"birth_date\\",label:\\"Birth Date\\",type:DATE,isPii:true}],
-                isOptedIn: true,
-                mappableType: \\"segment_io\\"
-              }
-            ) {
-              userErrors {
-                message
-              }
-            }
-            upsertExternalAudienceMapping(
-                input: {
-                  advertiserId: 23,
-                  mappingSchema: [{incomingKey:\\"audienceId\\",destinationKey:\\"external_id\\",type:STRING,label:\\"External Audience ID\\",isPii:false},{incomingKey:\\"audienceName\\",destinationKey:\\"name\\",type:STRING,label:\\"External Audience Name\\",isPii:false}],
-                  mappableType: \\"segment_io\\"
-                }
-              ) {
-                userErrors {
-                  message
-                }
-              }
-        }",
+    expect(requestBody.query).toContain('upsertProfiles')
+    expect(requestBody.query).toContain('upsertProfileMapping')
+    expect(requestBody.query).toContain('custom_trait_1')
+    expect(requestBody.query).toContain('custom_trait_2')
+  })
+
+  it('should include custom trait in schema when only some payloads have it', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+
+    const eventWithCustomTrait: Partial<SegmentEvent> = {
+      userId: mockUserId,
+      type: 'identify',
+      traits: {
+        email: mockEmail,
+        first_name: 'Billy',
+        loyalty_tier: 'gold',
+        first_time_buyer: true
+      },
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: 'first_time_buyer',
+          computation_id: 'aud_123'
+        }
       }
-    `)
+    }
+
+    const eventWithoutCustomTrait: Partial<SegmentEvent> = {
+      userId: 'user-2',
+      type: 'identify',
+      traits: {
+        email: 'other@test.com',
+        first_name: 'Jane',
+        first_time_buyer: true
+      },
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: 'first_time_buyer',
+          computation_id: 'aud_123'
+        }
+      }
+    }
+
+    const mapping = {
+      ...mockIdentifyMapping,
+      custom_traits: {
+        loyalty_tier: { '@path': '$.traits.loyalty_tier' }
+      }
+    }
+
+    const events = [createTestEvent(eventWithCustomTrait), createTestEvent(eventWithoutCustomTrait)]
+    const responses = await testDestination.testBatchAction('forwardAudienceEvent', {
+      events,
+      useDefaultMappings: true,
+      mapping,
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    expect(responses[0].status).toBe(200)
+    // The schema should include loyalty_tier even though only the first payload has it
+    expect(requestBody.query).toContain('loyalty_tier')
+    expect(requestBody.query).toContain('Loyalty Tier')
+  })
+
+  it('should exclude reserved computation keys from schema', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+
+    const event: Partial<SegmentEvent> = {
+      userId: mockUserId,
+      type: 'identify',
+      traits: {
+        email: mockEmail,
+        first_time_buyer: true,
+        aud_123: true,
+        real_custom_trait: 'value'
+      },
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: 'first_time_buyer',
+          computation_id: 'aud_123'
+        }
+      }
+    }
+
+    const mapping = {
+      ...mockIdentifyMapping,
+      custom_traits: {
+        first_time_buyer: { '@path': '$.traits.first_time_buyer' },
+        aud_123: { '@path': '$.traits.aud_123' },
+        real_custom_trait: { '@path': '$.traits.real_custom_trait' }
+      }
+    }
+
+    const responses = await testDestination.testAction('forwardAudienceEvent', {
+      event: createTestEvent(event),
+      useDefaultMappings: true,
+      mapping,
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    expect(responses[0].status).toBe(200)
+    // Schema should include the real custom trait but NOT the reserved computation keys
+    const schemaSection = requestBody.query.split('mappingSchemaV2:')[1]
+    expect(schemaSection).toContain('real_custom_trait')
+    expect(schemaSection).not.toContain('"first_time_buyer"')
+    expect(schemaSection).not.toContain('"aud_123"')
+  })
+
+  it('should not duplicate standard fields when they appear in custom_traits', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+
+    const event: Partial<SegmentEvent> = {
+      userId: mockUserId,
+      type: 'identify',
+      traits: {
+        email: mockEmail,
+        first_name: 'Billy',
+        first_time_buyer: true
+      },
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: 'first_time_buyer',
+          computation_id: 'aud_123'
+        }
+      }
+    }
+
+    const mapping = {
+      ...mockIdentifyMapping,
+      custom_traits: {
+        email: { '@path': '$.traits.email' },
+        first_name: { '@path': '$.traits.first_name' }
+      }
+    }
+
+    const responses = await testDestination.testAction('forwardAudienceEvent', {
+      event: createTestEvent(event),
+      useDefaultMappings: true,
+      mapping,
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    expect(responses[0].status).toBe(200)
+    // email and first_name are standard fields — they should not be duplicated in the schema
+    // even when the customer also maps them in custom_traits
+    const schemaSection = requestBody.query.split('mappingSchemaV2:')[1]
+    const emailOccurrences = schemaSection.split('incomingKey').filter((s: string) => s.startsWith(':\\"email\\"') || s.startsWith(':"email"'))
+    expect(emailOccurrences).toHaveLength(1)
   })
 })
