@@ -21,15 +21,26 @@ function getCacheKey(settings: Settings): string {
 }
 
 export const isLegacyAuth = (settings: Settings): boolean => {
-  return Boolean(settings.api_user && settings.api_password)
+  return Boolean(settings.auth_type !== 'new')
 }
 
-export const getApiBaseUrl = (settings: Settings): string => {
-  if (isLegacyAuth(settings)) return LEGACY_API_BASE
+export const getApiBaseUrl = (settings: Settings, specialPath?: string): string => {
+  if (isLegacyAuth(settings)) {
+    if (specialPath) {
+      return LEGACY_API_BASE.replace(/\/api\/v2\//, specialPath)
+    } else {
+      return LEGACY_API_BASE
+    }
+  }
   if (!settings.apiBaseUrl) {
     throw new IntegrationError('API base URL is required', 'MISSING_API_BASE_URL', 400)
   }
-  return settings.apiBaseUrl.endsWith('/') ? settings.apiBaseUrl : `${settings.apiBaseUrl}/`
+  const apiBaseUrl = settings.apiBaseUrl.endsWith('/') ? settings.apiBaseUrl : `${settings.apiBaseUrl}/`
+  if (specialPath) {
+    return apiBaseUrl.replace(/\/api\/v\d+\//, specialPath)
+  } else {
+    return apiBaseUrl
+  }
 }
 
 export const createWsseHeader = (settings: Settings): string => {

@@ -2,6 +2,10 @@
 
 export interface Settings {
   /**
+   * Select which authentication method to use.
+   */
+  auth_type?: string
+  /**
    * Your Emarsys API username. Set this together with API password to use legacy X-WSSE authentication against the v2 API.
    */
   api_user?: string

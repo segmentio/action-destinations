@@ -81,6 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         case 400:
           throw new APIError('The contact could not be removed from the contact list', 400)
+        case 403:
+          throw new APIError('Please check the permission of your API credentials', 403)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:

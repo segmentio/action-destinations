@@ -33,7 +33,7 @@ export default async function getAccessToken(
     headers: requestHeaders
   })
 
-  if (!res.data.access_token) {
+  if (!res?.data?.access_token || typeof res?.data?.expires_in != 'number') {
     throw new IntegrationError('Authentication failed: no access token in response', 'INVALID_AUTH_RESPONSE', 401)
   }
 
