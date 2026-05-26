@@ -908,7 +908,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = await action.performBatch(mockRequest, executeInput)
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Verify MultiStatusResponse structure
       expect(result.length()).toBe(3)
@@ -983,7 +983,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = await action.performBatch(mockRequest, executeInput)
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Verify MultiStatusResponse structure - all profiles should have error status
       expect(result.length()).toBe(3)
@@ -1038,7 +1038,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = await action.performBatch(mockRequest, executeInput)
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Should return MultiStatusResponse (not throw), even with single payload
       expect(result.length()).toBe(1)
@@ -1192,7 +1192,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = await action.performBatch(mockRequest, executeInput)
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Verify MultiStatusResponse structure
       expect(result.length()).toBe(3)
@@ -1259,7 +1259,7 @@ describe('Memora.upsertProfile', () => {
         throw new Error('performBatch is not defined')
       }
 
-      const result = await action.performBatch(mockRequest, executeInput)
+      const result = (await action.performBatch(mockRequest, executeInput)) as any
 
       // Verify MultiStatusResponse structure
       expect(result.length()).toBe(3)

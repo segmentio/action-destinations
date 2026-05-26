@@ -81,7 +81,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
         personas: {
           ...event.context!.personas,
           audience_settings: {
-            ...event.context!.personas.audience_settings,
+            ...event.context!.personas!.audience_settings,
             countryCode: 'DE'
           }
         }
@@ -113,7 +113,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -128,7 +128,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -166,7 +166,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -186,7 +186,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -230,7 +230,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
             personas: {
               ...event.context!.personas,
               audience_settings: {
-                ...event.context!.personas.audience_settings,
+                ...event.context!.personas!.audience_settings,
                 countryCode: 'DE'
               }
             }
@@ -250,7 +250,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
             personas: {
               ...event.context!.personas,
               audience_settings: {
-                ...event.context!.personas.audience_settings,
+                ...event.context!.personas!.audience_settings,
                 countryCode: 'DE'
               }
             }
@@ -313,7 +313,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
         personas: {
           ...event.context!.personas,
           audience_settings: {
-            ...event.context!.personas.audience_settings,
+            ...event.context!.personas!.audience_settings,
             countryCode: 'XX'
           }
         }
@@ -345,7 +345,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'XX'
             }
           }
@@ -360,7 +360,7 @@ describe('AmazonAds.syncAudiencesToDSP (enable errors flag off)', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'XX'
             }
           }

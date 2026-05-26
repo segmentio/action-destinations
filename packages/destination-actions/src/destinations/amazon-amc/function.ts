@@ -3,15 +3,7 @@ import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestCli
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import {
-  FLAG_CONSENT_REQUIRED,
-  FLAG_CONSENT_ENABLE_ERRORS,
-  CONSTANTS,
-  RecordsResponseType,
-  REGEX_EXTERNALUSERID,
-  COUNTRY_CODES,
-  UK_EEA_COUNTRY_CODES
-} from './utils'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
 import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
@@ -23,32 +15,17 @@ function getUserConsent(payloadConsent: Payload['consent'], countryCode: string,
   const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = payloadConsent || {}
   const enableErrors = features?.[FLAG_CONSENT_ENABLE_ERRORS]
 
-  if (!COUNTRY_CODES.includes(countryCode)) {
+  if(!COUNTRY_CODES.includes(countryCode)){
     if (enableErrors) {
-      throw new PayloadValidationError(
-        `Invalid country code: ${countryCode}. Country code must be a valid ISO 3166-1 alpha-2 code.`
-      )
+      throw new PayloadValidationError(`Invalid country code: ${countryCode}. Country code must be a valid ISO 3166-1 alpha-2 code.`)
     }
   }
 
-  const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined =
-    hasStringValue(amznAdStorage as MaybeString) && hasStringValue(amznUserData as MaybeString)
-      ? {
-          amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED',
-          amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED'
-        }
-      : undefined
+  const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined = hasStringValue(amznAdStorage as MaybeString) && hasStringValue(amznUserData as MaybeString) ? { amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED', amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED' } : undefined
 
-  if (
-    UK_EEA_COUNTRY_CODES.includes(countryCode) &&
-    !amzn &&
-    !hasStringValue(tcf as MaybeString) &&
-    !hasStringValue(gpp as MaybeString)
-  ) {
+  if(UK_EEA_COUNTRY_CODES.includes(countryCode) && !amzn && !hasStringValue(tcf as MaybeString) && !hasStringValue(gpp as MaybeString)){
     if (enableErrors) {
-      throw new PayloadValidationError(
-        `Consent required when sending data with UK and EEA country code ${countryCode}. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.`
-      )
+      throw new PayloadValidationError(`Consent required when sending data with UK and EEA country code ${countryCode}. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.`)
     }
   }
 
@@ -67,7 +44,7 @@ function getUserConsent(payloadConsent: Payload['consent'], countryCode: string,
     geo,
     ...(Object.keys(consent).length > 0 && { consent })
   }
-
+  
   return consentData
 }
 
@@ -113,7 +90,7 @@ export async function processPayload(
  */
 export function createPayloadToUploadRecords(
   payloads: Payload[],
-  audienceSettings: AudienceSettings,
+  audienceSettings: AudienceSettings, 
   features?: Features
 ) {
   const records: AudienceRecord[] = []
@@ -123,9 +100,7 @@ export function createPayloadToUploadRecords(
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
-    const userConsent = features?.[FLAG_CONSENT_REQUIRED]
-      ? getUserConsent(payload.consent, audienceSettings.countryCode, features)
-      : undefined
+    const userConsent = features?.[FLAG_CONSENT_REQUIRED] ? getUserConsent(payload.consent, audienceSettings.countryCode, features) : undefined
     const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
@@ -171,10 +146,9 @@ function validateAndPreparePayload(
     let userConsent: UserConsent | undefined
 
     try {
-      userConsent = features?.[FLAG_CONSENT_REQUIRED]
-        ? getUserConsent(payload.consent, audienceSettings.countryCode, features)
-        : undefined
-    } catch (error) {
+      userConsent = features?.[FLAG_CONSENT_REQUIRED] ? getUserConsent(payload.consent, audienceSettings.countryCode, features) : undefined
+    }
+    catch (error) {
       multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
         status: error.status || 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
@@ -223,7 +197,7 @@ export async function processBatchPayload(
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayload(
     payloads,
     multiStatusResponse,
-    audienceSettings,
+    audienceSettings, 
     features
   )
 

@@ -502,7 +502,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -517,7 +517,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -569,7 +569,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -589,7 +589,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
           personas: {
             ...event.context!.personas,
             audience_settings: {
-              ...event.context!.personas.audience_settings,
+              ...event.context!.personas!.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -632,7 +632,7 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         personas: {
           ...event.context!.personas,
           audience_settings: {
-            ...event.context!.personas.audience_settings,
+            ...event.context!.personas!.audience_settings,
             countryCode: 'DE'
           }
         }
@@ -645,8 +645,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         useDefaultMappings: true,
         features
       })
-    ).rejects.toThrowError(
-      'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.'
-    )
+    ).rejects.toThrowError('Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.')
   })
+
+
 })

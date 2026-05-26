@@ -102,7 +102,11 @@ describe('Hubspot.customEvent', () => {
 
       validate(payloadWithEmptyString, statsContext, logger, subscriptionMetadata)
 
-      expect(statsClient.incr).toHaveBeenCalledWith('hubspot.custom_event.empty_string_to_number', 1, statsContext.tags)
+      expect(statsClient.incr).toHaveBeenCalledWith(
+        'hubspot.custom_event.empty_string_to_number',
+        1,
+        statsContext.tags
+      )
       expect(logger.warn).toHaveBeenCalledWith(
         'hubspot.custom_event.empty_string_to_number destinationConfigId: dest-123 sourceId: src-456'
       )
