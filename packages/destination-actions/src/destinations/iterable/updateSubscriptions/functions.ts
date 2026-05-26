@@ -1,9 +1,9 @@
-import { PayloadValidationError, RequestClient, MultiStatusResponse, JSONLikeObject, HTTPError } from '@segment/actions-core'
+import { PayloadValidationError, RequestClient, MultiStatusResponse, JSONLikeObject, HTTPError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DataCenterLocation } from '../shared-fields'
 import { getRegionalBaseUrl } from '../utils'
-import { MAX_SUBSCRIPTION_ITEMS } from './constants'
+import { MAX_SUBSCRIPTION_ITEMS, VALID_ACTIONS, MIN_REQUEST_TIMEOUT } from './constants'
 import type { ResolvedIdentifier, BulkSubscriptionRequestBody } from './types'
 
 export async function performUpdateSubscriptions(request: RequestClient, payload: Payload, settings: Settings) {
@@ -18,9 +18,10 @@ export async function performUpdateSubscriptions(request: RequestClient, payload
 
   const results = await Promise.all(
     subscriptions.map(async ({ subscription_group_type, subscription_group_id, action }) => {
+      validateAction(action)
       const endpoint = getSingleUserEndpoint(settings, subscription_group_type, subscription_group_id, identifier)
       const method = action === 'subscribe' ? 'patch' : 'delete'
-      return request(endpoint, { method })
+      return request(endpoint, { method, timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT) })
     })
   )
 
@@ -62,7 +63,7 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
     return multiStatusResponse
   }
 
-  const subscriptions = payloads[0].subscriptions
+  const subscriptions = payloads[validPayloads[0].index].subscriptions
 
   const users = validPayloads.filter(({ identifier }) => identifier.email).map(({ identifier }) => identifier.email as string)
   const usersByUserId = validPayloads.filter(({ identifier }) => identifier.userId).map(({ identifier }) => identifier.userId as string)
@@ -75,10 +76,12 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   try {
     await Promise.all(
       subscriptions.map(async ({ subscription_group_type, subscription_group_id, action }) => {
+        validateAction(action)
         const endpoint = getBulkSubscriptionEndpoint(settings, subscription_group_type, subscription_group_id, action)
         return request(endpoint, {
           method: 'put',
-          json: body
+          json: body,
+          timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
         })
       })
     )
@@ -114,6 +117,12 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   }
 
   return multiStatusResponse
+}
+
+function validateAction(action: string): void {
+  if (!VALID_ACTIONS.includes(action as typeof VALID_ACTIONS[number])) {
+    throw new PayloadValidationError(`Invalid action: '${action}'. Must be 'subscribe' or 'unsubscribe'.`)
+  }
 }
 
 export function resolveIdentifier(payload: Payload): ResolvedIdentifier {
