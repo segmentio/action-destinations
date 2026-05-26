@@ -13,6 +13,7 @@ const API_HOST = 'https://api.example.com'
 const API_BASE_PATH = '/api/'
 
 const settingsData = {
+  auth_type: 'new',
   apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
   apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
   apiClientId: 'testclient',
@@ -45,7 +46,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
-      const apiResponse = responses.find((r) => new URL(r.request.url).host === new URL(API_HOST).host)
+      const apiResponse = responses.find(
+        (r) => new URL(r.request.url).host === new URL(API_HOST).host && !r.request.url.includes('/oauth/token')
+      )
       if (!apiResponse) throw new Error('No Emarsys API response found')
       const rawBody = await apiResponse.request.text()
 
@@ -79,7 +82,9 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
-      const apiResponse = responses.find((r) => new URL(r.request.url).host === new URL(API_HOST).host)
+      const apiResponse = responses.find(
+        (r) => new URL(r.request.url).host === new URL(API_HOST).host && !r.request.url.includes('/oauth/token')
+      )
       if (!apiResponse) throw new Error('No Emarsys API response found')
       const rawBody = await apiResponse.request.text()
 

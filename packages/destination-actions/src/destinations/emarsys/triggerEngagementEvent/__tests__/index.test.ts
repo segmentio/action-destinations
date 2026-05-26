@@ -1,15 +1,17 @@
 import nock from 'nock'
 import { APIError, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
+import { tokenCache } from '../../emarsys-helper'
 
 const testDestination = createTestIntegration(Destination)
 
 const AUTH_HOST = 'https://auth.example.com'
 const AUTH_PATH = '/oauth/token'
 const API_HOST = 'https://api.example.com'
-const API_BASE_PATH = '/api/'
+const API_BASE_PATH = '/api/v3/'
 
 const SETTINGS = {
+  auth_type: 'new',
   apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
   apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
   apiClientId: 'testclient',
@@ -33,6 +35,7 @@ function mockAuth() {
 
 beforeEach(() => {
   nock.cleanAll()
+  tokenCache.clear()
 })
 
 describe('Emarsys.triggerEngagementEvent', () => {

@@ -15,6 +15,7 @@ const API_HOST = 'https://api.example.com'
 const API_BASE_PATH = '/api/'
 
 const settingsData = {
+  auth_type: 'new',
   apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
   apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
   apiClientId: 'testclient',
