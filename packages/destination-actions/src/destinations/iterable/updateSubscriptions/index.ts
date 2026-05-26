@@ -1,9 +1,8 @@
-import { ActionDefinition, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
+import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MAX_SUBSCRIPTION_ITEMS } from './constants'
-import { resolveIdentifier, getSubscriptionEndpoint, getSingleUserEndpoint } from './functions'
-import { fetchChannels, fetchMessageTypes, fetchLists } from './dynamic-fields'
+import { performUpdateSubscriptions, performBatchUpdateSubscriptions } from './functions'
+import { getSubscriptionGroupId } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Subscriptions',
@@ -118,124 +117,15 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     subscriptions: {
       subscription_group_id: async (request, { payload, dynamicFieldContext, settings }) => {
-        const index = dynamicFieldContext?.selectedArrayIndex ?? 0
-        const groupType = payload?.subscriptions?.[index]?.subscription_group_type
-
-        if (!groupType) {
-          return {
-            choices: [],
-            error: {
-              code: 'MISSING_GROUP_TYPE',
-              message: "Select a 'Subscription Group Type' first."
-            }
-          }
-        }
-
-        switch (groupType) {
-          case 'messageChannel':
-            return fetchChannels(request, settings)
-          case 'messageType':
-            return fetchMessageTypes(request, settings)
-          case 'emailList':
-            return fetchLists(request, settings)
-          default:
-            return {
-              choices: [],
-              error: {
-                code: 'INVALID_GROUP_TYPE',
-                message: `Unknown subscription group type: ${groupType}`
-              }
-            }
-        }
+        return getSubscriptionGroupId(request, { payload, dynamicFieldContext, settings })
       }
     }
   },
   perform: async (request, { payload, settings }) => {
-    if (payload.subscriptions.length > MAX_SUBSCRIPTION_ITEMS) {
-      throw new PayloadValidationError(`Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${payload.subscriptions.length}.`)
-    }
-
-    const identifier = resolveIdentifier(payload)
-
-    const results = await Promise.all(
-      payload.subscriptions.map(async (sub) => {
-        const endpoint = getSingleUserEndpoint(settings, sub.subscription_group_type, sub.subscription_group_id, identifier)
-        const method = sub.action === 'subscribe' ? 'patch' : 'delete'
-        return request(endpoint, { method })
-      })
-    )
-
-    return results[results.length - 1]
+    return performUpdateSubscriptions(request, payload, settings)
   },
-
   performBatch: async (request, { settings, payload: payloads }) => {
-    const multiStatusResponse = new MultiStatusResponse()
-    const validPayloads: { index: number; identifier: { email?: string; userId?: string } }[] = []
-
-    payloads.forEach((payload, index) => {
-      if (payload.subscriptions.length > MAX_SUBSCRIPTION_ITEMS) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: `Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${payload.subscriptions.length}.`
-        })
-        return
-      }
-
-      try {
-        const identifier = resolveIdentifier(payload)
-        validPayloads.push({ index, identifier })
-      } catch (error) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: (error as Error).message
-        })
-      }
-    })
-
-    if (validPayloads.length === 0) {
-      return multiStatusResponse
-    }
-
-    const subscriptions = payloads[0].subscriptions
-
-    const users = validPayloads.filter((p) => p.identifier.email).map((p) => p.identifier.email!)
-    const usersByUserId = validPayloads.filter((p) => p.identifier.userId && !p.identifier.email).map((p) => p.identifier.userId!)
-
-    const body: Record<string, string[]> = {}
-    if (users.length > 0) body.users = users
-    if (usersByUserId.length > 0) body.usersByUserId = usersByUserId
-
-    try {
-      await Promise.all(
-        subscriptions.map(async (sub) => {
-          const endpoint = getSubscriptionEndpoint(settings, sub.subscription_group_type, sub.subscription_group_id, sub.action)
-          return request(endpoint, {
-            method: 'put',
-            json: body
-          })
-        })
-      )
-
-      validPayloads.forEach(({ index }) => {
-        multiStatusResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: payloads[index],
-          body: 'success'
-        })
-      })
-    } catch (error) {
-      validPayloads.forEach(({ index }) => {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: (error as any).status || 500,
-          errortype: 'API_ERROR',
-          errormessage: (error as Error).message
-        })
-      })
-    }
-
-    return multiStatusResponse
+    return performBatchUpdateSubscriptions(request, payloads, settings)
   }
 }
 
