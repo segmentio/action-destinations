@@ -423,6 +423,53 @@ describe('forwardAudienceEvent', () => {
     expect(schemaSection).not.toContain('"aud_123"')
   })
 
+  it('should include configured custom traits in schema even when no payloads contain them', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+
+    const eventWithoutCustomTraits: Partial<SegmentEvent> = {
+      userId: mockUserId,
+      type: 'track',
+      properties: { email: mockEmail },
+      context: {
+        traits: {
+          email: mockEmail,
+          first_name: 'Saray',
+          last_name: 'James'
+        },
+        personas: {
+          computation_class: 'audience',
+          computation_key: 'first_time_buyer',
+          computation_id: 'aud_123'
+        }
+      }
+    }
+
+    const mapping = {
+      ...mockTrackMapping,
+      custom_traits: {
+        loyalty_tier: { '@path': '$.context.traits.loyalty_tier' },
+        vip_status: { '@path': '$.context.traits.vip_status' }
+      }
+    }
+
+    const responses = await testDestination.testAction('forwardAudienceEvent', {
+      event: createTestEvent(eventWithoutCustomTraits),
+      useDefaultMappings: true,
+      mapping,
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(requestBody.query).toContain('loyalty_tier')
+    expect(requestBody.query).toContain('vip_status')
+  })
+
   it('should not duplicate standard fields when they appear in custom_traits', async () => {
     let requestBody
     nock(gqlHostUrl)

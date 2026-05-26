@@ -2,32 +2,27 @@ import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import {PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA, MarketingStatus as MarketingStatuses } from './constants'
 import {GQL_ENDPOINT, EXTERNAL_PROVIDER } from '../common-constants'
-import {  Mapping, MarketingStatus, ProfileFieldConfig } from './types'
+import { Mapping, MarketingStatus, ProfileFieldConfig, RawMapping } from './types'
 import type { Payload } from './generated-types'
 import { sha256hash } from '../common-functions'
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings) {
+export async function send(request: RequestClient, payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
+  const reservedKeys = [payloads[0]?.segment_computation_key, payloads[0]?.segment_computation_id].filter(
+    (key): key is string => Boolean(key)
+  )
 
-  const fieldTypes = getDefaultFieldTypes()
-  const fieldsToMap = getDefaultFieldsToMap()
+  const fieldsToMap = getConfiguredFieldsToMap(rawMapping, reservedKeys)
+  const fieldTypes = getConfiguredFieldTypes(fieldsToMap)
   const advertiserId = settings.advertiser_id
   const marketingStatus = payloads[0].marketing_status as MarketingStatus
-  
-  const reservedKeys = [payloads[0]?.segment_computation_key, payloads[0]?.segment_computation_id]
 
   const profileUpdates = payloads.map((p) => {
-    const {
-      user_id,
-      standard_traits,
-      custom_traits,
-      email
-    } = p
-
+    const { user_id, standard_traits, custom_traits, email } = p
     const { segment_computation_key, segment_computation_id, traits_or_props } = p
 
-    if(custom_traits) {
-        delete custom_traits[segment_computation_key]
-        delete custom_traits[segment_computation_id]
+    if (custom_traits) {
+      delete custom_traits[segment_computation_key]
+      delete custom_traits[segment_computation_id]
     }
 
     const profile: Record<string, string | number | undefined> = {
@@ -43,18 +38,6 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
     return profile
   })
-
-  // Build schema from the union of all custom trait keys across all payloads.
-  // This ensures the schema is stable even when individual payloads are sparse.
-  for (const p of payloads) {
-    if (p.custom_traits) {
-      for (const key of Object.keys(p.custom_traits)) {
-        if (!key || reservedKeys.includes(key) || fieldsToMap.has(key)) continue
-        fieldsToMap.add(key)
-        fieldTypes[key] = 'STRING'
-      }
-    }
-  }
 
   const mappings = getProfileMappings(Array.from(fieldsToMap), fieldTypes)
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
@@ -182,13 +165,34 @@ export function stringifyMappingSchemaForGraphQL(value: unknown) {
   return jsonString
 }
 
-const getDefaultFieldsToMap = (): Set<string> => {
-  return new Set(PROFILE_DEFAULT_FIELDS.map(field => field.key))
+function getConfiguredFieldsToMap(rawMapping: RawMapping, reservedKeys: string[] = []): Set<string> {
+  const fieldsToMap = new Set(PROFILE_DEFAULT_FIELDS.map((field) => field.key))
+  const customTraitsMapping = rawMapping.custom_traits
+
+  if (customTraitsMapping && typeof customTraitsMapping === 'object') {
+    for (const rawKey of Object.keys(customTraitsMapping)) {
+      const key = rawKey.trim()
+      if (!key || reservedKeys.includes(key) || fieldsToMap.has(key)) {
+        continue
+      }
+      fieldsToMap.add(key)
+    }
+  }
+
+  return fieldsToMap
 }
 
-const getDefaultFieldTypes = (): Record<string, string> => {
-  return PROFILE_DEFAULT_FIELDS.reduce((acc, field) => {
+function getConfiguredFieldTypes(fieldsToMap: Set<string>): Record<string, string> {
+  const fieldTypes = PROFILE_DEFAULT_FIELDS.reduce((acc, field) => {
     acc[field.key] = field.type.toUpperCase()
     return acc
   }, {} as Record<string, string>)
+
+  for (const key of fieldsToMap) {
+    if (!fieldTypes[key]) {
+      fieldTypes[key] = 'STRING'
+    }
+  }
+
+  return fieldTypes
 }
