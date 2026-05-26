@@ -99,7 +99,10 @@ export const apiEndpoints = {
   bulkTrackEvent: '/api/events/trackBulk',
   updateCart: '/api/commerce/updateCart',
   trackPurchase: '/api/commerce/trackPurchase',
-  getWebhooks: '/api/webhooks'
+  getWebhooks: '/api/webhooks',
+  getChannels: '/api/channels',
+  getMessageTypes: '/api/messageTypes',
+  getLists: '/api/lists'
 }
 
 /**

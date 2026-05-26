@@ -1,0 +1,1 @@
+export const MAX_SUBSCRIPTION_ITEMS = 6
