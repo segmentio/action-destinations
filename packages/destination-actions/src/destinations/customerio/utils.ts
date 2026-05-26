@@ -6,6 +6,7 @@ import {
   getErrorCodeFromHttpStatus,
   HTTPError,
   IntegrationError,
+  JSONLikeObject,
   MultiStatusResponse,
   RequestClient
 } from '@segment/actions-core'
@@ -227,7 +228,7 @@ export const sendBatch = async <Payload extends BasePayload>(
       }
     )
 
-    const parsedResults = parseTrackApiMultiStatusResponse(response.data, options, batch)
+    const parsedResults = parseTrackApiMultiStatusResponse((response as any).data as CustomerIOBatchResponse, options, batch)
     if (parsedResults) {
       return parsedResults
     }
@@ -247,7 +248,7 @@ export const sendBatch = async <Payload extends BasePayload>(
         throw err
       }
 
-      const responseBody = err.response?.data as { message?: string } | undefined
+      const responseBody = (err.response as any)?.data as { message?: string } | undefined
       const message = responseBody?.message ?? err.message ?? 'Unknown error'
       const errortype = mapHttpStatusToErrorCode(status)
       const multiStatusResponse = new MultiStatusResponse()
@@ -256,8 +257,8 @@ export const sendBatch = async <Payload extends BasePayload>(
           status,
           errortype,
           errormessage: message,
-          body: options[i].payload,
-          sent: batch[i]
+          body: options[i].payload as JSONLikeObject,
+          sent: batch[i] as JSONLikeObject
         })
       }
       return multiStatusResponse
@@ -339,8 +340,8 @@ export function parseTrackApiErrors<Payload extends BasePayload>(
     if (!indexErrors) {
       multiStatusResponse.setSuccessResponseAtIndex(i, {
         status: 200,
-        body: options[i].payload,
-        sent: batch[i]
+        body: options[i].payload as JSONLikeObject,
+        sent: batch[i] as JSONLikeObject
       })
       continue
     }
@@ -357,8 +358,8 @@ export function parseTrackApiErrors<Payload extends BasePayload>(
       status: 400,
       errormessage,
       errortype,
-      body: options[i].payload,
-      sent: batch[i]
+      body: options[i].payload as JSONLikeObject,
+      sent: batch[i] as JSONLikeObject
     })
   }
 
