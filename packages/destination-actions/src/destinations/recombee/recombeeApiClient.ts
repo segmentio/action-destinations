@@ -87,9 +87,9 @@ function createAddInteractionData<T extends AddInteractionParams & InternalAddit
 }
 
 function datetimeToEpochSeconds(datetime: string | number): number {
-  const numValue = Number(datetime)
+  const numValue = datetime === "" ? NaN : Number(datetime)
 
-  if (!isNaN(numValue) && String(datetime).trim() !== '') {
+  if (!isNaN(numValue)) {
     if (numValue < 0) {
       throw new PayloadValidationError('Timestamp cannot be negative.')
     }
@@ -102,12 +102,20 @@ function datetimeToEpochSeconds(datetime: string | number): number {
     }
   }
 
-  const parsedDate = new Date(datetime)
+  const parsedDate = stringToDateInGMT(String(datetime))
   if (!isNaN(parsedDate.getTime())) {
     return parsedDate.getTime() / 1000
   }
 
   throw new PayloadValidationError(`Invalid timestamp provided: ${datetime}`)
+}
+
+function stringToDateInGMT(dateString: string) {
+  // Check if the string ends with Z, or an offset like +05:00 or -0800
+  const hasTimezone = /(Z|[+-]\d{2}(:?\d{2})?)$/i.test(dateString)
+
+  // If no timezone is found, append 'Z' to force GMT interpretation
+  return new Date(hasTimezone ? dateString : dateString + 'Z')
 }
 
 abstract class Request<Params extends object> {
@@ -169,15 +177,15 @@ function getDeleteUrl(interactionType: string, params: DeleteParams): string {
   return `/${interactionType}/?${query.toString()}`
 }
 
-export class DeleteBookmark extends Request<DeleteParams> {
+export class DeleteBookmark extends Request<{}> {
   constructor(params: DeleteParams) {
-    super(params, 'DELETE', getDeleteUrl('bookmarks', params))
+    super({}, 'DELETE', getDeleteUrl('bookmarks', params))
   }
 }
 
-export class DeleteCartAddition extends Request<DeleteParams> {
+export class DeleteCartAddition extends Request<{}> {
   constructor(params: DeleteParams) {
-    super(params, 'DELETE', getDeleteUrl('cartadditions', params))
+    super({}, 'DELETE', getDeleteUrl('cartadditions', params))
   }
 }
 
