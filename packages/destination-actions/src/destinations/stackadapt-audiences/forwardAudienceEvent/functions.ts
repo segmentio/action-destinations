@@ -13,7 +13,9 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   const advertiserId = settings.advertiser_id
   const marketingStatus = payloads[0].marketing_status as MarketingStatus
   
-  const profileUpdates = payloads.map((p) => {  
+  const reservedKeys = [payloads[0]?.segment_computation_key, payloads[0]?.segment_computation_id]
+
+  const profileUpdates = payloads.map((p) => {
     const {
       user_id,
       standard_traits,
@@ -24,9 +26,8 @@ export async function send(request: RequestClient, payloads: Payload[], settings
     const { segment_computation_key, segment_computation_id, traits_or_props } = p
 
     if(custom_traits) {
-        // Remove reserved keys from custom traits just incase the customer accidentally maps them
-        delete custom_traits[segment_computation_key] 
-        delete custom_traits[segment_computation_id] 
+        delete custom_traits[segment_computation_key]
+        delete custom_traits[segment_computation_id]
     }
 
     const profile: Record<string, string | number | undefined> = {
@@ -40,10 +41,20 @@ export async function send(request: RequestClient, payloads: Payload[], settings
     profile.audienceName = segment_computation_key
     profile.action = traits_or_props[segment_computation_key] ? 'enter' : 'exit'
 
-    updateFieldsToMapAndFieldTypes(fieldsToMap, fieldTypes, custom_traits)
-
     return profile
   })
+
+  // Build schema from the union of all custom trait keys across all payloads.
+  // This ensures the schema is stable even when individual payloads are sparse.
+  for (const p of payloads) {
+    if (p.custom_traits) {
+      for (const key of Object.keys(p.custom_traits)) {
+        if (!key || reservedKeys.includes(key) || fieldsToMap.has(key)) continue
+        fieldsToMap.add(key)
+        fieldTypes[key] = 'STRING'
+      }
+    }
+  }
 
   const mappings = getProfileMappings(Array.from(fieldsToMap), fieldTypes)
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
@@ -93,37 +104,6 @@ function audienceMutation(advertiserId: string, audienceMapping: string): string
             message
           }
         }`;
-}
-
-
-function updateFieldsToMapAndFieldTypes(fieldsToMap: Set<string>, fieldTypes: Record<string, string>, customTraits: Payload['custom_traits'] = {}) {
-   // Process trait keys (already in snake_case) and capture any non-standard fields as mappings 
-  return Object.keys(customTraits).reduce((acc: Record<string, unknown>, key) => {
-    const value = customTraits[key]
-    
-    // Skip if key is empty string or value is empty string
-    if (key === '' || value === '') {
-      return acc
-    }
-    
-    acc[key] = value
-    
-    const standardFields = getDefaultFieldsToMap()
-
-    if (!standardFields.has(key)) {
-      fieldsToMap.add(key)
-      // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
-      if (value || value === 0) {
-        const type = getType(value)
-        if (fieldTypes[key] && fieldTypes[key] !== type) {
-          fieldTypes[key] = 'STRING'
-        } else {
-          fieldTypes[key] = type
-        }
-      }
-    }
-    return acc
-  }, {})
 }
 
 function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>) {
@@ -178,28 +158,6 @@ function generateLabel(field: string) {
   }
 
   return label
-}
-
-function getType(value: unknown) {
-  if (isDateStr(value)) return 'DATE'
-  return (typeof value).toUpperCase()
-}
-
-function isDateStr(value: unknown) {
-  if (typeof value !== 'string') return false
-  
-  const datePatterns = [
-    /^\d{4}-\d{2}-\d{2}/, // YYYY-MM-DD
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, // ISO datetime
-    /^\d{1,2}\/\d{1,2}\/\d{4}/, // MM/DD/YYYY
-    /^\d{1,2}-\d{1,2}-\d{4}/ // MM-DD-YYYY
-  ]
-  
-  const hasDatePattern = datePatterns.some(pattern => pattern.test(value))
-  if (!hasDatePattern) return false
-  
-  const parsed = Date.parse(value)
-  return !isNaN(parsed)
 }
 
 // transform an array of mapping objects into a string which can be sent as parameter in a GQL request
