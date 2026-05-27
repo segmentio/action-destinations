@@ -250,12 +250,10 @@ export const parseResponse = <Payload extends BasePayload>(
   batch: Record<string, unknown>[]
 ): MultiStatusResponse => {
   const multiStatusResponse = new MultiStatusResponse()
-  const errorsByIndex = new Set<number>()
 
   const errors = response.data?.errors ?? []
   for (const error of errors) {
     if (error.batch_index != null) {
-      errorsByIndex.add(error.batch_index)
       multiStatusResponse.setErrorResponseAtIndex(error.batch_index, {
         status: response.status,
         errormessage: error.message || error.reason || 'Unknown error',
@@ -266,7 +264,7 @@ export const parseResponse = <Payload extends BasePayload>(
   }
 
   for (let i = 0; i < payloads.length; i++) {
-    if (!errorsByIndex.has(i)) {
+    if (!multiStatusResponse.isErrorResponseAtIndex(i)) {
       multiStatusResponse.setSuccessResponseAtIndex(i, {
         status: response.status,
         sent: batch[i] as unknown as JSONLikeObject,

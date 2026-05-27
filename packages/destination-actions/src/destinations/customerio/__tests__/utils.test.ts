@@ -1,4 +1,5 @@
-import { convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
+import { HTTPError, MultiStatusResponse } from '@segment/actions-core'
+import { convertValidTimestamp, isIsoDate, parseResponse, resolveIdentifiers, sendBatch } from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -80,8 +81,402 @@ describe('resolveIdentifiers', () => {
   })
 })
 
+describe('sendBatch', () => {
+  it('should parse 207 multi-status Track API responses', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 207,
+      data: {
+        errors: [
+          {
+            batch_index: 1,
+            reason: 'invalid',
+            message: 'Attribute value too long'
+          }
+        ]
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.length()).toBe(2)
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
+      status: 207,
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+    })
+    expect(response!.getResponseAtIndex(1).value()).toEqual({
+      status: 207,
+      errormessage: 'Attribute value too long',
+      errortype: 'MULTI_STATUS',
+      body: { person_id: 'user-2', name: 'Second' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
+    })
+  })
+
+  it('should parse 200 Track API responses that still contain batch errors', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 200,
+      data: {
+        errors: [
+          {
+            batch_index: 0,
+            reason: 'required',
+            field: 'name',
+            message: 'Name is required'
+          }
+        ]
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
+      status: 200,
+      errormessage: 'Name is required',
+      errortype: 'OK',
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+    })
+  })
+
+  it('should return all-success responses when the Track API reports an empty errors array', async () => {
+    const request = jest.fn().mockResolvedValue({
+      status: 200,
+      data: {
+        errors: []
+      }
+    })
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.getAllResponses().map((result) => result.value())).toEqual([
+      {
+        status: 200,
+        body: { person_id: 'user-1', name: 'First' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
+      },
+      {
+        status: 200,
+        body: { person_id: 'user-2', name: 'Second' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
+      }
+    ])
+  })
+
+  it('should convert HTTP errors into per-item MultiStatusResponse entries', async () => {
+    const error = new HTTPError(
+      { status: 400, statusText: 'Bad Request' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      },
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-2', name: 'Second' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.length()).toBe(2)
+    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      body: { person_id: 'user-1', name: 'First' }
+    })
+    expect(response!.getResponseAtIndex(1).value()).toMatchObject({
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      body: { person_id: 'user-2', name: 'Second' }
+    })
+  })
+
+  it('should convert 429 HTTP errors into per-item MultiStatusResponse entries', async () => {
+    const error = new HTTPError(
+      { status: 429, statusText: 'Too Many Requests' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+      status: 429,
+      errortype: 'TOO_MANY_REQUESTS'
+    })
+  })
+
+  it('should convert 500 HTTP errors into per-item MultiStatusResponse entries', async () => {
+    const error = new HTTPError(
+      { status: 500, statusText: 'Internal Server Error' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+      status: 500,
+      errortype: 'INTERNAL_SERVER_ERROR'
+    })
+  })
+
+  it('should convert 401 auth errors into per-item MultiStatusResponse entries', async () => {
+    const error = new HTTPError(
+      { status: 401, statusText: 'Unauthorized' } as any,
+      { url: 'https://track.customer.io/api/v2/batch' } as any,
+      {} as any
+    )
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+      status: 401,
+      errortype: 'UNAUTHORIZED',
+      body: { person_id: 'user-1', name: 'First' }
+    })
+  })
+
+  it('should handle non-HTTP errors with status 500', async () => {
+    const error = new Error('Network failure')
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      {
+        type: 'person',
+        action: 'event',
+        settings: {},
+        payload: { person_id: 'user-1', name: 'First' }
+      }
+    ])
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+      status: 500,
+      errormessage: 'Network failure',
+      errortype: 'INTERNAL_SERVER_ERROR'
+    })
+  })
+})
+
+describe('parseResponse', () => {
+  it('should create error entries for items referenced by batch errors', () => {
+    const payloads = [{ person_id: 'user-0' }, { person_id: 'user-1' }, { person_id: 'user-2' }]
+    const batch = [
+      { type: 'person', action: 'event', identifiers: { id: 'user-0' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-1' } },
+      { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+    ]
+
+    const response = parseResponse(
+      {
+        status: 207,
+        data: {
+          errors: [{ batch_index: 1, reason: 'required', field: 'name', message: 'Name is required' }]
+        }
+      } as any,
+      payloads,
+      batch
+    )
+
+    expect(response.getAllResponses().map((result) => result.value())).toEqual([
+      {
+        status: 207,
+        body: { person_id: 'user-0' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+      },
+      {
+        status: 207,
+        errormessage: 'Name is required',
+        errortype: 'MULTI_STATUS',
+        body: { person_id: 'user-1' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' } }
+      },
+      {
+        status: 207,
+        body: { person_id: 'user-2' },
+        sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
+      }
+    ])
+  })
+
+  it('should use reason as fallback when message is missing', () => {
+    const payloads = [{ person_id: 'user-0' }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    const response = parseResponse(
+      {
+        status: 207,
+        data: {
+          errors: [{ batch_index: 0, reason: 'invalid' }]
+        }
+      } as any,
+      payloads,
+      batch
+    )
+
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({
+      errormessage: 'invalid'
+    })
+  })
+
+  it('should treat missing errors array as all-success', () => {
+    const payloads = [{ person_id: 'user-0' }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    const response = parseResponse(
+      {
+        status: 200,
+        data: undefined
+      } as any,
+      payloads,
+      batch
+    )
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.getResponseAtIndex(0).value()).toEqual({
+      status: 200,
+      body: { person_id: 'user-0' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+    })
+  })
+
+  it('should treat an empty errors array as all-success', () => {
+    const payloads = [{ person_id: 'user-0' }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    const response = parseResponse(
+      {
+        status: 200,
+        data: { errors: [] }
+      } as any,
+      payloads,
+      batch
+    )
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect(response.getResponseAtIndex(0).value()).toEqual({
+      status: 200,
+      body: { person_id: 'user-0' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+    })
+  })
+
+  it('should skip errors without batch_index', () => {
+    const payloads = [{ person_id: 'user-0' }]
+    const batch = [{ type: 'person', action: 'event', identifiers: { id: 'user-0' } }]
+
+    const response = parseResponse(
+      {
+        status: 207,
+        data: {
+          errors: [{ reason: 'invalid', message: 'some error' }]
+        }
+      } as any,
+      payloads,
+      batch
+    )
+
+    expect(response.getResponseAtIndex(0).value()).toEqual({
+      status: 207,
+      body: { person_id: 'user-0' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
+    })
+  })
+})
+
 describe('convertValidTimestamp', () => {
   it('should leave decimal unix timestamps unchanged', () => {
     expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
+  })
+
+  it('should leave integer unix timestamps unchanged', () => {
+    expect(convertValidTimestamp('1712345678')).toBe('1712345678')
+  })
+
+  it('should convert ISO date strings to unix timestamps', () => {
+    expect(convertValidTimestamp('2023-12-25T14:30:45Z')).toBe(1703514645)
+  })
+
+  it('should return non-string values unchanged', () => {
+    expect(convertValidTimestamp(12345)).toBe(12345)
+    expect(convertValidTimestamp(null)).toBe(null)
+    expect(convertValidTimestamp(undefined)).toBe(undefined)
+  })
+
+  it('should return invalid date strings unchanged', () => {
+    expect(convertValidTimestamp('not-a-date')).toBe('not-a-date')
   })
 })
