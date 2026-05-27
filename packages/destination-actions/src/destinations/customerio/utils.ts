@@ -199,7 +199,7 @@ export const resolveIdentifiers = ({
   }
 }
 
-export const sendBatch = async <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {  
+export const sendBatch = async <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
   if (!options?.length) {
     return
   }

@@ -258,9 +258,12 @@ describe('sendBatch', () => {
     ])
 
     expect(response).toBeInstanceOf(MultiStatusResponse)
-    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
       status: 429,
-      errortype: 'TOO_MANY_REQUESTS'
+      errormessage: 'Too Many Requests',
+      errortype: 'TOO_MANY_REQUESTS',
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
   })
 
@@ -282,9 +285,12 @@ describe('sendBatch', () => {
     ])
 
     expect(response).toBeInstanceOf(MultiStatusResponse)
-    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
       status: 500,
-      errortype: 'INTERNAL_SERVER_ERROR'
+      errormessage: 'Internal Server Error',
+      errortype: 'INTERNAL_SERVER_ERROR',
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
   })
 
@@ -306,10 +312,12 @@ describe('sendBatch', () => {
     ])
 
     expect(response).toBeInstanceOf(MultiStatusResponse)
-    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
       status: 401,
+      errormessage: 'Unauthorized',
       errortype: 'UNAUTHORIZED',
-      body: { person_id: 'user-1', name: 'First' }
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
   })
 
@@ -327,10 +335,12 @@ describe('sendBatch', () => {
     ])
 
     expect(response).toBeInstanceOf(MultiStatusResponse)
-    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
       status: 500,
       errormessage: 'Network failure',
-      errortype: 'INTERNAL_SERVER_ERROR'
+      errortype: 'INTERNAL_SERVER_ERROR',
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
   })
 })
