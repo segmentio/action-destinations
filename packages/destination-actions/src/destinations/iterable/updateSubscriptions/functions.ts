@@ -79,6 +79,22 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
 
   const subscriptions = payloads[validPayloads[0].index].subscriptions
 
+  for (const { action } of subscriptions) {
+    try {
+      validateAction(action)
+    } catch (error) {
+      validPayloads.forEach(({ index }) => {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: (error as Error).message,
+          sent: payloads[index] as unknown as JSONLikeObject
+        })
+      })
+      return multiStatusResponse
+    }
+  }
+
   const users = validPayloads.filter(({ identifier }) => identifier.email).map(({ identifier }) => identifier.email as string)
   const usersByUserId = validPayloads.filter(({ identifier }) => identifier.userId).map(({ identifier }) => identifier.userId as string)
 
@@ -90,7 +106,6 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   try {
     await Promise.all(
       subscriptions.map(async ({ subscription_group_type, subscription_group_id, action }) => {
-        validateAction(action)
         const endpoint = getBulkSubscriptionEndpoint(settings, subscription_group_type, subscription_group_id, action)
         return request(endpoint, {
           method: 'put',

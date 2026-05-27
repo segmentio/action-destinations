@@ -494,5 +494,48 @@ describe('Iterable.updateSubscriptions', () => {
         errortype: 'UNKNOWN_ERROR'
       })
     })
+
+    it('returns PAYLOAD_VALIDATION_FAILED in MultiStatusResponse for invalid action in batch', async () => {
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: 'Subscriptions Updated',
+          properties: { email: 'user1@iterable.com' }
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Subscriptions Updated',
+          properties: { email: 'user2@iterable.com' }
+        })
+      ]
+
+      const response = await testDestination.testBatchAction('updateSubscriptions', {
+        events,
+        mapping: {
+          ...defaultMapping,
+          subscriptions: [
+            {
+              subscription_group_type: 'messageChannel',
+              subscription_group_id: '123',
+              action: 'invalid_action'
+            }
+          ]
+        }
+      })
+
+      const multistatus = testDestination.results[0].multistatus
+
+      expect(multistatus).toBeDefined()
+      expect(multistatus![0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED'
+      })
+      expect(multistatus![0].errormessage).toContain('subscribe')
+      expect(multistatus![1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED'
+      })
+      expect(multistatus![1].errormessage).toContain('subscribe')
+    })
   })
 })
