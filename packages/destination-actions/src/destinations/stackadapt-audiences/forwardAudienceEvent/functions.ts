@@ -172,7 +172,7 @@ function getConfiguredFieldsToMap(rawMapping: RawMapping, reservedKeys: string[]
   if (customTraitsMapping && typeof customTraitsMapping === 'object') {
     for (const rawKey of Object.keys(customTraitsMapping)) {
       const key = rawKey.trim()
-      if (!key || reservedKeys.includes(key) || fieldsToMap.has(key)) {
+      if (!key || key.startsWith('@') || reservedKeys.includes(key) || fieldsToMap.has(key)) {
         continue
       }
       fieldsToMap.add(key)

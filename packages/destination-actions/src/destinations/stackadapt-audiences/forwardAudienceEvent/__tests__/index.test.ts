@@ -470,6 +470,51 @@ describe('forwardAudienceEvent', () => {
     expect(requestBody.query).toContain('vip_status')
   })
 
+  it('should ignore mapping directive keys starting with @ in custom_traits', async () => {
+    let requestBody
+    nock(gqlHostUrl)
+      .post(gqlPath, (body) => {
+        requestBody = body
+        return body
+      })
+      .reply(200, { data: { success: true } })
+
+    const event: Partial<SegmentEvent> = {
+      userId: mockUserId,
+      type: 'identify',
+      traits: {
+        email: mockEmail,
+        first_name: 'Billy',
+        first_time_buyer: true
+      },
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: 'first_time_buyer',
+          computation_id: 'aud_123'
+        }
+      }
+    }
+
+    const mapping = {
+      ...mockIdentifyMapping,
+      custom_traits: {
+        '@path': '$.traits'
+      }
+    }
+
+    const responses = await testDestination.testAction('forwardAudienceEvent', {
+      event: createTestEvent(event),
+      useDefaultMappings: true,
+      mapping,
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    expect(responses[0].status).toBe(200)
+    const schemaSection = requestBody.query.split('mappingSchemaV2:')[1]
+    expect(schemaSection).not.toContain('@path')
+  })
+
   it('should not duplicate standard fields when they appear in custom_traits', async () => {
     let requestBody
     nock(gqlHostUrl)

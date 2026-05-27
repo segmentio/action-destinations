@@ -28,12 +28,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, data) => {
-    const { payload, settings, rawMapping } = data
-    return await send(request, [payload], settings, rawMapping as RawMapping)
+    const { payload, settings } = data
+    const rawMapping = (data as unknown as { rawMapping: RawMapping }).rawMapping
+    return await send(request, [payload], settings, rawMapping)
   },
   performBatch: async (request, data) => {
-    const { payload, settings, rawMapping } = data
-    return await send(request, payload, settings, rawMapping as RawMapping)
+    const { payload, settings } = data
+    const rawMapping = (data as unknown as { rawMapping: RawMapping }).rawMapping
+    return await send(request, payload, settings, rawMapping)
   }
 }
 
