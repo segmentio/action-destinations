@@ -119,9 +119,9 @@ describe('sendBatch', () => {
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
     expect(response!.getResponseAtIndex(1).value()).toEqual({
-      status: 207,
+      status: 400,
       errormessage: 'Attribute value too long',
-      errortype: 'MULTI_STATUS',
+      errortype: 'BAD_REQUEST',
       body: { person_id: 'user-2', name: 'Second' },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
     })
@@ -153,9 +153,9 @@ describe('sendBatch', () => {
 
     expect(response).toBeInstanceOf(MultiStatusResponse)
     expect(response!.getResponseAtIndex(0).value()).toEqual({
-      status: 200,
+      status: 400,
       errormessage: 'Name is required',
-      errortype: 'OK',
+      errortype: 'BAD_REQUEST',
       body: { person_id: 'user-1', name: 'First' },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
@@ -358,9 +358,9 @@ describe('parseResponse', () => {
         sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
       },
       {
-        status: 207,
+        status: 400,
         errormessage: 'Name is required',
-        errortype: 'MULTI_STATUS',
+        errortype: 'BAD_REQUEST',
         body: { person_id: 'user-1' },
         sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' } }
       },
@@ -388,6 +388,7 @@ describe('parseResponse', () => {
     )
 
     expect(response.getResponseAtIndex(0).value()).toMatchObject({
+      status: 400,
       errormessage: 'invalid'
     })
   })

@@ -252,10 +252,11 @@ export const parseResponse = <Payload extends BasePayload>(
   const multiStatusResponse = new MultiStatusResponse()
 
   const errors = response.data?.errors ?? []
+  const errorStatus = response.status >= 200 && response.status < 300 ? 400 : response.status
   for (const error of errors) {
     if (error.batch_index != null) {
       multiStatusResponse.setErrorResponseAtIndex(error.batch_index, {
-        status: response.status,
+        status: errorStatus,
         errormessage: error.message || error.reason || 'Unknown error',
         sent: batch[error.batch_index] as unknown as JSONLikeObject,
         body: payloads[error.batch_index] as unknown as JSONLikeObject
