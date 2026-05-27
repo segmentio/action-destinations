@@ -224,15 +224,19 @@ describe('sendBatch', () => {
 
     expect(response).toBeInstanceOf(MultiStatusResponse)
     expect(response!.length()).toBe(2)
-    expect(response!.getResponseAtIndex(0).value()).toMatchObject({
+    expect(response!.getResponseAtIndex(0).value()).toEqual({
       status: 400,
+      errormessage: 'Bad Request',
       errortype: 'BAD_REQUEST',
-      body: { person_id: 'user-1', name: 'First' }
+      body: { person_id: 'user-1', name: 'First' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
-    expect(response!.getResponseAtIndex(1).value()).toMatchObject({
+    expect(response!.getResponseAtIndex(1).value()).toEqual({
       status: 400,
+      errormessage: 'Bad Request',
       errortype: 'BAD_REQUEST',
-      body: { person_id: 'user-2', name: 'Second' }
+      body: { person_id: 'user-2', name: 'Second' },
+      sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
     })
   })
 
