@@ -1,16 +1,12 @@
 import type { E2EFixture } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
+import trackEvent from '../index'
 
 const fixtures: E2EFixture[] = [
   {
     description: 'Successfully tracks a purchase event',
     subscribe: 'type = "track"',
-    mapping: {
-      email: { '@path': '$.properties.email' },
-      eventName: { '@path': '$.event' },
-      dataFields: { '@path': '$.properties' },
-      createdAt: { '@path': '$.timestamp' },
-      id: { '@path': '$.messageId' }
-    },
+    mapping: defaultValues(trackEvent.fields),
     event: {
       type: 'track',
       event: 'Order Completed',
@@ -31,9 +27,9 @@ const fixtures: E2EFixture[] = [
     description: 'Rejects event when both email and userId are missing',
     subscribe: 'type = "track"',
     mapping: {
-      eventName: { '@path': '$.event' },
-      dataFields: { '@path': '$.properties' },
-      createdAt: { '@path': '$.timestamp' }
+      ...defaultValues(trackEvent.fields),
+      email: undefined,
+      userId: undefined
     },
     event: {
       type: 'track',

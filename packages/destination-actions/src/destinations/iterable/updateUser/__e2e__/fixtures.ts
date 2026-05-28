@@ -1,14 +1,12 @@
 import type { E2EFixture } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
+import updateUser from '../index'
 
 const fixtures: E2EFixture[] = [
   {
     description: 'Successfully upserts a user with email and data fields',
     subscribe: 'type = "identify"',
-    mapping: {
-      email: { '@path': '$.traits.email' },
-      userId: { '@path': '$.userId' },
-      dataFields: { '@path': '$.traits' }
-    },
+    mapping: defaultValues(updateUser.fields),
     event: {
       type: 'identify',
       messageId: '$guid',
