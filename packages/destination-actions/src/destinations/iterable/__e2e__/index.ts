@@ -1,7 +1,6 @@
 import type { E2EDestinationConfig, E2EFixture } from '@segment/actions-core'
-import trackEventSuccess from '../trackEvent/__e2e__/success'
-import trackEventMissingIdentifiers from '../trackEvent/__e2e__/missing-identifiers'
-import updateUserSuccess from '../updateUser/__e2e__/success'
+import trackEventFixtures from '../trackEvent/__e2e__/fixtures'
+import updateUserFixtures from '../updateUser/__e2e__/fixtures'
 
 export const config: E2EDestinationConfig = {
   settings: {
@@ -11,6 +10,6 @@ export const config: E2EDestinationConfig = {
 }
 
 export const fixtures: Record<string, E2EFixture[]> = {
-  trackEvent: [trackEventSuccess, trackEventMissingIdentifiers],
-  updateUser: [updateUserSuccess]
+  trackEvent: trackEventFixtures,
+  updateUser: updateUserFixtures
 }
