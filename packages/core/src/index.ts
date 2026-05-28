@@ -112,7 +112,7 @@ export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
 export { FLAGS } from './flags'
 
-export { createE2EEvent } from './e2e-types'
+export { createE2EEvent } from './e2e-helpers'
 export type {
   E2EFixture,
   E2EExpectation,
