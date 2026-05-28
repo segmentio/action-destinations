@@ -1,5 +1,6 @@
 import { RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
+import { USER_AGENT_HEADER } from './constants'
 
 export interface AccessTokenResponse {
   token_type: string
@@ -24,7 +25,8 @@ export default async function getAccessToken(
 
   const requestHeaders = {
     Authorization: `Basic ${Buffer.from(`${apiClientId}:${apiClientSecret}`).toString('base64')}`,
-    Accept: 'application/json'
+    Accept: 'application/json',
+    'User-Agent': USER_AGENT_HEADER
   }
 
   const res = await request<AccessTokenResponse>(apiAuthEndpoint, {
@@ -39,6 +41,6 @@ export default async function getAccessToken(
 
   return {
     accessToken: res.data.access_token,
-    expiresIn: res.data.expires_in ?? 3600
+    expiresIn: res.data.expires_in
   }
 }

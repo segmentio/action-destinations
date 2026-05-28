@@ -15,6 +15,36 @@ interface CachedToken {
 
 export const tokenCache = new Map<string, CachedToken>()
 const TOKEN_EXPIRY_BUFFER_MS = 60 * 1000 // 60 seconds
+const MAX_CACHE_SIZE = 1000 // Maximum number of cached tokens
+
+function cleanupExpiredTokens(): void {
+  const now = Date.now()
+  const keysToDelete: string[] = []
+
+  tokenCache.forEach((value, key) => {
+    if (value.expiresAt <= now) {
+      keysToDelete.push(key)
+    }
+  })
+
+  keysToDelete.forEach((key) => tokenCache.delete(key))
+}
+
+function evictOldestToken(): void {
+  let oldestKey: string | null = null
+  let oldestTime = Infinity
+
+  tokenCache.forEach((value, key) => {
+    if (value.expiresAt < oldestTime) {
+      oldestTime = value.expiresAt
+      oldestKey = key
+    }
+  })
+
+  if (oldestKey) {
+    tokenCache.delete(oldestKey)
+  }
+}
 
 function getCacheKey(settings: Settings): string {
   return `${settings.apiAuthEndpoint}::${settings.apiClientId}`
@@ -78,12 +108,28 @@ export const getAuthHeader = async (
     throw new IntegrationError('Auth endpoint is required', 'MISSING_AUTH_ENDPOINT', 400)
   }
 
+  if (!settings.apiClientId || !settings.apiClientSecret) {
+    throw new IntegrationError(
+      'OIDC client credentials (Client ID and Client Secret) are required',
+      'MISSING_CLIENT_CREDENTIALS',
+      400
+    )
+  }
+
   const { accessToken, expiresIn } = await getAccessToken(
     request,
     settings.apiAuthEndpoint.replace(/\/$/, ''),
-    settings.apiClientId as string,
-    settings.apiClientSecret as string
+    settings.apiClientId,
+    settings.apiClientSecret
   )
+
+  // Clean up expired tokens periodically
+  cleanupExpiredTokens()
+
+  // If cache is at max size, evict the oldest token
+  if (tokenCache.size >= MAX_CACHE_SIZE) {
+    evictOldestToken()
+  }
 
   tokenCache.set(cacheKey, {
     accessToken,
@@ -196,7 +242,7 @@ export const getFields = async (request: RequestClient, settings: Settings): Pro
   try {
     data = await request(`${getApiBaseUrl(settings)}field/translate/en`, { headers: authHeader })
   } catch (err) {
-    return { choices: [] }
+    throw new IntegrationError(`Failed to fetch Emarsys fields: ${(err as Error).message}`, 'FIELD_FETCH_FAILED', 400)
   }
   const choices = []
   if (data && data.content) {

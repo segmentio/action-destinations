@@ -4,7 +4,6 @@ import addToContactList from './addToContactList'
 import removeFromContactList from './removeFromContactList'
 import triggerEvent from './triggerEvent'
 import upsertContact from './upsertContact'
-import getAccessToken from './auth'
 import { isLegacyAuth, createWsseHeader, getApiBaseUrl, getAuthHeader } from './emarsys-helper'
 import { USER_AGENT_HEADER } from './constants'
 
@@ -30,8 +29,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       api_user: {
         label: 'API username (legacy)',
-        description:
-          'Your Emarsys API username. Set this together with API password to use legacy X-WSSE authentication against the v2 API.',
+        description: 'Your Emarsys API username. Required when using legacy authentication.',
         type: 'string',
         required: false,
         depends_on: {
@@ -44,8 +42,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       api_password: {
         label: 'API password (legacy)',
-        description:
-          'Your Emarsys API password. Set this together with API username to use legacy X-WSSE authentication against the v2 API.',
+        description: 'Your Emarsys API password. Required when using legacy authentication.',
         type: 'password',
         required: false,
         depends_on: {
@@ -58,7 +55,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       apiAuthEndpoint: {
         label: 'Auth endpoint',
-        description: 'Authentication endpoint URL. Required when not using legacy API username/password.',
+        description: 'Authentication endpoint URL. Required when using new (OIDC) authentication.',
         type: 'string',
         format: 'uri',
         required: false,
@@ -69,7 +66,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       apiBaseUrl: {
         label: 'API base URL',
-        description: 'The base URL for API requests. Required when not using legacy API username/password.',
+        description: 'The base URL for API requests. Required when using new (OIDC) authentication.',
         type: 'string',
         format: 'uri',
         required: false,
@@ -80,7 +77,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       apiClientId: {
         label: 'API ClientId',
-        description: 'The ClientId for API authentication. Required when not using legacy API username/password.',
+        description: 'The ClientId for API authentication. Required when using new (OIDC) authentication.',
         type: 'string',
         required: false,
         depends_on: {
@@ -89,7 +86,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       apiClientSecret: {
         label: 'API Client Secret',
-        description: 'The Client Secret for API authentication. Required when not using legacy API username/password.',
+        description: 'The Client Secret for API authentication. Required when using new (OIDC) authentication.',
         type: 'password',
         required: false,
         depends_on: {
@@ -115,12 +112,6 @@ const destination: DestinationDefinition<Settings> = {
         if (!settings.apiClientId || !settings.apiClientSecret) {
           throw new Error('OIDC client credentials are required')
         }
-        await getAccessToken(
-          request,
-          settings.apiAuthEndpoint.replace(/\/$/, ''),
-          settings.apiClientId,
-          settings.apiClientSecret
-        )
       }
 
       const authHeader = await getAuthHeader(request, settings)

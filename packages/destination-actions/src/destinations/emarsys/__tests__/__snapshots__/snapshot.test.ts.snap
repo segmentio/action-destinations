@@ -9,12 +9,44 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-emarsys destination: addToContactList action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-emarsys destination: addToContactList action - required fields 1`] = `
 Object {
   "external_ids": Array [
     "zyGH7gfpUUt]",
   ],
   "key_id": "zyGH7gfpUUt]",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: addToContactList action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
 }
 `;
 
@@ -28,6 +60,22 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-emarsys destination: removeFromContactList action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-emarsys destination: removeFromContactList action - required fields 1`] = `
 Object {
   "contactlistid": 3610279552221184,
@@ -38,13 +86,61 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-emarsys destination: removeFromContactList action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-emarsys destination: triggerEngagementEvent action - all fields 1`] = `
 Object {
   "testType": "X^xU$A6SNkO",
 }
 `;
 
+exports[`Testing snapshot for actions-emarsys destination: triggerEngagementEvent action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-emarsys destination: triggerEngagementEvent action - required fields 1`] = `null`;
+
+exports[`Testing snapshot for actions-emarsys destination: triggerEngagementEvent action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
 
 exports[`Testing snapshot for actions-emarsys destination: triggerEvent action - all fields 1`] = `
 Object {
@@ -56,11 +152,43 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-emarsys destination: triggerEvent action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-emarsys destination: triggerEvent action - required fields 1`] = `
 Object {
   "data": null,
   "external_id": "#aJ$iIS6R7kOcAtf3F([",
   "key_id": "#aJ$iIS6R7kOcAtf3F([",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: triggerEvent action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
 }
 `;
 
@@ -75,6 +203,22 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-emarsys destination: upsertContact action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-emarsys destination: upsertContact action - required fields 1`] = `
 Object {
   "contacts": Array [
@@ -83,5 +227,21 @@ Object {
     },
   ],
   "key_id": "ADOas@%XS83LqVu9",
+}
+`;
+
+exports[`Testing snapshot for actions-emarsys destination: upsertContact action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
 }
 `;

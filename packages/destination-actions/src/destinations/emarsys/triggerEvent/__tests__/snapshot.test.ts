@@ -46,19 +46,21 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    const apiResponse = responses.find((r) => new URL(r.request.url).host === new URL(API_HOST).host)
+    const apiResponse = responses.find((r) => {
+      const url = new URL(r.request.url)
+      return url.host === new URL(API_HOST).host && url.pathname.startsWith(API_BASE_PATH)
+    })
     if (!apiResponse) throw new Error('No Emarsys API response found')
     const rawBody = await apiResponse.request.text()
 
     try {
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot()
-      return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
     }
 
-    expect(Object.fromEntries(apiResponse.request.headers)).toMatchSnapshot()
+    expect(apiResponse.request.headers).toMatchSnapshot()
   })
 
   it('all fields', async () => {
@@ -79,16 +81,20 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    const apiResponse = responses.find((r) => new URL(r.request.url).host === new URL(API_HOST).host)
+    const apiResponse = responses.find((r) => {
+      const url = new URL(r.request.url)
+      return url.host === new URL(API_HOST).host && url.pathname.startsWith(API_BASE_PATH)
+    })
     if (!apiResponse) throw new Error('No Emarsys API response found')
     const rawBody = await apiResponse.request.text()
 
     try {
       const json = JSON.parse(rawBody)
       expect(json).toMatchSnapshot()
-      return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
     }
+
+    expect(apiResponse.request.headers).toMatchSnapshot()
   })
 })
