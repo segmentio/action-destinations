@@ -22,11 +22,10 @@ const fixtures: E2EFixture[] = [
   {
     description: 'Rejects event when both email and userId are missing',
     subscribe: 'type = "track"',
-    mapping: {
-      ...defaultValues(trackEvent.fields),
-      email: undefined,
-      userId: undefined
-    },
+    mapping: (() => {
+      const { email, userId, ...rest } = defaultValues(trackEvent.fields)
+      return rest
+    })(),
     event: createE2EEvent('track', 'Button Clicked', {
       properties: {
         buttonId: 'cta-hero'
