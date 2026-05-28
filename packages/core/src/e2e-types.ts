@@ -1,0 +1,113 @@
+import type { SegmentEvent } from './segment-event'
+import type { JSONObject } from './json-object'
+
+export type E2EExpectation = E2ESuccessExpectation | E2EFailureExpectation | E2EErrorExpectation
+
+/**
+ * The HTTP request was sent and the destination API returned a 2xx response.
+ */
+export interface E2ESuccessExpectation {
+  status: 'success'
+  httpStatus?: HttpSuccessCode
+  bodyContains?: string
+}
+
+/**
+ * The HTTP request was sent and the destination API returned a non-2xx response.
+ * Use this to verify that the destination rejects specific inputs (e.g., bad auth, invalid payload).
+ */
+export interface E2EFailureExpectation {
+  status: 'failure'
+  httpStatus: HttpFailureCode
+  bodyContains?: string
+}
+
+/**
+ * Our action code threw before making an HTTP request.
+ * The request never left. Use this to verify client-side validation
+ * (e.g., PayloadValidationError when required fields are missing).
+ */
+export interface E2EErrorExpectation {
+  status: 'error'
+  errorType: string
+  errorMessage?: string
+}
+
+export interface E2EFixture {
+  /** Human-readable name for the test case, shown in runner output. */
+  description: string
+  /** FQL query that determines whether the event matches this subscription. */
+  subscribe: string
+  /** Mapping kit directives that transform the event into the action's payload shape. */
+  mapping: JSONObject
+  /** The Segment event (track, identify, page, screen, etc.) sent into the action. */
+  event: SegmentEvent
+  /** The expected outcome of executing this fixture. */
+  expect: E2EExpectation
+}
+
+export interface E2ESettingsSecretValue {
+  $env: string
+}
+
+export interface E2EDestinationConfig {
+  settings: Record<string, string | number | boolean | E2ESettingsSecretValue>
+}
+
+export type HttpSuccessCode = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
+
+export type HttpFailureCode =
+  | 300
+  | 301
+  | 302
+  | 303
+  | 304
+  | 305
+  | 306
+  | 307
+  | 308
+  | 400
+  | 401
+  | 402
+  | 403
+  | 404
+  | 405
+  | 406
+  | 407
+  | 408
+  | 409
+  | 410
+  | 411
+  | 412
+  | 413
+  | 414
+  | 415
+  | 416
+  | 417
+  | 418
+  | 421
+  | 422
+  | 423
+  | 424
+  | 425
+  | 426
+  | 428
+  | 429
+  | 431
+  | 451
+  | 499
+  | 500
+  | 501
+  | 502
+  | 503
+  | 504
+  | 505
+  | 506
+  | 507
+  | 508
+  | 509
+  | 510
+  | 511
+  | 529
+  | 598
+  | 599

@@ -111,3 +111,15 @@ export {
 export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
 export { FLAGS } from './flags'
+
+export type {
+  E2EFixture,
+  E2EExpectation,
+  E2ESuccessExpectation,
+  E2EFailureExpectation,
+  E2EErrorExpectation,
+  E2EDestinationConfig,
+  E2ESettingsSecretValue,
+  HttpSuccessCode,
+  HttpFailureCode
+} from './e2e-types'
