@@ -15,11 +15,11 @@ const fixtures: E2EFixture[] = [
       type: 'track',
       event: 'Order Completed',
       userId: 'e2e-test-user-001',
-      messageId: 'e2e-msg-001',
-      timestamp: '2024-01-15T10:30:00.000Z',
+      messageId: '$guid',
+      timestamp: '$now',
       properties: {
         email: 'e2e-test@segment.com',
-        orderId: 'test-order-123',
+        orderId: '$guid:orderId',
         total: 49.99
       }
     },
@@ -38,7 +38,8 @@ const fixtures: E2EFixture[] = [
     event: {
       type: 'track',
       event: 'Button Clicked',
-      timestamp: '2024-01-15T10:30:00.000Z',
+      messageId: '$guid',
+      timestamp: '$now',
       properties: {
         buttonId: 'cta-hero'
       }

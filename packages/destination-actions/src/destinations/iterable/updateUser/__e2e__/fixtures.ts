@@ -11,6 +11,8 @@ const fixtures: E2EFixture[] = [
     },
     event: {
       type: 'identify',
+      messageId: '$guid',
+      timestamp: '$now',
       userId: 'e2e-test-user-001',
       traits: {
         email: 'e2e-test@segment.com',

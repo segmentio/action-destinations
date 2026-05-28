@@ -33,6 +33,16 @@ export interface E2EErrorExpectation {
   errorMessage?: string
 }
 
+/**
+ * Dynamic value markers that the runner resolves at execution time.
+ *
+ * - '$now'          → current ISO 8601 timestamp (e.g., '2026-05-28T14:32:01.000Z')
+ * - '$guid'         → fresh UUID v4, unique each occurrence
+ * - '$guid:<name>'  → UUID v4, consistent within a single fixture execution.
+ *                     All occurrences of the same name resolve to the same value.
+ */
+export type E2EDynamicValue = '$now' | `$guid` | `$guid:${string}`
+
 export interface E2EFixture {
   /** Human-readable name for the test case, shown in runner output. */
   description: string
@@ -40,7 +50,11 @@ export interface E2EFixture {
   subscribe: string
   /** Mapping kit directives that transform the event into the action's payload shape. */
   mapping: JSONObject
-  /** The Segment event (track, identify, page, screen, etc.) sent into the action. */
+  /**
+   * The Segment event (track, identify, page, screen, etc.) sent into the action.
+   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * runner resolves before execution.
+   */
   event: SegmentEvent
   /** The expected outcome of executing this fixture. */
   expect: E2EExpectation
