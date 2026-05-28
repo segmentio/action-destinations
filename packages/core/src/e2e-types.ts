@@ -60,6 +60,20 @@ export interface E2EFixture {
   expect: E2EExpectation
 }
 
+export function createE2EEvent(
+  type: SegmentEvent['type'],
+  name: string,
+  overrides?: Partial<Omit<SegmentEvent, 'type' | 'event' | 'messageId' | 'timestamp'>>
+): SegmentEvent {
+  return {
+    type,
+    event: name,
+    messageId: '$guid',
+    timestamp: '$now',
+    ...overrides
+  }
+}
+
 export interface E2ESettingsSecretValue {
   $env: string
 }

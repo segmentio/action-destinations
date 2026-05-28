@@ -1,5 +1,5 @@
 import type { E2EFixture } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
+import { defaultValues, createE2EEvent } from '@segment/actions-core'
 import trackEvent from '../index'
 
 const fixtures: E2EFixture[] = [
@@ -7,18 +7,14 @@ const fixtures: E2EFixture[] = [
     description: 'Successfully tracks a purchase event',
     subscribe: 'type = "track"',
     mapping: defaultValues(trackEvent.fields),
-    event: {
-      type: 'track',
-      event: 'Order Completed',
+    event: createE2EEvent('track', 'Order Completed', {
       userId: 'e2e-test-user-001',
-      messageId: '$guid',
-      timestamp: '$now',
       properties: {
         email: 'e2e-test@segment.com',
         orderId: '$guid:orderId',
         total: 49.99
       }
-    },
+    }),
     expect: {
       status: 'success'
     }
@@ -31,15 +27,11 @@ const fixtures: E2EFixture[] = [
       email: undefined,
       userId: undefined
     },
-    event: {
-      type: 'track',
-      event: 'Button Clicked',
-      messageId: '$guid',
-      timestamp: '$now',
+    event: createE2EEvent('track', 'Button Clicked', {
       properties: {
         buttonId: 'cta-hero'
       }
-    },
+    }),
     expect: {
       status: 'error',
       errorType: 'PayloadValidationError',
