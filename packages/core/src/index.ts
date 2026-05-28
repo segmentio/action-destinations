@@ -120,6 +120,6 @@ export type {
   E2EErrorExpectation,
   E2EDestinationConfig,
   E2ESettingsSecretValue,
-  HttpSuccessCode,
-  HttpFailureCode
+  E2EHttpSuccessCode,
+  E2EHttpFailureCode
 } from './e2e-types'

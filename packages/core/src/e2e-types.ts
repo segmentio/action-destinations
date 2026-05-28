@@ -8,7 +8,7 @@ export type E2EExpectation = E2ESuccessExpectation | E2EFailureExpectation | E2E
  */
 export interface E2ESuccessExpectation {
   status: 'success'
-  httpStatus?: HttpSuccessCode
+  httpStatus?: E2EHttpSuccessCode
   bodyContains?: string
 }
 
@@ -18,7 +18,7 @@ export interface E2ESuccessExpectation {
  */
 export interface E2EFailureExpectation {
   status: 'failure'
-  httpStatus: HttpFailureCode
+  httpStatus: E2EHttpFailureCode
   bodyContains?: string
 }
 
@@ -54,9 +54,9 @@ export interface E2EDestinationConfig {
   settings: Record<string, string | number | boolean | E2ESettingsSecretValue>
 }
 
-export type HttpSuccessCode = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
+export type E2EHttpSuccessCode = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
 
-export type HttpFailureCode =
+export type E2EHttpFailureCode =
   | 300
   | 301
   | 302
