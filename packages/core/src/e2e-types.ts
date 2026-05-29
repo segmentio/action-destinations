@@ -143,7 +143,7 @@ export interface E2ESyncAudienceSingleStep {
   type: 'syncAudience'
   description: string
   mode: Extract<E2EExecutionMode, 'single'>
-  event: SegmentEvent
+  event: E2EEngageAudienceEvent
   expect: E2EExpectation
 }
 
@@ -151,7 +151,7 @@ export interface E2ESyncAudienceBatchStep {
   type: 'syncAudience'
   description: string
   mode: Extract<E2EExecutionMode, 'batch'>
-  events: SegmentEvent[]
+  events: E2EEngageAudienceEvent[]
   expect: E2EExpectation
 }
 
