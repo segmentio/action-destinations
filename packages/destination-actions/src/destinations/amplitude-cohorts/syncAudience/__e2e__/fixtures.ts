@@ -76,7 +76,14 @@ const fixtures: E2EFixture[] = [
         email: 'e2e-user-001@segment.com'
       })
     ],
-    expect: { status: 'success' },
+    expect: {
+      status: 'success',
+      jsonContains: [
+        { status: 200 },
+        { status: 200 },
+        { status: 200 }
+      ]
+    },
     verboseFailureHint: FAILURE_HINT
   }
 ]
