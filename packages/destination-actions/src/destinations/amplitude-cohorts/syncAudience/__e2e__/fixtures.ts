@@ -29,6 +29,7 @@ const fixtures: E2EAudienceFixture[] = [
           action: 'add',
           computationKey: COMPUTATION_KEY,
           computationId: COMPUTATION_ID,
+          externalAudienceId: '$externalAudienceId',
           userId: 'e2e-amp-user-001',
           email: 'e2e-user-001@segment.com'
         }),
@@ -43,6 +44,7 @@ const fixtures: E2EAudienceFixture[] = [
           action: 'remove',
           computationKey: COMPUTATION_KEY,
           computationId: COMPUTATION_ID,
+          externalAudienceId: '$externalAudienceId',
           userId: 'e2e-amp-user-001',
           email: 'e2e-user-001@segment.com'
         }),
@@ -58,6 +60,7 @@ const fixtures: E2EAudienceFixture[] = [
             action: 'add',
             computationKey: COMPUTATION_KEY,
             computationId: COMPUTATION_ID,
+            externalAudienceId: '$externalAudienceId',
             userId: 'e2e-amp-user-002',
             email: 'e2e-user-002@segment.com'
           }),
@@ -66,6 +69,7 @@ const fixtures: E2EAudienceFixture[] = [
             action: 'add',
             computationKey: COMPUTATION_KEY,
             computationId: COMPUTATION_ID,
+            externalAudienceId: '$externalAudienceId',
             userId: 'e2e-amp-user-003',
             email: 'e2e-user-003@segment.com'
           }),

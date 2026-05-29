@@ -36,12 +36,13 @@ export interface E2EErrorExpectation {
 /**
  * Dynamic value markers that the runner resolves at execution time.
  *
- * - '$now'          → current ISO 8601 timestamp (e.g., '2026-05-28T14:32:01.000Z')
- * - '$guid'         → fresh UUID v4, unique each occurrence
- * - '$guid:<name>'  → UUID v4, consistent within a single fixture execution.
- *                     All occurrences of the same name resolve to the same value.
+ * - '$now'                  → current ISO 8601 timestamp (e.g., '2026-05-28T14:32:01.000Z')
+ * - '$guid'                 → fresh UUID v4, unique each occurrence
+ * - '$guid:<name>'          → UUID v4, consistent within a single fixture execution.
+ *                             All occurrences of the same name resolve to the same value.
+ * - '$externalAudienceId'   → resolved after createAudience step returns the destination's audience ID
  */
-export type E2EDynamicValue = '$now' | `$guid` | `$guid:${string}`
+export type E2EDynamicValue = '$now' | '$guid' | `$guid:${string}` | '$externalAudienceId'
 
 export interface E2EFixture {
   /** Human-readable name for the test case, shown in runner output. */
