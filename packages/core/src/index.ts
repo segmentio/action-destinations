@@ -134,6 +134,7 @@ export type {
   E2ESyncAudienceSingleStep,
   E2ESyncAudienceBatchStep,
   E2ETeardownAudienceStep,
+  E2EExecutionMode,
   E2EAudienceSyncEvent,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
