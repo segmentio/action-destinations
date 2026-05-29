@@ -60,10 +60,10 @@ export interface E2EFixture {
   expect: E2EExpectation
 }
 
-export interface E2EEngageAudienceEventOptions<K extends string = string> {
+export interface E2EEngageAudienceEventOptions<ComputationKey extends string = string> {
   type: 'track' | 'identify'
   action: 'add' | 'remove'
-  computationKey: K
+  computationKey: ComputationKey
   computationId: string
   externalAudienceId?: string
   eventName?: string
@@ -74,40 +74,40 @@ export interface E2EEngageAudienceEventOptions<K extends string = string> {
   enrichedTraits?: Record<string, unknown>
 }
 
-export interface E2EEngageAudiencePersonas<K extends string = string> {
+export interface E2EEngageAudiencePersonas<ComputationKey extends string = string> {
   computation_class: 'audience'
-  computation_key: K
+  computation_key: ComputationKey
   computation_id: string
   external_audience_id?: string
 }
 
-export interface E2EEngageAudienceTrackEvent<K extends string = string> extends SegmentEvent {
+export interface E2EEngageAudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'track'
   event: string
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas<K>
+    personas: E2EEngageAudiencePersonas<ComputationKey>
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
-  properties: { [key in K]: boolean } & { [k: string]: JSONValue }
+  properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }
 
-export interface E2EEngageAudienceIdentifyEvent<K extends string = string> extends SegmentEvent {
+export interface E2EEngageAudienceIdentifyEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'identify'
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas<K>
+    personas: E2EEngageAudiencePersonas<ComputationKey>
     audienceFields?: Record<string, unknown>
   }
-  traits: { [key in K]: boolean } & { [k: string]: JSONValue }
+  traits: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }
 
-export type E2EEngageAudienceEvent<K extends string = string> =
-  | E2EEngageAudienceTrackEvent<K>
-  | E2EEngageAudienceIdentifyEvent<K>
+export type E2EEngageAudienceEvent<ComputationKey extends string = string> =
+  | E2EEngageAudienceTrackEvent<ComputationKey>
+  | E2EEngageAudienceIdentifyEvent<ComputationKey>
 
 export interface E2ESettingsSecretValue {
   $env: string
