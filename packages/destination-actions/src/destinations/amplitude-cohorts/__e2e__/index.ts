@@ -1,4 +1,6 @@
 import type { E2EDestinationConfig, E2EAudienceFixture } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
+import syncAudience from '../syncAudience'
 
 export const config: E2EDestinationConfig = {
   settings: {
@@ -17,6 +19,8 @@ export const audienceFixtures: E2EAudienceFixture[] = [
     audienceSettings: {
       id_type: 'BY_USER_ID'
     },
+    subscribe: 'type = "identify" or type = "track"',
+    mapping: defaultValues(syncAudience.fields),
     steps: [
       {
         type: 'createAudience',
@@ -56,6 +60,8 @@ export const audienceFixtures: E2EAudienceFixture[] = [
     audienceSettings: {
       id_type: 'BY_USER_ID'
     },
+    subscribe: 'type = "identify" or type = "track"',
+    mapping: defaultValues(syncAudience.fields),
     steps: [
       {
         type: 'createAudience',

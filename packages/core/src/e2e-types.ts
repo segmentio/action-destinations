@@ -113,6 +113,8 @@ export interface E2EAudienceFixture {
   description: string
   audienceSettings: Record<string, unknown>
   audienceName: string
+  subscribe: string
+  mapping: JSONObject
   steps: E2EAudienceStep[]
 }
 
