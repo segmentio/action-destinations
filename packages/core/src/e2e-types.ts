@@ -109,6 +109,52 @@ export type E2EEngageAudienceEvent<ComputationKey extends string = string> =
   | E2EEngageAudienceTrackEvent<ComputationKey>
   | E2EEngageAudienceIdentifyEvent<ComputationKey>
 
+export interface E2EAudienceFixture {
+  description: string
+  audienceSettings: Record<string, unknown>
+  audienceName: string
+  steps: E2EAudienceStep[]
+}
+
+export type E2EAudienceStep =
+  | E2ECreateAudienceStep
+  | E2EGetAudienceStep
+  | E2ESyncAudienceSingleStep
+  | E2ESyncAudienceBatchStep
+
+export interface E2ECreateAudienceStep {
+  type: 'createAudience'
+  expect: E2EExpectation
+}
+
+export interface E2EGetAudienceStep {
+  type: 'getAudience'
+  expect: E2EExpectation
+}
+
+export interface E2ESyncAudienceSingleStep {
+  type: 'syncAudience'
+  mode: 'single'
+  event: E2EAudienceSyncEvent
+  expect: E2EExpectation
+}
+
+export interface E2ESyncAudienceBatchStep {
+  type: 'syncAudience'
+  mode: 'batch'
+  events: E2EAudienceSyncEvent[]
+  expect: E2EExpectation
+}
+
+export interface E2EAudienceSyncEvent {
+  eventType: 'track' | 'identify'
+  action: 'add' | 'remove'
+  userId?: string
+  anonymousId?: string
+  email?: string
+  enrichedTraits?: Record<string, unknown>
+}
+
 export interface E2ESettingsSecretValue {
   $env: string
 }

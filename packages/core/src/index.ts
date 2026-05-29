@@ -127,6 +127,13 @@ export type {
   E2EEngageAudienceTrackEvent,
   E2EEngageAudienceIdentifyEvent,
   E2EEngageAudiencePersonas,
+  E2EAudienceFixture,
+  E2EAudienceStep,
+  E2ECreateAudienceStep,
+  E2EGetAudienceStep,
+  E2ESyncAudienceSingleStep,
+  E2ESyncAudienceBatchStep,
+  E2EAudienceSyncEvent,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
 } from './e2e-types'
