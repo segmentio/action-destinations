@@ -123,6 +123,10 @@ export type {
   E2ESettingsSecretValue,
   E2EDynamicValue,
   E2EEngageAudienceEventOptions,
+  E2EEngageAudienceEvent,
+  E2EEngageAudienceTrackEvent,
+  E2EEngageAudienceIdentifyEvent,
+  E2EEngageAudiencePersonas,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
 } from './e2e-types'

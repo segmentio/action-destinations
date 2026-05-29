@@ -1,5 +1,5 @@
 import type { SegmentEvent } from './segment-event'
-import type { JSONObject } from './json-object'
+import type { JSONObject, JSONValue } from './json-object'
 
 export type E2EExpectation = E2ESuccessExpectation | E2EFailureExpectation | E2EErrorExpectation
 
@@ -66,12 +66,46 @@ export interface E2EEngageAudienceEventOptions {
   computationKey: string
   computationId: string
   externalAudienceId?: string
+  eventName?: string
   userId?: string
   anonymousId?: string
   email?: string
   audienceFields?: Record<string, unknown>
   enrichedTraits?: Record<string, unknown>
 }
+
+export interface E2EEngageAudiencePersonas {
+  computation_class: 'audience'
+  computation_key: string
+  computation_id: string
+  external_audience_id?: string
+}
+
+export interface E2EEngageAudienceTrackEvent extends SegmentEvent {
+  type: 'track'
+  event: string
+  messageId: string
+  timestamp: string
+  context: {
+    personas: E2EEngageAudiencePersonas
+    traits?: { email?: string }
+    audienceFields?: Record<string, unknown>
+  }
+  properties: { [k: string]: JSONValue }
+}
+
+export interface E2EEngageAudienceIdentifyEvent extends SegmentEvent {
+  type: 'identify'
+  messageId: string
+  timestamp: string
+  context: {
+    personas: E2EEngageAudiencePersonas
+    audienceFields?: Record<string, unknown>
+  }
+  traits: { [k: string]: JSONValue }
+}
+
+export type E2EEngageAudienceEvent = E2EEngageAudienceTrackEvent | E2EEngageAudienceIdentifyEvent
 
 export interface E2ESettingsSecretValue {
   $env: string
