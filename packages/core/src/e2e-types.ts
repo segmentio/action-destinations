@@ -119,10 +119,15 @@ export interface E2EDestinationConfig {
 }
 
 export interface E2EAudienceConfig {
+  /** Name of the audience to create/test against. Used as the audienceName param for createAudience. */
   audienceName: string
+  /** Audience-level settings passed to createAudience and getAudience (e.g., id_type, owner_email). */
   audienceSettings: Record<string, unknown>
+  /** When true, the runner calls createAudience before executing fixtures and captures the externalAudienceId. */
   createAudience: boolean
+  /** When true, the runner calls getAudience after fixtures to verify the audience still exists. */
   getAudience: boolean
+  /** When true, the runner calls the teardown function after all tests to clean up the audience. */
   teardown: boolean
 }
 
