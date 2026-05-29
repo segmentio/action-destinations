@@ -110,64 +110,24 @@ export type E2EEngageAudienceEvent<ComputationKey extends string = string> =
   | E2EEngageAudienceTrackEvent<ComputationKey>
   | E2EEngageAudienceIdentifyEvent<ComputationKey>
 
-export interface E2EAudienceFixture {
-  description: string
-  audienceSettings: Record<string, unknown>
-  audienceName: string
-  subscribe: string
-  mapping: JSONObject
-  steps: E2EAudienceStep[]
-}
-
-export type E2EAudienceStep =
-  | E2ECreateAudienceStep
-  | E2EGetAudienceStep
-  | E2ESyncAudienceSingleStep
-  | E2ESyncAudienceBatchStep
-  | E2ETeardownAudienceStep
-
-export interface E2ECreateAudienceStep {
-  type: 'createAudience'
-  description: string
-  expect: E2EExpectation
-}
-
-export interface E2EGetAudienceStep {
-  type: 'getAudience'
-  description: string
-  expect: E2EExpectation
-}
-
-export type E2EExecutionMode = 'single' | 'batch'
-
-export interface E2ESyncAudienceSingleStep {
-  type: 'syncAudience'
-  description: string
-  mode: Extract<E2EExecutionMode, 'single'>
-  event: E2EEngageAudienceEvent
-  expect: E2EExpectation
-}
-
-export interface E2ESyncAudienceBatchStep {
-  type: 'syncAudience'
-  description: string
-  mode: Extract<E2EExecutionMode, 'batch'>
-  events: E2EEngageAudienceEvent[]
-  expect: E2EExpectation
-}
-
-export interface E2ETeardownAudienceStep {
-  type: 'teardownAudience'
-  description: string
-  expect: E2EExpectation
-}
-
 export interface E2ESettingsSecretValue {
   $env: string
 }
 
 export interface E2EDestinationConfig {
   settings: Record<string, string | number | boolean | E2ESettingsSecretValue>
+}
+
+export interface E2EAudienceConfig {
+  audienceName: string
+  audienceSettings: Record<string, unknown>
+  createAudience: boolean
+  getAudience: boolean
+  teardown: boolean
+}
+
+export interface E2EAudienceDestinationConfig extends E2EDestinationConfig {
+  audience: E2EAudienceConfig
 }
 
 export type E2EHttpSuccessCode = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
