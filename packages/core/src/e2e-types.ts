@@ -63,6 +63,8 @@ export interface E2ESingleFixture {
   event: SegmentEvent
   /** The expected outcome of executing this fixture. */
   expect: E2EExpectation
+  /** Hint shown in verbose mode when this fixture fails. Helps developers diagnose common issues. */
+  verboseFailureHint?: string
 }
 
 export interface E2EBatchFixture {
@@ -82,6 +84,8 @@ export interface E2EBatchFixture {
   events: SegmentEvent[]
   /** The expected outcome of executing this fixture. */
   expect: E2EExpectation
+  /** Hint shown in verbose mode when this fixture fails. Helps developers diagnose common issues. */
+  verboseFailureHint?: string
 }
 
 export interface E2EEngageAudienceEventOptions<ComputationKey extends string = string> {
