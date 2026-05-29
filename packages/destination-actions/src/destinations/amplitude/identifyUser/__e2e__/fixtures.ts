@@ -7,6 +7,7 @@ const fixtures: E2EFixture[] = [
     description: 'Successfully identifies a user with traits',
     subscribe: 'type = "identify"',
     mapping: defaultValues(identifyUser.fields),
+    mode: 'single',
     event: createE2EEvent('identify', 'Identify', {
       userId: 'e2e-test-user-amplitude-001',
       traits: {

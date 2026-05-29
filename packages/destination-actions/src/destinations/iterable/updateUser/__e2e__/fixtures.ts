@@ -7,6 +7,7 @@ const fixtures: E2EFixture[] = [
     description: 'Successfully upserts a user with email and data fields',
     subscribe: 'type = "identify"',
     mapping: defaultValues(updateUser.fields),
+    mode: 'single',
     event: createE2EEvent('identify', 'Identify', {
       userId: 'e2e-test-user-001',
       traits: {

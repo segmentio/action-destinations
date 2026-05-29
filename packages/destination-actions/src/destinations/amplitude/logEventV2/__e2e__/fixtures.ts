@@ -7,6 +7,7 @@ const fixtures: E2EFixture[] = [
     description: 'Successfully logs a track event',
     subscribe: 'type = "track"',
     mapping: defaultValues(logEventV2.fields),
+    mode: 'single',
     event: createE2EEvent('track', 'Button Clicked', {
       userId: 'e2e-test-user-amplitude-001',
       properties: {
@@ -22,6 +23,7 @@ const fixtures: E2EFixture[] = [
     description: 'Successfully logs event with products array',
     subscribe: 'type = "track"',
     mapping: defaultValues(logEventV2.fields),
+    mode: 'single',
     event: createE2EEvent('track', 'Order Completed', {
       userId: 'e2e-test-user-amplitude-001',
       properties: {

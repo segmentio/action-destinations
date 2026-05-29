@@ -44,19 +44,42 @@ export interface E2EErrorExpectation {
  */
 export type E2EDynamicValue = '$now' | '$guid' | `$guid:${string}` | '$externalAudienceId'
 
-export interface E2EFixture {
+export type E2EFixture = E2ESingleFixture | E2EBatchFixture
+
+export interface E2ESingleFixture {
   /** Human-readable name for the test case, shown in runner output. */
   description: string
   /** FQL query that determines whether the event matches this subscription. */
   subscribe: string
   /** Mapping kit directives that transform the event into the action's payload shape. */
   mapping: JSONObject
+  /** Executes via onEvent() with a single event. */
+  mode: 'single'
   /**
    * The Segment event (track, identify, page, screen, etc.) sent into the action.
    * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
    * runner resolves before execution.
    */
   event: SegmentEvent
+  /** The expected outcome of executing this fixture. */
+  expect: E2EExpectation
+}
+
+export interface E2EBatchFixture {
+  /** Human-readable name for the test case, shown in runner output. */
+  description: string
+  /** FQL query that determines whether the event matches this subscription. */
+  subscribe: string
+  /** Mapping kit directives that transform the event into the action's payload shape. */
+  mapping: JSONObject
+  /** Executes via onBatch() with multiple events. */
+  mode: 'batch'
+  /**
+   * Array of Segment events sent into the action as a batch.
+   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * runner resolves before execution.
+   */
+  events: SegmentEvent[]
   /** The expected outcome of executing this fixture. */
   expect: E2EExpectation
 }

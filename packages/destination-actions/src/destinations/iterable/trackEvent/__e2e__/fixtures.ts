@@ -7,6 +7,7 @@ const fixtures: E2EFixture[] = [
     description: 'Successfully tracks a purchase event',
     subscribe: 'type = "track"',
     mapping: defaultValues(trackEvent.fields),
+    mode: 'single',
     event: createE2EEvent('track', 'Order Completed', {
       userId: 'e2e-test-user-001',
       properties: {
@@ -22,6 +23,7 @@ const fixtures: E2EFixture[] = [
   {
     description: 'Rejects event when both email and userId are missing',
     subscribe: 'type = "track"',
+    mode: 'single',
     mapping: (() => {
       const { email, userId, ...rest } = defaultValues(trackEvent.fields)
       return rest

@@ -115,6 +115,8 @@ export { FLAGS } from './flags'
 export { createE2EEvent, createE2EEngageAudienceEvent } from './e2e-helpers'
 export type {
   E2EFixture,
+  E2ESingleFixture,
+  E2EBatchFixture,
   E2EExpectation,
   E2ESuccessExpectation,
   E2EFailureExpectation,
