@@ -143,7 +143,7 @@ export interface E2ESyncAudienceSingleStep {
   type: 'syncAudience'
   description: string
   mode: Extract<E2EExecutionMode, 'single'>
-  event: E2EAudienceSyncEvent
+  event: SegmentEvent
   expect: E2EExpectation
 }
 
@@ -151,7 +151,7 @@ export interface E2ESyncAudienceBatchStep {
   type: 'syncAudience'
   description: string
   mode: Extract<E2EExecutionMode, 'batch'>
-  events: E2EAudienceSyncEvent[]
+  events: SegmentEvent[]
   expect: E2EExpectation
 }
 
@@ -159,15 +159,6 @@ export interface E2ETeardownAudienceStep {
   type: 'teardownAudience'
   description: string
   expect: E2EExpectation
-}
-
-export interface E2EAudienceSyncEvent {
-  eventType: 'track' | 'identify'
-  action: 'add' | 'remove'
-  userId?: string
-  anonymousId?: string
-  email?: string
-  enrichedTraits?: Record<string, unknown>
 }
 
 export interface E2ESettingsSecretValue {

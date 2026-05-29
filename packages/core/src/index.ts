@@ -135,7 +135,6 @@ export type {
   E2ESyncAudienceBatchStep,
   E2ETeardownAudienceStep,
   E2EExecutionMode,
-  E2EAudienceSyncEvent,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
 } from './e2e-types'
