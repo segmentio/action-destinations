@@ -10,6 +10,8 @@ export interface E2ESuccessExpectation {
   status: 'success'
   httpStatus?: E2EHttpSuccessCode
   bodyContains?: string
+  /** Partial deep match against the JSON response body. Arrays must match length and each item is partial-matched. */
+  jsonContains?: unknown
 }
 
 /**
@@ -20,6 +22,8 @@ export interface E2EFailureExpectation {
   status: 'failure'
   httpStatus: E2EHttpFailureCode
   bodyContains?: string
+  /** Partial deep match against the JSON response body. Arrays must match length and each item is partial-matched. */
+  jsonContains?: unknown
 }
 
 /**
