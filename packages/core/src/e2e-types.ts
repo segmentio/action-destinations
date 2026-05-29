@@ -60,6 +60,19 @@ export interface E2EFixture {
   expect: E2EExpectation
 }
 
+export interface E2EEngageAudienceEventOptions {
+  type: 'track' | 'identify'
+  action: 'add' | 'remove'
+  computationKey: string
+  computationId: string
+  externalAudienceId?: string
+  userId?: string
+  anonymousId?: string
+  email?: string
+  audienceFields?: Record<string, unknown>
+  enrichedTraits?: Record<string, unknown>
+}
+
 export interface E2ESettingsSecretValue {
   $env: string
 }

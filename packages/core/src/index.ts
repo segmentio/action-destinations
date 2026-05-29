@@ -112,7 +112,7 @@ export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
 export { FLAGS } from './flags'
 
-export { createE2EEvent } from './e2e-helpers'
+export { createE2EEvent, createE2EEngageAudienceEvent } from './e2e-helpers'
 export type {
   E2EFixture,
   E2EExpectation,
@@ -122,6 +122,7 @@ export type {
   E2EDestinationConfig,
   E2ESettingsSecretValue,
   E2EDynamicValue,
+  E2EEngageAudienceEventOptions,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
 } from './e2e-types'
