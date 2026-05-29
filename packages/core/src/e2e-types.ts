@@ -48,15 +48,24 @@ export interface E2EErrorExpectation {
  */
 export type E2EDynamicValue = '$now' | '$guid' | `$guid:${string}` | '$externalAudienceId'
 
-export type E2EFixture = E2ESingleFixture | E2EBatchFixture
+export type E2EExecutionMode = 'single' | 'batch' | 'batchWithMultistatus'
 
-export interface E2ESingleFixture {
+export type E2EFixture = E2ESingleFixture | E2EBatchFixture | E2EBatchWithMultistatusFixture
+
+export interface E2EBaseFixture {
   /** Human-readable name for the test case, shown in runner output. */
   description: string
   /** FQL query that determines whether the event matches this subscription. */
   subscribe: string
   /** Mapping kit directives that transform the event into the action's payload shape. */
   mapping: JSONObject
+  /** The expected outcome of executing this fixture. */
+  expect: E2EExpectation
+  /** Hint shown in verbose mode when this fixture fails. Helps developers diagnose common issues. */
+  verboseFailureHint?: string
+}
+
+export interface E2ESingleFixture extends E2EBaseFixture {
   /** Executes via onEvent() with a single event. */
   mode: 'single'
   /**
@@ -65,20 +74,10 @@ export interface E2ESingleFixture {
    * runner resolves before execution.
    */
   event: SegmentEvent
-  /** The expected outcome of executing this fixture. */
-  expect: E2EExpectation
-  /** Hint shown in verbose mode when this fixture fails. Helps developers diagnose common issues. */
-  verboseFailureHint?: string
 }
 
-export interface E2EBatchFixture {
-  /** Human-readable name for the test case, shown in runner output. */
-  description: string
-  /** FQL query that determines whether the event matches this subscription. */
-  subscribe: string
-  /** Mapping kit directives that transform the event into the action's payload shape. */
-  mapping: JSONObject
-  /** Executes via onBatch() with multiple events. */
+export interface E2EBatchFixture extends E2EBaseFixture {
+  /** Executes via onBatch() with multiple events. Response is a standard HTTP response. */
   mode: 'batch'
   /**
    * Array of Segment events sent into the action as a batch.
@@ -86,10 +85,17 @@ export interface E2EBatchFixture {
    * runner resolves before execution.
    */
   events: SegmentEvent[]
-  /** The expected outcome of executing this fixture. */
-  expect: E2EExpectation
-  /** Hint shown in verbose mode when this fixture fails. Helps developers diagnose common issues. */
-  verboseFailureHint?: string
+}
+
+export interface E2EBatchWithMultistatusFixture extends E2EBaseFixture {
+  /** Executes via onBatch(). Response is a per-item MultiStatusResponse array. */
+  mode: 'batchWithMultistatus'
+  /**
+   * Array of Segment events sent into the action as a batch.
+   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * runner resolves before execution.
+   */
+  events: SegmentEvent[]
 }
 
 export interface E2EEngageAudienceEventOptions<ComputationKey extends string = string> {

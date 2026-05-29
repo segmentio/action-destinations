@@ -46,7 +46,7 @@ const fixtures: E2EFixture[] = [
     description: 'Batch add and remove users',
     subscribe: 'type = "identify" or type = "track"',
     mapping: defaultValues(syncAudience.fields),
-    mode: 'batch',
+    mode: 'batchWithMultistatus',
     events: [
       createE2EEngageAudienceEvent({
         type: 'track',
