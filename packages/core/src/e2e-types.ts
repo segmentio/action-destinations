@@ -123,6 +123,7 @@ export type E2EAudienceStep =
   | E2EGetAudienceStep
   | E2ESyncAudienceSingleStep
   | E2ESyncAudienceBatchStep
+  | E2ETeardownAudienceStep
 
 export interface E2ECreateAudienceStep {
   type: 'createAudience'
@@ -145,6 +146,11 @@ export interface E2ESyncAudienceBatchStep {
   type: 'syncAudience'
   mode: 'batch'
   events: E2EAudienceSyncEvent[]
+  expect: E2EExpectation
+}
+
+export interface E2ETeardownAudienceStep {
+  type: 'teardownAudience'
   expect: E2EExpectation
 }
 

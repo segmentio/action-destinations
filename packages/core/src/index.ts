@@ -133,6 +133,7 @@ export type {
   E2EGetAudienceStep,
   E2ESyncAudienceSingleStep,
   E2ESyncAudienceBatchStep,
+  E2ETeardownAudienceStep,
   E2EAudienceSyncEvent,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
