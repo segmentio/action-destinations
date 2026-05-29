@@ -16,7 +16,7 @@ export function createE2EEvent(
   }
 }
 
-export function createE2EEngageAudienceEvent(options: E2EEngageAudienceEventOptions): E2EEngageAudienceEvent {
+export function createE2EEngageAudienceEvent<K extends string>(options: E2EEngageAudienceEventOptions<K>): E2EEngageAudienceEvent<K> {
   const { type, action, computationKey, computationId, externalAudienceId, eventName, userId, anonymousId, email, audienceFields, enrichedTraits } = options
   const membership = action === 'add'
 
@@ -53,5 +53,5 @@ export function createE2EEngageAudienceEvent(options: E2EEngageAudienceEventOpti
     })
   }
 
-  return event as E2EEngageAudienceEvent
+  return event as E2EEngageAudienceEvent<K>
 }

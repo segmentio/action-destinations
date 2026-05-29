@@ -60,10 +60,10 @@ export interface E2EFixture {
   expect: E2EExpectation
 }
 
-export interface E2EEngageAudienceEventOptions {
+export interface E2EEngageAudienceEventOptions<K extends string = string> {
   type: 'track' | 'identify'
   action: 'add' | 'remove'
-  computationKey: string
+  computationKey: K
   computationId: string
   externalAudienceId?: string
   eventName?: string
@@ -74,38 +74,40 @@ export interface E2EEngageAudienceEventOptions {
   enrichedTraits?: Record<string, unknown>
 }
 
-export interface E2EEngageAudiencePersonas {
+export interface E2EEngageAudiencePersonas<K extends string = string> {
   computation_class: 'audience'
-  computation_key: string
+  computation_key: K
   computation_id: string
   external_audience_id?: string
 }
 
-export interface E2EEngageAudienceTrackEvent extends SegmentEvent {
+export interface E2EEngageAudienceTrackEvent<K extends string = string> extends SegmentEvent {
   type: 'track'
   event: string
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas
+    personas: E2EEngageAudiencePersonas<K>
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
-  properties: { [k: string]: JSONValue }
+  properties: { [key in K]: boolean } & { [k: string]: JSONValue }
 }
 
-export interface E2EEngageAudienceIdentifyEvent extends SegmentEvent {
+export interface E2EEngageAudienceIdentifyEvent<K extends string = string> extends SegmentEvent {
   type: 'identify'
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas
+    personas: E2EEngageAudiencePersonas<K>
     audienceFields?: Record<string, unknown>
   }
-  traits: { [k: string]: JSONValue }
+  traits: { [key in K]: boolean } & { [k: string]: JSONValue }
 }
 
-export type E2EEngageAudienceEvent = E2EEngageAudienceTrackEvent | E2EEngageAudienceIdentifyEvent
+export type E2EEngageAudienceEvent<K extends string = string> =
+  | E2EEngageAudienceTrackEvent<K>
+  | E2EEngageAudienceIdentifyEvent<K>
 
 export interface E2ESettingsSecretValue {
   $env: string
