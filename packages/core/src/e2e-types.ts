@@ -137,6 +137,19 @@ export interface E2ERetlAudienceEventOptions<ComputationKey extends string = str
   enrichedTraits?: Record<string, unknown>
 }
 
+export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
+  type: 'track'
+  event: 'new' | 'updated' | 'deleted'
+  messageId: string
+  timestamp: string
+  context: {
+    personas: E2EEngageAudiencePersonas<ComputationKey>
+    traits?: { email?: string }
+    audienceFields?: Record<string, unknown>
+  }
+  properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
+}
+
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'track'
   event: string

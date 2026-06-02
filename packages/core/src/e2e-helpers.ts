@@ -1,6 +1,6 @@
 import type { SegmentEvent } from './segment-event'
 import type { JSONValue } from './json-object'
-import type { E2EEngageAudienceEventOptions, E2EEngageAudienceEvent, E2EEngageAudienceTrackEvent, E2EJourneysV1AudienceEventOptions, E2EJourneysV1AudienceTrackEvent, E2ERetlAudienceEventOptions } from './e2e-types'
+import type { E2EEngageAudienceEventOptions, E2EEngageAudienceEvent, E2EJourneysV1AudienceEventOptions, E2EJourneysV1AudienceTrackEvent, E2ERetlAudienceEventOptions, E2ERetlAudienceTrackEvent } from './e2e-types'
 
 /*
  * Regular Segment Connections event  
@@ -101,7 +101,7 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
  * Same payload structure as Engage track events but uses RETL-specific event names: 'new', 'updated', 'deleted'
  * Only track events supported
  */
-export function createE2ERetlAudienceEvent<ComputationKey extends string>(options: E2ERetlAudienceEventOptions<ComputationKey>): E2EEngageAudienceTrackEvent<ComputationKey> {
+export function createE2ERetlAudienceEvent<ComputationKey extends string>(options: E2ERetlAudienceEventOptions<ComputationKey>): E2ERetlAudienceTrackEvent<ComputationKey> {
   const { eventName, computationKey, computationId, externalAudienceId, userId, anonymousId, email, audienceFields, enrichedTraits } = options
   const membership = eventName !== 'deleted'
 
@@ -128,5 +128,5 @@ export function createE2ERetlAudienceEvent<ComputationKey extends string>(option
     }
   }
 
-  return event as E2EEngageAudienceTrackEvent<ComputationKey>
+  return event as E2ERetlAudienceTrackEvent<ComputationKey>
 }

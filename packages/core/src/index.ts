@@ -137,6 +137,7 @@ export type {
   E2EJourneysV1AudienceEventOptions,
   E2EJourneysV1AudienceTrackEvent,
   E2ERetlAudienceEventOptions,
+  E2ERetlAudienceTrackEvent,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
 } from './e2e-types'
