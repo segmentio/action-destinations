@@ -96,9 +96,9 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200 },
-        { status: 200 },
-        { status: 200 }
+        { status: 200, sent: {}, body: {} },
+        { status: 200, sent: {}, body: {} },
+        { status: 200, sent: {}, body: {} }
       ]
     },
     verboseFailureHint: FAILURE_HINT
