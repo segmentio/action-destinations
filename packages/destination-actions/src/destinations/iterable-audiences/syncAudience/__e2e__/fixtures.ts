@@ -79,9 +79,9 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200 },
-        { status: 200 },
-        { status: 200 }
+        { status: 200, sent: { email: 'e2e-aud-test-002@segment.com', userId: 'e2e-iterable-aud-user-002' }, body: { segmentAudienceKey: COMPUTATION_KEY } },
+        { status: 200, sent: { email: 'e2e-aud-test-003@segment.com', userId: 'e2e-iterable-aud-user-003' }, body: { segmentAudienceKey: COMPUTATION_KEY } },
+        { status: 200, sent: { email: 'e2e-aud-test-001@segment.com', userId: 'e2e-iterable-aud-user-001' }, body: { segmentAudienceKey: COMPUTATION_KEY } }
       ]
     },
     verboseFailureHint: FAILURE_HINT
