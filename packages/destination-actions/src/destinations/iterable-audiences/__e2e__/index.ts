@@ -9,7 +9,7 @@ export const config: E2EAudienceDestinationConfig = {
     audienceName: 'e2e_test_audience',
     audienceSettings: {},
     createAudience: true,
-    getAudience: true,
+    getAudience: false,
     teardown: false
   }
 }
