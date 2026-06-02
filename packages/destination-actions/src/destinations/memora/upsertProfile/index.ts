@@ -54,6 +54,24 @@ const action: ActionDefinition<Settings, Payload> = {
       additionalProperties: true,
       dynamic: true,
       defaultObjectUI: 'keyvalue'
+    },
+    segment_traits_by_field: {
+      label: 'Segment Traits Used',
+      description:
+        'Per-field map of Segment trait names referenced by each directive (keyed by stored field key). Used by the control plane to wire up event-emitter enrichment. Set automatically — do not edit manually.',
+      type: 'object',
+      required: false,
+      additionalProperties: true,
+      unsafe_hidden: true
+    },
+    segment_identifiers_by_field: {
+      label: 'Segment Identifiers Used',
+      description:
+        'Per-field map of Segment identifier names referenced by each directive (keyed by stored field key). Used by the control plane to wire up id_sync. Set automatically — do not edit manually.',
+      type: 'object',
+      required: false,
+      additionalProperties: true,
+      unsafe_hidden: true
     }
   },
   dynamicFields: {
