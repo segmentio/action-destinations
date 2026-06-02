@@ -125,6 +125,18 @@ export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string
   enrichedTraits?: Record<string, unknown>
 }
 
+export interface E2ERetlAudienceEventOptions<ComputationKey extends string = string> {
+  eventName: 'new' | 'updated' | 'deleted'
+  computationKey: ComputationKey
+  computationId: string
+  externalAudienceId?: string
+  userId?: string
+  anonymousId?: string
+  email?: string
+  audienceFields?: Record<string, unknown>
+  enrichedTraits?: Record<string, unknown>
+}
+
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'track'
   event: string

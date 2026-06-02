@@ -32,7 +32,7 @@ const fixtures: E2EFixture[] = [
   },
   {
     description: 'Engage Audience: Remove a user from the customer match list via track event',
-    subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+    subscribe: 'event = "Audience Entered"',
     mapping: {
       ...defaultValues(userList.fields),
       ad_user_data_consent_state: 'GRANTED',

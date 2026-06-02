@@ -1,6 +1,6 @@
 import type { SegmentEvent } from './segment-event'
 import type { JSONValue } from './json-object'
-import type { E2EEngageAudienceEventOptions, E2EEngageAudienceEvent, E2EJourneysV1AudienceEventOptions, E2EJourneysV1AudienceTrackEvent } from './e2e-types'
+import type { E2EEngageAudienceEventOptions, E2EEngageAudienceEvent, E2EEngageAudienceTrackEvent, E2EJourneysV1AudienceEventOptions, E2EJourneysV1AudienceTrackEvent, E2ERetlAudienceEventOptions } from './e2e-types'
 
 /*
  * Regular Segment Connections event  
@@ -94,4 +94,39 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
   }
 
   return event as E2EJourneysV1AudienceTrackEvent<ComputationKey>
+}
+
+/*
+ * Reverse ETL Audience event
+ * Same payload structure as Engage track events but uses RETL-specific event names: 'new', 'updated', 'deleted'
+ * Only track events supported
+ */
+export function createE2ERetlAudienceEvent<ComputationKey extends string>(options: E2ERetlAudienceEventOptions<ComputationKey>): E2EEngageAudienceTrackEvent<ComputationKey> {
+  const { eventName, computationKey, computationId, externalAudienceId, userId, anonymousId, email, audienceFields, enrichedTraits } = options
+  const membership = eventName !== 'deleted'
+
+  const event = {
+    messageId: '$guid',
+    timestamp: '$now',
+    ...(userId && { userId }),
+    ...(anonymousId && { anonymousId }),
+    context: {
+      personas: {
+        computation_class: 'audience',
+        computation_key: computationKey,
+        computation_id: computationId,
+        ...(externalAudienceId && { external_audience_id: externalAudienceId })
+      },
+      ...(audienceFields && { audienceFields }),
+      ...(email && { traits: { email } })
+    },
+    type: 'track',
+    event: eventName,
+    properties: {
+      [computationKey]: membership,
+      ...(enrichedTraits as { [k: string]: JSONValue })
+    }
+  }
+
+  return event as E2EEngageAudienceTrackEvent<ComputationKey>
 }

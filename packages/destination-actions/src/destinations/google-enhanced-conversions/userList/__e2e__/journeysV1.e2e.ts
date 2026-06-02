@@ -76,6 +76,46 @@ const fixtures: E2EFixture[] = [
       ]
     },
     verboseFailureHint: FAILURE_HINT
+  },
+  {
+    description: 'JourneysV1 Audience: Batch add users even when properties[computation_key] is false',
+    subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+    mapping: {
+      ...defaultValues(userList.fields),
+      ad_user_data_consent_state: 'GRANTED',
+      ad_personalization_consent_state: 'GRANTED'
+    },
+    mode: 'batchWithMultistatus',
+    events: [
+      createE2EJourneysV1AudienceEvent({
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId',
+        userId: 'e2e-google-journeys-user-005',
+        email: 'e2e-google-journeys-test-005@segment.com',
+        enrichedTraits: { [COMPUTATION_KEY]: false }
+      }),
+      createE2EJourneysV1AudienceEvent({
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId',
+        userId: 'e2e-google-journeys-user-006',
+        email: 'e2e-google-journeys-test-006@segment.com',
+        enrichedTraits: { [COMPUTATION_KEY]: false }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        { status: 200, sent: { email: 'e2e-google-journeys-test-005@segment.com' }, body: {} },
+        { status: 200, sent: { email: 'e2e-google-journeys-test-006@segment.com' }, body: {} }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
   }
 ]
 
