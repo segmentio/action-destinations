@@ -112,6 +112,32 @@ export interface E2EEngageAudienceEventOptions<ComputationKey extends string = s
   enrichedTraits?: Record<string, unknown>
 }
 
+export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string = string> {
+  action: 'add' | 'remove'
+  computationKey: ComputationKey
+  computationId: string
+  externalAudienceId?: string
+  eventName?: string
+  userId?: string
+  anonymousId?: string
+  email?: string
+  audienceFields?: Record<string, unknown>
+  enrichedTraits?: Record<string, unknown>
+}
+
+export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
+  type: 'track'
+  event: string
+  messageId: string
+  timestamp: string
+  context: {
+    personas: E2EEngageAudiencePersonas<ComputationKey>
+    traits?: { email?: string }
+    audienceFields?: Record<string, unknown>
+  }
+  properties: { [k: string]: JSONValue }
+}
+
 export interface E2EEngageAudiencePersonas<ComputationKey extends string = string> {
   computation_class: 'audience'
   computation_key: ComputationKey

@@ -112,7 +112,7 @@ export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
 export { FLAGS } from './flags'
 
-export { createE2EEvent, createE2EEngageAudienceEvent } from './e2e-helpers'
+export { createE2EEvent, createE2EEngageAudienceEvent, createE2EJourneysV1AudienceEvent } from './e2e-helpers'
 export type {
   E2EFixture,
   E2EBaseFixture,
@@ -134,6 +134,8 @@ export type {
   E2EEngageAudienceTrackEvent,
   E2EEngageAudienceIdentifyEvent,
   E2EEngageAudiencePersonas,
+  E2EJourneysV1AudienceEventOptions,
+  E2EJourneysV1AudienceTrackEvent,
   E2EHttpSuccessCode,
   E2EHttpFailureCode
 } from './e2e-types'

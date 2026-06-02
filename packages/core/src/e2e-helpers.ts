@@ -1,7 +1,10 @@
 import type { SegmentEvent } from './segment-event'
 import type { JSONValue } from './json-object'
-import type { E2EEngageAudienceEventOptions, E2EEngageAudienceEvent } from './e2e-types'
+import type { E2EEngageAudienceEventOptions, E2EEngageAudienceEvent, E2EJourneysV1AudienceEventOptions, E2EJourneysV1AudienceTrackEvent } from './e2e-types'
 
+/*
+ * Regular Segment Connections event  
+ */
 export function createE2EEvent(
   type: SegmentEvent['type'],
   name: string,
@@ -16,6 +19,10 @@ export function createE2EEvent(
   }
 }
 
+/* 
+ * Engage Audience event
+ * Supports identify and track events
+ */
 export function createE2EEngageAudienceEvent<ComputationKey extends string>(options: E2EEngageAudienceEventOptions<ComputationKey>): E2EEngageAudienceEvent<ComputationKey> {
   const { type, action, computationKey, computationId, externalAudienceId, eventName, userId, anonymousId, email, audienceFields, enrichedTraits } = options
   const membership = action === 'add'
@@ -54,4 +61,37 @@ export function createE2EEngageAudienceEvent<ComputationKey extends string>(opti
   }
 
   return event as E2EEngageAudienceEvent<ComputationKey>
+}
+
+/* 
+ * Journeys V1 events (preset journeys_step_entered_track) do not have properties[<computation_key>] value. 
+ * All Journeys V1 events enter the user to the audience, never remove them. 
+ * Only track events supported
+ */
+export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(options: E2EJourneysV1AudienceEventOptions<ComputationKey>): E2EJourneysV1AudienceTrackEvent<ComputationKey> {
+  const { computationKey, computationId, externalAudienceId, eventName, userId, anonymousId, email, audienceFields, enrichedTraits } = options
+
+  const event = {
+    messageId: '$guid',
+    timestamp: '$now',
+    ...(userId && { userId }),
+    ...(anonymousId && { anonymousId }),
+    context: {
+      personas: {
+        computation_class: 'audience',
+        computation_key: computationKey,
+        computation_id: computationId,
+        ...(externalAudienceId && { external_audience_id: externalAudienceId })
+      },
+      ...(audienceFields && { audienceFields }),
+      ...(email && { traits: { email } })
+    },
+    type: 'track',
+    event: eventName ?? 'Test Journeys V1 Audience Membership Event',
+    properties: {
+      ...(enrichedTraits as { [k: string]: JSONValue })
+    }
+  }
+
+  return event as E2EJourneysV1AudienceTrackEvent<ComputationKey>
 }
