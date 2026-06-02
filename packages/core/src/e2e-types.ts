@@ -151,8 +151,12 @@ export interface E2ESettingsSecretValue {
   $env: string
 }
 
+export interface E2ESettingsObject {
+  [key: string]: string | number | boolean | E2ESettingsSecretValue | E2ESettingsObject
+}
+
 export interface E2EDestinationConfig {
-  settings: Record<string, string | number | boolean | E2ESettingsSecretValue>
+  settings: E2ESettingsObject
 }
 
 export interface E2EAudienceConfig {

@@ -1,0 +1,57 @@
+import type { E2EFixture } from '@segment/actions-core'
+import { defaultValues, createE2EEngageAudienceEvent } from '@segment/actions-core'
+import userList from '../index'
+
+const COMPUTATION_KEY = 'e2e_test_user_list'
+const COMPUTATION_ID = 'aud_e2e_google_001'
+
+const FAILURE_HINT = 'Ensure GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID, GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET, and ADWORDS_DEVELOPER_TOKEN env vars are set. The customerId must be a valid Google Ads account.'
+
+const fixtures: E2EFixture[] = [
+  {
+    description: 'Add a user to the customer match list via track event',
+    subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+    mapping: {
+      ...defaultValues(userList.fields),
+      ad_user_data_consent_state: 'GRANTED',
+      ad_personalization_consent_state: 'GRANTED'
+    },
+    mode: 'single',
+    event: createE2EEngageAudienceEvent({
+      type: 'track',
+      action: 'add',
+      eventName: 'Audience Entered',
+      computationKey: COMPUTATION_KEY,
+      computationId: COMPUTATION_ID,
+      externalAudienceId: '$externalAudienceId',
+      userId: 'e2e-google-user-001',
+      email: 'e2e-google-test-001@segment.com'
+    }),
+    expect: { status: 'success' },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    description: 'Remove a user from the customer match list via track event',
+    subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+    mapping: {
+      ...defaultValues(userList.fields),
+      ad_user_data_consent_state: 'GRANTED',
+      ad_personalization_consent_state: 'GRANTED'
+    },
+    mode: 'single',
+    event: createE2EEngageAudienceEvent({
+      type: 'track',
+      action: 'remove',
+      eventName: 'Audience Exited',
+      computationKey: COMPUTATION_KEY,
+      computationId: COMPUTATION_ID,
+      externalAudienceId: '$externalAudienceId',
+      userId: 'e2e-google-user-001',
+      email: 'e2e-google-test-001@segment.com'
+    }),
+    expect: { status: 'success' },
+    verboseFailureHint: FAILURE_HINT
+  }
+]
+
+export default fixtures
