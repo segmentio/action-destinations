@@ -6,6 +6,7 @@ import type { Settings } from '../generated-types'
 import { getCustomDataField, getCustomDataField2, getContentsField } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
 import type { Payload } from './generated-types'
+import type { PinterestEventPayload, LegacyPinterestEventPayload, CustomData } from '../types'
 import isEmpty from 'lodash/isEmpty'
 import dayjs from '../../../lib/dayjs'
 
@@ -475,7 +476,7 @@ function buildDeviceInfo(payload: Payload) {
   return hasContent ? payload.device_info : undefined
 }
 
-function buildCustomData(payload: Payload) {
+function buildCustomData(payload: Payload): CustomData {
   const isStructured = payload.data_format === 'latest'
 
   if (isStructured) {
@@ -523,7 +524,7 @@ function buildCustomData(payload: Payload) {
   }
 }
 
-function createPinterestPayload(payload: Payload) {
+function createPinterestPayload(payload: Payload): (PinterestEventPayload | LegacyPinterestEventPayload)[] {
   const isStructured = payload.data_format === 'latest'
 
   return [
