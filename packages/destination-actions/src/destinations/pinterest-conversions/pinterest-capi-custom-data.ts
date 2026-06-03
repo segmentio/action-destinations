@@ -1,6 +1,6 @@
 import { InputField, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
-export const custom_data_field = (dependsOn: DependsOnConditions): InputField => ({
+export const getCustomDataField = (dependsOn: DependsOnConditions): InputField => ({
   label: '[Legacy] Custom Data',
   description: 'Object containing custom event data.',
   type: 'object',
@@ -128,7 +128,7 @@ export const custom_data_field = (dependsOn: DependsOnConditions): InputField =>
   }
 })
 
-export const custom_data_field_2 = (dependsOn: DependsOnConditions): InputField => ({
+export const getCustomDataField2 = (dependsOn: DependsOnConditions): InputField => ({
   label: 'Custom Data',
   description: 'Object containing custom event data.',
   type: 'object',
@@ -207,7 +207,7 @@ export const custom_data_field_2 = (dependsOn: DependsOnConditions): InputField 
   }
 })
 
-export const contents_field = (dependsOn: DependsOnConditions): InputField => ({
+export const getContentsField = (dependsOn: DependsOnConditions): InputField => ({
   label: 'Contents',
   description: 'A list of objects containing information about products.',
   type: 'object',

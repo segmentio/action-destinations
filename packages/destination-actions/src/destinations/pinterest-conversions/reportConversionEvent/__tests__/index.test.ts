@@ -250,8 +250,8 @@ describe('PinterestConversionApi', () => {
       })
     })
 
-    describe('structured mode', () => {
-      it('should send event using structured fields with app_info and device_info', async () => {
+    describe('latest mode', () => {
+      it('should send event using latest fields with app_info and device_info', async () => {
         nock(`https://api.pinterest.com`)
           .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
           .reply(200, {})
@@ -261,7 +261,7 @@ describe('PinterestConversionApi', () => {
           settings: authData,
           useDefaultMappings: true,
           mapping: {
-            data_format: 'structured',
+            data_format: 'latest',
             event_name: 'checkout',
             user_data: {
               first_name: ['Gaurav'],
@@ -339,7 +339,7 @@ describe('PinterestConversionApi', () => {
         expect(body.data[0].device_model).toBeUndefined()
       })
 
-      it('should detect pre-hashed data in structured mode', async () => {
+      it('should detect pre-hashed data in latest mode', async () => {
         nock(`https://api.pinterest.com`)
           .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
           .reply(200, {})
@@ -349,7 +349,7 @@ describe('PinterestConversionApi', () => {
           settings: authData,
           useDefaultMappings: true,
           mapping: {
-            data_format: 'structured',
+            data_format: 'latest',
             event_name: 'checkout',
             user_data: {
               first_name: ['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'],

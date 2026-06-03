@@ -3,7 +3,7 @@ import { IntegrationError } from '@segment/actions-core'
 import type { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import { API_VERSION, PARTNER_NAME } from '../constants'
 import type { Settings } from '../generated-types'
-import { custom_data_field, custom_data_field_2, contents_field } from '../pinterest-capi-custom-data'
+import { getCustomDataField, getCustomDataField2, getContentsField } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
 import type { Payload } from './generated-types'
 import isEmpty from 'lodash/isEmpty'
@@ -17,8 +17,8 @@ const DEPENDS_ON_LEGACY: DependsOnConditions = {
   ]
 }
 
-const DEPENDS_ON_STRUCTURED: DependsOnConditions = {
-  conditions: [{ fieldKey: 'data_format', operator: 'is', value: 'structured' }]
+const DEPENDS_ON_LATEST: DependsOnConditions = {
+  conditions: [{ fieldKey: 'data_format', operator: 'is', value: 'latest' }]
 }
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -29,13 +29,13 @@ const action: ActionDefinition<Settings, Payload> = {
     data_format: {
       label: 'Data Format',
       description:
-        'Controls which fields are displayed. "Structured Fields" uses the new app_info, device_info, and flat custom data fields. "Legacy Fields" uses the original nested custom_data object and flat app/device fields.',
+        'Controls which fields are displayed. "Latest Fields" uses the new app_info, device_info, and custom data fields. "Legacy Fields" uses the original nested custom_data object and flat app/device fields.',
       type: 'string',
       choices: [
-        { label: 'Structured Fields', value: 'structured' },
+        { label: 'Latest Fields', value: 'latest' },
         { label: 'Legacy Fields', value: 'legacy' }
       ],
-      default: 'structured'
+      default: 'latest'
     },
     event_name: {
       label: 'Event Name',
@@ -128,7 +128,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_data: user_data_field,
 
     // --- Legacy fields (shown when data_format is 'legacy' or undefined) ---
-    custom_data: custom_data_field(DEPENDS_ON_LEGACY),
+    custom_data: getCustomDataField(DEPENDS_ON_LEGACY),
     app_id: {
       label: '[Legacy] App ID',
       description: 'The app store app ID.',
@@ -203,14 +203,14 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
 
-    // --- Structured fields (shown when data_format is 'structured') ---
-    custom_data_2: custom_data_field_2(DEPENDS_ON_STRUCTURED),
-    contents: contents_field(DEPENDS_ON_STRUCTURED),
+    // --- Latest fields (shown when data_format is 'latest') ---
+    custom_data_2: getCustomDataField2(DEPENDS_ON_LATEST),
+    contents: getContentsField(DEPENDS_ON_LATEST),
     app_info: {
       label: 'App Info',
       description: 'Object containing information about the application where event occurred.',
       type: 'object',
-      depends_on: DEPENDS_ON_STRUCTURED,
+      depends_on: DEPENDS_ON_LATEST,
       properties: {
         app_id: {
           label: 'App ID',
@@ -272,7 +272,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device Info',
       description: 'Object containing information about the device where event occurred.',
       type: 'object',
-      depends_on: DEPENDS_ON_STRUCTURED,
+      depends_on: DEPENDS_ON_LATEST,
       properties: {
         battery_level: {
           label: 'Battery Level',
@@ -470,7 +470,7 @@ function buildDeviceInfo(payload: Payload) {
 }
 
 function buildCustomData(payload: Payload) {
-  const isStructured = payload.data_format === 'structured'
+  const isStructured = payload.data_format === 'latest'
 
   if (isStructured) {
     return {
@@ -518,7 +518,7 @@ function buildCustomData(payload: Payload) {
 }
 
 function createPinterestPayload(payload: Payload) {
-  const isStructured = payload.data_format === 'structured'
+  const isStructured = payload.data_format === 'latest'
 
   return [
     {
