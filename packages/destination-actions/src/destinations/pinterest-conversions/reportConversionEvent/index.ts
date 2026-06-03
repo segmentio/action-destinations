@@ -411,6 +411,15 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   })
 }
 
+function buildAppInfo(payload: Payload) {
+  const appInfo = {
+    ...payload.app_info,
+    install_time: payload.app_info?.install_time ? dayjs.utc(payload.app_info.install_time).unix() : undefined
+  }
+  const hasContent = Object.values(appInfo).some((v) => v !== undefined && v !== null)
+  return hasContent ? appInfo : undefined
+}
+
 function createPinterestPayload(payload: Payload) {
   return [
     {
@@ -447,12 +456,7 @@ function createPinterestPayload(payload: Payload) {
       app_id: payload.app_id,
       app_name: payload.app_name,
       app_version: payload.app_version,
-      app_info: payload.app_info
-        ? {
-            ...payload.app_info,
-            install_time: payload.app_info.install_time ? dayjs.utc(payload.app_info.install_time).unix() : undefined
-          }
-        : undefined,
+      app_info: buildAppInfo(payload),
       device_brand: payload.device_brand,
       device_carrier: payload.device_carrier,
       device_model: payload.device_model,
