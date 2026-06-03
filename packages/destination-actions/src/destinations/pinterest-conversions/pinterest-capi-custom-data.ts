@@ -42,6 +42,26 @@ export const custom_data_field: InputField = {
           label: 'quantity',
           type: 'integer',
           description: 'The number of items purchased'
+        },
+        item_brand: {
+          label: 'Item Brand',
+          type: 'string',
+          description: 'The brand of a product.'
+        },
+        item_brand_id: {
+          label: 'Item Brand ID',
+          type: 'string',
+          description: 'The brand ID of a product. Max 64 characters.'
+        },
+        item_category: {
+          label: 'Item Category',
+          type: 'string',
+          description: 'The category of a product.'
+        },
+        item_name: {
+          label: 'Item Name',
+          type: 'string',
+          description: 'The name of a product.'
         }
       }
     },
@@ -63,8 +83,28 @@ export const custom_data_field: InputField = {
     opt_out_type: {
       label: 'Opt Out Type',
       description:
-        'opt_out_type is the field where we accept opt outs for your users’ privacy preference.  It can handle multiple values with commas separated.',
+        "opt_out_type is the field where we accept opt outs for your users' privacy preference. It can handle multiple values with commas separated.",
       type: 'string'
+    },
+    content_brand: {
+      label: 'Content Brand',
+      description: 'The brand of the content associated with the event.',
+      type: 'string'
+    },
+    content_category: {
+      label: 'Content Category',
+      description: 'The category of the content associated with the event.',
+      type: 'string'
+    },
+    content_name: {
+      label: 'Content Name',
+      description: 'The name of the page or product associated with the event.',
+      type: 'string'
+    },
+    predicted_ltv: {
+      label: 'Predicted LTV',
+      description: 'Predicted lifetime value of user associated with the event.',
+      type: 'number'
     }
   },
   default: {

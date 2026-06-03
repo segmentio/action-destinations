@@ -20,15 +20,28 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       choices: [
+        { label: 'Add Payment Info', value: 'add_payment_info' },
         { label: 'Add to Cart', value: 'add_to_cart' },
+        { label: 'Add to Wishlist', value: 'add_to_wishlist' },
+        { label: 'App Install', value: 'app_install' },
+        { label: 'App Open', value: 'app_open' },
         { label: 'Checkout', value: 'checkout' },
+        { label: 'Contact', value: 'contact' },
+        { label: 'Custom', value: 'custom' },
+        { label: 'Customize Product', value: 'customize_product' },
+        { label: 'Find Location', value: 'find_location' },
+        { label: 'Initiate Checkout', value: 'initiate_checkout' },
         { label: 'Lead', value: 'lead' },
         { label: 'Page Visit', value: 'page_visit' },
+        { label: 'Schedule', value: 'schedule' },
         { label: 'Search', value: 'search' },
         { label: 'Sign Up', value: 'signup' },
+        { label: 'Start Trial', value: 'start_trial' },
+        { label: 'Submit Application', value: 'submit_application' },
+        { label: 'Subscribe', value: 'subscribe' },
         { label: 'View Category', value: 'view_category' },
-        { label: 'Watch Video', value: 'watch_video' },
-        { label: 'Custom', value: 'custom' }
+        { label: 'View Content', value: 'view_content' },
+        { label: 'Watch Video', value: 'watch_video' }
       ]
     },
     action_source: {
@@ -80,6 +93,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: true
     },
+    advertiser_tracking_enabled: {
+      label: 'Advertiser Tracking Enabled',
+      description: 'Defines whether the user has enabled ATT permission on their iOS device.',
+      type: 'boolean',
+      default: {
+        '@path': '$.context.device.adTrackingEnabled'
+      }
+    },
     user_data: user_data_field,
     custom_data: custom_data_field,
     app_id: {
@@ -117,7 +138,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     device_carrier: {
       label: 'Device Carrier',
-      description: 'User device’s mobile carrier. ',
+      description: "User device's mobile carrier.",
       type: 'string',
       default: {
         '@path': 'context.device.carrier'
@@ -159,6 +180,206 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Language',
       description: "Two-character ISO-639-1 language code indicating the user's language.",
       type: 'string'
+    },
+    app_info: {
+      label: 'App Info',
+      description: 'Object containing information about the application where event occurred.',
+      type: 'object',
+      properties: {
+        app_id: {
+          label: 'App ID',
+          type: 'string',
+          description: 'App ID in Google Play Store, AppStore or other stores.'
+        },
+        app_name: {
+          label: 'App Name',
+          type: 'string',
+          description: 'Name of the app.'
+        },
+        app_package_name: {
+          label: 'App Package Name',
+          type: 'string',
+          description: 'App package name.'
+        },
+        app_store: {
+          label: 'App Store',
+          type: 'string',
+          description: 'The name of the app distributor or store from which the app was installed.'
+        },
+        app_version: {
+          label: 'App Version',
+          type: 'string',
+          description: 'App version.'
+        },
+        install_time: {
+          label: 'Install Time',
+          type: 'integer',
+          description: 'App install time. Unix timestamp in seconds.'
+        },
+        user_agent: {
+          label: 'User Agent',
+          type: 'string',
+          description: 'User Agent request header.'
+        },
+        window_height: {
+          label: 'Window Height',
+          type: 'integer',
+          description: 'Inner height of the window or viewport.'
+        },
+        window_width: {
+          label: 'Window Width',
+          type: 'integer',
+          description: 'Inner width of the window or viewport.'
+        }
+      },
+      default: {
+        app_id: { '@path': '$.context.app.id' },
+        app_name: { '@path': '$.context.app.name' },
+        app_package_name: { '@path': '$.context.app.namespace' },
+        app_version: { '@path': '$.context.app.version' },
+        user_agent: { '@path': '$.context.userAgent' }
+      }
+    },
+    device_info: {
+      label: 'Device Info',
+      description: 'Object containing information about the device where event occurred.',
+      type: 'object',
+      properties: {
+        battery_level: {
+          label: 'Battery Level',
+          type: 'integer',
+          description: 'Battery charge level percentage.'
+        },
+        brand: {
+          label: 'Brand',
+          type: 'string',
+          description: 'Device brand.'
+        },
+        carrier: {
+          label: 'Carrier',
+          type: 'string',
+          description: "User device's mobile carrier."
+        },
+        cpu_cores: {
+          label: 'CPU Cores',
+          type: 'integer',
+          description: 'Number of CPU cores.'
+        },
+        external_storage_free_space: {
+          label: 'External Storage Free Space',
+          type: 'integer',
+          description: 'External storage free space in GB.'
+        },
+        external_storage_size: {
+          label: 'External Storage Size',
+          type: 'integer',
+          description: 'External storage size in GB.'
+        },
+        form_factor: {
+          label: 'Form Factor',
+          type: 'string',
+          description: 'Device form factor (desktop, laptop, cellphone, tablet, smartwatch, tv, vr, console, other).'
+        },
+        kernel_version: {
+          label: 'Kernel Version',
+          type: 'string',
+          description: "Kernel version of the device's operating system."
+        },
+        languages: {
+          label: 'Languages',
+          type: 'string',
+          multiple: true,
+          description: 'List of user installed languages. ISO 639-1 format.'
+        },
+        locale: {
+          label: 'Locale',
+          type: 'string',
+          description: 'Device locale in BCP-47 format.'
+        },
+        model: {
+          label: 'Model',
+          type: 'string',
+          description: 'Device model name.'
+        },
+        network_type: {
+          label: 'Network Type',
+          type: 'string',
+          description: 'Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).'
+        },
+        os_family: {
+          label: 'OS Family',
+          type: 'string',
+          description: 'OS Family (ios, android, macos, windows, linux, bsd, other).'
+        },
+        os_name: {
+          label: 'OS Name',
+          type: 'string',
+          description: 'Short name of the OS.'
+        },
+        os_release_name: {
+          label: 'OS Release Name',
+          type: 'string',
+          description: 'Marketing name for the release version.'
+        },
+        os_version: {
+          label: 'OS Version',
+          type: 'string',
+          description: 'Full name of the OS version.'
+        },
+        screen_density: {
+          label: 'Screen Density',
+          type: 'integer',
+          description: 'Screen density, PPI.'
+        },
+        screen_height: {
+          label: 'Screen Height',
+          type: 'integer',
+          description: 'Screen height in pixels.'
+        },
+        screen_width: {
+          label: 'Screen Width',
+          type: 'integer',
+          description: 'Screen width in pixels.'
+        },
+        storage_free_space: {
+          label: 'Storage Free Space',
+          type: 'integer',
+          description: 'Internal storage free space in GB.'
+        },
+        storage_size: {
+          label: 'Storage Size',
+          type: 'integer',
+          description: 'Internal storage size in GB.'
+        },
+        timezone: {
+          label: 'Timezone',
+          type: 'string',
+          description: 'Device timezone.'
+        },
+        timezone_abbr: {
+          label: 'Timezone Abbreviation',
+          type: 'string',
+          description: 'Timezone abbreviation.'
+        },
+        type: {
+          label: 'Type',
+          type: 'string',
+          description: 'Device type.'
+        }
+      },
+      default: {
+        brand: { '@path': '$.context.device.brand' },
+        carrier: { '@path': '$.context.device.carrier' },
+        model: { '@path': '$.context.device.model' },
+        type: { '@path': '$.context.device.type' },
+        os_family: { '@path': '$.context.os.name' },
+        os_version: { '@path': '$.context.os.version' },
+        locale: { '@path': '$.context.locale' },
+        screen_density: { '@path': '$.context.screen.density' },
+        screen_height: { '@path': '$.context.screen.height' },
+        screen_width: { '@path': '$.context.screen.width' },
+        timezone: { '@path': '$.context.timezone' }
+      }
     }
   },
   perform: async (request, { settings, payload }) => {
@@ -197,6 +418,7 @@ function createPinterestPayload(payload: Payload) {
       event_source_url: payload.event_source_url,
       partner_name: PARTNER_NAME,
       opt_out: payload.opt_out,
+      advertiser_tracking_enabled: payload.advertiser_tracking_enabled,
       user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: {
         currency: payload?.custom_data?.currency,
@@ -209,16 +431,26 @@ function createPinterestPayload(payload: Payload) {
         num_items: payload.custom_data?.num_items,
         order_id: payload.custom_data?.order_id,
         search_string: payload.custom_data?.search_string,
-        opt_out_type: payload.custom_data?.opt_out_type
+        opt_out_type: payload.custom_data?.opt_out_type,
+        content_brand: payload.custom_data?.content_brand,
+        content_category: payload.custom_data?.content_category,
+        content_name: payload.custom_data?.content_name,
+        predicted_ltv:
+          typeof payload?.custom_data?.predicted_ltv === 'number'
+            ? String(payload.custom_data.predicted_ltv)
+            : undefined,
+        np: PARTNER_NAME
       },
       app_id: payload.app_id,
       app_name: payload.app_name,
       app_version: payload.app_version,
+      app_info: payload.app_info,
       device_brand: payload.device_brand,
       device_carrier: payload.device_carrier,
       device_model: payload.device_model,
       device_type: payload.device_type,
       os_version: payload.os_version,
+      device_info: payload.device_info,
       wifi: payload.wifi,
       language: payload.language
     }
