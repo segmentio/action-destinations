@@ -213,8 +213,8 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         install_time: {
           label: 'Install Time',
-          type: 'integer',
-          description: 'App install time. Unix timestamp in seconds.'
+          type: 'datetime',
+          description: 'App install time. Will be converted to Unix timestamp in seconds before sending.'
         },
         user_agent: {
           label: 'User Agent',
@@ -306,7 +306,8 @@ const action: ActionDefinition<Settings, Payload> = {
         network_type: {
           label: 'Network Type',
           type: 'string',
-          description: 'Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).'
+          description:
+            'Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).'
         },
         os_family: {
           label: 'OS Family',
@@ -446,7 +447,12 @@ function createPinterestPayload(payload: Payload) {
       app_id: payload.app_id,
       app_name: payload.app_name,
       app_version: payload.app_version,
-      app_info: payload.app_info,
+      app_info: payload.app_info
+        ? {
+            ...payload.app_info,
+            install_time: payload.app_info.install_time ? dayjs.utc(payload.app_info.install_time).unix() : undefined
+          }
+        : undefined,
       device_brand: payload.device_brand,
       device_carrier: payload.device_carrier,
       device_model: payload.device_model,

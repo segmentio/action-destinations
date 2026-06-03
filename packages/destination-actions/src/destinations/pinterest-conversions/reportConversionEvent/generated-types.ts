@@ -245,9 +245,9 @@ export interface Payload {
      */
     app_version?: string
     /**
-     * App install time. Unix timestamp in seconds.
+     * App install time. Will be converted to Unix timestamp in seconds before sending.
      */
-    install_time?: number
+    install_time?: string | number
     /**
      * User Agent request header.
      */
