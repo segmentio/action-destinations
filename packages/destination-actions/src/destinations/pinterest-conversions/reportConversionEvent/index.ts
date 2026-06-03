@@ -453,7 +453,7 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 }
 
 function convertInstallTime(value: string | number | undefined | null): number | undefined {
-  if (!value) return undefined
+  if (value === undefined || value === null || value === '') return undefined
   if (typeof value === 'number') return value
   const parsed = dayjs.utc(value)
   if (!parsed.isValid()) return undefined
