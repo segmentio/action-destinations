@@ -113,7 +113,6 @@ export interface E2EEngageAudienceEventOptions<ComputationKey extends string = s
 }
 
 export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string = string> {
-  action: 'add' | 'remove'
   computationKey: ComputationKey
   computationId: string
   externalAudienceId?: string

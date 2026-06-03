@@ -5,7 +5,8 @@ import userList from '../index'
 const COMPUTATION_KEY = 'e2e_test_user_list'
 const COMPUTATION_ID = 'aud_e2e_google_journeys_001'
 
-const FAILURE_HINT = 'Ensure GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID, GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET, and ADWORDS_DEVELOPER_TOKEN env vars are set. The customerId must be a valid Google Ads account.'
+const FAILURE_HINT =
+  'Ensure GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID, GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET, and ADWORDS_DEVELOPER_TOKEN env vars are set. The customerId must be a valid Google Ads account.'
 
 const fixtures: E2EFixture[] = [
   {
@@ -18,7 +19,6 @@ const fixtures: E2EFixture[] = [
     },
     mode: 'single',
     event: createE2EJourneysV1AudienceEvent({
-      action: 'add',
       eventName: 'Audience Entered',
       computationKey: COMPUTATION_KEY,
       computationId: COMPUTATION_ID,
@@ -40,7 +40,6 @@ const fixtures: E2EFixture[] = [
     mode: 'batchWithMultistatus',
     events: [
       createE2EJourneysV1AudienceEvent({
-        action: 'add',
         eventName: 'Audience Entered',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
@@ -49,7 +48,6 @@ const fixtures: E2EFixture[] = [
         email: 'e2e-google-journeys-test-002@segment.com'
       }),
       createE2EJourneysV1AudienceEvent({
-        action: 'add',
         eventName: 'Audience Entered',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
@@ -58,7 +56,6 @@ const fixtures: E2EFixture[] = [
         email: 'e2e-google-journeys-test-003@segment.com'
       }),
       createE2EJourneysV1AudienceEvent({
-        action: 'add',
         eventName: 'Audience Entered',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
@@ -88,7 +85,6 @@ const fixtures: E2EFixture[] = [
     mode: 'batchWithMultistatus',
     events: [
       createE2EJourneysV1AudienceEvent({
-        action: 'add',
         eventName: 'Audience Entered',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
@@ -98,7 +94,6 @@ const fixtures: E2EFixture[] = [
         enrichedTraits: { [COMPUTATION_KEY]: false }
       }),
       createE2EJourneysV1AudienceEvent({
-        action: 'add',
         eventName: 'Audience Entered',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
