@@ -233,11 +233,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        app_id: { '@path': '$.context.app.id' },
+        app_id: { '@path': '$.context.app.build' },
         app_name: { '@path': '$.context.app.name' },
         app_package_name: { '@path': '$.context.app.namespace' },
         app_version: { '@path': '$.context.app.version' },
-        user_agent: { '@path': '$.context.userAgent' }
+        user_agent: { '@path': '$.context.userAgent' },
+        window_height: { '@path': '$.context.screen.height' },
+        window_width: { '@path': '$.context.screen.width' }
       }
     },
     device_info: {
@@ -368,8 +370,8 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        brand: { '@path': '$.context.device.brand' },
-        carrier: { '@path': '$.context.device.carrier' },
+        brand: { '@path': '$.context.device.manufacturer' },
+        carrier: { '@path': '$.context.network.carrier' },
         model: { '@path': '$.context.device.model' },
         type: { '@path': '$.context.device.type' },
         os_family: { '@path': '$.context.os.name' },
