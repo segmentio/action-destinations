@@ -27,9 +27,9 @@ const action: ActionDefinition<Settings, Payload> = {
     'Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
   fields: {
     data_format: {
-      label: 'Data Format',
+      label: 'Use Latest Fields',
       description:
-        'Controls which fields are displayed. "Latest Fields" uses the new app_info, device_info, and custom data fields. "Legacy Fields" uses the original nested custom_data object and flat app/device fields.',
+        'Switch between the latest field configuration and the legacy fields. New instances default to the latest fields.',
       type: 'string',
       choices: [
         { label: 'Latest Fields', value: 'latest' },
