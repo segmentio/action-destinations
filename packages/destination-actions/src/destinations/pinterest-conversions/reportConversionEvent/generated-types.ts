@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Controls which fields are displayed. "Structured Fields" uses the new app_info, device_info, and flat custom data fields. "Legacy Fields" uses the original nested custom_data object and flat app/device fields.
+   * Switch between the latest field configuration and the legacy fields. New instances default to the latest fields.
    */
   data_format?: string
   /**
@@ -103,7 +103,7 @@ export interface Payload {
     partner_id?: string | null
   }
   /**
-   * Object containing custom event data. This is the legacy format — use the new individual fields (Custom Data, Contents) when "Use Structured Fields" is selected.
+   * Object containing custom event data.
    */
   custom_data?: {
     /**
