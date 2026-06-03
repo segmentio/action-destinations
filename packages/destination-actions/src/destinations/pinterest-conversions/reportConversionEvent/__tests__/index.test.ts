@@ -141,6 +141,7 @@ describe('PinterestConversionApi', () => {
         expect(responses[0].status).toBe(200)
 
         const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].advertiser_tracking_enabled).toBe(true)
         expect(body.data[0].custom_data.value).toBe('2000')
         expect(body.data[0].custom_data.num_items).toBe(2)
         expect(body.data[0].custom_data.np).toBe('ss-segment')
@@ -250,6 +251,45 @@ describe('PinterestConversionApi', () => {
       })
     })
 
+    describe('undefined data_format (existing subscriptions)', () => {
+      it('should use legacy behavior when data_format is not set', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          mapping: {
+            event_name: 'checkout',
+            action_source: 'web',
+            event_time: '2023-03-13T07:56:23.846Z',
+            event_id: 'test-message-rocnz07d5e8',
+            app_name: 'InitechGlobal',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            },
+            custom_data: {
+              value: 100,
+              currency: 'USD'
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].custom_data.value).toBe('100')
+        expect(body.data[0].custom_data.currency).toBe('USD')
+        expect(body.data[0].custom_data.np).toBe('ss-segment')
+        expect(body.data[0].app_name).toBe('InitechGlobal')
+        expect(body.data[0].app_info).toBeUndefined()
+        expect(body.data[0].device_info).toBeUndefined()
+      })
+    })
+
     describe('latest mode', () => {
       it('should send event using latest fields with app_info and device_info', async () => {
         nock(`https://api.pinterest.com`)
@@ -303,6 +343,7 @@ describe('PinterestConversionApi', () => {
         expect(responses[0].status).toBe(200)
 
         const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].advertiser_tracking_enabled).toBe(true)
         expect(body.data[0].custom_data.value).toBe('2000')
         expect(body.data[0].custom_data.num_items).toBe(2)
         expect(body.data[0].custom_data.currency).toBe('USD')
@@ -318,7 +359,6 @@ describe('PinterestConversionApi', () => {
           }
         ])
         expect(body.data[0].app_info).toEqual({
-          app_id: '3.0.1.545',
           app_name: 'InitechGlobal',
           app_package_name: 'com.production.segment',
           app_version: '545',
@@ -329,7 +369,6 @@ describe('PinterestConversionApi', () => {
           brand: 'Apple',
           model: 'iPhone7,2',
           type: 'ios',
-          os_family: 'iPhone OS',
           os_version: '8.1.3',
           timezone: 'Europe/Amsterdam'
         })

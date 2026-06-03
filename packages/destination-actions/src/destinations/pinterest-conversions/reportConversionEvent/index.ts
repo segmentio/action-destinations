@@ -259,7 +259,6 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       default: {
-        app_id: { '@path': '$.context.app.build' },
         app_name: { '@path': '$.context.app.name' },
         app_package_name: { '@path': '$.context.app.namespace' },
         app_version: { '@path': '$.context.app.version' },
@@ -402,7 +401,6 @@ const action: ActionDefinition<Settings, Payload> = {
         carrier: { '@path': '$.context.network.carrier' },
         model: { '@path': '$.context.device.model' },
         type: { '@path': '$.context.device.type' },
-        os_family: { '@path': '$.context.os.name' },
         os_version: { '@path': '$.context.os.version' },
         locale: { '@path': '$.context.locale' },
         screen_density: { '@path': '$.context.screen.density' },
@@ -454,10 +452,18 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
   })
 }
 
+function convertInstallTime(value: string | number | undefined | null): number | undefined {
+  if (!value) return undefined
+  if (typeof value === 'number') return value
+  const parsed = dayjs.utc(value)
+  if (!parsed.isValid()) return undefined
+  return parsed.unix()
+}
+
 function buildAppInfo(payload: Payload) {
   const appInfo = {
     ...payload.app_info,
-    install_time: payload.app_info?.install_time ? dayjs.utc(payload.app_info.install_time).unix() : undefined
+    install_time: convertInstallTime(payload.app_info?.install_time)
   }
   const hasContent = Object.values(appInfo).some((v) => v !== undefined && v !== null)
   return hasContent ? appInfo : undefined
