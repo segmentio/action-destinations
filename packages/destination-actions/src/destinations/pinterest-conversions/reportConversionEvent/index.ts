@@ -1,5 +1,6 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
+import type { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import { API_VERSION, PARTNER_NAME } from '../constants'
 import type { Settings } from '../generated-types'
 import { custom_data_field } from '../pinterest-capi-custom-data'
@@ -8,11 +9,34 @@ import type { Payload } from './generated-types'
 import isEmpty from 'lodash/isEmpty'
 import dayjs from '../../../lib/dayjs'
 
+const DEPENDS_ON_LEGACY: DependsOnConditions = {
+  match: 'any',
+  conditions: [
+    { fieldKey: 'data_format', operator: 'is', value: 'legacy' },
+    { fieldKey: 'data_format', operator: 'is', value: undefined }
+  ]
+}
+
+const DEPENDS_ON_STRUCTURED: DependsOnConditions = {
+  conditions: [{ fieldKey: 'data_format', operator: 'is', value: 'structured' }]
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Report Conversion Event',
   description:
     'Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.',
   fields: {
+    data_format: {
+      label: 'Data Format',
+      description:
+        'Controls which fields are displayed. "Structured Fields" uses the new app_info, device_info, and flat custom data fields. "Legacy Fields" uses the original nested custom_data object and flat app/device fields.',
+      type: 'string',
+      choices: [
+        { label: 'Structured Fields', value: 'structured' },
+        { label: 'Legacy Fields', value: 'legacy' }
+      ],
+      default: 'structured'
+    },
     event_name: {
       label: 'Event Name',
       description:
@@ -102,89 +126,236 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     user_data: user_data_field,
-    custom_data: custom_data_field,
+
+    // --- Legacy fields (shown when data_format is 'legacy' or undefined) ---
+    custom_data: custom_data_field(DEPENDS_ON_LEGACY),
     app_id: {
-      label: 'App ID',
+      label: '[Legacy] App ID',
       description: 'The app store app ID.',
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': 'context.app.id'
       }
     },
     app_name: {
-      label: 'App Name',
-      description: 'Name of the app. ',
+      label: '[Legacy] App Name',
+      description: 'Name of the app.',
       type: 'string',
-      required: true,
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.app.name'
       }
     },
     app_version: {
-      label: 'App Version',
+      label: '[Legacy] App Version',
       description: 'Version of the app.',
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.app.version'
       }
     },
     device_brand: {
-      label: 'Device Brand',
+      label: '[Legacy] Device Brand',
       description: 'Brand of the user device.',
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.device.brand'
       }
     },
     device_carrier: {
-      label: 'Device Carrier',
+      label: '[Legacy] Device Carrier',
       description: "User device's mobile carrier.",
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': 'context.device.carrier'
       }
     },
     device_model: {
-      label: 'Device Model',
+      label: '[Legacy] Device Model',
       description: 'Model of the user device.',
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.device.model'
       }
     },
     device_type: {
-      label: 'Device Type',
+      label: '[Legacy] Device Type',
       description: 'Type of the user device.',
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.device.type'
       }
     },
     os_version: {
-      label: 'OS Version',
+      label: '[Legacy] OS Version',
       description: 'Version of the device operating system.',
       type: 'string',
+      depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.os.version'
       }
     },
-    wifi: {
-      label: 'Wifi',
-      description: 'Whether the event occurred when the user device was connected to wifi.',
-      type: 'boolean',
+
+    // --- Structured fields (shown when data_format is 'structured') ---
+    currency: {
+      label: 'Currency',
+      description: 'ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.',
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED,
       default: {
-        '@path': '$.context.network.wifi'
+        '@path': '$.properties.currency'
       }
     },
-    language: {
-      label: 'Language',
-      description: "Two-character ISO-639-1 language code indicating the user's language.",
-      type: 'string'
+    value: {
+      label: 'Value',
+      description:
+        'Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.',
+      type: 'number',
+      depends_on: DEPENDS_ON_STRUCTURED,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.price' },
+          then: { '@path': '$.properties.price' },
+          else: { '@path': '$.properties.value' }
+        }
+      }
+    },
+    content_ids: {
+      label: 'Content IDs',
+      description: 'Product IDs as an array of strings.',
+      type: 'string',
+      multiple: true,
+      depends_on: DEPENDS_ON_STRUCTURED,
+      default: {
+        '@path': '$.properties.content_ids'
+      }
+    },
+    contents: {
+      label: 'Contents',
+      description: 'A list of objects containing information about products.',
+      type: 'object',
+      multiple: true,
+      depends_on: DEPENDS_ON_STRUCTURED,
+      properties: {
+        id: {
+          label: 'Product ID',
+          type: 'string',
+          description: 'The id of the item.'
+        },
+        item_price: {
+          label: 'Price',
+          type: 'number',
+          description: 'The price of the item.'
+        },
+        quantity: {
+          label: 'Quantity',
+          type: 'integer',
+          description: 'The number of items purchased.'
+        },
+        item_brand: {
+          label: 'Item Brand',
+          type: 'string',
+          description: 'The brand of the product.'
+        },
+        item_brand_id: {
+          label: 'Item Brand ID',
+          type: 'string',
+          description: 'The brand ID of the product. Max 64 characters.'
+        },
+        item_category: {
+          label: 'Item Category',
+          type: 'string',
+          description: 'The category of the product.'
+        },
+        item_name: {
+          label: 'Item Name',
+          type: 'string',
+          description: 'The name of the product.'
+        }
+      },
+      default: {
+        '@arrayPath': [
+          '$.properties.products',
+          {
+            id: { '@path': '$.product_id' },
+            item_price: { '@path': '$.price' },
+            quantity: { '@path': '$.quantity' },
+            item_brand: { '@path': '$.brand' },
+            item_category: { '@path': '$.category' },
+            item_name: { '@path': '$.name' }
+          }
+        ]
+      }
+    },
+    num_items: {
+      label: 'Number of Items',
+      description: 'Total number of products in the event.',
+      type: 'integer',
+      depends_on: DEPENDS_ON_STRUCTURED,
+      default: {
+        '@path': '$.properties.num_items'
+      }
+    },
+    order_id: {
+      label: 'Order ID',
+      description: 'The order ID.',
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED,
+      default: {
+        '@path': '$.properties.order_id'
+      }
+    },
+    search_string: {
+      label: 'Search String',
+      description: 'Search string related to the conversion event.',
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED,
+      default: {
+        '@path': '$.properties.query'
+      }
+    },
+    opt_out_type: {
+      label: 'Opt Out Type',
+      description:
+        "The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.",
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED
+    },
+    content_brand: {
+      label: 'Content Brand',
+      description: 'The brand of the content associated with the event.',
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED
+    },
+    content_category: {
+      label: 'Content Category',
+      description: 'The category of the content associated with the event.',
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED
+    },
+    content_name: {
+      label: 'Content Name',
+      description: 'The name of the page or product associated with the event.',
+      type: 'string',
+      depends_on: DEPENDS_ON_STRUCTURED
+    },
+    predicted_ltv: {
+      label: 'Predicted LTV',
+      description: 'Predicted lifetime value of user associated with the event.',
+      type: 'number',
+      depends_on: DEPENDS_ON_STRUCTURED
     },
     app_info: {
       label: 'App Info',
       description: 'Object containing information about the application where event occurred.',
       type: 'object',
+      depends_on: DEPENDS_ON_STRUCTURED,
       properties: {
         app_id: {
           label: 'App ID',
@@ -246,6 +417,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device Info',
       description: 'Object containing information about the device where event occurred.',
       type: 'object',
+      depends_on: DEPENDS_ON_STRUCTURED,
       properties: {
         battery_level: {
           label: 'Battery Level',
@@ -383,12 +555,28 @@ const action: ActionDefinition<Settings, Payload> = {
         screen_width: { '@path': '$.context.screen.width' },
         timezone: { '@path': '$.context.timezone' }
       }
+    },
+
+    // --- Shared fields (always shown) ---
+    wifi: {
+      label: 'Wifi',
+      description: 'Whether the event occurred when the user device was connected to wifi.',
+      type: 'boolean',
+      default: {
+        '@path': '$.context.network.wifi'
+      }
+    },
+    language: {
+      label: 'Language',
+      description: "Two-character ISO-639-1 language code indicating the user's language.",
+      type: 'string'
     }
   },
   perform: async (request, { settings, payload }) => {
     return processPayload(request, settings, payload)
   }
 }
+
 async function processPayload(request: RequestClient, settings: Settings, payload: Payload) {
   if (
     isEmpty(payload.user_data?.email) &&
@@ -420,7 +608,60 @@ function buildAppInfo(payload: Payload) {
   return hasContent ? appInfo : undefined
 }
 
+function buildDeviceInfo(payload: Payload) {
+  if (!payload.device_info) return undefined
+  const hasContent = Object.values(payload.device_info).some((v) => v !== undefined && v !== null)
+  return hasContent ? payload.device_info : undefined
+}
+
+function buildCustomData(payload: Payload) {
+  const isStructured = payload.data_format === 'structured'
+
+  if (isStructured) {
+    return {
+      currency: payload.currency,
+      value: typeof payload.value === 'number' ? String(payload.value) : undefined,
+      content_ids: payload.content_ids,
+      contents: payload.contents?.map((item) => ({
+        ...item,
+        item_price: typeof item.item_price === 'number' ? String(item.item_price) : undefined
+      })),
+      num_items: payload.num_items,
+      order_id: payload.order_id,
+      search_string: payload.search_string,
+      opt_out_type: payload.opt_out_type,
+      content_brand: payload.content_brand,
+      content_category: payload.content_category,
+      content_name: payload.content_name,
+      predicted_ltv: typeof payload.predicted_ltv === 'number' ? String(payload.predicted_ltv) : undefined,
+      np: PARTNER_NAME
+    }
+  }
+
+  return {
+    currency: payload.custom_data?.currency,
+    value: typeof payload.custom_data?.value === 'number' ? String(payload.custom_data.value) : undefined,
+    content_ids: payload.custom_data?.content_ids,
+    contents: payload.custom_data?.contents?.map((item) => ({
+      ...item,
+      item_price: typeof item.item_price === 'number' ? String(item.item_price) : undefined
+    })),
+    num_items: payload.custom_data?.num_items,
+    order_id: payload.custom_data?.order_id,
+    search_string: payload.custom_data?.search_string,
+    opt_out_type: payload.custom_data?.opt_out_type,
+    content_brand: payload.custom_data?.content_brand,
+    content_category: payload.custom_data?.content_category,
+    content_name: payload.custom_data?.content_name,
+    predicted_ltv:
+      typeof payload.custom_data?.predicted_ltv === 'number' ? String(payload.custom_data.predicted_ltv) : undefined,
+    np: PARTNER_NAME
+  }
+}
+
 function createPinterestPayload(payload: Payload) {
+  const isStructured = payload.data_format === 'structured'
+
   return [
     {
       event_name: payload.event_name,
@@ -432,37 +673,17 @@ function createPinterestPayload(payload: Payload) {
       opt_out: payload.opt_out,
       advertiser_tracking_enabled: payload.advertiser_tracking_enabled,
       user_data: hash_user_data({ user_data: payload.user_data }),
-      custom_data: {
-        currency: payload?.custom_data?.currency,
-        value: typeof payload?.custom_data?.value === 'number' ? String(payload.custom_data.value) : undefined,
-        content_ids: payload.custom_data?.content_ids,
-        contents: payload.custom_data?.contents?.map((item) => ({
-          ...item,
-          item_price: typeof item.item_price === 'number' ? String(item.item_price) : undefined
-        })),
-        num_items: payload.custom_data?.num_items,
-        order_id: payload.custom_data?.order_id,
-        search_string: payload.custom_data?.search_string,
-        opt_out_type: payload.custom_data?.opt_out_type,
-        content_brand: payload.custom_data?.content_brand,
-        content_category: payload.custom_data?.content_category,
-        content_name: payload.custom_data?.content_name,
-        predicted_ltv:
-          typeof payload?.custom_data?.predicted_ltv === 'number'
-            ? String(payload.custom_data.predicted_ltv)
-            : undefined,
-        np: PARTNER_NAME
-      },
-      app_id: payload.app_id,
-      app_name: payload.app_name,
-      app_version: payload.app_version,
-      app_info: buildAppInfo(payload),
-      device_brand: payload.device_brand,
-      device_carrier: payload.device_carrier,
-      device_model: payload.device_model,
-      device_type: payload.device_type,
-      os_version: payload.os_version,
-      device_info: payload.device_info,
+      custom_data: buildCustomData(payload),
+      app_id: isStructured ? undefined : payload.app_id,
+      app_name: isStructured ? undefined : payload.app_name,
+      app_version: isStructured ? undefined : payload.app_version,
+      app_info: isStructured ? buildAppInfo(payload) : undefined,
+      device_brand: isStructured ? undefined : payload.device_brand,
+      device_carrier: isStructured ? undefined : payload.device_carrier,
+      device_model: isStructured ? undefined : payload.device_model,
+      device_type: isStructured ? undefined : payload.device_type,
+      os_version: isStructured ? undefined : payload.os_version,
+      device_info: isStructured ? buildDeviceInfo(payload) : undefined,
       wifi: payload.wifi,
       language: payload.language
     }

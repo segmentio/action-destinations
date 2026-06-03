@@ -1,9 +1,11 @@
-import { InputField } from '@segment/actions-core/destination-kit/types'
+import { InputField, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 
-export const custom_data_field: InputField = {
-  label: 'Custom Data',
-  description: 'Object containing customer information data.',
+export const custom_data_field = (dependsOn: DependsOnConditions): InputField => ({
+  label: '[Legacy] Custom Data',
+  description:
+    'Object containing custom event data. This is the legacy format — use the new individual fields (Custom Data, Contents) when "Use Structured Fields" is selected.',
   type: 'object',
+  depends_on: dependsOn,
   properties: {
     currency: {
       label: 'Currency',
@@ -125,4 +127,4 @@ export const custom_data_field: InputField = {
       '@path': '$.properties.currency'
     }
   }
-}
+})

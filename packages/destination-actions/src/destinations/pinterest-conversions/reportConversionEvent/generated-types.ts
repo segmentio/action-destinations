@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Controls which fields are displayed. "Structured Fields" uses the new app_info, device_info, and flat custom data fields. "Legacy Fields" uses the original nested custom_data object and flat app/device fields.
+   */
+  data_format?: string
+  /**
    * The conversion event type. For custom events, you must use the predefined event name "custom". Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).
    */
   event_name: string
@@ -99,7 +103,7 @@ export interface Payload {
     partner_id?: string | null
   }
   /**
-   * Object containing customer information data.
+   * Object containing custom event data. This is the legacy format — use the new individual fields (Custom Data, Contents) when "Use Structured Fields" is selected.
    */
   custom_data?: {
     /**
@@ -187,7 +191,7 @@ export interface Payload {
   /**
    * Name of the app.
    */
-  app_name: string
+  app_name?: string
   /**
    * Version of the app.
    */
@@ -213,13 +217,82 @@ export interface Payload {
    */
   os_version?: string
   /**
-   * Whether the event occurred when the user device was connected to wifi.
+   * ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.
    */
-  wifi?: boolean
+  currency?: string
   /**
-   * Two-character ISO-639-1 language code indicating the user's language.
+   * Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.
    */
-  language?: string
+  value?: number
+  /**
+   * Product IDs as an array of strings.
+   */
+  content_ids?: string[]
+  /**
+   * A list of objects containing information about products.
+   */
+  contents?: {
+    /**
+     * The id of the item.
+     */
+    id?: string
+    /**
+     * The price of the item.
+     */
+    item_price?: number
+    /**
+     * The number of items purchased.
+     */
+    quantity?: number
+    /**
+     * The brand of the product.
+     */
+    item_brand?: string
+    /**
+     * The brand ID of the product. Max 64 characters.
+     */
+    item_brand_id?: string
+    /**
+     * The category of the product.
+     */
+    item_category?: string
+    /**
+     * The name of the product.
+     */
+    item_name?: string
+  }[]
+  /**
+   * Total number of products in the event.
+   */
+  num_items?: number
+  /**
+   * The order ID.
+   */
+  order_id?: string
+  /**
+   * Search string related to the conversion event.
+   */
+  search_string?: string
+  /**
+   * The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.
+   */
+  opt_out_type?: string
+  /**
+   * The brand of the content associated with the event.
+   */
+  content_brand?: string
+  /**
+   * The category of the content associated with the event.
+   */
+  content_category?: string
+  /**
+   * The name of the page or product associated with the event.
+   */
+  content_name?: string
+  /**
+   * Predicted lifetime value of user associated with the event.
+   */
+  predicted_ltv?: number
   /**
    * Object containing information about the application where event occurred.
    */
@@ -362,4 +435,12 @@ export interface Payload {
      */
     type?: string
   }
+  /**
+   * Whether the event occurred when the user device was connected to wifi.
+   */
+  wifi?: boolean
+  /**
+   * Two-character ISO-639-1 language code indicating the user's language.
+   */
+  language?: string
 }

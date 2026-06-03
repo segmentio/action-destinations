@@ -84,48 +84,6 @@ describe('PinterestConversionApi', () => {
       ).rejects.toThrowError()
     })
 
-    it('Should send an event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent', async () => {
-      nock(`https://api.pinterest.com`)
-        .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
-        .reply(200, {})
-
-      const responses = await testDestination.testAction('reportConversionEvent', {
-        event,
-        settings: authData,
-        useDefaultMappings: true,
-        mapping: {
-          event_name: 'checkout',
-          user_data: {
-            first_name: ['Gaurav'],
-            last_name: ['test'],
-            external_id: ['test_external_id'],
-            phone: ['123456789'],
-            gender: ['male'],
-            city: ['asd'],
-            state: ['CA'],
-            zip: ['123456'],
-            country: ['US'],
-            hashed_maids: ['test123123'],
-            date_of_birth: ['1996-02-01'],
-            email: ['test@gmail.com'],
-            client_user_agent: '5.5.5.5',
-            click_id: 'click-id1',
-            partner_id: 'partner-id1',
-            client_ip_address:
-              'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
-          },
-          custom_data: {
-            num_items: '2',
-            value: 2000
-          }
-        }
-      })
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
-      expect(responses[0].options.json).toMatchSnapshot()
-    })
-
     it("Should throw an error when user data doesn't have either of email,hashed_maids or both client_ip_address and client_user_agent", async () => {
       await expect(
         testDestination.testAction('reportConversionEvent', {
@@ -141,138 +99,290 @@ describe('PinterestConversionApi', () => {
       )
     })
 
-    it('Should send an signup event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent', async () => {
-      nock(`https://api.pinterest.com`)
-        .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
-        .reply(200, {})
+    describe('legacy mode', () => {
+      it('should send event using legacy custom_data and flat app/device fields', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
 
-      const responses = await testDestination.testAction('reportConversionEvent', {
-        event,
-        settings: authData,
-        useDefaultMappings: true,
-        mapping: {
-          event_name: 'signup',
-          user_data: {
-            first_name: ['Gaurav'],
-            last_name: ['test'],
-            external_id: ['test_external_id'],
-            phone: ['123456789'],
-            gender: ['male'],
-            city: ['asd'],
-            state: ['CA'],
-            zip: ['123456'],
-            country: ['US'],
-            hashed_maids: ['test123123'],
-            date_of_birth: ['1996-02-01'],
-            email: ['test@gmail.com'],
-            client_user_agent: '5.5.5.5',
-            click_id: 'click-id1',
-            partner_id: 'partner-id1',
-            client_ip_address:
-              'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'legacy',
+            event_name: 'checkout',
+            user_data: {
+              first_name: ['Gaurav'],
+              last_name: ['test'],
+              external_id: ['test_external_id'],
+              phone: ['123456789'],
+              gender: ['male'],
+              city: ['asd'],
+              state: ['CA'],
+              zip: ['123456'],
+              country: ['US'],
+              hashed_maids: ['test123123'],
+              date_of_birth: ['1996-02-01'],
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              click_id: 'click-id1',
+              partner_id: 'partner-id1',
+              client_ip_address:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            },
+            custom_data: {
+              num_items: '2',
+              value: 2000
+            }
           }
-        }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].custom_data.value).toBe('2000')
+        expect(body.data[0].custom_data.num_items).toBe(2)
+        expect(body.data[0].custom_data.np).toBe('ss-segment')
+        expect(body.data[0].app_name).toBe('InitechGlobal')
+        expect(body.data[0].app_version).toBe('545')
+        expect(body.data[0].device_model).toBe('iPhone7,2')
+        expect(body.data[0].device_type).toBe('ios')
+        expect(body.data[0].os_version).toBe('8.1.3')
+        expect(body.data[0].app_info).toBeUndefined()
+        expect(body.data[0].device_info).toBeUndefined()
       })
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
-      expect(responses[0].options.json).toMatchSnapshot()
+
+      it('should send signup event in legacy mode', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'legacy',
+            event_name: 'signup',
+            user_data: {
+              first_name: ['Gaurav'],
+              last_name: ['test'],
+              external_id: ['test_external_id'],
+              phone: ['123456789'],
+              gender: ['male'],
+              city: ['asd'],
+              state: ['CA'],
+              zip: ['123456'],
+              country: ['US'],
+              hashed_maids: ['test123123'],
+              date_of_birth: ['1996-02-01'],
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              click_id: 'click-id1',
+              partner_id: 'partner-id1',
+              client_ip_address:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].event_name).toBe('signup')
+        expect(body.data[0].partner_name).toBe('ss-segment')
+        expect(body.data[0].app_info).toBeUndefined()
+        expect(body.data[0].device_info).toBeUndefined()
+      })
+
+      it('should detect pre-hashed data in legacy mode', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'legacy',
+            event_name: 'checkout',
+            user_data: {
+              first_name: ['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'],
+              last_name: ['test'],
+              external_id: ['test_external_id'],
+              phone: ['63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b'],
+              gender: ['male'],
+              city: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              state: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              zip: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              country: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              hashed_maids: ['test123123'],
+              date_of_birth: ['1996-02-01'],
+              email: ['c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151'],
+              client_user_agent: '5.5.5.5',
+              click_id: 'click-id1',
+              partner_id: 'partner-id1',
+              client_ip_address:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            },
+            custom_data: {
+              num_items: '2',
+              value: 2000
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data.length).toBe(1)
+        expect(body.data[0].user_data.em).toEqual(['c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151'])
+        expect(body.data[0].user_data.fn).toEqual(['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'])
+        expect(body.data[0].user_data.ph).toEqual(['63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b'])
+        expect(body.data[0].custom_data.value).toBe('2000')
+        expect(body.data[0].custom_data.num_items).toBe(2)
+        expect(body.data[0].custom_data.np).toBe('ss-segment')
+        expect(body.data[0].app_name).toBe('InitechGlobal')
+        expect(body.data[0].device_model).toBe('iPhone7,2')
+        expect(body.data[0].app_info).toBeUndefined()
+        expect(body.data[0].device_info).toBeUndefined()
+      })
     })
 
-    it('should be able to detect hashed data when flag is set', async () => {
-      nock(`https://api.pinterest.com`)
-        .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
-        .reply(200, {})
+    describe('structured mode', () => {
+      it('should send event using structured fields with app_info and device_info', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
 
-      const responses = await testDestination.testAction('reportConversionEvent', {
-        event,
-        settings: authData,
-        useDefaultMappings: true,
-        mapping: {
-          event_name: 'checkout',
-          user_data: {
-            first_name: ['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'],
-            last_name: ['test'],
-            external_id: ['test_external_id'],
-            phone: ['63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b'],
-            gender: ['male'],
-            city: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-            state: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-            zip: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-            country: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-            hashed_maids: ['test123123'],
-            date_of_birth: ['1996-02-01'],
-            email: ['c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151'],
-            client_user_agent: '5.5.5.5',
-            click_id: 'click-id1',
-            partner_id: 'partner-id1',
-            client_ip_address:
-              'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
-          },
-          custom_data: {
-            num_items: '2',
-            value: 2000
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'structured',
+            event_name: 'checkout',
+            user_data: {
+              first_name: ['Gaurav'],
+              last_name: ['test'],
+              external_id: ['test_external_id'],
+              phone: ['123456789'],
+              gender: ['male'],
+              city: ['asd'],
+              state: ['CA'],
+              zip: ['123456'],
+              country: ['US'],
+              hashed_maids: ['test123123'],
+              date_of_birth: ['1996-02-01'],
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              click_id: 'click-id1',
+              partner_id: 'partner-id1',
+              client_ip_address:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            },
+            value: 2000,
+            num_items: 2,
+            currency: 'USD',
+            contents: [
+              {
+                id: 'sku_123',
+                item_price: 74.99,
+                quantity: 2,
+                item_brand: 'Brand A',
+                item_category: 'Shoes',
+                item_name: 'Running Shoe'
+              }
+            ]
           }
-        }
-      })
-      expect(responses.length).toBe(1)
-      expect(responses[0].status).toBe(200)
-      const body = JSON.parse(responses[0].options.body as string)
-      expect(body.data.length).toBe(1)
-      expect(body.data[0]).toEqual({
-        event_name: 'checkout',
-        action_source: 'web',
-        event_time: 1678694183,
-        event_id: 'test-message-rocnz07d5e8',
-        event_source_url: 'https://segment.com/academy/',
-        partner_name: 'ss-segment',
-        opt_out: true,
-        advertiser_tracking_enabled: true,
-        user_data: {
-          em: ['c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151'],
-          ph: ['63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b'],
-          ge: ['62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a'],
-          db: ['9e4b15bbd40f2429491316d291927f5153b4f8c28738e6ee6284009ce29d13d6'],
-          ln: ['9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'],
-          fn: ['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'],
-          ct: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-          st: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-          zp: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-          country: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
-          external_id: ['74a6a35e39c525dcf6fd98ba90e79eb3c4358df1ae204e9489d51e6946485b2b'],
-          client_ip_address:
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
-          client_user_agent: '5.5.5.5',
-          hashed_maids: ['f4c2178860817a2c25d2cb3185aa25779b0ecaf17c30845926218e17a18a9f89'],
-          click_id: 'click-id1',
-          partner_id: 'partner-id1'
-        },
-        custom_data: {
-          value: '2000',
-          num_items: 2,
-          np: 'ss-segment'
-        },
-        app_name: 'InitechGlobal',
-        app_version: '545',
-        app_info: {
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].custom_data.value).toBe('2000')
+        expect(body.data[0].custom_data.num_items).toBe(2)
+        expect(body.data[0].custom_data.currency).toBe('USD')
+        expect(body.data[0].custom_data.np).toBe('ss-segment')
+        expect(body.data[0].custom_data.contents).toEqual([
+          {
+            id: 'sku_123',
+            item_price: '74.99',
+            quantity: 2,
+            item_brand: 'Brand A',
+            item_category: 'Shoes',
+            item_name: 'Running Shoe'
+          }
+        ])
+        expect(body.data[0].app_info).toEqual({
           app_id: '3.0.1.545',
           app_name: 'InitechGlobal',
           app_package_name: 'com.production.segment',
           app_version: '545',
           user_agent:
             'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
-        },
-        device_model: 'iPhone7,2',
-        device_type: 'ios',
-        os_version: '8.1.3',
-        device_info: {
+        })
+        expect(body.data[0].device_info).toEqual({
           brand: 'Apple',
           model: 'iPhone7,2',
           type: 'ios',
           os_family: 'iPhone OS',
           os_version: '8.1.3',
           timezone: 'Europe/Amsterdam'
-        }
+        })
+        expect(body.data[0].app_id).toBeUndefined()
+        expect(body.data[0].app_name).toBeUndefined()
+        expect(body.data[0].device_brand).toBeUndefined()
+        expect(body.data[0].device_model).toBeUndefined()
+      })
+
+      it('should detect pre-hashed data in structured mode', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'structured',
+            event_name: 'checkout',
+            user_data: {
+              first_name: ['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'],
+              last_name: ['test'],
+              external_id: ['test_external_id'],
+              phone: ['63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b'],
+              gender: ['male'],
+              city: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              state: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              zip: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              country: ['92db9c574d420b2437b29d898d55604f61df6c17f5163e53337f2169dd70d38d'],
+              hashed_maids: ['test123123'],
+              date_of_birth: ['1996-02-01'],
+              email: ['c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151'],
+              client_user_agent: '5.5.5.5',
+              click_id: 'click-id1',
+              partner_id: 'partner-id1',
+              client_ip_address:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+            },
+            value: 2000,
+            num_items: 2
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].user_data.em).toEqual(['c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151'])
+        expect(body.data[0].user_data.fn).toEqual(['44104fcaef8476724152090d6d7bd9afa8ca5b385f6a99d3c6cf36b943b9872d'])
+        expect(body.data[0].user_data.ph).toEqual(['63af7d494c194a90e1cf1db5371c13f97db650161aa803e67182c0dbaf668c7b'])
+        expect(body.data[0].custom_data.value).toBe('2000')
+        expect(body.data[0].custom_data.num_items).toBe(2)
+        expect(body.data[0].custom_data.np).toBe('ss-segment')
+        expect(body.data[0].app_info.app_name).toBe('InitechGlobal')
+        expect(body.data[0].device_info.model).toBe('iPhone7,2')
       })
     })
   })
