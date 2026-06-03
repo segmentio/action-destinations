@@ -3,7 +3,7 @@ import { IntegrationError } from '@segment/actions-core'
 import type { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import { API_VERSION, PARTNER_NAME } from '../constants'
 import type { Settings } from '../generated-types'
-import { custom_data_field, custom_data_field_2 } from '../pinterest-capi-custom-data'
+import { custom_data_field, custom_data_field_2, contents_field } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
 import type { Payload } from './generated-types'
 import isEmpty from 'lodash/isEmpty'
@@ -205,63 +205,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // --- Structured fields (shown when data_format is 'structured') ---
     custom_data_2: custom_data_field_2(DEPENDS_ON_STRUCTURED),
-    contents: {
-      label: 'Contents',
-      description: 'A list of objects containing information about products.',
-      type: 'object',
-      multiple: true,
-      depends_on: DEPENDS_ON_STRUCTURED,
-      properties: {
-        id: {
-          label: 'Product ID',
-          type: 'string',
-          description: 'The id of the item.'
-        },
-        item_price: {
-          label: 'Price',
-          type: 'number',
-          description: 'The price of the item.'
-        },
-        quantity: {
-          label: 'Quantity',
-          type: 'integer',
-          description: 'The number of items purchased.'
-        },
-        item_brand: {
-          label: 'Item Brand',
-          type: 'string',
-          description: 'The brand of the product.'
-        },
-        item_brand_id: {
-          label: 'Item Brand ID',
-          type: 'string',
-          description: 'The brand ID of the product. Max 64 characters.'
-        },
-        item_category: {
-          label: 'Item Category',
-          type: 'string',
-          description: 'The category of the product.'
-        },
-        item_name: {
-          label: 'Item Name',
-          type: 'string',
-          description: 'The name of the product.'
-        }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.products',
-          {
-            id: { '@path': '$.product_id' },
-            item_price: { '@path': '$.price' },
-            quantity: { '@path': '$.quantity' },
-            item_brand: { '@path': '$.brand' },
-            item_category: { '@path': '$.category' },
-            item_name: { '@path': '$.name' }
-          }
-        ]
-      }
-    },
+    contents: contents_field(DEPENDS_ON_STRUCTURED),
     app_info: {
       label: 'App Info',
       description: 'Object containing information about the application where event occurred.',

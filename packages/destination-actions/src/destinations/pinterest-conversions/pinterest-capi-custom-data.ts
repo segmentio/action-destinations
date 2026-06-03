@@ -2,8 +2,7 @@ import { InputField, DependsOnConditions } from '@segment/actions-core/destinati
 
 export const custom_data_field = (dependsOn: DependsOnConditions): InputField => ({
   label: '[Legacy] Custom Data',
-  description:
-    'Object containing custom event data. This is the legacy format — use the new individual fields (Custom Data, Contents) when "Use Structured Fields" is selected.',
+  description: 'Object containing custom event data.',
   type: 'object',
   depends_on: dependsOn,
   properties: {
@@ -205,5 +204,63 @@ export const custom_data_field_2 = (dependsOn: DependsOnConditions): InputField 
     },
     order_id: { '@path': '$.properties.order_id' },
     search_string: { '@path': '$.properties.query' }
+  }
+})
+
+export const contents_field = (dependsOn: DependsOnConditions): InputField => ({
+  label: 'Contents',
+  description: 'A list of objects containing information about products.',
+  type: 'object',
+  multiple: true,
+  depends_on: dependsOn,
+  properties: {
+    id: {
+      label: 'Product ID',
+      type: 'string',
+      description: 'The id of the item.'
+    },
+    item_price: {
+      label: 'Price',
+      type: 'number',
+      description: 'The price of the item.'
+    },
+    quantity: {
+      label: 'Quantity',
+      type: 'integer',
+      description: 'The number of items purchased.'
+    },
+    item_brand: {
+      label: 'Item Brand',
+      type: 'string',
+      description: 'The brand of the product.'
+    },
+    item_brand_id: {
+      label: 'Item Brand ID',
+      type: 'string',
+      description: 'The brand ID of the product. Max 64 characters.'
+    },
+    item_category: {
+      label: 'Item Category',
+      type: 'string',
+      description: 'The category of the product.'
+    },
+    item_name: {
+      label: 'Item Name',
+      type: 'string',
+      description: 'The name of the product.'
+    }
+  },
+  default: {
+    '@arrayPath': [
+      '$.properties.products',
+      {
+        id: { '@path': '$.product_id' },
+        item_price: { '@path': '$.price' },
+        quantity: { '@path': '$.quantity' },
+        item_brand: { '@path': '$.brand' },
+        item_category: { '@path': '$.category' },
+        item_name: { '@path': '$.name' }
+      }
+    ]
   }
 })
