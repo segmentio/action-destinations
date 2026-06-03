@@ -217,17 +217,54 @@ export interface Payload {
    */
   os_version?: string
   /**
-   * ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.
+   * Object containing custom event data.
    */
-  currency?: string
-  /**
-   * Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.
-   */
-  value?: number
-  /**
-   * Product IDs as an array of strings.
-   */
-  content_ids?: string[]
+  custom_data_2?: {
+    /**
+     * ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.
+     */
+    currency?: string
+    /**
+     * Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.
+     */
+    value?: number
+    /**
+     * Product IDs as an array of strings.
+     */
+    content_ids?: string[]
+    /**
+     * Total number of products in the event.
+     */
+    num_items?: number
+    /**
+     * The order ID.
+     */
+    order_id?: string
+    /**
+     * Search string related to the conversion event.
+     */
+    search_string?: string
+    /**
+     * The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.
+     */
+    opt_out_type?: string
+    /**
+     * The brand of the content associated with the event.
+     */
+    content_brand?: string
+    /**
+     * The category of the content associated with the event.
+     */
+    content_category?: string
+    /**
+     * The name of the page or product associated with the event.
+     */
+    content_name?: string
+    /**
+     * Predicted lifetime value of user associated with the event.
+     */
+    predicted_ltv?: number
+  }
   /**
    * A list of objects containing information about products.
    */
@@ -261,38 +298,6 @@ export interface Payload {
      */
     item_name?: string
   }[]
-  /**
-   * Total number of products in the event.
-   */
-  num_items?: number
-  /**
-   * The order ID.
-   */
-  order_id?: string
-  /**
-   * Search string related to the conversion event.
-   */
-  search_string?: string
-  /**
-   * The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.
-   */
-  opt_out_type?: string
-  /**
-   * The brand of the content associated with the event.
-   */
-  content_brand?: string
-  /**
-   * The category of the content associated with the event.
-   */
-  content_category?: string
-  /**
-   * The name of the page or product associated with the event.
-   */
-  content_name?: string
-  /**
-   * Predicted lifetime value of user associated with the event.
-   */
-  predicted_ltv?: number
   /**
    * Object containing information about the application where event occurred.
    */

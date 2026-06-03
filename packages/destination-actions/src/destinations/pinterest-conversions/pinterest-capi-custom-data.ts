@@ -128,3 +128,82 @@ export const custom_data_field = (dependsOn: DependsOnConditions): InputField =>
     }
   }
 })
+
+export const custom_data_field_2 = (dependsOn: DependsOnConditions): InputField => ({
+  label: 'Custom Data',
+  description: 'Object containing custom event data.',
+  type: 'object',
+  depends_on: dependsOn,
+  properties: {
+    currency: {
+      label: 'Currency',
+      type: 'string',
+      description: 'ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.'
+    },
+    value: {
+      label: 'Value',
+      type: 'number',
+      description:
+        'Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.'
+    },
+    content_ids: {
+      label: 'Content IDs',
+      type: 'string',
+      multiple: true,
+      description: 'Product IDs as an array of strings.'
+    },
+    num_items: {
+      label: 'Number of Items',
+      type: 'integer',
+      description: 'Total number of products in the event.'
+    },
+    order_id: {
+      label: 'Order ID',
+      type: 'string',
+      description: 'The order ID.'
+    },
+    search_string: {
+      label: 'Search String',
+      type: 'string',
+      description: 'Search string related to the conversion event.'
+    },
+    opt_out_type: {
+      label: 'Opt Out Type',
+      type: 'string',
+      description:
+        "The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated."
+    },
+    content_brand: {
+      label: 'Content Brand',
+      type: 'string',
+      description: 'The brand of the content associated with the event.'
+    },
+    content_category: {
+      label: 'Content Category',
+      type: 'string',
+      description: 'The category of the content associated with the event.'
+    },
+    content_name: {
+      label: 'Content Name',
+      type: 'string',
+      description: 'The name of the page or product associated with the event.'
+    },
+    predicted_ltv: {
+      label: 'Predicted LTV',
+      type: 'number',
+      description: 'Predicted lifetime value of user associated with the event.'
+    }
+  },
+  default: {
+    currency: { '@path': '$.properties.currency' },
+    value: {
+      '@if': {
+        exists: { '@path': '$.properties.price' },
+        then: { '@path': '$.properties.price' },
+        else: { '@path': '$.properties.value' }
+      }
+    },
+    order_id: { '@path': '$.properties.order_id' },
+    search_string: { '@path': '$.properties.query' }
+  }
+})

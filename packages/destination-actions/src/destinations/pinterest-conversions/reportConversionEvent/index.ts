@@ -3,7 +3,7 @@ import { IntegrationError } from '@segment/actions-core'
 import type { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import { API_VERSION, PARTNER_NAME } from '../constants'
 import type { Settings } from '../generated-types'
-import { custom_data_field } from '../pinterest-capi-custom-data'
+import { custom_data_field, custom_data_field_2 } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
 import type { Payload } from './generated-types'
 import isEmpty from 'lodash/isEmpty'
@@ -142,6 +142,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: '[Legacy] App Name',
       description: 'Name of the app.',
       type: 'string',
+      required: DEPENDS_ON_LEGACY,
       depends_on: DEPENDS_ON_LEGACY,
       default: {
         '@path': '$.context.app.name'
@@ -203,39 +204,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
 
     // --- Structured fields (shown when data_format is 'structured') ---
-    currency: {
-      label: 'Currency',
-      description: 'ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.',
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED,
-      default: {
-        '@path': '$.properties.currency'
-      }
-    },
-    value: {
-      label: 'Value',
-      description:
-        'Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.',
-      type: 'number',
-      depends_on: DEPENDS_ON_STRUCTURED,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.price' },
-          then: { '@path': '$.properties.price' },
-          else: { '@path': '$.properties.value' }
-        }
-      }
-    },
-    content_ids: {
-      label: 'Content IDs',
-      description: 'Product IDs as an array of strings.',
-      type: 'string',
-      multiple: true,
-      depends_on: DEPENDS_ON_STRUCTURED,
-      default: {
-        '@path': '$.properties.content_ids'
-      }
-    },
+    custom_data_2: custom_data_field_2(DEPENDS_ON_STRUCTURED),
     contents: {
       label: 'Contents',
       description: 'A list of objects containing information about products.',
@@ -292,64 +261,6 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         ]
       }
-    },
-    num_items: {
-      label: 'Number of Items',
-      description: 'Total number of products in the event.',
-      type: 'integer',
-      depends_on: DEPENDS_ON_STRUCTURED,
-      default: {
-        '@path': '$.properties.num_items'
-      }
-    },
-    order_id: {
-      label: 'Order ID',
-      description: 'The order ID.',
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED,
-      default: {
-        '@path': '$.properties.order_id'
-      }
-    },
-    search_string: {
-      label: 'Search String',
-      description: 'Search string related to the conversion event.',
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED,
-      default: {
-        '@path': '$.properties.query'
-      }
-    },
-    opt_out_type: {
-      label: 'Opt Out Type',
-      description:
-        "The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.",
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED
-    },
-    content_brand: {
-      label: 'Content Brand',
-      description: 'The brand of the content associated with the event.',
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED
-    },
-    content_category: {
-      label: 'Content Category',
-      description: 'The category of the content associated with the event.',
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED
-    },
-    content_name: {
-      label: 'Content Name',
-      description: 'The name of the page or product associated with the event.',
-      type: 'string',
-      depends_on: DEPENDS_ON_STRUCTURED
-    },
-    predicted_ltv: {
-      label: 'Predicted LTV',
-      description: 'Predicted lifetime value of user associated with the event.',
-      type: 'number',
-      depends_on: DEPENDS_ON_STRUCTURED
     },
     app_info: {
       label: 'App Info',
@@ -619,21 +530,24 @@ function buildCustomData(payload: Payload) {
 
   if (isStructured) {
     return {
-      currency: payload.currency,
-      value: typeof payload.value === 'number' ? String(payload.value) : undefined,
-      content_ids: payload.content_ids,
+      currency: payload.custom_data_2?.currency,
+      value: typeof payload.custom_data_2?.value === 'number' ? String(payload.custom_data_2.value) : undefined,
+      content_ids: payload.custom_data_2?.content_ids,
       contents: payload.contents?.map((item) => ({
         ...item,
         item_price: typeof item.item_price === 'number' ? String(item.item_price) : undefined
       })),
-      num_items: payload.num_items,
-      order_id: payload.order_id,
-      search_string: payload.search_string,
-      opt_out_type: payload.opt_out_type,
-      content_brand: payload.content_brand,
-      content_category: payload.content_category,
-      content_name: payload.content_name,
-      predicted_ltv: typeof payload.predicted_ltv === 'number' ? String(payload.predicted_ltv) : undefined,
+      num_items: payload.custom_data_2?.num_items,
+      order_id: payload.custom_data_2?.order_id,
+      search_string: payload.custom_data_2?.search_string,
+      opt_out_type: payload.custom_data_2?.opt_out_type,
+      content_brand: payload.custom_data_2?.content_brand,
+      content_category: payload.custom_data_2?.content_category,
+      content_name: payload.custom_data_2?.content_name,
+      predicted_ltv:
+        typeof payload.custom_data_2?.predicted_ltv === 'number'
+          ? String(payload.custom_data_2.predicted_ltv)
+          : undefined,
       np: PARTNER_NAME
     }
   }

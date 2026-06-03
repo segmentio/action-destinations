@@ -282,9 +282,11 @@ describe('PinterestConversionApi', () => {
               client_ip_address:
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
             },
-            value: 2000,
-            num_items: 2,
-            currency: 'USD',
+            custom_data_2: {
+              value: 2000,
+              num_items: 2,
+              currency: 'USD'
+            },
             contents: [
               {
                 id: 'sku_123',
@@ -368,8 +370,10 @@ describe('PinterestConversionApi', () => {
               client_ip_address:
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
             },
-            value: 2000,
-            num_items: 2
+            custom_data_2: {
+              value: 2000,
+              num_items: 2
+            }
           }
         })
         expect(responses.length).toBe(1)
