@@ -1,6 +1,7 @@
 import type { SegmentEvent } from './segment-event'
 import type { JSONValue } from './json-object'
 import type {
+  E2EAudienceEventBase,
   E2EEngageAudienceEventOptions,
   E2EEngageAudienceEvent,
   E2EJourneysV1AudienceEventOptions,
@@ -26,18 +27,7 @@ export function createE2EEvent(
   }
 }
 
-interface AudienceEventBase {
-  computationKey: string
-  computationId: string
-  externalAudienceId?: string
-  userId?: string
-  anonymousId?: string
-  email?: string
-  audienceFields?: Record<string, unknown>
-  includeContextTraits?: boolean
-}
-
-function buildAudienceEventBase(options: AudienceEventBase) {
+function buildAudienceEventBase(options: E2EAudienceEventBase) {
   const {
     computationKey,
     computationId,

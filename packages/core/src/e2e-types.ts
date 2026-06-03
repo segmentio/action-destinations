@@ -98,6 +98,17 @@ export interface E2EBatchWithMultistatusFixture extends E2EBaseFixture {
   events: SegmentEvent[]
 }
 
+export interface E2EAudienceEventBase {
+  computationKey: string
+  computationId: string
+  externalAudienceId?: string
+  userId?: string
+  anonymousId?: string
+  email?: string
+  audienceFields?: Record<string, unknown>
+  includeContextTraits?: boolean
+}
+
 export interface E2EEngageAudienceEventOptions<ComputationKey extends string = string> {
   type: 'track' | 'identify'
   action: 'add' | 'remove'
