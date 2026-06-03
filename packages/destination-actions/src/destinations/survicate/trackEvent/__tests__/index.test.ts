@@ -50,7 +50,7 @@ describe('Survicate Cloud Mode - trackEvent', () => {
       timestamp: '2023-10-01T00:00:00Z'
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/track', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('trackEvent', {
       event,
@@ -79,7 +79,7 @@ describe('Survicate Cloud Mode - trackEvent', () => {
       timestamp: '2023-10-01T00:00:00Z'
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/track', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('trackEvent', {
       event,
@@ -108,7 +108,7 @@ describe('Survicate Cloud Mode - trackEvent', () => {
       timestamp: '2023-10-01T00:00:00Z'
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/track', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('trackEvent', {
       event,
@@ -133,7 +133,7 @@ describe('Survicate Cloud Mode - trackEvent', () => {
       anonymous_id: 'anon123'
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/track', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/track', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('trackEvent', {
       event,
