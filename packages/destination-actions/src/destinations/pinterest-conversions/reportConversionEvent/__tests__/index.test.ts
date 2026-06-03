@@ -389,5 +389,177 @@ describe('PinterestConversionApi', () => {
         expect(body.data[0].device_info.model).toBe('iPhone7,2')
       })
     })
+
+    describe('install_time conversion', () => {
+      it('should convert install_time ISO timestamp to unix seconds', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'app_install',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            },
+            app_info: {
+              app_id: '429047995',
+              app_name: 'MyApp',
+              install_time: '2025-02-10T18:17:49.000Z'
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].app_info.install_time).toBe(1739211469)
+        expect(body.data[0].app_info.app_id).toBe('429047995')
+        expect(body.data[0].app_info.app_name).toBe('MyApp')
+      })
+    })
+
+    describe('predicted_ltv conversion', () => {
+      it('should convert predicted_ltv number to string', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'checkout',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            },
+            custom_data_2: {
+              value: 149.99,
+              predicted_ltv: 2794.82
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].custom_data.predicted_ltv).toBe('2794.82')
+        expect(body.data[0].custom_data.value).toBe('149.99')
+      })
+    })
+
+    describe('empty app_info and device_info omission', () => {
+      it('should omit app_info when all fields are empty', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'page_visit',
+            event_time: '2023-03-13T07:56:23.846Z',
+            event_id: 'test-123',
+            action_source: 'web',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            },
+            app_info: {},
+            device_info: {}
+          }
+        })
+        expect(responses.length).toBe(1)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].app_info).toBeUndefined()
+        expect(body.data[0].device_info).toBeUndefined()
+      })
+    })
+
+    describe('new event names', () => {
+      it('should accept start_trial as a valid event name', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'start_trial',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].event_name).toBe('start_trial')
+      })
+    })
+
+    describe('conditional required field', () => {
+      it('should not require app_name in latest mode', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'checkout',
+            action_source: 'web',
+            event_time: '2023-03-13T07:56:23.846Z',
+            event_id: 'test-123',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('should require app_name in legacy mode', async () => {
+        await expect(
+          testDestination.testAction('reportConversionEvent', {
+            event,
+            settings: authData,
+            mapping: {
+              data_format: 'legacy',
+              event_name: 'checkout',
+              action_source: 'web',
+              event_time: '2023-03-13T07:56:23.846Z',
+              event_id: 'test-123',
+              user_data: {
+                email: ['test@gmail.com'],
+                client_user_agent: '5.5.5.5',
+                client_ip_address: '1.2.3.4'
+              }
+            }
+          })
+        ).rejects.toThrowError()
+      })
+    })
   })
 })
