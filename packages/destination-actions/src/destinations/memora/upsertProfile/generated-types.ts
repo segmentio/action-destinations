@@ -25,16 +25,4 @@ export interface Payload {
   profile_traits?: {
     [k: string]: unknown
   }
-  /**
-   * Per-field map of Segment trait names referenced by each directive (keyed by stored field key). Used by the control plane to wire up event-emitter enrichment. Set automatically — do not edit manually.
-   */
-  segment_traits_by_field?: {
-    [k: string]: unknown
-  }
-  /**
-   * Per-field map of Segment identifier names referenced by each directive (keyed by stored field key). Used by the control plane to wire up id_sync. Set automatically — do not edit manually.
-   */
-  segment_identifiers_by_field?: {
-    [k: string]: unknown
-  }
 }
