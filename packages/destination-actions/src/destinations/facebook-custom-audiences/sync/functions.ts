@@ -230,7 +230,7 @@ export function getData(payloads: Payload[]): FacebookDataRow[] {
     const row: FacebookDataRow = [
       externalId ?? '',
       email ? processHashing(email.trim().toLowerCase(), 'sha256', 'hex') : '',
-      phone ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : '',
+      phone ? (normalizePhone(phone) ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : '') : '',
       year ? processHashing(year.trim(), 'sha256', 'hex') ?? '' : '',
       month ? processHashing(normalizeMonth(month), 'sha256', 'hex') ?? '' : '',
       day ? processHashing(day.trim(), 'sha256', 'hex') ?? '' : '',
