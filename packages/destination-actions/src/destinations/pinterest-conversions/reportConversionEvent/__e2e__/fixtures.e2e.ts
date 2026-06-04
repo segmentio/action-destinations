@@ -196,7 +196,7 @@ const fixtures: E2EFixture[] = [
     }),
     expect: {
       status: 'error',
-      errorType: 'PayloadValidationError'
+      errorType: 'PAYLOAD_VALIDATION_FAILED'
     }
   },
   {
@@ -223,7 +223,7 @@ const fixtures: E2EFixture[] = [
     }),
     expect: {
       status: 'error',
-      errorType: 'PayloadValidationError'
+      errorType: 'PAYLOAD_VALIDATION_FAILED'
     }
   },
   {
@@ -250,7 +250,7 @@ const fixtures: E2EFixture[] = [
     }),
     expect: {
       status: 'failure',
-      httpStatus: 400
+      httpStatus: 422
     },
     verboseFailureHint: 'Pinterest rejects events with event_time older than 7 days.'
   }
