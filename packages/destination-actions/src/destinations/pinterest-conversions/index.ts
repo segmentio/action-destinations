@@ -1,5 +1,5 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { API_VERSION } from './constants'
+import { API_VERSION, EVENT_NAME } from './constants'
 import type { Settings } from './generated-types'
 import reportConversionEvent from './reportConversionEvent'
 import type { PinterestConversionsTestAuthenticationError } from './types'
@@ -67,12 +67,52 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
+      name: 'Add Payment Info',
+      subscribe: 'type = "track" AND event = "Payment Info Entered"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.ADD_PAYMENT_INFO
+      },
+      type: 'automatic'
+    },
+    {
       name: 'Add to Cart',
       subscribe: 'type = "track" AND event = "Product Added"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'add_to_cart'
+        event_name: EVENT_NAME.ADD_TO_CART
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Wishlist',
+      subscribe: 'type = "track" AND event = "Product Added to Wishlist"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.ADD_TO_WISHLIST
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'App Install',
+      subscribe: 'type = "track" AND event = "Application Installed"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.APP_INSTALL
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'App Open',
+      subscribe: 'type = "track" AND event = "Application Opened"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.APP_OPEN
       },
       type: 'automatic'
     },
@@ -82,7 +122,17 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'checkout'
+        event_name: EVENT_NAME.CHECKOUT
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Initiate Checkout',
+      subscribe: 'type = "track" AND event = "Checkout Started"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.INITIATE_CHECKOUT
       },
       type: 'automatic'
     },
@@ -92,7 +142,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'lead'
+        event_name: EVENT_NAME.LEAD
       },
       type: 'automatic'
     },
@@ -102,7 +152,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'page_visit'
+        event_name: EVENT_NAME.PAGE_VISIT
       },
       type: 'automatic'
     },
@@ -112,7 +162,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'search'
+        event_name: EVENT_NAME.SEARCH
       },
       type: 'automatic'
     },
@@ -122,7 +172,27 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'signup'
+        event_name: EVENT_NAME.SIGNUP
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Start Trial',
+      subscribe: 'type = "track" AND event = "Trial Started"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.START_TRIAL
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Subscribe',
+      subscribe: 'type = "track" AND event = "Subscription Created"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.SUBSCRIBE
       },
       type: 'automatic'
     },
@@ -132,7 +202,17 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'view_category'
+        event_name: EVENT_NAME.VIEW_CATEGORY
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'View Content',
+      subscribe: 'type = "track" AND event = "Product Viewed"',
+      partnerAction: 'reportConversionEvent',
+      mapping: {
+        ...defaultValues(reportConversionEvent.fields),
+        event_name: EVENT_NAME.VIEW_CONTENT
       },
       type: 'automatic'
     },
@@ -142,7 +222,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),
-        event_name: 'watch_video'
+        event_name: EVENT_NAME.WATCH_VIDEO
       },
       type: 'automatic'
     }

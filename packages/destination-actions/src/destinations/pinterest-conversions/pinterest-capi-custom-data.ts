@@ -40,9 +40,9 @@ export const getCustomDataField = (dependsOn: DependsOnConditions): InputField =
           description: 'The price of the Item'
         },
         quantity: {
-          label: 'quantity',
+          label: 'Quantity',
           type: 'integer',
-          description: 'The number of items purchased'
+          description: 'The number of items purchased.'
         },
         item_brand: {
           label: 'Item Brand',
@@ -84,7 +84,7 @@ export const getCustomDataField = (dependsOn: DependsOnConditions): InputField =
     opt_out_type: {
       label: 'Opt Out Type',
       description:
-        "opt_out_type is the field where we accept opt outs for your users' privacy preference. It can handle multiple values with commas separated.",
+        "Accepts opt outs for your users' privacy preference. Can handle multiple values with commas separated.",
       type: 'string'
     },
     content_brand: {

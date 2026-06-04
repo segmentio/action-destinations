@@ -1,7 +1,7 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
 import { IntegrationError } from '@segment/actions-core'
 import type { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
-import { API_VERSION, PARTNER_NAME } from '../constants'
+import { API_VERSION, PARTNER_NAME, EVENT_NAME } from '../constants'
 import type { Settings } from '../generated-types'
 import { getCustomDataField, getCustomDataField2, getContentsField } from '../pinterest-capi-custom-data'
 import { user_data_field, hash_user_data } from '../pinterset-capi-user-data'
@@ -45,28 +45,28 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: true,
       choices: [
-        { label: 'Add Payment Info', value: 'add_payment_info' },
-        { label: 'Add to Cart', value: 'add_to_cart' },
-        { label: 'Add to Wishlist', value: 'add_to_wishlist' },
-        { label: 'App Install', value: 'app_install' },
-        { label: 'App Open', value: 'app_open' },
-        { label: 'Checkout', value: 'checkout' },
-        { label: 'Contact', value: 'contact' },
-        { label: 'Custom', value: 'custom' },
-        { label: 'Customize Product', value: 'customize_product' },
-        { label: 'Find Location', value: 'find_location' },
-        { label: 'Initiate Checkout', value: 'initiate_checkout' },
-        { label: 'Lead', value: 'lead' },
-        { label: 'Page Visit', value: 'page_visit' },
-        { label: 'Schedule', value: 'schedule' },
-        { label: 'Search', value: 'search' },
-        { label: 'Sign Up', value: 'signup' },
-        { label: 'Start Trial', value: 'start_trial' },
-        { label: 'Submit Application', value: 'submit_application' },
-        { label: 'Subscribe', value: 'subscribe' },
-        { label: 'View Category', value: 'view_category' },
-        { label: 'View Content', value: 'view_content' },
-        { label: 'Watch Video', value: 'watch_video' }
+        { label: 'Add Payment Info', value: EVENT_NAME.ADD_PAYMENT_INFO },
+        { label: 'Add to Cart', value: EVENT_NAME.ADD_TO_CART },
+        { label: 'Add to Wishlist', value: EVENT_NAME.ADD_TO_WISHLIST },
+        { label: 'App Install', value: EVENT_NAME.APP_INSTALL },
+        { label: 'App Open', value: EVENT_NAME.APP_OPEN },
+        { label: 'Checkout', value: EVENT_NAME.CHECKOUT },
+        { label: 'Contact', value: EVENT_NAME.CONTACT },
+        { label: 'Custom', value: EVENT_NAME.CUSTOM },
+        { label: 'Customize Product', value: EVENT_NAME.CUSTOMIZE_PRODUCT },
+        { label: 'Find Location', value: EVENT_NAME.FIND_LOCATION },
+        { label: 'Initiate Checkout', value: EVENT_NAME.INITIATE_CHECKOUT },
+        { label: 'Lead', value: EVENT_NAME.LEAD },
+        { label: 'Page Visit', value: EVENT_NAME.PAGE_VISIT },
+        { label: 'Schedule', value: EVENT_NAME.SCHEDULE },
+        { label: 'Search', value: EVENT_NAME.SEARCH },
+        { label: 'Sign Up', value: EVENT_NAME.SIGNUP },
+        { label: 'Start Trial', value: EVENT_NAME.START_TRIAL },
+        { label: 'Submit Application', value: EVENT_NAME.SUBMIT_APPLICATION },
+        { label: 'Subscribe', value: EVENT_NAME.SUBSCRIBE },
+        { label: 'View Category', value: EVENT_NAME.VIEW_CATEGORY },
+        { label: 'View Content', value: EVENT_NAME.VIEW_CONTENT },
+        { label: 'Watch Video', value: EVENT_NAME.WATCH_VIDEO }
       ]
     },
     action_source: {

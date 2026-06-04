@@ -131,7 +131,7 @@ export interface Payload {
        */
       item_price?: number
       /**
-       * The number of items purchased
+       * The number of items purchased.
        */
       quantity?: number
       /**
@@ -164,7 +164,7 @@ export interface Payload {
      */
     search_string?: string
     /**
-     * opt_out_type is the field where we accept opt outs for your users' privacy preference. It can handle multiple values with commas separated.
+     * Accepts opt outs for your users' privacy preference. Can handle multiple values with commas separated.
      */
     opt_out_type?: string
     /**
