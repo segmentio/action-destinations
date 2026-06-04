@@ -156,6 +156,12 @@ describe('getData', () => {
     expect(row[14]).toBe('AB1234CD-E123-12FG-J123')
   })
 
+  it('returns empty string for phone when it normalizes to an empty string (e.g. "+0000000000")', () => {
+    const payload = { ...basePayload, phone: '+0000000000' }
+    const [row] = getData([payload])
+    expect(row[2]).toBe('')
+  })
+
   it('returns one row per payload', () => {
     const payloads = [
       { ...basePayload, externalId: 'ext-001' },
@@ -236,7 +242,7 @@ describe('normalizeName', () => {
     expect(normalizeName('  John  ')).toBe('john')
   })
 
-  it("removes apostrophes", () => {
+  it('removes apostrophes', () => {
     expect(normalizeName("O'Brien")).toBe('obrien')
   })
 
