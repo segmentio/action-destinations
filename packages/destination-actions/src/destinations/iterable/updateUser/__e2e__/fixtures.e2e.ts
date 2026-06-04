@@ -8,7 +8,7 @@ const fixtures: E2EFixture[] = [
     subscribe: 'type = "identify"',
     mapping: defaultValues(updateUser.fields),
     mode: 'single',
-    event: createE2EEvent('identify', 'Identify', {
+    event: createE2EEvent('identify', undefined, {
       userId: 'e2e-test-user-001',
       traits: {
         email: 'e2e-test@segment.com',

@@ -15,12 +15,37 @@ import type {
  */
 export function createE2EEvent(
   type: SegmentEvent['type'],
-  name: string,
-  overrides?: Partial<Omit<SegmentEvent, 'type' | 'event' | 'messageId' | 'timestamp'>>
+  name?: string,
+  overrides?: Partial<Omit<SegmentEvent, 'type' | 'event' | 'name' | 'messageId' | 'timestamp'>>
 ): SegmentEvent {
+  if (type === 'track') {
+    return {
+      type,
+      event: name,
+      messageId: '$guid',
+      timestamp: '$now',
+      ...overrides
+    }
+  }
+
+  if (type === 'page' || type === 'screen') {
+    return {
+      type,
+      name,
+      messageId: '$guid',
+      timestamp: '$now',
+      ...overrides
+    }
+  }
+
+  if (name) {
+    throw new Error(
+      `createE2EEvent: "name" is not supported for "${type}" events. Only track, page, and screen accept a name.`
+    )
+  }
+
   return {
     type,
-    event: name,
     messageId: '$guid',
     timestamp: '$now',
     ...overrides
@@ -64,6 +89,11 @@ export function createE2EEngageAudienceEvent<ComputationKey extends string>(
   options: E2EEngageAudienceEventOptions<ComputationKey>
 ): E2EEngageAudienceEvent<ComputationKey> {
   const { type, action, computationKey, eventName, email, enrichedTraits } = options
+
+  if (type === 'identify' && eventName) {
+    throw new Error('createE2EEngageAudienceEvent: "eventName" is not supported for identify events.')
+  }
+
   const membership = action === 'add'
   const base = buildAudienceEventBase({ ...options, includeContextTraits: type === 'track' })
 
