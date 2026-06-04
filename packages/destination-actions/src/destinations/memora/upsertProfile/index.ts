@@ -55,6 +55,13 @@ const action: ActionDefinition<Settings, Payload> = {
       dynamic: true,
       defaultObjectUI: 'keyvalue'
     },
+    /**
+     * Used exclusively by the Segment control plane (actions-memora-internal destination) as part of the
+     * Conversation Memory Sync feature. The control plane writes this map when creating or updating a mapping,
+     * and reads it back to build the event-emitter enrichment mapping that ensures the referenced Segment traits
+     * are present in event payloads at runtime. Not consumed by this action itself — marked unsafe_hidden so it
+     * round-trips through subscription settings without being exposed or stripped.
+     */
     segment_traits_by_field: {
       label: 'Segment Traits Used',
       description:
@@ -64,6 +71,13 @@ const action: ActionDefinition<Settings, Payload> = {
       additionalProperties: true,
       unsafe_hidden: true
     },
+    /**
+     * Used exclusively by the Segment control plane (actions-memora-internal destination) as part of the
+     * Conversation Memory Sync feature. The control plane writes this map when creating or updating a mapping,
+     * and reads it back to populate id_sync so that the declared Segment identifiers are available as external
+     * IDs at runtime. Not consumed by this action itself — marked unsafe_hidden so it round-trips through
+     * subscription settings without being exposed or stripped.
+     */
     segment_identifiers_by_field: {
       label: 'Segment Identifiers Used',
       description:
