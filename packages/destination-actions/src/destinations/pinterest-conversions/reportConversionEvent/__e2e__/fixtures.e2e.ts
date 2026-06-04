@@ -196,7 +196,7 @@ const fixtures: E2EFixture[] = [
     }),
     expect: {
       status: 'error',
-      errorType: 'PAYLOAD_VALIDATION_FAILED'
+      errorType: 'AggregateAjvError'
     }
   },
   {
@@ -223,7 +223,7 @@ const fixtures: E2EFixture[] = [
     }),
     expect: {
       status: 'error',
-      errorType: 'PAYLOAD_VALIDATION_FAILED'
+      errorType: 'AggregateAjvError'
     }
   },
   {
