@@ -2,6 +2,7 @@ import { ActionDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getEndpointByRegion } from '../regional-endpoints'
+import { MOENGAGE_API_VERSION } from '../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
@@ -82,18 +83,35 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.properties'
       }
-    },    
+    },
+    project_name: {
+      label: 'Project Name',
+      type: 'string',
+      description:
+        'Enter the Project Name from MoEngage Settings > Portfolio. Values must match exactly. Mismatched events stay at the portfolio level and are unusable for project-level analysis. Leave this field blank if Portfolio is not enabled for your workspace.',
+      required: false,
+      default: ''
+    },
     update_existing_only: {
       label: 'Update Existing Users Only',
       type: 'boolean',
-      description: 'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
+      description:
+        'If set to true, events from the Segment will only trigger updates for users who already exist in Moengage.',
       required: false,
       default: false
-    },
+    }
   },
   perform: async (request, { payload, settings }) => {
     if (!settings.api_id || !settings.api_key) {
       throw new IntegrationError('Missing API ID or API KEY', 'Missing required field', 400)
+    }
+
+    let properties = payload.properties
+    if (payload.project_name) {
+      properties = {
+        ...(payload.properties ?? {}),
+        moe_project_name: payload.project_name
+      }
     }
 
     const event = {
@@ -106,15 +124,14 @@ const action: ActionDefinition<Settings, Payload> = {
         os: { name: payload.os_name },
         library: { version: payload.library_version }
       },
-      properties: payload.properties,
+      properties,
       timestamp: payload.timestamp,
       update_existing_only: payload.update_existing_only || false
-
     }
 
     const endpoint = getEndpointByRegion(settings.region)
 
-    return request(`${endpoint}/v1/integrations/segment?appId=${settings.api_id}`, {
+    return request(`${endpoint}/${MOENGAGE_API_VERSION}/integrations/segment?appId=${settings.api_id}`, {
       method: 'post',
       json: event,
       headers: {

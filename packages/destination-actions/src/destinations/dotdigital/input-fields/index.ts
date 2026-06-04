@@ -1,1 +1,1 @@
-export { contactIdentifier } from './contact-identifier'
+export { channelIdentifier, emailIdentifier, mobileNumberIdentifier } from './contact-identifier'

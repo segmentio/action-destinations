@@ -1,7 +1,6 @@
-import { ContactIdentifier } from './types'
 import { InputField } from '@segment/actions-core'
 
-const channelIdentifier: InputField = {
+export const channelIdentifier: InputField = {
   label: 'Contact Identifier type',
   description: 'Select the field to identify contacts.',
   type: 'string',
@@ -13,7 +12,7 @@ const channelIdentifier: InputField = {
   ]
 }
 
-const emailIdentifier: InputField = {
+export const emailIdentifier: InputField = {
   label: 'Email Address',
   description: "The Contact's email address.",
   type: 'string',
@@ -33,7 +32,7 @@ const emailIdentifier: InputField = {
   }
 }
 
-const mobileNumberIdentifier: InputField = {
+export const mobileNumberIdentifier: InputField = {
   label: 'Mobile Number',
   description: "The Contact's mobile number.",
   type: 'string',
@@ -50,10 +49,4 @@ const mobileNumberIdentifier: InputField = {
   required: {
     conditions: [{ fieldKey: 'channelIdentifier', operator: 'is', value: 'mobileNumber' }]
   }
-}
-
-export const contactIdentifier: ContactIdentifier = {
-  channelIdentifier,
-  emailIdentifier,
-  mobileNumberIdentifier
 }
