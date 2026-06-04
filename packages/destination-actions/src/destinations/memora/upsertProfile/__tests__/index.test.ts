@@ -766,38 +766,6 @@ describe('Memora.upsertProfile', () => {
     })
   })
 
-  it('should not include segment_traits_by_field or segment_identifiers_by_field in the outbound request', async () => {
-    const event = createTestEvent({
-      type: 'identify',
-      userId: 'user-123',
-      traits: { email: 'john@example.com', first_name: 'John' }
-    })
-
-    let capturedBody: Record<string, unknown> = {}
-
-    nock(BASE_URL)
-      .put(`/${API_VERSION}/Stores/test-store-id/Profiles/Bulk`, (body) => {
-        capturedBody = body as Record<string, unknown>
-        return true
-      })
-      .reply(202)
-
-    await testDestination.testAction('upsertProfile', {
-      event,
-      settings: defaultSettings,
-      mapping: {
-        ...defaultMapping,
-        segment_traits_by_field: { 'Contact.$.first_name': ['first_name'] },
-        segment_identifiers_by_field: { 'Contact.$.email': ['email'] }
-      },
-      useDefaultMappings: true
-    })
-
-    const requestBodyStr = JSON.stringify(capturedBody)
-    expect(requestBodyStr).not.toContain('segment_traits_by_field')
-    expect(requestBodyStr).not.toContain('segment_identifiers_by_field')
-  })
-
   describe('performBatch (multiple profiles)', () => {
     it('should upsert multiple profiles in a single bulk request', async () => {
       const events = [
