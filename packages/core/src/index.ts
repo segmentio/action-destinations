@@ -127,6 +127,8 @@ export type {
   E2EDestinationConfig,
   E2EAudienceDestinationConfig,
   E2EAudienceConfig,
+  E2ETeardownContext,
+  E2ETeardownAudienceContext,
   E2ESettingsSecretValue,
   E2EDynamicValue,
   E2EEngageAudienceEventOptions,

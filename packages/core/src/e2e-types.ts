@@ -220,6 +220,15 @@ export interface E2EDestinationConfig {
   settings: E2ESettingsObject
 }
 
+export interface E2ETeardownContext {
+  settings: Record<string, unknown>
+}
+
+export interface E2ETeardownAudienceContext extends E2ETeardownContext {
+  externalAudienceId: string
+  audienceSettings: Record<string, unknown>
+}
+
 export interface E2EAudienceConfig {
   /** Name of the audience to create/test against. Used as the audienceName param for createAudience. */
   audienceName: string
@@ -229,8 +238,8 @@ export interface E2EAudienceConfig {
   createAudience: boolean
   /** When true, the runner calls getAudience after fixtures to verify the audience still exists. */
   getAudience: boolean
-  /** When true, the runner calls the teardown function after all tests to clean up the audience. */
-  teardown: boolean
+  /** When a function, the runner calls it after all tests to clean up the audience. Set to false to skip. */
+  teardown: false | ((context: E2ETeardownAudienceContext) => Promise<void>)
 }
 
 export interface E2EAudienceDestinationConfig extends E2EDestinationConfig {
