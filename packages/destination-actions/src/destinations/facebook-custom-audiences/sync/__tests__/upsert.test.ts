@@ -323,7 +323,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
       const expectedError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: "fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"",
+        errormessage: 'fbmessage: "Invalid parameter". message: "Bad Request". code: "100"',
         errorreporter: 'DESTINATION'
       }
 
@@ -402,6 +402,95 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-2', email: 'user2@example.com', enable_batching: true, batch_size: 10000 }
+      })
+    })
+
+    it('should not produce audience membership count mismatch when one event fails schema validation', async () => {
+      // Event at index 1 has no properties.externalId, so externalId resolves to undefined and
+      // is stripped by removeEmptyValues. externalId is required — that payload is filtered out
+      // by the schema validator before performBatch is called. The audienceMembership array is
+      // built from the already-filtered payloads array, so its length always matches and
+      // validate() does not return "Audience membership details count does not match batch payload count."
+      // context.personas is required so resolveAudienceMembership returns true (add) for each event.
+      const personas = {
+        computation_class: 'audience',
+        computation_key: 'my_audience'
+      }
+
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: 'Audience Entered',
+          context: { personas },
+          properties: { externalId: 'user-1', email: 'user1@example.com', my_audience: true }
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Audience Entered',
+          context: { personas },
+          properties: { email: 'user2@example.com', my_audience: true }
+          // no externalId — will fail required field schema validation
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Audience Entered',
+          context: { personas },
+          properties: { externalId: 'user-3', email: 'user3@example.com', my_audience: true }
+        })
+      ]
+
+      const mapping = {
+        __segment_internal_sync_mode: 'upsert',
+        externalId: { '@path': '$.properties.externalId' },
+        email: { '@path': '$.properties.email' },
+        retlOnMappingSave: {
+          inputs: {},
+          outputs: {
+            audienceName: 'test-audience',
+            audienceId: AUDIENCE_ID
+          }
+        },
+        enable_batching: true,
+        batch_size: 10000
+      }
+
+      const facebookResponse = {
+        audience_id: AUDIENCE_ID,
+        session_id: '123456789',
+        num_received: 2,
+        num_invalid_entries: 0,
+        invalid_entry_samples: {}
+      }
+
+      nock(`${BASE_URL}/${API_VERSION}`).post(`/${AUDIENCE_ID}/users`).reply(200, facebookResponse)
+
+      const responses = await testDestination.executeBatch('sync', {
+        events,
+        settings,
+        auth,
+        mapping,
+        features: { 'actions-core-audience-membership': true }
+      })
+
+      // Three responses: two successes (indices 0, 2) and one schema-validation error (index 1).
+      expect(responses.length).toBe(3)
+
+      // Index 0 — valid event, upserted successfully
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user-1', email: 'user1@example.com' }
+      })
+
+      // Index 1 — missing externalId, filtered at schema validation
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED'
+      })
+
+      // Index 2 — valid event, upserted successfully (no membership count mismatch error)
+      expect(responses[2]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user-3', email: 'user3@example.com' }
       })
     })
   })
