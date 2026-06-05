@@ -279,6 +279,16 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   /*
   This function builds a single attribute from a key/value.
   */
+  // JSON attributes (object/array values) require a key in the format attribute_name#instance_id.
+  // If the user hasn't included an instance ID, append '#default'.
+  if (
+    attribute_value !== null &&
+    typeof attribute_value === 'object' &&
+    !attribute_key.includes('#')
+  ) {
+    attribute_key = `${attribute_key}#default`
+  }
+
   let adjustedDate = null
   if (typeof attribute_value == 'string') {
     adjustedDate = _parse_date(attribute_value)
@@ -291,7 +301,7 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   const attribute: {
     action: string
     key: string
-    value?: string | number | boolean
+    value?: unknown
     timestamp: string | boolean
   } = {
     action: 'set',

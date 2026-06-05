@@ -155,6 +155,63 @@ describe('Testing _build_attribute_object', () => {
   })
 })
 
+describe('Testing _build_attribute_object with JSON (array/object) values', () => {
+  it('should append #default to array attribute keys without an instance ID', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        favourite_teams: ['Team A', 'Team B', 'Team C']
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'favourite_teams#default')
+    expect(attr?.action).toBe('set')
+    expect(attr?.value).toEqual(['Team A', 'Team B', 'Team C'])
+  })
+
+  it('should append #default to object attribute keys without an instance ID', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        preferences: { theme: 'dark', language: 'en' }
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'preferences#default')
+    expect(attr?.action).toBe('set')
+    expect(attr?.value).toEqual({ theme: 'dark', language: 'en' })
+  })
+
+  it('should preserve a user-supplied instance ID in the key', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        'reservation#a001': { flight: 'UA123', seat: '12A' }
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'reservation#a001')
+    expect(attr?.action).toBe('set')
+    expect(attr?.value).toEqual({ flight: 'UA123', seat: '12A' })
+  })
+
+  it('should set action to remove for null value', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        favourite_teams: null
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'favourite_teams')
+    expect(attr?.action).toBe('remove')
+  })
+})
+
 describe('Testing _build_tags_object', () => {
   it('should correctly format a tag', () => {
     expect(_private._build_tags_object(valid_tags_payload)).toEqual(airship_tags_payload)
