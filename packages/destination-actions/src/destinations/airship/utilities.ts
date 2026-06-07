@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
@@ -194,12 +194,9 @@ export function setBatchCustomEvent(request: RequestClient, settings: Settings, 
 export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
   const endpoint = map_endpoint(settings.endpoint)
   const uri = `${endpoint}/api/channels/attributes`
-  const attributes = _build_attributes_object(payload)
   const airship_payload = {
-    attributes: attributes,
-    audience: {
-      named_user_id: `${payload.named_user_id}`
-    }
+    attributes: _build_attributes_object(payload),
+    audience: _build_audience(payload)
   }
   return do_request(request, uri, airship_payload)
 }
@@ -214,7 +211,8 @@ export function getChannelId(request: RequestClient, settings: Settings, emailAd
 // exported Action function
 export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
   const endpoint = map_endpoint(settings.endpoint)
-  const uri = `${endpoint}/api/named_users/tags`
+  const path = payload.channel_id ? '/api/channels/tags' : '/api/named_users/tags'
+  const uri = `${endpoint}${path}`
   const airship_payload = _build_tags_object(payload)
   return do_request(request, uri, airship_payload)
 }
@@ -234,6 +232,16 @@ export function map_endpoint(region: string) {
   }
 }
 
+function _build_audience(payload: { named_user_id?: string; channel_id?: string; channel_type?: string }): object {
+  if (payload.channel_id) {
+    return { [payload.channel_type ?? 'channel']: payload.channel_id }
+  }
+  if (payload.named_user_id) {
+    return { named_user_id: payload.named_user_id }
+  }
+  throw new PayloadValidationError('Either Named User ID or Channel ID must be provided')
+}
+
 function _build_custom_event_object(payload: CustomEventsPayload): object {
   /*
   This function takes a Track payload and builds a Custom Event payload.
@@ -249,9 +257,7 @@ function _build_custom_event_object(payload: CustomEventsPayload): object {
   }
   const airship_payload = {
     occurred: _validate_timestamp(payload.occurred),
-    user: {
-      named_user_id: payload.named_user_id
-    },
+    user: _build_audience(payload),
     body: {
       name: payload.name.toLowerCase(),
       interaction_type: 'cdp',
@@ -346,9 +352,7 @@ function _build_tags_object(payload: TagsPayload): object {
     }
   }
   const airship_payload: { audience: {}; add?: {}; remove?: {} } = { audience: {} }
-  airship_payload.audience = {
-    named_user_id: payload.named_user_id
-  }
+  airship_payload.audience = _build_audience(payload)
   if (tags_to_add.length > 0) {
     airship_payload.add = { [tag_group]: tags_to_add }
   }
@@ -428,6 +432,7 @@ function _extract_country_language(locale: string): string[] {
 }
 
 export const _private = {
+  _build_audience,
   _build_custom_event_object,
   _build_attributes_object,
   _build_attribute,

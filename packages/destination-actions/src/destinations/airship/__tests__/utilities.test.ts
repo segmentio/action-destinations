@@ -269,3 +269,62 @@ describe('Testing _parse_and_format_date', () => {
     expect(_private._parse_and_format_date('foo')).toEqual('foo')
   })
 })
+
+describe('Testing _build_audience', () => {
+  it('should return named_user_id audience when only named_user_id is provided', () => {
+    expect(_private._build_audience({ named_user_id: 'user-123' })).toEqual({ named_user_id: 'user-123' })
+  })
+
+  it('should return channel audience when channel_id and channel_type are provided', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc', channel_type: 'email' })).toEqual({
+      email: 'chan-abc'
+    })
+  })
+
+  it('should use channel selector when all three fields are provided (channel_id takes precedence)', () => {
+    expect(_private._build_audience({ named_user_id: 'user-123', channel_id: 'chan-abc', channel_type: 'email' })).toEqual({
+      email: 'chan-abc'
+    })
+  })
+
+  it('should use generic channel audience when channel_id provided without channel_type', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc' })).toEqual({ channel: 'chan-abc' })
+  })
+
+  it('should use generic channel audience when channel_id provided without channel_type even if named_user_id is present', () => {
+    expect(_private._build_audience({ named_user_id: 'user-123', channel_id: 'chan-abc' })).toEqual({
+      channel: 'chan-abc'
+    })
+  })
+
+  it('should throw when neither named_user_id nor channel_id is provided', () => {
+    expect(() => _private._build_audience({})).toThrow('Either Named User ID or Channel ID must be provided')
+  })
+})
+
+describe('Testing _build_custom_event_object with channel_id', () => {
+  it('should use channel audience when channel_id is provided', () => {
+    const payload: CustomEventsPayload = {
+      channel_id: 'chan-abc',
+      channel_type: 'email',
+      name: 'Test Event',
+      occurred: occurred.toISOString(),
+      enable_batching: false
+    }
+    const result = _private._build_custom_event_object(payload) as any
+    expect(result.user).toEqual({ email: 'chan-abc' })
+  })
+})
+
+describe('Testing _build_tags_object with channel_id', () => {
+  it('should use channel audience when channel_id is provided', () => {
+    const payload: ManageTagsPayload = {
+      channel_id: 'chan-abc',
+      channel_type: 'sms',
+      tag_group: 'segment-integration',
+      tags: { trait3: true }
+    }
+    const result = _private._build_tags_object(payload) as any
+    expect(result.audience).toEqual({ sms: 'chan-abc' })
+  })
+})

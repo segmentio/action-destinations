@@ -143,7 +143,7 @@ Object {
     },
   ],
   "audience": Object {
-    "named_user_id": "Tw4VW",
+    "Tw4VW": "Tw4VW",
   },
 }
 `;
@@ -152,7 +152,7 @@ exports[`Testing snapshot for Airship's setAttributes destination action: requir
 Object {
   "attributes": Array [],
   "audience": Object {
-    "named_user_id": "Tw4VW",
+    "channel": "Tw4VW",
   },
 }
 `;

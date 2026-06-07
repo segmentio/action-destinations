@@ -13,7 +13,7 @@ Array [
     },
     "occurred": false,
     "user": Object {
-      "named_user_id": "Z8PnKI8*YgWA",
+      "Z8PnKI8*YgWA": "Z8PnKI8*YgWA",
     },
   },
 ]
@@ -31,7 +31,7 @@ Array [
     },
     "occurred": false,
     "user": Object {
-      "named_user_id": "Z8PnKI8*YgWA",
+      "channel": "Z8PnKI8*YgWA",
     },
   },
 ]
@@ -40,7 +40,7 @@ Array [
 exports[`Testing snapshot for actions-airship destination: manageTags action - all fields 1`] = `
 Object {
   "audience": Object {
-    "named_user_id": "XvmIpuaw",
+    "XvmIpuaw": "XvmIpuaw",
   },
 }
 `;
@@ -48,7 +48,7 @@ Object {
 exports[`Testing snapshot for actions-airship destination: manageTags action - required fields 1`] = `
 Object {
   "audience": Object {
-    "named_user_id": "XvmIpuaw",
+    "channel": "XvmIpuaw",
   },
 }
 `;
@@ -207,7 +207,7 @@ Object {
     },
   ],
   "audience": Object {
-    "named_user_id": "*N75*",
+    "*N75*": "*N75*",
   },
 }
 `;
@@ -216,7 +216,7 @@ exports[`Testing snapshot for actions-airship destination: setAttributes action 
 Object {
   "attributes": Array [],
   "audience": Object {
-    "named_user_id": "*N75*",
+    "channel": "*N75*",
   },
 }
 `;

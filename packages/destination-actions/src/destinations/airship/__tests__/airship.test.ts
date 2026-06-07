@@ -129,6 +129,72 @@ describe('Airship', () => {
     })
   })
 
+  describe('setAttribute with channel_id', () => {
+    it('should use channel audience', async () => {
+      const now = new Date().toISOString()
+      const event = createTestEvent({
+        timestamp: now,
+        traits: { trait1: 1 }
+      })
+
+      nock('https://go.urbanairship.com').post('/api/channels/attributes').reply(200, {})
+
+      const responses = await testDestination.testAction('setAttributes', {
+        event,
+        settings: { access_token: 'foo', app_key: 'bar', endpoint: 'US' },
+        mapping: {
+          channel_id: 'chan-abc',
+          channel_type: 'email',
+          occurred: now,
+          attributes: { trait1: 1 }
+        }
+      })
+      expect(responses[0].status).toBe(200)
+    })
+  })
+
+  describe('customEvents with channel_id', () => {
+    it('should use channel audience', async () => {
+      const now = new Date().toISOString()
+      const event = createTestEvent({ type: 'track', timestamp: now })
+
+      nock('https://go.urbanairship.com').post('/api/custom-events').reply(200, {})
+
+      const responses = await testDestination.testAction('customEvents', {
+        event,
+        settings: { access_token: 'foo', app_key: 'bar', endpoint: 'US' },
+        mapping: {
+          channel_id: 'chan-abc',
+          channel_type: 'email',
+          name: 'Test Event',
+          occurred: now,
+          enable_batching: false
+        }
+      })
+      expect(responses[0].status).toBe(200)
+    })
+  })
+
+  describe('manageTags with channel_id', () => {
+    it('should use channel audience', async () => {
+      const event = createTestEvent({ traits: { airship_tags: { tag1: true } } })
+
+      nock('https://go.urbanairship.com').post('/api/channels/tags').reply(200, {})
+
+      const responses = await testDestination.testAction('manageTags', {
+        event,
+        settings: { access_token: 'foo', app_key: 'bar', endpoint: 'US' },
+        mapping: {
+          channel_id: 'chan-abc',
+          channel_type: 'sms',
+          tags: { tag1: true },
+          tag_group: 'segment-integration'
+        }
+      })
+      expect(responses[0].status).toBe(200)
+    })
+  })
+
   describe('delete', () => {
     it('should support deletes', async () => {
       const event = createTestEvent({
