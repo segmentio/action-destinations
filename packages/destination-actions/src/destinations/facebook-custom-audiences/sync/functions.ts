@@ -56,7 +56,6 @@ export async function send(
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
 
-  const audienceId = getAudienceId(payloads[0], hookOutputs)
   if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
     const journeyMemberships = getJourneysMemberships(rawData)
     if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
@@ -67,9 +66,11 @@ export async function send(
     }
   }
 
+  const audienceId = getAudienceId(payloads[0], hookOutputs)
   const errorMessage = validate(payloads, audienceId, audienceMemberships)
+
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()
