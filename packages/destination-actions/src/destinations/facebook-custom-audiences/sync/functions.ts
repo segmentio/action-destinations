@@ -65,11 +65,11 @@ export async function send(
         audienceMemberships = journeyMemberships
       }
     }
+  }
 
-    const errorMessage = validate(payloads, audienceId, audienceMemberships)
-    if (errorMessage) {
-      return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
-    }
+  const errorMessage = validate(payloads, audienceId, audienceMemberships)
+  if (errorMessage) {
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()

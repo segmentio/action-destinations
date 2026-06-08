@@ -388,14 +388,14 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-1', email: 'user1@example.com', enable_batching: true, batch_size: 10000 }
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-2', email: 'user2@example.com', enable_batching: true, batch_size: 10000 }
       })

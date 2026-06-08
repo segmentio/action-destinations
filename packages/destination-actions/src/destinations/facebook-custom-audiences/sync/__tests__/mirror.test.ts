@@ -863,13 +863,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Audience membership details missing'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Audience membership details missing'
       })
     })
@@ -939,13 +939,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.'
       })
     })
