@@ -114,8 +114,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping
         })
 
         // --- Expected Segment MultiStatus Response ---
@@ -207,8 +206,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping
         })
 
         // --- Expected Segment MultiStatus Response ---
@@ -277,8 +275,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping
         })
 
         // --- Expected Segment MultiStatus Response ---
@@ -328,8 +325,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping: engageMapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping: engageMapping
         })
 
         // --- Expected Segment MultiStatus Response ---
@@ -393,8 +389,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping: engageMapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping: engageMapping
         })
 
         // --- Expected Segment MultiStatus Response ---
@@ -451,8 +446,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping: engageMapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping: engageMapping
         })
 
         // --- Expected Segment MultiStatus Response ---
@@ -511,8 +505,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           events,
           settings,
           auth,
-          mapping: engageMapping,
-          features: { 'actions-core-audience-membership': true }
+          mapping: engageMapping
         })
 
         // --- Expected Segment MultiStatus Response ---

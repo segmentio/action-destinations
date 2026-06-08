@@ -2,7 +2,7 @@ import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
 import {
   RequestClient,
-  PayloadValidationError,
+  InvalidAudienceMembershipError,
   IntegrationError,
   MultiStatusResponse,
   ErrorCodes,
@@ -32,7 +32,7 @@ export function getJourneysMemberships(rawDatas: RawData[] | undefined): boolean
   const noneJourney = isJourneyStep.every((v) => !v)
 
   if (!allJourney && !noneJourney) {
-    throw new PayloadValidationError(
+    throw new InvalidAudienceMembershipError(
       'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
     )
   }
@@ -68,7 +68,7 @@ export async function send(
 
     const errorMessage = validate(payloads, audienceId, audienceMemberships)
     if (errorMessage) {
-      return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+      return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
     }
   }
 
@@ -89,7 +89,7 @@ export async function send(
         index,
         isBatch,
         'Audience membership details missing',
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED
+        ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP
       )
     }
   })
@@ -167,8 +167,8 @@ export function setErrorResponse(
   sent?: JSONLikeObject
 ) {
   if (!isBatch) {
-    if (errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
-      throw new PayloadValidationError(errormessage)
+    if (errortype === ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP) {
+      throw new InvalidAudienceMembershipError(errormessage)
     }
     throw new IntegrationError(errormessage, errortype, status)
   }

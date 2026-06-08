@@ -81,8 +81,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -225,8 +224,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -313,8 +311,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -383,8 +380,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -468,8 +464,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // Three responses: two successes (indices 0, 2) and one schema-validation error (index 1).
