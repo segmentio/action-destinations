@@ -226,6 +226,36 @@ describe('retlAudienceMembership', () => {
   })
 })
 
+interface BatchCaptureRef {
+  payload?: JSONObject[]
+  audienceMembership?: (boolean | undefined)[]
+}
+
+function makeBatchDestination(captureRef: BatchCaptureRef): DestinationDefinition<JSONObject> {
+  return {
+    name: 'Test Batch Destination',
+    mode: 'cloud',
+    authentication: { scheme: 'custom', fields: {} },
+    actions: {
+      testAction: {
+        title: 'Test Action',
+        description: 'Test',
+        fields: {
+          userId: { label: 'User ID', description: 'The user ID', type: 'string', required: true },
+          count: { label: 'Count', description: 'A required number', type: 'number', required: true }
+        },
+        perform: (_request) => {
+          return
+        },
+        performBatch: (_request, data) => {
+          captureRef.payload = data.payload as JSONObject[]
+          captureRef.audienceMembership = data.audienceMembership as (boolean | undefined)[]
+        }
+      }
+    }
+  }
+}
+
 function makeDestination(
   captureRef: { data?: ExecuteInput<JSONObject, JSONObject> }
 ): DestinationDefinition<JSONObject> {
@@ -342,5 +372,61 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
       }, undefined)
       expect(data?.audienceMembership).toBeUndefined()
     })
+  })
+})
+
+describe('audienceMembership on ExecuteInput in performBatch()', () => {
+  it('only processes valid payloads and aligns audienceMembership correctly when one event fails validation', async () => {
+    const captureRef: BatchCaptureRef = {}
+    const testDestination = createTestIntegration(makeBatchDestination(captureRef))
+
+    const events = [
+      {
+        type: 'identify',
+        userId: 'user-1',
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+        traits: { my_audience: true },
+        properties: { count: 1 }
+      },
+      {
+        type: 'identify',
+        userId: 'user-2',
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+        traits: { my_audience: false },
+        properties: { count: 2 }
+      },
+      {
+        type: 'identify',
+        userId: 'user-3',
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+        traits: { my_audience: true },
+        properties: { count: 'not-a-number' }
+      },
+      {
+        type: 'identify',
+        userId: 'user-4',
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+        traits: { my_audience: false },
+        properties: { count: 4 }
+      }
+    ]
+
+    await testDestination.testBatchAction('testAction', {
+      events,
+      mapping: {
+        userId: { '@path': '$.userId' },
+        count: { '@path': '$.properties.count' }
+      }
+    })
+
+    expect(captureRef.payload).toHaveLength(3)
+    expect(captureRef.payload).toEqual([
+      { userId: 'user-1', count: 1 },
+      { userId: 'user-2', count: 2 },
+      { userId: 'user-4', count: 4 }
+    ])
+
+    expect(captureRef.audienceMembership).toHaveLength(3)
+    expect(captureRef.audienceMembership).toEqual([true, false, false])
   })
 })
