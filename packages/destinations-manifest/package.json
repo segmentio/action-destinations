@@ -54,6 +54,7 @@
     "@segment/analytics-browser-actions-userpilot": "^1.99.0",
     "@segment/analytics-browser-actions-utils": "^1.98.0",
     "@segment/analytics-browser-actions-vwo": "^1.102.0",
+    "@segment/analytics-browser-actions-wingify": "^1.0.0",
     "@segment/analytics-browser-actions-wiseops": "^1.99.0",
     "@segment/analytics-browser-appcues-web-actions": "^1.6.0",
     "@segment/analytics-browser-hubble-web": "^1.84.0",
