@@ -1,18 +1,23 @@
 jest.mock('../lib/destinations', () => ({
   getManifest: jest.fn(),
+  loadDestination: jest.fn(),
   hasOauthAuthentication: jest.requireActual('../lib/destinations').hasOauthAuthentication
 }))
 
 jest.mock('fs-extra', () => ({
   __esModule: true,
-  default: { writeFile: jest.fn().mockResolvedValue(undefined) }
+  default: {
+    writeFile: jest.fn().mockResolvedValue(undefined),
+    pathExists: jest.fn().mockResolvedValue(false),
+    readdir: jest.fn().mockResolvedValue([])
+  }
 }))
 
 import fs from 'fs-extra'
 import { generatePublicMetadata } from '../commands/generate/metadata-payload'
-import { resolveSourceDir } from '../commands/generate/metadata-payload'
+import { resolveSourceDir, extractDestinationDirs } from '../commands/generate/metadata-payload'
 import GenerateMetadataPayload from '../commands/generate/metadata-payload'
-import { getManifest } from '../lib/destinations'
+import { getManifest, loadDestination } from '../lib/destinations'
 import type { DestinationDefinition } from '../lib/destinations'
 
 // ---- Fixtures ----
@@ -120,9 +125,11 @@ describe('generatePublicMetadata() — authentication fields', () => {
     })
   })
 
-  it('flattens conditional required to false', () => {
+  it('preserves conditional required object', () => {
     const { authentication } = generatePublicMetadata('actions-cloud', cloudDef)
-    expect(authentication?.fields.modeField.required).toBe(false)
+    expect(authentication?.fields.modeField.required).toEqual({
+      conditions: [{ fieldKey: 'x', operator: 'is', value: 'y' }]
+    })
   })
 
   it('uses browser settings as auth fields for device-mode destinations', () => {
@@ -168,6 +175,29 @@ describe('generatePublicMetadata() — authentication fields', () => {
       { label: 'prod', value: 'prod' },
       { label: 'staging', value: 'staging' }
     ])
+  })
+
+  it('serializes multiple and depends_on on auth fields', () => {
+    const def = {
+      ...cloudDef,
+      authentication: {
+        scheme: 'custom',
+        fields: {
+          tags: { label: 'Tags', description: 'Tags.', type: 'string', multiple: true },
+          region: {
+            label: 'Region',
+            description: 'Region.',
+            type: 'string',
+            depends_on: { conditions: [{ fieldKey: 'env', operator: 'is', value: 'prod' }] }
+          }
+        }
+      }
+    } as unknown as DestinationDefinition
+    const { authentication } = generatePublicMetadata('slug', def)
+    expect(authentication?.fields.tags.multiple).toBe(true)
+    expect(authentication?.fields.region.depends_on).toEqual({
+      conditions: [{ fieldKey: 'env', operator: 'is', value: 'prod' }]
+    })
   })
 })
 
@@ -245,6 +275,31 @@ describe('generatePublicMetadata() — action fields', () => {
     } as unknown as DestinationDefinition
     expect(generatePublicMetadata('slug', def).actions.dynAction.fields.staticField.dynamic).toBe(false)
   })
+
+  it('serializes displayMode and additionalProperties on action fields', () => {
+    const def = {
+      ...cloudDef,
+      actions: {
+        testAction: {
+          title: 'Test',
+          description: '',
+          fields: {
+            traits: {
+              label: 'Traits',
+              description: 'User traits.',
+              type: 'object',
+              displayMode: 'key-value',
+              additionalProperties: true
+            }
+          },
+          perform: () => undefined
+        }
+      }
+    } as unknown as DestinationDefinition
+    const field = generatePublicMetadata('slug', def).actions.testAction.fields.traits
+    expect(field.displayMode).toBe('key-value')
+    expect(field.additionalProperties).toBe(true)
+  })
 })
 
 // ---- hasPerformBatch ----
@@ -278,7 +333,7 @@ describe('generatePublicMetadata() — syncMode', () => {
     expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.syncMode).toBeNull()
   })
 
-  it('serializes syncMode with default and supportedModes', () => {
+  it('serializes syncMode with default, label, description, and choices', () => {
     const def = {
       ...cloudDef,
       actions: {
@@ -300,18 +355,26 @@ describe('generatePublicMetadata() — syncMode', () => {
       }
     } as unknown as DestinationDefinition
     const { syncMode } = generatePublicMetadata('slug', def).actions.syncAction
-    expect(syncMode).toEqual({ default: 'add', supportedModes: ['add', 'delete'] })
+    expect(syncMode).toEqual({
+      default: 'add',
+      label: 'Sync Mode',
+      description: 'How to sync.',
+      choices: [
+        { label: 'Add', value: 'add' },
+        { label: 'Delete', value: 'delete' }
+      ]
+    })
   })
 })
 
 // ---- hooks ----
 
 describe('generatePublicMetadata() — hooks', () => {
-  it('is empty array when action has no hooks', () => {
-    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.hooks).toEqual([])
+  it('is null when action has no hooks', () => {
+    expect(generatePublicMetadata('actions-cloud', cloudDef).actions.trackEvent.hooks).toBeNull()
   })
 
-  it('lists valid hook type names present on the action', () => {
+  it('serializes hooks with label, description, inputFields, and outputFields', () => {
     const def = {
       ...cloudDef,
       actions: {
@@ -320,13 +383,31 @@ describe('generatePublicMetadata() — hooks', () => {
           description: 'Has hooks.',
           fields: {},
           hooks: {
-            onMappingSave: { label: 'On Save', description: 'Fires on save.', inputFields: {} }
+            onMappingSave: {
+              label: 'On Save',
+              description: 'Fires on save.',
+              inputFields: {
+                webhookUrl: { label: 'Webhook URL', description: 'URL to call.', type: 'string', required: true }
+              },
+              outputTypes: {
+                id: { label: 'ID', description: 'Generated ID.', type: 'string' }
+              }
+            }
           },
           perform: () => undefined
         }
       }
     } as unknown as DestinationDefinition
-    expect(generatePublicMetadata('slug', def).actions.hookAction.hooks).toEqual(['onMappingSave'])
+    const { hooks } = generatePublicMetadata('slug', def).actions.hookAction
+    expect(hooks).not.toBeNull()
+    expect(hooks).toHaveProperty('onMappingSave')
+    expect(hooks!.onMappingSave.label).toBe('On Save')
+    expect(hooks!.onMappingSave.description).toBe('Fires on save.')
+    expect(hooks!.onMappingSave.inputFields).toHaveProperty('webhookUrl')
+    expect(hooks!.onMappingSave.inputFields.webhookUrl.label).toBe('Webhook URL')
+    expect(hooks!.onMappingSave.inputFields.webhookUrl.required).toBe(true)
+    expect(hooks!.onMappingSave.outputFields).toHaveProperty('id')
+    expect(hooks!.onMappingSave.outputFields.id.label).toBe('ID')
   })
 })
 
@@ -337,7 +418,7 @@ describe('generatePublicMetadata() — audienceConfig', () => {
     expect(generatePublicMetadata('actions-cloud', cloudDef).audienceConfig).toBeNull()
   })
 
-  it('serializes audienceConfig mode and audienceFields, strips functions', () => {
+  it('serializes audienceConfig mode, audienceFields, and supportsAudienceFunctions', () => {
     const def = {
       ...cloudDef,
       audienceConfig: {
@@ -353,7 +434,22 @@ describe('generatePublicMetadata() — audienceConfig', () => {
     expect(audienceConfig).not.toBeNull()
     expect(audienceConfig?.mode).toEqual({ type: 'realtime' })
     expect(audienceConfig?.audienceFields).toHaveProperty('listId')
+    expect(audienceConfig?.supportsAudienceFunctions).toBe(true)
     expect(typeof (audienceConfig as any)?.createAudience).toBe('undefined')
+  })
+
+  it('sets supportsAudienceFunctions to false when functions are missing', () => {
+    const def = {
+      ...cloudDef,
+      audienceConfig: {
+        mode: { type: 'synced', full_audience_sync: true }
+      },
+      audienceFields: {}
+    } as unknown as DestinationDefinition
+    const { audienceConfig } = generatePublicMetadata('slug', def)
+    expect(audienceConfig).not.toBeNull()
+    expect(audienceConfig?.mode).toEqual({ type: 'synced', full_audience_sync: true })
+    expect(audienceConfig?.supportsAudienceFunctions).toBe(false)
   })
 })
 
@@ -460,6 +556,18 @@ describe('resolveSourceDir()', () => {
     )
   })
 
+  it('resolves compiled warehouse dist path to src directory', () => {
+    expect(resolveSourceDir('/repo/packages/warehouse-destinations/dist/destinations/my-wh/index.js')).toBe(
+      '/repo/packages/warehouse-destinations/src/destinations/my-wh'
+    )
+  })
+
+  it('resolves ts-node warehouse src path to its own directory', () => {
+    expect(resolveSourceDir('/repo/packages/warehouse-destinations/src/destinations/my-wh/index.ts')).toBe(
+      '/repo/packages/warehouse-destinations/src/destinations/my-wh'
+    )
+  })
+
   it('returns null for an unrecognized path pattern', () => {
     expect(resolveSourceDir('/some/random/path/index.js')).toBeNull()
   })
@@ -474,6 +582,8 @@ describe('resolveSourceDir()', () => {
 describe('GenerateMetadataPayload command', () => {
   const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
   const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<() => Promise<boolean>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<string[]>>
 
   const validEntry = {
     path: '/repo/packages/destination-actions/dist/destinations/test-dest/index.js',
@@ -483,6 +593,8 @@ describe('GenerateMetadataPayload command', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockWriteFile.mockResolvedValue(undefined as never)
+    mockPathExists.mockResolvedValue(false)
+    mockReaddir.mockResolvedValue([])
   })
 
   it('writes metadata.json to the resolved source dir', async () => {
@@ -569,5 +681,325 @@ describe('GenerateMetadataPayload command', () => {
     })
     await expect(GenerateMetadataPayload.run([])).rejects.toThrow('1 destination(s) failed to generate metadata')
     expect(mockWriteFile).toHaveBeenCalledTimes(1)
+  })
+
+  it('filters to only cloud destinations when --mode=cloud is passed', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-cloud': {
+        path: '/repo/packages/destination-actions/dist/destinations/cloud-dest/index.js',
+        definition: { ...cloudDef, slug: 'cloud-dest', mode: 'cloud' }
+      } as any,
+      'meta-device': {
+        path: '/repo/packages/browser-destinations/destinations/browser-dest/dist/cjs/index.js',
+        definition: { ...browserDef, slug: 'browser-dest', mode: 'device' }
+      } as any
+    })
+    await GenerateMetadataPayload.run(['--mode=cloud'])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      '/repo/packages/destination-actions/src/destinations/cloud-dest/metadata.json',
+      expect.any(String)
+    )
+  })
+
+  it('filters to only device destinations when --mode=device is passed', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-cloud': {
+        path: '/repo/packages/destination-actions/dist/destinations/cloud-dest/index.js',
+        definition: { ...cloudDef, slug: 'cloud-dest', mode: 'cloud' }
+      } as any,
+      'meta-device': {
+        path: '/repo/packages/browser-destinations/destinations/browser-dest/dist/cjs/index.js',
+        definition: { ...browserDef, slug: 'browser-dest', mode: 'device' }
+      } as any
+    })
+    await GenerateMetadataPayload.run(['--mode=device'])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      '/repo/packages/browser-destinations/destinations/browser-dest/metadata.json',
+      expect.any(String)
+    )
+  })
+})
+
+// ---- Filesystem Discovery ----
+
+function makeDirent(name: string, isDir = true) {
+  return { name, isDirectory: () => isDir, isFile: () => !isDir } as any
+}
+
+describe('GenerateMetadataPayload — filesystem discovery', () => {
+  const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<(p: string) => Promise<boolean>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<any[]>>
+  const mockLoadDestination = loadDestination as jest.MockedFunction<typeof loadDestination>
+
+  const unregisteredDef = {
+    ...cloudDef,
+    name: 'Unregistered Dest',
+    slug: 'actions-unregistered'
+  } as unknown as DestinationDefinition
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockWriteFile.mockResolvedValue(undefined as never)
+    mockGetManifest.mockReturnValue({})
+  })
+
+  it('discovers an unregistered destination directory with an index.ts', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('destination-actions/src/destinations')) return true
+      if (p.endsWith('new-dest/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockResolvedValue([makeDirent('new-dest')])
+    mockLoadDestination.mockResolvedValue(unregisteredDef)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).toHaveBeenCalledWith(expect.stringContaining('new-dest/index.ts'))
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      expect.stringContaining('new-dest/metadata.json'),
+      expect.stringContaining('"slug": "actions-unregistered"')
+    )
+  })
+
+  it('skips non-directory entries', async () => {
+    mockPathExists.mockResolvedValue(true)
+    mockReaddir.mockResolvedValue([makeDirent('utils.ts', false), makeDirent('.DS_Store', false)])
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).not.toHaveBeenCalled()
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('skips directories without an index.ts', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('destination-actions/src/destinations') && !p.includes('index.ts')) return true
+      return false
+    })
+    mockReaddir.mockResolvedValue([makeDirent('no-index-dir')])
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).not.toHaveBeenCalled()
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('skips directories where loadDestination returns null', async () => {
+    mockPathExists.mockResolvedValue(true)
+    mockReaddir.mockResolvedValue([makeDirent('invalid-dest')])
+    mockLoadDestination.mockResolvedValue(null)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('skips directories where loadDestination throws and continues', async () => {
+    mockPathExists.mockResolvedValue(true)
+    mockReaddir.mockResolvedValue([makeDirent('broken-dest'), makeDirent('good-dest')])
+    mockLoadDestination.mockRejectedValueOnce(new Error('syntax error')).mockResolvedValueOnce(unregisteredDef)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    expect(mockWriteFile).toHaveBeenCalledWith(expect.stringContaining('good-dest/metadata.json'), expect.any(String))
+  })
+
+  it('does not re-discover directories already in the manifest', async () => {
+    mockGetManifest.mockReturnValue({
+      'meta-1': {
+        path: '/repo/packages/destination-actions/dist/destinations/existing-dest/index.js',
+        definition: { ...cloudDef, slug: 'existing-dest' },
+        directory: 'existing-dest'
+      } as any
+    })
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (typeof p === 'string' && p.includes('destination-actions/src/destinations')) return true
+      return false
+    })
+    mockReaddir.mockResolvedValue([makeDirent('existing-dest')])
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).not.toHaveBeenCalled()
+  })
+})
+
+describe('GenerateMetadataPayload — warehouse filesystem discovery', () => {
+  const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<(p: string) => Promise<boolean>>
+  const mockReaddir = fs.readdir as unknown as jest.MockedFunction<() => Promise<any[]>>
+  const mockLoadDestination = loadDestination as jest.MockedFunction<typeof loadDestination>
+
+  const warehouseDef = {
+    name: 'My Warehouse',
+    mode: 'warehouse',
+    actions: { load: { title: 'Load', description: 'Load data', fields: {}, perform: () => undefined } }
+  } as unknown as DestinationDefinition
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockWriteFile.mockResolvedValue(undefined as never)
+    mockGetManifest.mockReturnValue({})
+  })
+
+  it('discovers warehouse destinations from filesystem', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('warehouse-destinations/src/destinations')) return true
+      if (p.endsWith('my-wh/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockImplementation(async (...args: any[]) => {
+      const p = args[0] as string
+      if (typeof p === 'string' && p.includes('warehouse-destinations')) return [makeDirent('my-wh')]
+      return []
+    })
+    mockLoadDestination.mockResolvedValue(warehouseDef)
+
+    await GenerateMetadataPayload.run([])
+    expect(mockLoadDestination).toHaveBeenCalledWith(expect.stringContaining('warehouse-destinations'))
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      expect.stringContaining('my-wh/metadata.json'),
+      expect.stringContaining('"name": "My Warehouse"')
+    )
+  })
+
+  it('filters warehouse destinations with --mode=warehouse', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('warehouse-destinations/src/destinations')) return true
+      if (p.endsWith('my-wh/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockImplementation(async (...args: any[]) => {
+      const p = args[0] as string
+      if (typeof p === 'string' && p.includes('warehouse-destinations')) return [makeDirent('my-wh')]
+      return []
+    })
+    mockLoadDestination.mockResolvedValue(warehouseDef)
+
+    await GenerateMetadataPayload.run(['--mode=warehouse'])
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+  })
+
+  it('excludes warehouse destinations with --mode=cloud', async () => {
+    mockPathExists.mockImplementation(async (p: string) => {
+      if (p.includes('warehouse-destinations/src/destinations')) return true
+      if (p.endsWith('my-wh/index.ts')) return true
+      return false
+    })
+    mockReaddir.mockImplementation(async (...args: any[]) => {
+      const p = args[0] as string
+      if (typeof p === 'string' && p.includes('warehouse-destinations')) return [makeDirent('my-wh')]
+      return []
+    })
+    mockLoadDestination.mockResolvedValue(warehouseDef)
+
+    await GenerateMetadataPayload.run(['--mode=cloud'])
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+})
+
+describe('extractDestinationDirs', () => {
+  it('extracts cloud destination directory names', () => {
+    const dirs = extractDestinationDirs([
+      'packages/destination-actions/src/destinations/amplitude/index.ts',
+      'packages/destination-actions/src/destinations/slack/track/index.ts'
+    ])
+    expect(dirs).toEqual(new Set(['amplitude', 'slack']))
+  })
+
+  it('extracts browser destination directory names', () => {
+    const dirs = extractDestinationDirs(['packages/browser-destinations/destinations/braze/src/index.ts'])
+    expect(dirs).toEqual(new Set(['braze']))
+  })
+
+  it('extracts warehouse destination directory names', () => {
+    const dirs = extractDestinationDirs(['packages/warehouse-destinations/src/destinations/snowflake/index.ts'])
+    expect(dirs).toEqual(new Set(['snowflake']))
+  })
+
+  it('deduplicates directories from multiple files in same destination', () => {
+    const dirs = extractDestinationDirs([
+      'packages/destination-actions/src/destinations/amplitude/track/index.ts',
+      'packages/destination-actions/src/destinations/amplitude/identify/index.ts'
+    ])
+    expect(dirs).toEqual(new Set(['amplitude']))
+  })
+
+  it('returns empty set for unrecognized paths', () => {
+    const dirs = extractDestinationDirs(['packages/core/src/index.ts', 'some/random/path.ts'])
+    expect(dirs.size).toBe(0)
+  })
+
+  it('handles mixed path types', () => {
+    const dirs = extractDestinationDirs([
+      'packages/destination-actions/src/destinations/amplitude/index.ts',
+      'packages/browser-destinations/destinations/braze/src/index.ts',
+      'packages/warehouse-destinations/src/destinations/snowflake/index.ts'
+    ])
+    expect(dirs).toEqual(new Set(['amplitude', 'braze', 'snowflake']))
+  })
+})
+
+describe('--path filtering (Command E2E)', () => {
+  const mockGetManifest = getManifest as jest.MockedFunction<typeof getManifest>
+  const mockWriteFile = fs.writeFile as jest.MockedFunction<typeof fs.writeFile>
+  const mockPathExists = fs.pathExists as unknown as jest.MockedFunction<() => Promise<boolean>>
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockPathExists.mockResolvedValue(false)
+  })
+
+  it('generates metadata only for matching path destinations', async () => {
+    mockGetManifest.mockReturnValue({
+      'actions-amplitude': {
+        definition: { name: 'Amplitude', mode: 'cloud', actions: {} },
+        directory: 'amplitude',
+        path: '/root/packages/destination-actions/src/destinations/amplitude/index.ts'
+      },
+      'actions-slack': {
+        definition: { name: 'Slack', mode: 'cloud', actions: {} },
+        directory: 'slack',
+        path: '/root/packages/destination-actions/src/destinations/slack/index.ts'
+      }
+    } as any)
+
+    await GenerateMetadataPayload.run([
+      '--path',
+      'packages/destination-actions/src/destinations/amplitude/track/index.ts'
+    ])
+
+    expect(mockWriteFile).toHaveBeenCalledTimes(1)
+    const writtenPath = (mockWriteFile as any).mock.calls[0][0] as string
+    expect(writtenPath).toContain('amplitude')
+    expect(writtenPath).not.toContain('slack')
+  })
+
+  it('skips all destinations when path matches none', async () => {
+    mockGetManifest.mockReturnValue({
+      'actions-amplitude': {
+        definition: { name: 'Amplitude', mode: 'cloud', actions: {} },
+        directory: 'amplitude',
+        path: '/root/packages/destination-actions/src/destinations/amplitude/index.ts'
+      }
+    } as any)
+
+    await GenerateMetadataPayload.run(['--path', 'packages/destination-actions/src/destinations/nonexistent/index.ts'])
+
+    expect(mockWriteFile).not.toHaveBeenCalled()
+  })
+
+  it('generates nothing when --path values do not match any known layout', async () => {
+    mockGetManifest.mockReturnValue({
+      'actions-amplitude': {
+        definition: { name: 'Amplitude', mode: 'cloud', actions: {} },
+        directory: 'amplitude',
+        path: '/root/packages/destination-actions/src/destinations/amplitude/index.ts'
+      }
+    } as any)
+
+    await GenerateMetadataPayload.run(['--path', 'packages/core/src/index.ts'])
+
+    expect(mockWriteFile).not.toHaveBeenCalled()
   })
 })
