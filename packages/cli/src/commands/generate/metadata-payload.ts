@@ -33,6 +33,7 @@ export interface PublicActionField {
   allowNull: boolean
   dynamic: boolean
   default: unknown
+  format: string | null
   choices: Array<{ label: string; value: unknown }> | null
   placeholder: string | null
   properties: Record<string, PublicActionField> | null
@@ -149,6 +150,7 @@ export function serializeActionField(field: any): PublicActionField {
     allowNull: field.allowNull ?? false,
     dynamic: typeof field.dynamic === 'function' ? true : field.dynamic ?? false,
     default: field.default ?? null,
+    format: field.format ?? null,
     choices: normalizeChoices(field.choices),
     placeholder: field.placeholder ?? null,
     properties,
