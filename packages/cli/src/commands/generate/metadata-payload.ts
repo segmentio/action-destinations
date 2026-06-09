@@ -34,6 +34,7 @@ export interface PublicActionField {
   dynamic: boolean
   default: unknown
   choices: Array<{ label: string; value: unknown }> | null
+  format: string | null
   placeholder: string | null
   properties: Record<string, PublicActionField> | null
   category: string | null
@@ -161,6 +162,7 @@ export function serializeActionField(field: any): PublicActionField {
     defaultObjectUI: field.defaultObjectUI ?? null,
     disabledInputMethods: field.disabledInputMethods ?? null,
     displayMode: field.displayMode ?? null,
+    format: field.format ?? null,
     additionalProperties: field.additionalProperties ?? false
   }
 }
