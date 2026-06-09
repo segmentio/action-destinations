@@ -249,6 +249,73 @@ describe('Hubspot.upsertObject', () => {
           })
         ).resolves.not.toThrow()
       })
+
+      it('should allow an ISO datetime string to match a cached string:text schema (reverse coercion)', async () => {
+        const isoPayload = {
+          event: 'Test Custom Object Event',
+          type: 'track',
+          userId: 'user_id_1',
+          properties: {
+            email: 'test@test.com',
+            regular: {
+              datetime_prop: '2024-01-08T13:52:50.212Z'
+            },
+            sensitive: {}
+          }
+        } as Partial<SegmentEvent>
+
+        const isoMapping = {
+          __segment_internal_sync_mode: 'upsert',
+          object_details: {
+            object_type: 'contact',
+            id_field_name: 'email',
+            id_field_value: { '@path': '$.properties.email' },
+            property_group: 'contactinformation'
+          },
+          properties: { '@path': '$.properties.regular' },
+          sensitive_properties: { '@path': '$.properties.sensitive' },
+          association_sync_mode: 'upsert',
+          associations: [],
+          enable_batching: true,
+          batch_size: 100
+        }
+
+        // HubSpot schema returns string:text (simulating a cache populated by a prior epoch string event)
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/contact')
+          .reply(200, {
+            results: [
+              {
+                name: 'datetime_prop',
+                type: 'string',
+                fieldType: 'text',
+                hasUniqueValue: false
+              }
+            ]
+          })
+
+        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact?dataSensitivity=sensitive').reply(200, { results: [] })
+
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/contact/batch/upsert')
+          .reply(200, {
+            status: 'COMPLETE',
+            results: [{ id: '1', properties: { email: 'test@test.com', datetime_prop: '2024-01-08T13:52:50.212Z' } }]
+          })
+
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/read').reply(200, { results: [] })
+
+        const event = createTestEvent(isoPayload)
+
+        await expect(
+          testDestination.testAction('upsertObject', {
+            event,
+            settings,
+            useDefaultMappings: true,
+            mapping: isoMapping
+          })
+        ).resolves.not.toThrow()
+      })
     })
 
     describe('Hubspot object schema has a mis-matched property', () => {

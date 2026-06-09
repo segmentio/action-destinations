@@ -167,12 +167,18 @@ function compareProps(prop1: Prop, prop2: Prop): boolean {
       return true
     }
     if (
-      prop1.type === HSPropType.String &&
-      prop1.fieldType === HSPropFieldType.Text &&
-      prop2.type === HSPropType.DateTime &&
-      prop2.fieldType === HSPropFieldType.Date
+      (prop1.type === HSPropType.String &&
+        prop1.fieldType === HSPropFieldType.Text &&
+        prop2.type === HSPropType.DateTime &&
+        prop2.fieldType === HSPropFieldType.Date) ||
+      (prop1.type === HSPropType.DateTime &&
+        prop1.fieldType === HSPropFieldType.Date &&
+        prop2.type === HSPropType.String &&
+        prop2.fieldType === HSPropFieldType.Text)
     ) {
-      // string values (e.g. Unix epoch strings) are valid for HubSpot datetime fields
+      // string values (e.g. Unix epoch strings) are valid for HubSpot datetime fields.
+      // coercion is symmetric to handle cache hits where the cached schema was inferred
+      // from a different string encoding (e.g. epoch string cached, ISO string arrives later)
       return true
     }
     throw new IntegrationError(
