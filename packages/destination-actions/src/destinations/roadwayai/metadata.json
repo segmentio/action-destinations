@@ -29,6 +29,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Batch Data to RoadwayAI",
@@ -247,6 +248,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Batch Data to RoadwayAI",
@@ -979,6 +981,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Batch Data to RoadwayAI",
@@ -1145,6 +1148,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Batch Data to RoadwayAI",

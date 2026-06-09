@@ -57,6 +57,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "identityValue": {
           "label": "User identity value",

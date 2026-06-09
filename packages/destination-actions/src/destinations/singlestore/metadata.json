@@ -78,6 +78,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "messageid": {
           "label": "Message ID",
@@ -186,7 +187,15 @@
           "label": "Event",
           "description": "The name of the event. Only required for \"track\" events.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

@@ -68,6 +68,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "operation": {
           "label": "Operation",
@@ -428,7 +429,15 @@
           "label": "Last Name",
           "description": "The lead's last name. **This is required to create a lead.**",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "operation",
+                "operator": "is",
+                "value": "create"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -819,6 +828,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "operation": {
           "label": "Operation",
@@ -1198,6 +1208,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "operation": {
           "label": "Operation",
@@ -1585,6 +1596,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "operation": {
           "label": "Operation",
@@ -2324,6 +2336,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "operation": {
           "label": "Operation",
@@ -2839,6 +2852,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "operation": {
           "label": "Operation",
@@ -3840,6 +3854,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "recordMatcherOperator": {
           "label": "Record Matchers Operator",
@@ -4598,6 +4613,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "recordMatcherOperator": {
           "label": "Record Matchers Operator",
@@ -4975,6 +4991,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Use Salesforce Bulk API",
@@ -5968,6 +5985,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "recordMatcherOperator": {
           "label": "Record Matchers Operator",
@@ -6486,6 +6504,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "recordMatcherOperator": {
           "label": "Record Matchers Operator",
@@ -7232,6 +7251,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "recordMatcherOperator": {
           "label": "Record Matchers Operator",

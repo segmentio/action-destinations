@@ -39,6 +39,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -493,6 +494,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",

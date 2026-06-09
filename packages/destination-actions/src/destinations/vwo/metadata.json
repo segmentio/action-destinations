@@ -61,6 +61,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "name": {
           "label": "Name",
@@ -255,6 +256,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "attributes": {
           "label": "attributes",
@@ -423,6 +425,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "url": {
           "label": "Page URL",
@@ -591,6 +594,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "name": {
           "label": "Event Name",

@@ -39,6 +39,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segment_audience_id": {
           "label": "Audience ID",

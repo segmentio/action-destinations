@@ -28,6 +28,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "anonymousId": {
           "label": "Anonymous ID",
@@ -144,6 +145,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "anonymousId": {
           "label": "Anonymous ID",
@@ -286,6 +288,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "anonymousId": {
           "label": "Anonymous ID",
@@ -428,6 +431,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "anonymousId": {
           "label": "Anonymous ID",
@@ -570,6 +574,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "anonymousId": {
           "label": "Anonymous ID",

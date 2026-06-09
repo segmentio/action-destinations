@@ -68,6 +68,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "account": {
           "label": "Account",

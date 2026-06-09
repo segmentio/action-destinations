@@ -49,6 +49,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "custom_audience_name": {
           "label": "Custom Audience Name",
@@ -106,7 +107,14 @@
           "label": "Email",
           "description": "User's email address to be included/excluded from the custom audience.  One of either email_sha256 or email must be specified.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "email_sha256",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -142,7 +150,14 @@
           "label": "Email SHA256",
           "description": "User's SHA256-hashed email address to be included/excluded from the custom audience. One of either email_sha256 or email must be specified.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "email",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

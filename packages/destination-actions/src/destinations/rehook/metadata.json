@@ -38,6 +38,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_name": {
           "label": "Event Name",
@@ -138,6 +139,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "source_id": {
           "label": "Source ID",

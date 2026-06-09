@@ -38,6 +38,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_source": {
           "label": "Event Source",
@@ -989,7 +990,36 @@
           "label": "Contents",
           "description": "Related item details for the event.",
           "type": "object",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Checkout"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Subscribe"
+              }
+            ]
+          },
           "multiple": true,
           "allowNull": false,
           "dynamic": false,
@@ -1025,7 +1055,16 @@
               "label": "Quantity",
               "description": "Number of items.",
               "type": "number",
-              "required": false,
+              "required": {
+                "match": "any",
+                "conditions": [
+                  {
+                    "fieldKey": "event",
+                    "operator": "is",
+                    "value": "Purchase"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1210,7 +1249,36 @@
           "label": "Content Type",
           "description": "Type of the product item. When the `content_id` in the `Contents` field is specified as a `sku_id`, set this field to `product`. When the `content_id` in the `Contents` field is specified as an `item_group_id`, set this field to `product_group`.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Checkout"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1243,7 +1311,36 @@
           "label": "Currency",
           "description": "Currency for the value specified as ISO 4217 code.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Checkout"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1269,7 +1366,36 @@
           "label": "Value",
           "description": "Value of the order or items sold.",
           "type": "number",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Checkout"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

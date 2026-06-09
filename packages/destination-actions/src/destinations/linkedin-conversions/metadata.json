@@ -590,6 +590,7 @@
           }
         }
       },
+      "dynamicFields": null,
       "fields": {
         "conversionHappenedAt": {
           "label": "Timestamp",

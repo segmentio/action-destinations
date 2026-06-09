@@ -28,6 +28,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "messageId": {
           "label": "Message ID",
@@ -136,7 +137,15 @@
           "label": "Event Name",
           "description": "The name of the event to send to Attribution. Required for track events.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -299,7 +308,15 @@
           "label": "User ID",
           "description": "The ID of the user to send to Attribution.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "alias"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -351,7 +368,15 @@
           "label": "Group ID",
           "description": "The ID of the group to send to Attribution.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "group"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

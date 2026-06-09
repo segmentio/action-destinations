@@ -38,6 +38,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -576,6 +577,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -2033,6 +2035,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -2936,6 +2939,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -4027,6 +4031,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -5118,6 +5123,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -6209,6 +6215,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -6987,6 +6994,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -8095,6 +8103,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",
@@ -9213,6 +9222,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email_as_identifier": {
           "label": "Treat Email as Identifier",

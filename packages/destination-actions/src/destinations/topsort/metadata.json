@@ -39,6 +39,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Event ID",
@@ -800,6 +801,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Event ID",
@@ -1027,6 +1029,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Event ID",
@@ -1788,6 +1791,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Event ID",
@@ -2079,6 +2083,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Event ID",

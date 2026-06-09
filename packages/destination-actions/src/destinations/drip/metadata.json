@@ -39,6 +39,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "action": {
           "label": "Action",
@@ -139,6 +140,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "custom_fields": {
           "label": "Custom fields",

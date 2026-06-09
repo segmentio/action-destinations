@@ -17,6 +17,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "role": {
           "label": "Role",
@@ -322,6 +323,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "remote_created_at": {
           "label": "Company Creation Time",
@@ -642,6 +644,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_name": {
           "label": "Event Name",

@@ -51,6 +51,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "contact_id": {
           "label": "Contact ID",
@@ -239,6 +240,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "contact_id": {
           "label": "Contact ID",

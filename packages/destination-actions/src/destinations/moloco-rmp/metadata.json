@@ -68,6 +68,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -857,6 +858,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -1698,6 +1700,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -2664,6 +2667,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -3453,6 +3457,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -4268,6 +4273,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -5083,6 +5089,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",
@@ -6219,6 +6226,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_id": {
           "label": "Event ID",

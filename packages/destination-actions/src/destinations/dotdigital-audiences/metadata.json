@@ -98,6 +98,11 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "dataFields": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "segment_computation_action": {
           "label": "Segment Computation Action",

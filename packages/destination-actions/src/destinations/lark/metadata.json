@@ -29,6 +29,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_name": {
           "label": "Event Name",

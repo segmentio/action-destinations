@@ -95,6 +95,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_audience_id": {
           "label": "External Audience ID",

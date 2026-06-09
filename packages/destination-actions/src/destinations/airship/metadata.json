@@ -58,6 +58,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "named_user_id": {
           "label": "Airship Named User ID",
@@ -198,6 +199,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "named_user_id": {
           "label": "Airship Named User ID",
@@ -909,6 +911,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "named_user_id": {
           "label": "Airship Named User ID",
@@ -997,6 +1000,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "channel_type": {
           "label": "Channel Type",

@@ -52,6 +52,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "custom_audience_name": {
           "label": "Custom Audience Name",

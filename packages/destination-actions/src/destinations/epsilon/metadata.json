@@ -39,6 +39,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Cache Buster",
@@ -848,7 +849,15 @@
           "label": "Conversion Value",
           "description": "Contains the total purchase price in decimal format. Do not include any tax or shipping costs.",
           "type": "number",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": "conversion"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1035,7 +1044,15 @@
           "label": "Currency",
           "description": "Currency of the transaction. Use ISO 4217 currency codes (e.g., USD, EUR).",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": "conversion"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1072,7 +1089,15 @@
           "label": "Order Type",
           "description": "Differentiate between types of online purchases (Delivery, Pickup, etc.)",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": "conversion"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1109,7 +1134,15 @@
           "label": "Store Location",
           "description": "For Pickup conversions, denote the store location of the pickup.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": "conversion"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1146,7 +1179,15 @@
           "label": "Custom Event Name",
           "description": "The name of the custom event to send to Epsilon.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": "custom"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

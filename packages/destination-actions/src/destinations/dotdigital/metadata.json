@@ -62,6 +62,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "channelIdentifier": {
           "label": "Contact Identifier type",
@@ -100,7 +101,15 @@
           "label": "Email Address",
           "description": "The Contact's email address.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -144,7 +153,15 @@
           "label": "Mobile Number",
           "description": "The Contact's mobile number.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -225,6 +242,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "channelIdentifier": {
           "label": "Contact Identifier type",
@@ -263,7 +281,15 @@
           "label": "Email Address",
           "description": "The Contact's email address.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -307,7 +333,15 @@
           "label": "Mobile Number",
           "description": "The Contact's mobile number.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -388,6 +422,11 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "dataFields": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "channelIdentifier": {
           "label": "Contact Identifier type",
@@ -426,7 +465,15 @@
           "label": "Email Address",
           "description": "The Contact's email address.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "email"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -470,7 +517,15 @@
           "label": "Mobile Number",
           "description": "The Contact's mobile number.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channelIdentifier",
+                "operator": "is",
+                "value": "mobileNumber"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1052,6 +1107,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "to": {
           "label": "To",
@@ -1196,6 +1252,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "to": {
           "label": "To",
@@ -1268,6 +1325,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -1394,6 +1452,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "fromAddress": {
           "label": "From Address",

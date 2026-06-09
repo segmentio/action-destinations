@@ -68,6 +68,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "match_field": {
           "label": "Match field",
@@ -245,6 +246,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "match_field": {
           "label": "Match field",
@@ -474,6 +476,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "activity_id": {
           "label": "Activity ID",
@@ -870,6 +873,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "deal_match_field": {
           "label": "Deal match field",
@@ -1344,6 +1348,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "lead_id": {
           "label": "Lead ID",
@@ -1677,6 +1682,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "note_id": {
           "label": "Note ID",

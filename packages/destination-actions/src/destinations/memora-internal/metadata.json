@@ -48,6 +48,14 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "profile_identifiers": [
+          "__keys__"
+        ],
+        "profile_traits": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "enable_batching": {
           "label": "Enable Batching",

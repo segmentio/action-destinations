@@ -229,6 +229,7 @@
           }
         }
       },
+      "dynamicFields": null,
       "fields": {
         "externalId": {
           "label": "External ID",

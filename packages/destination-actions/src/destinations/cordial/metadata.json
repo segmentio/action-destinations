@@ -49,6 +49,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -249,6 +250,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -361,6 +363,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -501,6 +504,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -615,6 +619,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -969,6 +974,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -1109,6 +1115,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "Segment User ID",
@@ -1736,6 +1743,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentId": {
           "label": "New Segment User ID",

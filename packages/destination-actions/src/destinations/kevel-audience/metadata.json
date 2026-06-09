@@ -79,6 +79,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segment_user_id": {
           "label": "User ID",

@@ -28,6 +28,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "eventName": {
           "label": "Event Name",
@@ -198,6 +199,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -598,6 +600,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "groupid": {
           "label": "Unique Company Identifier",
@@ -1036,6 +1039,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "createNewCustomRecord": {
           "label": "Create Custom Object Record if Not Found",
@@ -1246,6 +1250,14 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": {
+        "properties": [
+          "__keys__"
+        ],
+        "sensitive_properties": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "object_details": {
           "label": "Object Details",
@@ -2107,6 +2119,11 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": {
+        "properties": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "event_name": {
           "label": "Event Name",

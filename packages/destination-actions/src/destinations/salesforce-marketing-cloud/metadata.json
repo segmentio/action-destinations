@@ -58,6 +58,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "contactKey": {
           "label": "Contact Key",
@@ -96,6 +97,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "key": {
           "label": "Data Extension Key",
@@ -252,6 +254,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "key": {
           "label": "Data Extension Key",
@@ -437,6 +440,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "eventDefinitionKey": {
           "label": "Event Definition Key",
@@ -597,7 +601,16 @@
               "label": "Category ID (Folder ID)",
               "description": "The identifier for the folder that contains the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -630,7 +643,16 @@
               "label": "Data Extension Name",
               "description": "The name of the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -729,7 +751,16 @@
               "label": "Sendable Custom Object Field",
               "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -762,7 +793,16 @@
               "label": "Sendable Subscriber Field",
               "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -804,7 +844,16 @@
               "label": "Data Extension Fields",
               "description": "A list of fields to create in the data extension.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -1161,7 +1210,16 @@
               "label": "Category ID (Folder ID)",
               "description": "The identifier for the folder that contains the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -1194,7 +1252,16 @@
               "label": "Data Extension Name",
               "description": "The name of the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1293,7 +1360,16 @@
               "label": "Sendable Custom Object Field",
               "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1326,7 +1402,16 @@
               "label": "Sendable Subscriber Field",
               "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1368,7 +1453,16 @@
               "label": "Data Extension Fields",
               "description": "A list of fields to create in the data extension.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -1652,6 +1746,14 @@
           }
         }
       },
+      "dynamicFields": {
+        "keys": [
+          "__keys__"
+        ],
+        "values": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "keys": {
           "label": "Data Extension Primary Key",
@@ -1834,7 +1936,16 @@
               "label": "Category ID (Folder ID)",
               "description": "The identifier for the folder that contains the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -1867,7 +1978,16 @@
               "label": "Data Extension Name",
               "description": "The name of the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1966,7 +2086,16 @@
               "label": "Sendable Custom Object Field",
               "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1999,7 +2128,16 @@
               "label": "Sendable Subscriber Field",
               "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -2041,7 +2179,16 @@
               "label": "Data Extension Fields",
               "description": "A list of fields to create in the data extension.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -2398,7 +2545,16 @@
               "label": "Category ID (Folder ID)",
               "description": "The identifier for the folder that contains the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -2431,7 +2587,16 @@
               "label": "Data Extension Name",
               "description": "The name of the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -2530,7 +2695,16 @@
               "label": "Sendable Custom Object Field",
               "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -2563,7 +2737,16 @@
               "label": "Sendable Subscriber Field",
               "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -2605,7 +2788,16 @@
               "label": "Data Extension Fields",
               "description": "A list of fields to create in the data extension.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -2888,6 +3080,14 @@
             }
           }
         }
+      },
+      "dynamicFields": {
+        "keys": [
+          "__keys__"
+        ],
+        "values": [
+          "__keys__"
+        ]
       },
       "fields": {
         "keys": {
@@ -3100,7 +3300,16 @@
               "label": "Category ID (Folder ID)",
               "description": "The identifier for the folder that contains the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -3133,7 +3342,16 @@
               "label": "Data Extension Name",
               "description": "The name of the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -3232,7 +3450,16 @@
               "label": "Sendable Custom Object Field",
               "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -3265,7 +3492,16 @@
               "label": "Sendable Subscriber Field",
               "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -3307,7 +3543,16 @@
               "label": "Data Extension Fields",
               "description": "A list of fields to create in the data extension.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -3664,7 +3909,16 @@
               "label": "Category ID (Folder ID)",
               "description": "The identifier for the folder that contains the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -3697,7 +3951,16 @@
               "label": "Data Extension Name",
               "description": "The name of the data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -3796,7 +4059,16 @@
               "label": "Sendable Custom Object Field",
               "description": "The field on this data extension which is sendable. This must be a field that is present on this data extension.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -3829,7 +4101,16 @@
               "label": "Sendable Subscriber Field",
               "description": "The relationship with \"Subscribers\" for the Sendable Custom Object Field.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "isSendable",
+                    "operator": "is",
+                    "value": true
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -3871,7 +4152,16 @@
               "label": "Data Extension Fields",
               "description": "A list of fields to create in the data extension.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -4154,6 +4444,14 @@
             }
           }
         }
+      },
+      "dynamicFields": {
+        "keys": [
+          "__keys__"
+        ],
+        "values": [
+          "__keys__"
+        ]
       },
       "fields": {
         "keys": {

@@ -57,6 +57,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "person_id": {
           "label": "Person ID",
@@ -297,6 +298,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "person_id": {
           "label": "Person ID",
@@ -409,6 +411,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "person_id": {
           "label": "Person ID",
@@ -583,6 +586,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "person_id": {
           "label": "Person ID",
@@ -669,6 +673,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "object_id": {
           "label": "Object ID",
@@ -791,6 +796,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Person ID",
@@ -1139,6 +1145,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Person ID",
@@ -1379,6 +1386,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Person ID",
@@ -1619,6 +1627,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Person ID",
@@ -1859,6 +1868,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "id": {
           "label": "Object ID",
@@ -2145,6 +2155,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "primary": {
           "label": "Primary User",
@@ -2257,6 +2268,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "person_id": {
           "label": "Person ID",
@@ -2343,6 +2355,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "person_id": {
           "label": "Person ID",
@@ -2429,6 +2442,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "delivery_id": {
           "label": "Delivery ID",
@@ -2730,6 +2744,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "anonymous_id": {
           "label": "Anonymous ID",

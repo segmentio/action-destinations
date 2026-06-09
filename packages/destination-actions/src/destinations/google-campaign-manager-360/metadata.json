@@ -48,6 +48,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customVariables": {
           "label": "Custom Variables",
@@ -1778,6 +1779,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "requiredId": {
           "label": "Required ID",

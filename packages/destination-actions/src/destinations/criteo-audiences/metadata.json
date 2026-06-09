@@ -59,6 +59,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "audience_key": {
           "label": "Audience key",
@@ -197,6 +198,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "audience_key": {
           "label": "Audience key",

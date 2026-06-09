@@ -48,6 +48,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Batch Data to SendGrid Contacts PUT API",
@@ -710,6 +711,11 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "dynamic_template_data": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "domain": {
           "label": "Validated Domain",

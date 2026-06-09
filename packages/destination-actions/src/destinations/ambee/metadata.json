@@ -77,6 +77,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segmentLibrary": {
           "label": "Segment Library",

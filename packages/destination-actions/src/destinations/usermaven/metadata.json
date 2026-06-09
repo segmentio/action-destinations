@@ -38,6 +38,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User id",
@@ -852,6 +853,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event": {
           "label": "Event Name",
@@ -1630,6 +1632,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "company_id": {
           "label": "Company id",
@@ -2388,6 +2391,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User id",

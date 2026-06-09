@@ -49,6 +49,11 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "contentVariables": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "channel": {
           "label": "Channel",
@@ -159,7 +164,16 @@
           "label": "To Messenger User ID",
           "description": "A valid Facebook Messenger User Id to send the message to.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "channel",
+                "operator": "is",
+                "value": "Messenger"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -230,7 +244,16 @@
           "label": "From Facebook Page ID",
           "description": "The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "channel",
+                "operator": "is",
+                "value": "Messenger"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -263,7 +286,15 @@
           "label": "Messaging Service SID",
           "description": "The SID of the messaging service to use. If not in the dropdown, enter it directly.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "channel",
+                "operator": "is",
+                "value": "RCS"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": true,

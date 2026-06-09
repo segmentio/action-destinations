@@ -47,6 +47,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "kind": {
           "label": "Custom Event Kind",
@@ -347,6 +348,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "kind": {
           "label": "Custom Event Kind",
@@ -647,6 +649,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userID": {
           "label": "Segment User ID",
@@ -835,6 +838,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "kind": {
           "label": "Custom Event Kind",

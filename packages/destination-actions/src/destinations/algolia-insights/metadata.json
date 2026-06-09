@@ -48,6 +48,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "objectID": {
           "label": "Product ID",
@@ -349,6 +350,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "eventSubtype": {
           "label": "Event Subtype",
@@ -844,6 +846,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "objectID": {
           "label": "Product ID",
@@ -1119,6 +1122,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "product": {
           "label": "Product ID",
@@ -1394,6 +1398,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "filters": {
           "label": "Filters",
@@ -1728,6 +1733,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "products": {
           "label": "Product Details",
@@ -2035,6 +2041,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {}
     }
   },

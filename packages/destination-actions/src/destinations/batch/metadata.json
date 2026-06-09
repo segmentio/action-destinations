@@ -38,6 +38,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "identifiers": {
           "label": "Identifiers",

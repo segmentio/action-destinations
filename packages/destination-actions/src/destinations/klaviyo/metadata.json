@@ -151,6 +151,7 @@
           }
         }
       },
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -1774,6 +1775,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -3382,6 +3384,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -4609,6 +4612,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "profile": {
           "label": "Profile",
@@ -5950,6 +5954,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "profile": {
           "label": "Profile",
@@ -7280,6 +7285,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -8567,6 +8573,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",
@@ -9778,6 +9785,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "email": {
           "label": "Email",

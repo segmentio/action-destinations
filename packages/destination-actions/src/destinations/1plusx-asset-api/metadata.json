@@ -48,6 +48,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "asset_uri": {
           "label": "Asset ID",

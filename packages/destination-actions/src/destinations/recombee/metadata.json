@@ -87,6 +87,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -288,6 +289,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -570,6 +572,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -795,6 +798,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -1109,6 +1113,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -1336,6 +1341,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -1444,6 +1450,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -1552,6 +1559,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "targetUserId": {
           "label": "Target User ID",
@@ -1616,6 +1624,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -1869,6 +1878,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",

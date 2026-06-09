@@ -48,6 +48,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "uid": {
           "label": "m3ter UUID",

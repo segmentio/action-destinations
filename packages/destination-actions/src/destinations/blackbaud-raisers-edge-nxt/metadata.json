@@ -28,6 +28,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "date": {
           "label": "Date",
@@ -1842,6 +1843,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "acknowledgement": {
           "label": "Acknowledgement",
@@ -4073,6 +4075,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "address": {
           "label": "Address",

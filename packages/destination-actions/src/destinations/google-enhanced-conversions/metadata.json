@@ -108,6 +108,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_label": {
           "label": "Conversion Label",
@@ -646,6 +647,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_action": {
           "label": "Conversion Action ID",
@@ -1595,6 +1597,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_action": {
           "label": "Conversion Action ID",
@@ -1903,6 +1906,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_action": {
           "label": "Conversion Action ID",
@@ -2594,6 +2598,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_action": {
           "label": "Conversion Action ID",
@@ -3285,6 +3290,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_action": {
           "label": "Conversion Action ID",
@@ -4244,6 +4250,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "conversion_action": {
           "label": "Conversion Action ID",
@@ -4769,6 +4776,7 @@
           }
         }
       },
+      "dynamicFields": null,
       "fields": {
         "first_name": {
           "label": "First Name",
@@ -5221,6 +5229,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {}
     }
   },

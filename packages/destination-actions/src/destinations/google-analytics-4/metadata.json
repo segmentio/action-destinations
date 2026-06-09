@@ -48,6 +48,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -1040,6 +1041,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -1899,6 +1901,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -2270,6 +2273,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -2613,6 +2617,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -3468,6 +3473,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -4356,6 +4362,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -5385,6 +5392,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -6244,6 +6252,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -7103,6 +7112,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -7965,6 +7975,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -8284,6 +8295,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -9146,6 +9158,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -9465,6 +9478,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -10496,6 +10510,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -11408,6 +11423,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -12396,6 +12412,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -12713,6 +12730,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",
@@ -13058,6 +13076,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data_stream_type": {
           "label": "Data Stream Type",

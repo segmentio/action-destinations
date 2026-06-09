@@ -39,6 +39,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "standard_traits": {
           "label": "Standard User Properties",

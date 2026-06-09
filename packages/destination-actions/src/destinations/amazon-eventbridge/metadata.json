@@ -163,6 +163,7 @@
           }
         }
       },
+      "dynamicFields": null,
       "fields": {
         "data": {
           "label": "Detail",

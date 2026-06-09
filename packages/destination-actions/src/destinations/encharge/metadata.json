@@ -29,6 +29,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event": {
           "label": "Event Name",
@@ -792,6 +793,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user": {
           "label": "User Fields",
@@ -1503,6 +1505,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "properties": {
           "label": "Page View Properties",
@@ -2240,6 +2243,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userId": {
           "label": "User ID",
@@ -2356,6 +2360,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "objectType": {
           "label": "Object Type",
@@ -2520,6 +2525,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "tag": {
           "label": "Tag",
@@ -2646,6 +2652,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "tag": {
           "label": "Tag",

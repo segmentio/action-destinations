@@ -38,6 +38,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "messageId": {
           "label": "Message ID",
@@ -280,6 +281,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "messageId": {
           "label": "Message ID",
@@ -496,6 +498,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "messageId": {
           "label": "Message ID",

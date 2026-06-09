@@ -29,6 +29,17 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "string_fields": [
+          "__keys__"
+        ],
+        "boolean_fields": [
+          "__keys__"
+        ],
+        "number_fields": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "email": {
           "label": "Email",
@@ -257,6 +268,17 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "string_fields": [
+          "__keys__"
+        ],
+        "boolean_fields": [
+          "__keys__"
+        ],
+        "number_fields": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "domain": {
           "label": "Domain",

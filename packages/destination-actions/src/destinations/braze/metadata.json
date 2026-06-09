@@ -110,6 +110,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -1282,6 +1283,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -1603,6 +1605,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -2007,6 +2010,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External ID",
@@ -2091,6 +2095,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External ID",
@@ -2245,6 +2250,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External ID",
@@ -2274,7 +2280,15 @@
           "label": "User Alias Object",
           "description": "A user alias object. See [the docs](https://www.braze.com/docs/api/objects_filters/user_alias_object/).",
           "type": "object",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "email_to_identify",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -2345,7 +2359,15 @@
           "label": "Email to Identify",
           "description": "Email address to identify user.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "user_alias",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -2369,7 +2391,14 @@
           "label": "Prioritization",
           "description": "Prioritization settings for user merging if multiple users are found. Required when email_to_identify is provided.",
           "type": "object",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "email_to_identify",
+                "operator": "is_not"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -2529,6 +2558,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -2840,6 +2870,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -3230,6 +3261,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External User ID",
@@ -4388,6 +4420,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "external_id": {
           "label": "External ID",
@@ -4533,7 +4566,16 @@
               "label": "Catalog Name",
               "description": "The unique name of the catalog.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "select"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": true,
@@ -4572,7 +4614,16 @@
               "label": "Catalog Name",
               "description": "The name of the catalog. Must be unique. Maximum 250 characters. Supported characters: letters, numbers, hyphens, and underscores.",
               "type": "string",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -4638,7 +4689,16 @@
               "label": "Catalog Fields",
               "description": "A list of fields to create in the catalog. Maximum 500 fields. ID field is added by default.",
               "type": "object",
-              "required": false,
+              "required": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
               "multiple": true,
               "allowNull": false,
               "dynamic": false,
@@ -4770,12 +4830,27 @@
           }
         }
       },
+      "dynamicFields": {
+        "item": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "item": {
           "label": "Catalog item to upsert",
           "description": "The item to upsert in the catalog. The item object should contain fields that exist in the catalog. The item object should not contain the id field.",
           "type": "object",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "type": "field",
+                "fieldKey": "__segment_internal_sync_mode",
+                "operator": "is",
+                "value": "upsert"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": true,
@@ -4888,6 +4963,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "campaign_id": {
           "label": "Campaign ID",
@@ -4967,7 +5043,19 @@
           "label": "Broadcast",
           "description": "If set to true, and if the audience is not provided, the campaign will be sent to all the users in the segment targeted by the campaign. It can not be used with \"recipients\".",
           "type": "boolean",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "recipients",
+                "operator": "is"
+              },
+              {
+                "fieldKey": "audience",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -5414,6 +5502,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "canvas_id": {
           "label": "Canvas ID",
@@ -5493,7 +5582,16 @@
           "label": "Recipients",
           "description": "An array of user identifiers to send the canvas to. It cannot be used with \"broadcast\".",
           "type": "object",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "broadcast",
+                "operator": "is_not",
+                "value": true
+              }
+            ]
+          },
           "multiple": true,
           "allowNull": false,
           "dynamic": false,
@@ -5889,6 +5987,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "name": {
           "label": "Ecommerce Event Name",
@@ -6144,7 +6243,16 @@
           "label": "Cancel Reason",
           "description": "Reason why the order was cancelled.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -6205,7 +6313,16 @@
           "label": "Checkout ID",
           "description": "Unique identifier for the checkout.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -6240,7 +6357,26 @@
           "label": "Order ID",
           "description": "Unique identifier for the order placed.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_refunded"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -6325,7 +6461,31 @@
           "label": "Total Value",
           "description": "Total monetary value of the cart.",
           "type": "number",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_refunded"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -7564,6 +7724,7 @@
         ]
       },
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "name": {
           "label": "Ecommerce Event Name",
@@ -7819,7 +7980,16 @@
           "label": "Cancel Reason",
           "description": "Reason why the order was cancelled.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -7880,7 +8050,16 @@
           "label": "Checkout ID",
           "description": "Unique identifier for the checkout.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -7915,7 +8094,26 @@
           "label": "Order ID",
           "description": "Unique identifier for the order placed.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_refunded"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -8000,7 +8198,31 @@
           "label": "Total Value",
           "description": "Total monetary value of the cart.",
           "type": "number",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_refunded"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -9193,6 +9415,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {}
     }
   },

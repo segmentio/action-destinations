@@ -14,6 +14,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "engage_space": {
           "label": "Profile Space",
@@ -224,6 +225,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "engage_space": {
           "label": "Profile Space",
@@ -434,6 +436,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "engage_space": {
           "label": "Profile Space",
@@ -860,6 +863,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "engage_space": {
           "label": "Profile Space",

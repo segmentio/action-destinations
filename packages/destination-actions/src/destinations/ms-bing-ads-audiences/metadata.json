@@ -45,6 +45,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "audience_id": {
           "label": "Audience ID",
@@ -161,7 +162,15 @@
           "label": "Email",
           "description": "The email address of the user to add or remove from the audience.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "Email"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -205,7 +214,15 @@
           "label": "CRM ID",
           "description": "The CRM ID of the user to add or remove from the audience.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "CRM"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

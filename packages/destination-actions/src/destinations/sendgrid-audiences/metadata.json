@@ -47,6 +47,17 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": {
+        "custom_text_fields": [
+          "__keys__"
+        ],
+        "custom_number_fields": [
+          "__keys__"
+        ],
+        "custom_date_fields": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "segment_computation_action": {
           "label": "Segment Computation Class",

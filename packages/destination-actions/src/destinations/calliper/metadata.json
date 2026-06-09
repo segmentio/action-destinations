@@ -38,6 +38,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event": {
           "label": "Event Type",
@@ -778,6 +779,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "time": {
           "label": "Timestamp",
@@ -1080,6 +1082,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "time": {
           "label": "Timestamp",
@@ -1170,6 +1173,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "time": {
           "label": "Timestamp",

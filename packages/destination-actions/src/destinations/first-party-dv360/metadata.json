@@ -84,6 +84,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "emails": {
           "label": "Emails",
@@ -352,6 +353,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "mobileDeviceIds": {
           "label": "Mobile Device IDs",
@@ -490,6 +492,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "emails": {
           "label": "Emails",
@@ -758,6 +761,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "mobileDeviceIds": {
           "label": "Mobile Device IDs",

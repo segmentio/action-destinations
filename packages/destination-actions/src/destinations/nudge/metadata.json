@@ -28,6 +28,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "name": {
           "label": "Event Name",
@@ -144,6 +145,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "ext_id": {
           "label": "User ID",

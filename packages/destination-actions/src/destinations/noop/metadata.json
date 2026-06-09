@@ -15,6 +15,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "noop": {
           "label": "NOOP",

@@ -78,6 +78,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_type": {
           "label": "Event Type",
@@ -198,7 +199,15 @@
           "label": "Current URL",
           "description": "The current URL of the page being viewed. Only required for page events.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "event_type",
+                "operator": "is",
+                "value": "page"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -232,7 +241,15 @@
           "label": "Screen Name",
           "description": "The name of the mobile screen being viewed. Only required for screen events.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "event_type",
+                "operator": "is",
+                "value": "screen"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -397,6 +414,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "distinct_id": {
           "label": "Distinct ID",

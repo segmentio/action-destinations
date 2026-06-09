@@ -46,6 +46,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segment_computation_action": {
           "label": "Segment Computation Action",
@@ -212,7 +213,14 @@
           "label": "User ID",
           "description": "The unique user identifier",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "anonymous_id",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -238,7 +246,14 @@
           "label": "Anonymous ID",
           "description": "Anonymous user identifier",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "user_id",
+                "operator": "is"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

@@ -146,6 +146,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_config": {
           "label": "Event Configuration",
@@ -728,7 +729,16 @@
           "label": "Currency",
           "description": "The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1792,7 +1802,16 @@
           "label": "Value",
           "description": "A numeric value associated with this event. This could be a monetary value or a value in some other metric.",
           "type": "number",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

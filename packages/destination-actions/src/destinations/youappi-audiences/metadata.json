@@ -29,6 +29,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "idfa": {
           "label": "iOS Advertising ID (IDFA)",

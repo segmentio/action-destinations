@@ -46,6 +46,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segment_computation_action": {
           "label": "Segment Computation Action",

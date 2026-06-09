@@ -29,6 +29,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userIdentifiers": {
           "label": "User Identifiers",
@@ -272,6 +273,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userIdentifiers": {
           "label": "User Identifiers",
@@ -721,6 +723,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userIdentifiers": {
           "label": "User Identifiers",
@@ -886,6 +889,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userIdentifiers": {
           "label": "User Identifiers",

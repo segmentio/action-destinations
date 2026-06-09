@@ -295,6 +295,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -641,6 +642,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -987,6 +989,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -1250,6 +1253,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",
@@ -1552,6 +1556,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "userData": {
           "label": "Recipient Data",

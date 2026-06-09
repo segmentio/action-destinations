@@ -47,6 +47,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data": {
           "label": "Payload",
@@ -111,6 +112,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "segment_audience_id": {
           "label": "Audience ID",

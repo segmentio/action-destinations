@@ -38,6 +38,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "s3_aws_access_key": {
           "label": "AWS Access Key ID",
@@ -342,6 +343,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "sftp_username": {
           "label": "Username",

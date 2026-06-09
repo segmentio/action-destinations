@@ -38,6 +38,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "event_source": {
           "label": "Event Source",
@@ -1316,7 +1317,15 @@
           "label": "CRM Fields",
           "description": "Fields related to CRM events.",
           "type": "object",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "event_source",
+                "operator": "is",
+                "value": "crm"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

@@ -68,6 +68,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "type": {
           "label": "Event Type",
@@ -172,7 +173,16 @@
           "label": "Event Name",
           "description": "The name of the event to track",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

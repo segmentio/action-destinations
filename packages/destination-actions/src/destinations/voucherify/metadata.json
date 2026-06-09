@@ -48,6 +48,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "source_id": {
           "label": "Source ID",
@@ -476,6 +477,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customer": {
           "label": "Customer Object",
@@ -796,6 +798,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customer": {
           "label": "Customer Object",

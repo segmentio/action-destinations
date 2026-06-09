@@ -48,6 +48,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "lead_name": {
           "label": "Lead Name",

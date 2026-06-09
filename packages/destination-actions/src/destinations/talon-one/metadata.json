@@ -38,6 +38,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "audienceId": {
           "label": "Segment Audience ID",
@@ -98,6 +99,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "audienceId": {
           "label": "Segment Audience ID",
@@ -158,6 +160,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "audienceId": {
           "label": "Segment Audience ID",
@@ -194,6 +197,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "attributes": {
           "label": "Attribute-Value pairs",
@@ -415,6 +419,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customerProfileId": {
           "label": "Customer Profile ID",
@@ -779,6 +784,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customerProfileId": {
           "label": "Customer Profile ID",
@@ -939,6 +945,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data": {
           "label": "Data item to change customer profile audiences",
@@ -1050,6 +1057,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customerProfileId": {
           "label": "Customer Profile ID",
@@ -1249,6 +1257,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "skipNonExistingAttributes": {
           "label": "Skip Non-existing Attributes Flag",
@@ -1363,6 +1372,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customerSessionId": {
           "label": "Customer Session ID",
@@ -2260,6 +2270,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "customerSessionId": {
           "label": "Customer Session ID",

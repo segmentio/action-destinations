@@ -57,6 +57,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "data": {
           "label": "Data",
@@ -205,7 +206,15 @@
               "label": "Event Source URL",
               "description": "URL of the page, used for example: “destination URL” goals. Required for pageLoad events.",
               "type": "string",
-              "required": false,
+              "required": {
+                "conditions": [
+                  {
+                    "fieldKey": "eventType",
+                    "operator": "is",
+                    "value": "pageLoad"
+                  }
+                ]
+              },
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -2166,6 +2175,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {}
     }
   },

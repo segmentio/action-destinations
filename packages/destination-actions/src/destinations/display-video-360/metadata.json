@@ -55,6 +55,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Enable Batching",
@@ -195,6 +196,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Enable Batching",
@@ -335,6 +337,7 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "enable_batching": {
           "label": "Enable Batching",

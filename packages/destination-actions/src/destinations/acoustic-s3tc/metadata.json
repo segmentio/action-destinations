@@ -79,6 +79,7 @@
       "hasPerformBatch": false,
       "syncMode": null,
       "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "key_value_pairs": {
           "label": "Key-Value pairs",
