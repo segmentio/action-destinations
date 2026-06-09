@@ -96,6 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 const encodeBody = (payload: Record<string, any>, contentType: string) => {
+  console.log('Encoding body with content type:', contentType)
   if (contentType === 'application/json') {
     return { json: payload }
   } else if (contentType === 'application/x-www-form-urlencoded') {
