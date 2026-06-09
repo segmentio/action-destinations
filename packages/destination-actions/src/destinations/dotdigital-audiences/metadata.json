@@ -131,6 +131,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "computation_key": {
@@ -156,6 +157,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "external_audience_id": {
@@ -181,6 +183,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "emailIdentifier": {
@@ -216,6 +219,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "email",
           "additionalProperties": false
         },
         "mobileNumberIdentifier": {
@@ -251,6 +255,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "traits_or_props": {
@@ -286,6 +291,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "dataFields": {
@@ -309,6 +315,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

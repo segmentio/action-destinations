@@ -85,6 +85,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "address": {
@@ -117,6 +118,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "channel": {
@@ -166,6 +168,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "agent_id": {
@@ -198,6 +201,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "agent_pool_id": {
@@ -230,6 +234,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -242,6 +247,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "to": {
@@ -277,6 +283,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "channel": {
@@ -313,6 +320,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "variables": {
@@ -336,6 +344,7 @@
               "defaultObjectUI": "keyvalue:only",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -348,6 +357,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "content": {
@@ -392,6 +402,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "text": {
@@ -424,6 +435,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "title": {
@@ -456,6 +468,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "default_variables": {
@@ -488,6 +501,7 @@
               "defaultObjectUI": "keyvalue:only",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "content_id": {
@@ -520,6 +534,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -532,6 +547,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "channels": {
@@ -555,6 +571,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "schedule": {
@@ -590,6 +607,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "quiet_hours": {
@@ -613,6 +631,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "ignore_compliances": {
@@ -649,6 +668,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "frequency_cap": {
@@ -684,6 +704,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "period": {
@@ -707,6 +728,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -719,6 +741,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "ttl": {
@@ -742,6 +765,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -754,6 +778,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "use_domain": {
@@ -789,6 +814,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -801,6 +827,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "tags": {
@@ -824,6 +851,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

@@ -70,6 +70,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_id": {
@@ -95,6 +96,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_time": {
@@ -120,6 +122,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "action_source": {
@@ -176,6 +179,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "user_data": {
@@ -373,6 +377,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "email": {
@@ -396,6 +401,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "phone": {
@@ -419,6 +425,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "gender": {
@@ -442,6 +449,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dateOfBirth": {
@@ -465,6 +473,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "lastName": {
@@ -488,6 +497,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "firstName": {
@@ -511,6 +521,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "city": {
@@ -534,6 +545,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "state": {
@@ -557,6 +569,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "zip": {
@@ -580,6 +593,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "country": {
@@ -603,6 +617,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "client_ip_address": {
@@ -626,6 +641,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "client_user_agent": {
@@ -649,6 +665,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "subscriptionID": {
@@ -672,6 +689,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "leadID": {
@@ -695,6 +713,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "madid": {
@@ -718,6 +737,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sc_click_id": {
@@ -741,6 +761,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sc_cookie1": {
@@ -764,6 +785,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "idfv": {
@@ -787,6 +809,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -799,6 +822,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "app_data": {
@@ -868,6 +892,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "application_tracking_enabled": {
@@ -891,6 +916,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "version": {
@@ -923,6 +949,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "packageName": {
@@ -946,6 +973,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "shortVersion": {
@@ -969,6 +997,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "longVersion": {
@@ -992,6 +1021,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "osVersion": {
@@ -1015,6 +1045,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "deviceName": {
@@ -1038,6 +1069,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "locale": {
@@ -1061,6 +1093,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "timezone": {
@@ -1084,6 +1117,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "carrier": {
@@ -1107,6 +1141,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "width": {
@@ -1130,6 +1165,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "height": {
@@ -1153,6 +1189,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "density": {
@@ -1176,6 +1213,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "cpuCores": {
@@ -1199,6 +1237,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "storageSize": {
@@ -1222,6 +1261,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "freeStorage": {
@@ -1245,6 +1285,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "deviceTimezone": {
@@ -1268,6 +1309,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1280,6 +1322,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "custom_data": {
@@ -1341,6 +1384,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "num_items": {
@@ -1364,6 +1408,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "order_id": {
@@ -1387,6 +1432,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "search_string": {
@@ -1410,6 +1456,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sign_up_method": {
@@ -1433,6 +1480,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "value": {
@@ -1456,6 +1504,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "checkin_date": {
@@ -1479,6 +1528,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "travel_end": {
@@ -1502,6 +1552,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "travel_start": {
@@ -1525,6 +1576,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "suggested_destinations": {
@@ -1548,6 +1600,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "destination_airport": {
@@ -1571,6 +1624,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "country": {
@@ -1594,6 +1648,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "city": {
@@ -1617,6 +1672,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "region": {
@@ -1640,6 +1696,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "neighborhood": {
@@ -1663,6 +1720,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "departing_departure_date": {
@@ -1686,6 +1744,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "departing_arrival_date": {
@@ -1709,6 +1768,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "num_adults": {
@@ -1732,6 +1792,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "origin_airport": {
@@ -1755,6 +1816,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "returning_departure_date": {
@@ -1778,6 +1840,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "returning_arrival_date": {
@@ -1801,6 +1864,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "num_children": {
@@ -1824,6 +1888,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "hotel_score": {
@@ -1847,6 +1912,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "postal_code": {
@@ -1870,6 +1936,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "num_infants": {
@@ -1893,6 +1960,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "preferred_neighborhoods": {
@@ -1916,6 +1984,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "preferred_star_ratings": {
@@ -1939,6 +2008,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "suggested_hotels": {
@@ -1962,6 +2032,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1974,6 +2045,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "data_processing_options": {
@@ -1997,6 +2069,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "data_processing_options_country": {
@@ -2029,6 +2102,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "data_processing_options_state": {
@@ -2061,6 +2135,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_source_url": {
@@ -2086,6 +2161,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "products": {
@@ -2136,6 +2212,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "item_category": {
@@ -2159,6 +2236,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "brand": {
@@ -2182,6 +2260,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -2194,6 +2273,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "brands": {
@@ -2217,6 +2297,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "click_id": {
@@ -2240,6 +2321,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "client_dedup_id": {
@@ -2263,6 +2345,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "currency": {
@@ -2286,6 +2369,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "description": {
@@ -2309,6 +2393,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "device_model": {
@@ -2332,6 +2417,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "email": {
@@ -2355,6 +2441,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_conversion_type": {
@@ -2391,6 +2478,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_tag": {
@@ -2414,6 +2502,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_type": {
@@ -2437,6 +2526,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "idfv": {
@@ -2460,6 +2550,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip_address": {
@@ -2483,6 +2574,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "item_category": {
@@ -2506,6 +2598,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "item_ids": {
@@ -2529,6 +2622,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "level": {
@@ -2552,6 +2646,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "mobile_ad_id": {
@@ -2575,6 +2670,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "number_items": {
@@ -2598,6 +2694,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "os_version": {
@@ -2621,6 +2718,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "page_url": {
@@ -2644,6 +2742,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "phone_number": {
@@ -2667,6 +2766,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "price": {
@@ -2690,6 +2790,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "search_string": {
@@ -2713,6 +2814,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "sign_up_method": {
@@ -2736,6 +2838,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "timestamp": {
@@ -2759,6 +2862,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "transaction_id": {
@@ -2782,6 +2886,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "user_agent": {
@@ -2805,6 +2910,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "uuid_c1": {
@@ -2828,6 +2934,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

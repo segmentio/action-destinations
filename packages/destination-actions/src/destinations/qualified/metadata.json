@@ -63,6 +63,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "email",
           "additionalProperties": false
         },
         "phone": {
@@ -98,6 +99,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "company": {
@@ -133,6 +135,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "name": {
@@ -168,6 +171,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "string_fields": {
@@ -191,6 +195,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "boolean_fields": {
@@ -214,6 +219,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "number_fields": {
@@ -237,6 +243,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -274,6 +281,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "string_fields": {
@@ -297,6 +305,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "boolean_fields": {
@@ -320,6 +329,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "number_fields": {
@@ -343,6 +353,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

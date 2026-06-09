@@ -103,6 +103,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "traits_or_props": {
@@ -138,6 +139,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

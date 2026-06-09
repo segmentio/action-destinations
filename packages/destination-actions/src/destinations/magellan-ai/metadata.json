@@ -62,6 +62,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -87,6 +88,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -122,6 +124,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -159,6 +162,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "uri",
           "additionalProperties": false
         },
         "ip": {
@@ -184,6 +188,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -219,6 +224,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -256,6 +262,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "currency": {
@@ -281,6 +288,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "id": {
@@ -304,6 +312,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productId": {
@@ -329,6 +338,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "quantity": {
@@ -354,6 +364,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "type": {
@@ -379,6 +390,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "category": {
@@ -404,6 +416,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -429,6 +442,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -464,6 +478,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -501,6 +516,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "currency": {
@@ -526,6 +542,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productId": {
@@ -551,6 +568,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productName": {
@@ -576,6 +594,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productType": {
@@ -601,6 +620,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productVendor": {
@@ -626,6 +646,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "variantId": {
@@ -651,6 +672,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "variantName": {
@@ -676,6 +698,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -701,6 +724,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -736,6 +760,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -773,6 +798,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "value": {
@@ -798,6 +824,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "currency": {
@@ -823,6 +850,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productId": {
@@ -848,6 +876,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productName": {
@@ -873,6 +902,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productType": {
@@ -898,6 +928,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "productVendor": {
@@ -923,6 +954,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "variantId": {
@@ -948,6 +980,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "variantName": {
@@ -973,6 +1006,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -998,6 +1032,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -1033,6 +1068,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1070,6 +1106,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "currency": {
@@ -1095,6 +1132,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "discountCode": {
@@ -1120,6 +1158,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "id": {
@@ -1145,6 +1184,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "quantity": {
@@ -1168,6 +1208,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "lineItems": {
@@ -1233,6 +1274,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "value": {
@@ -1256,6 +1298,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productId": {
@@ -1279,6 +1322,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productName": {
@@ -1302,6 +1346,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productType": {
@@ -1325,6 +1370,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productVendor": {
@@ -1348,6 +1394,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "variantId": {
@@ -1371,6 +1418,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "variantName": {
@@ -1394,6 +1442,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1406,6 +1455,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -1431,6 +1481,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -1466,6 +1517,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1503,6 +1555,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "type": {
@@ -1526,6 +1579,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -1551,6 +1605,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -1586,6 +1641,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1623,6 +1679,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "currency": {
@@ -1648,6 +1705,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "discountCode": {
@@ -1673,6 +1731,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "id": {
@@ -1698,6 +1757,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "quantity": {
@@ -1721,6 +1781,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "lineItems": {
@@ -1786,6 +1847,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "value": {
@@ -1809,6 +1871,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productId": {
@@ -1832,6 +1895,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productName": {
@@ -1855,6 +1919,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productType": {
@@ -1878,6 +1943,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "productVendor": {
@@ -1901,6 +1967,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "variantId": {
@@ -1924,6 +1991,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "variantName": {
@@ -1947,6 +2015,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1959,6 +2028,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "isNewCustomer": {
@@ -1982,6 +2052,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -2007,6 +2078,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -2042,6 +2114,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -2077,6 +2150,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "app": {
@@ -2102,6 +2176,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ts": {
@@ -2127,6 +2202,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "plat": {
@@ -2152,6 +2228,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "aifa": {
@@ -2177,6 +2254,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "andi": {
@@ -2202,6 +2280,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "idfa": {
@@ -2227,6 +2306,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "idfv": {
@@ -2252,6 +2332,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -2277,6 +2358,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -2312,6 +2394,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -2349,6 +2432,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "evtattrs": {
@@ -2374,6 +2458,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "host": {
@@ -2397,6 +2482,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "app": {
@@ -2422,6 +2508,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ts": {
@@ -2447,6 +2534,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "plat": {
@@ -2472,6 +2560,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "aifa": {
@@ -2497,6 +2586,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "andi": {
@@ -2522,6 +2612,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "idfa": {
@@ -2547,6 +2638,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "idfv": {
@@ -2572,6 +2664,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "ip": {
@@ -2597,6 +2690,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "ipv4",
           "additionalProperties": false
         },
         "ua": {
@@ -2632,6 +2726,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

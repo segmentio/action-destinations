@@ -70,6 +70,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -93,6 +94,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "memora_store": {
@@ -122,6 +124,7 @@
             "freeform"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "profile_identifiers": {
@@ -145,6 +148,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "profile_traits": {
@@ -168,6 +172,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         }
       }

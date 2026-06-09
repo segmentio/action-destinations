@@ -402,6 +402,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "country": {
@@ -427,6 +428,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "current_location": {
@@ -461,6 +463,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "latitude": {
@@ -483,6 +486,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "longitude": {
@@ -505,6 +509,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -517,6 +522,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "custom_attributes": {
@@ -542,6 +548,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "dob": {
@@ -565,6 +572,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "email": {
@@ -590,6 +598,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "email",
           "additionalProperties": false
         },
         "email_subscribe": {
@@ -613,6 +622,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "first_name": {
@@ -638,6 +648,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "last_name": {
@@ -663,6 +674,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "gender": {
@@ -688,6 +700,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "home_city": {
@@ -713,6 +726,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "image_url": {
@@ -738,6 +752,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "uri",
           "additionalProperties": false
         },
         "language": {
@@ -761,6 +776,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "phone": {
@@ -786,6 +802,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "push_subscribe": {
@@ -809,6 +826,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "subscription_groups": {
@@ -845,6 +863,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "subscription_group_state": {
@@ -876,6 +895,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -888,6 +908,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -925,6 +946,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "eventProperties": {
@@ -950,6 +972,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -987,6 +1010,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "products": {
@@ -1024,6 +1048,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "price": {
@@ -1047,6 +1072,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "currency": {
@@ -1070,6 +1096,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "quantity": {
@@ -1093,6 +1120,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1105,6 +1133,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

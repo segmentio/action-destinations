@@ -125,6 +125,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "userId": {
@@ -148,6 +149,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "email": {
@@ -171,6 +173,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "optimizely_vuid": {
@@ -194,6 +197,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "fs_user_id": {
@@ -217,6 +221,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "web_user_id": {
@@ -240,6 +245,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -252,6 +258,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_type": {
@@ -277,6 +284,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_action": {
@@ -300,6 +308,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "products": {
@@ -347,6 +356,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "qty": {
@@ -370,6 +380,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -382,6 +393,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "order_id": {
@@ -407,6 +419,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "total": {
@@ -432,6 +445,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "timestamp": {
@@ -457,6 +471,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -480,6 +495,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -503,6 +519,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -589,6 +606,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "userId": {
@@ -612,6 +630,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "email": {
@@ -635,6 +654,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "optimizely_vuid": {
@@ -658,6 +678,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "fs_user_id": {
@@ -681,6 +702,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "web_user_id": {
@@ -704,6 +726,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -716,6 +739,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_type": {
@@ -741,6 +765,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_action": {
@@ -764,6 +789,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "data": {
@@ -789,6 +815,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "timestamp": {
@@ -814,6 +841,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -837,6 +865,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -860,6 +889,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -946,6 +976,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "userId": {
@@ -969,6 +1000,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "email": {
@@ -992,6 +1024,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "optimizely_vuid": {
@@ -1015,6 +1048,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "fs_user_id": {
@@ -1038,6 +1072,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "web_user_id": {
@@ -1061,6 +1096,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1073,6 +1109,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "company": {
@@ -1098,6 +1135,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "title": {
@@ -1123,6 +1161,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "name": {
@@ -1148,6 +1187,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "firstname": {
@@ -1173,6 +1213,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "lastname": {
@@ -1198,6 +1239,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "gender": {
@@ -1223,6 +1265,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "DOB": {
@@ -1248,6 +1291,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "phone": {
@@ -1273,6 +1317,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "age": {
@@ -1298,6 +1343,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "address": {
@@ -1349,6 +1395,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "city": {
@@ -1372,6 +1419,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "state": {
@@ -1395,6 +1443,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "zip": {
@@ -1418,6 +1467,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "country": {
@@ -1441,6 +1491,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1453,6 +1504,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "avatar": {
@@ -1478,6 +1530,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "additional_traits": {
@@ -1501,6 +1554,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -1524,6 +1578,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -1547,6 +1602,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1633,6 +1689,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "userId": {
@@ -1656,6 +1713,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "email": {
@@ -1679,6 +1737,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "optimizely_vuid": {
@@ -1702,6 +1761,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "fs_user_id": {
@@ -1725,6 +1785,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "web_user_id": {
@@ -1748,6 +1809,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1760,6 +1822,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "event_action": {
@@ -1783,6 +1846,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "campaign": {
@@ -1808,6 +1872,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "campaign_id": {
@@ -1833,6 +1898,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "link_url": {
@@ -1858,6 +1924,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "timestamp": {
@@ -1883,6 +1950,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -1906,6 +1974,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -1929,6 +1998,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

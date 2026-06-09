@@ -53,6 +53,7 @@
           "defaultObjectUI": "object",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

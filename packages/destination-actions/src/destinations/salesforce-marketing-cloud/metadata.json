@@ -82,6 +82,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -117,6 +118,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "id": {
@@ -140,6 +142,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "keys": {
@@ -163,6 +166,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "values": {
@@ -186,6 +190,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -209,6 +214,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -232,6 +238,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -267,6 +274,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "id": {
@@ -290,6 +298,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "keys": {
@@ -329,6 +338,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -341,6 +351,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "values": {
@@ -364,6 +375,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -387,6 +399,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -410,6 +423,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -445,6 +459,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "contactKey": {
@@ -470,6 +485,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "data": {
@@ -493,6 +509,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -540,6 +557,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dataExtensionId": {
@@ -572,6 +590,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "categoryId": {
@@ -604,6 +623,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -636,6 +656,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "description": {
@@ -668,6 +689,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "isSendable": {
@@ -700,6 +722,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableCustomObjectField": {
@@ -732,6 +755,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableSubscriberField": {
@@ -773,6 +797,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "columns": {
@@ -808,6 +833,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "type": {
@@ -864,6 +890,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isNullable": {
@@ -887,6 +914,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isPrimaryKey": {
@@ -910,6 +938,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "length": {
@@ -933,6 +962,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "scale": {
@@ -956,6 +986,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "description": {
@@ -979,6 +1010,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -1000,6 +1032,7 @@
               "defaultObjectUI": "arrayeditor",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": true
             }
           },
@@ -1025,6 +1058,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -1048,6 +1082,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           }
@@ -1086,6 +1121,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dataExtensionId": {
@@ -1118,6 +1154,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "categoryId": {
@@ -1150,6 +1187,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -1182,6 +1220,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "description": {
@@ -1214,6 +1253,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "isSendable": {
@@ -1246,6 +1286,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableCustomObjectField": {
@@ -1278,6 +1319,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableSubscriberField": {
@@ -1319,6 +1361,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "columns": {
@@ -1354,6 +1397,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "type": {
@@ -1410,6 +1454,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isNullable": {
@@ -1433,6 +1478,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isPrimaryKey": {
@@ -1456,6 +1502,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "length": {
@@ -1479,6 +1526,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "scale": {
@@ -1502,6 +1550,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "description": {
@@ -1525,6 +1574,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -1546,6 +1596,7 @@
               "defaultObjectUI": "arrayeditor",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": true
             }
           },
@@ -1571,6 +1622,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -1594,6 +1646,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           }
@@ -1621,6 +1674,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "values": {
@@ -1644,6 +1698,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -1667,6 +1722,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -1690,6 +1746,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1737,6 +1794,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dataExtensionId": {
@@ -1769,6 +1827,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "categoryId": {
@@ -1801,6 +1860,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -1833,6 +1893,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "description": {
@@ -1865,6 +1926,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "isSendable": {
@@ -1897,6 +1959,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableCustomObjectField": {
@@ -1929,6 +1992,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableSubscriberField": {
@@ -1970,6 +2034,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "columns": {
@@ -2005,6 +2070,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "type": {
@@ -2061,6 +2127,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isNullable": {
@@ -2084,6 +2151,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isPrimaryKey": {
@@ -2107,6 +2175,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "length": {
@@ -2130,6 +2199,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "scale": {
@@ -2153,6 +2223,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "description": {
@@ -2176,6 +2247,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -2197,6 +2269,7 @@
               "defaultObjectUI": "arrayeditor",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": true
             }
           },
@@ -2222,6 +2295,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -2245,6 +2319,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           }
@@ -2283,6 +2358,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dataExtensionId": {
@@ -2315,6 +2391,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "categoryId": {
@@ -2347,6 +2424,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -2379,6 +2457,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "description": {
@@ -2411,6 +2490,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "isSendable": {
@@ -2443,6 +2523,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableCustomObjectField": {
@@ -2475,6 +2556,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableSubscriberField": {
@@ -2516,6 +2598,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "columns": {
@@ -2551,6 +2634,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "type": {
@@ -2607,6 +2691,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isNullable": {
@@ -2630,6 +2715,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isPrimaryKey": {
@@ -2653,6 +2739,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "length": {
@@ -2676,6 +2763,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "scale": {
@@ -2699,6 +2787,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "description": {
@@ -2722,6 +2811,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -2743,6 +2833,7 @@
               "defaultObjectUI": "arrayeditor",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": true
             }
           },
@@ -2768,6 +2859,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -2791,6 +2883,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           }
@@ -2834,6 +2927,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -2846,6 +2940,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "values": {
@@ -2869,6 +2964,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -2892,6 +2988,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -2915,6 +3012,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -2962,6 +3060,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dataExtensionId": {
@@ -2994,6 +3093,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "categoryId": {
@@ -3026,6 +3126,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -3058,6 +3159,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "description": {
@@ -3090,6 +3192,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "isSendable": {
@@ -3122,6 +3225,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableCustomObjectField": {
@@ -3154,6 +3258,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableSubscriberField": {
@@ -3195,6 +3300,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "columns": {
@@ -3230,6 +3336,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "type": {
@@ -3286,6 +3393,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isNullable": {
@@ -3309,6 +3417,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isPrimaryKey": {
@@ -3332,6 +3441,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "length": {
@@ -3355,6 +3465,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "scale": {
@@ -3378,6 +3489,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "description": {
@@ -3401,6 +3513,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -3422,6 +3535,7 @@
               "defaultObjectUI": "arrayeditor",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": true
             }
           },
@@ -3447,6 +3561,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -3470,6 +3585,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           }
@@ -3508,6 +3624,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "dataExtensionId": {
@@ -3540,6 +3657,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "categoryId": {
@@ -3572,6 +3690,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -3604,6 +3723,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "description": {
@@ -3636,6 +3756,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "isSendable": {
@@ -3668,6 +3789,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableCustomObjectField": {
@@ -3700,6 +3822,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "sendableSubscriberField": {
@@ -3741,6 +3864,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "columns": {
@@ -3776,6 +3900,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "type": {
@@ -3832,6 +3957,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isNullable": {
@@ -3855,6 +3981,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "isPrimaryKey": {
@@ -3878,6 +4005,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "length": {
@@ -3901,6 +4029,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "scale": {
@@ -3924,6 +4053,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 },
                 "description": {
@@ -3947,6 +4077,7 @@
                   "defaultObjectUI": null,
                   "disabledInputMethods": null,
                   "displayMode": null,
+                  "format": null,
                   "additionalProperties": false
                 }
               },
@@ -3968,6 +4099,7 @@
               "defaultObjectUI": "arrayeditor",
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": true
             }
           },
@@ -3993,6 +4125,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "name": {
@@ -4016,6 +4149,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           }
@@ -4043,6 +4177,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "values": {
@@ -4066,6 +4201,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -4089,6 +4225,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_bytes": {
@@ -4112,6 +4249,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -4135,6 +4273,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

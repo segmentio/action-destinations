@@ -71,6 +71,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "senderType": {
@@ -94,6 +95,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "contentTemplateType": {
@@ -117,6 +119,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "toPhoneNumber": {
@@ -149,6 +152,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "toMessengerUserId": {
@@ -181,6 +185,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "fromPhoneNumber": {
@@ -218,6 +223,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "fromFacebookPageId": {
@@ -250,6 +256,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "messagingServiceSid": {
@@ -287,6 +294,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": [],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "contentSid": {
@@ -319,6 +327,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": [],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "contentVariables": {
@@ -351,6 +360,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "inlineBody": {
@@ -383,6 +393,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "text",
           "additionalProperties": false
         },
         "inlineMediaUrls": {
@@ -415,6 +426,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "validityPeriod": {
@@ -438,6 +450,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "sendAt": {
@@ -475,6 +488,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "date-time",
           "additionalProperties": false
         },
         "tags": {
@@ -498,6 +512,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

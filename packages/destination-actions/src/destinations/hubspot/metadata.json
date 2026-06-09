@@ -50,6 +50,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "occurredAt": {
@@ -75,6 +76,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "email": {
@@ -110,6 +112,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "email",
           "additionalProperties": false
         },
         "utk": {
@@ -133,6 +136,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "objectId": {
@@ -156,6 +160,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "properties": {
@@ -179,6 +184,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -216,6 +222,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": "email",
           "additionalProperties": false
         },
         "company": {
@@ -241,6 +248,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "firstname": {
@@ -276,6 +284,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "lastname": {
@@ -311,6 +320,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "phone": {
@@ -336,6 +346,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "address": {
@@ -361,6 +372,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "city": {
@@ -386,6 +398,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "state": {
@@ -411,6 +424,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "country": {
@@ -436,6 +450,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "zip": {
@@ -471,6 +486,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "website": {
@@ -496,6 +512,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "lifecyclestage": {
@@ -519,6 +536,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "properties": {
@@ -542,6 +560,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -565,6 +584,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -612,6 +632,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "createNewCompany": {
@@ -635,6 +656,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "associateContact": {
@@ -658,6 +680,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "companysearchfields": {
@@ -681,6 +704,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "name": {
@@ -706,6 +730,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "description": {
@@ -731,6 +756,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "address": {
@@ -756,6 +782,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "city": {
@@ -781,6 +808,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "state": {
@@ -806,6 +834,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "zip": {
@@ -841,6 +870,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "domain": {
@@ -866,6 +896,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "phone": {
@@ -891,6 +922,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "numberofemployees": {
@@ -916,6 +948,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "industry": {
@@ -941,6 +974,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "lifecyclestage": {
@@ -964,6 +998,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "properties": {
@@ -987,6 +1022,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1022,6 +1058,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "customObjectSearchFields": {
@@ -1045,6 +1082,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "objectType": {
@@ -1074,6 +1112,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "properties": {
@@ -1097,6 +1136,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "searchFieldsToAssociateCustomObjects": {
@@ -1120,6 +1160,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "toObjectType": {
@@ -1149,6 +1190,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "associationLabel": {
@@ -1172,6 +1214,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -1243,6 +1286,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "id_field_name": {
@@ -1272,6 +1316,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "id_field_value": {
@@ -1295,6 +1340,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "property_group": {
@@ -1324,6 +1370,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1336,6 +1383,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "properties": {
@@ -1359,6 +1407,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "sensitive_properties": {
@@ -1382,6 +1431,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "association_sync_mode": {
@@ -1420,6 +1470,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "associations": {
@@ -1461,6 +1512,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "association_label": {
@@ -1490,6 +1542,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "id_field_name": {
@@ -1519,6 +1572,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "id_field_value": {
@@ -1542,6 +1596,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1554,6 +1609,7 @@
           "defaultObjectUI": "arrayeditor",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "dissociations": {
@@ -1595,6 +1651,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "association_label": {
@@ -1624,6 +1681,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "id_field_name": {
@@ -1653,6 +1711,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "id_field_value": {
@@ -1676,6 +1735,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1688,6 +1748,7 @@
           "defaultObjectUI": "arrayeditor",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "list_details": {
@@ -1729,6 +1790,7 @@
                 "freeform"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "list_name": {
@@ -1752,6 +1814,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": [],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "list_action": {
@@ -1778,6 +1841,7 @@
                 "freeform"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "should_create_list": {
@@ -1804,6 +1868,7 @@
                 "freeform"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -1816,6 +1881,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -1839,6 +1905,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -1862,6 +1929,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_keys": {
@@ -1887,6 +1955,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "timestamp": {
@@ -1918,6 +1987,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "traits_or_props": {
@@ -1953,6 +2023,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "computation_key": {
@@ -1978,6 +2049,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "computation_class": {
@@ -2003,6 +2075,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
@@ -2056,6 +2129,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "record_details": {
@@ -2097,6 +2171,7 @@
                 "enrichment"
               ],
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "object_id": {
@@ -2120,6 +2195,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             },
             "email": {
@@ -2164,6 +2240,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": "email",
               "additionalProperties": false
             },
             "utk": {
@@ -2196,6 +2273,7 @@
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
+              "format": null,
               "additionalProperties": false
             }
           },
@@ -2208,6 +2286,7 @@
           "defaultObjectUI": "keyvalue:only",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "properties": {
@@ -2231,6 +2310,7 @@
           "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": true
         },
         "occurred_at": {
@@ -2256,6 +2336,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }

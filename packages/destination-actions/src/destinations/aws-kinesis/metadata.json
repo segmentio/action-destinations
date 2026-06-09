@@ -62,6 +62,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "partitionKey": {
@@ -87,6 +88,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "streamName": {
@@ -110,6 +112,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": [],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "awsRegion": {
@@ -199,6 +202,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_size": {
@@ -227,6 +231,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_keys": {
@@ -253,6 +258,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "max_batch_size": {
@@ -281,6 +287,7 @@
             "enrichment"
           ],
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "enable_batching": {
@@ -304,6 +311,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "batch_bytes": {
@@ -327,6 +335,7 @@
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
+          "format": null,
           "additionalProperties": false
         }
       }
