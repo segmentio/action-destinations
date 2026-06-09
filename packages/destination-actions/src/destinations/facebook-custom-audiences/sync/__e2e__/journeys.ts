@@ -16,6 +16,7 @@ function createJourneysEvent(options: { userId: string; email: string; externalA
     timestamp: '$now',
     userId: options.userId,
     properties: {
+      [COMPUTATION_KEY]: true,
       email: options.email
     },
     context: {

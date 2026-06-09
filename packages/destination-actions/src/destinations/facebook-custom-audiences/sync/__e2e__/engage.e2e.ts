@@ -221,31 +221,42 @@ const fixtures: E2EFixture[] = [
         email: 'e2e-fb-test-010@segment.com'
       }),
       {
-        type: 'identify' as const,
-        messageId: '$guid',
-        timestamp: '$now',
-        userId: 'e2e-fb-user-011',
-        traits: {
-          [COMPUTATION_KEY]: undefined as unknown as boolean,
+        ...createE2EEngageAudienceEvent({
+          type: 'identify',
+          action: 'remove',
+          computationKey: COMPUTATION_KEY,
+          computationId: COMPUTATION_ID,
+          externalAudienceId: '$externalAudienceId',
+          userId: 'e2e-fb-user-011',
           email: 'e2e-fb-test-011@segment.com'
-        },
-        context: {
-          personas: {
-            computation_class: 'audience',
-            computation_key: COMPUTATION_KEY,
-            computation_id: COMPUTATION_ID,
-            external_audience_id: '$externalAudienceId'
-          }
-        }
+        }),
+        userId: undefined as unknown as string
       }
     ],
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200 },
-        { status: 200 },
-        { status: 200 },
-        { status: 400, errormessage: 'Audience membership details missing' }
+        {
+          status: 200,
+          body: {},
+          sent: { externalId: 'e2e-fb-user-008', email: 'e2e-fb-test-008@segment.com' }
+        },
+        {
+          status: 200,
+          body: {},
+          sent: { externalId: 'e2e-fb-user-009', email: 'e2e-fb-test-009@segment.com' }
+        },
+        {
+          status: 200,
+          body: {},
+          sent: { externalId: 'e2e-fb-user-010', email: 'e2e-fb-test-010@segment.com' }
+        },
+        {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: "The root value is missing the required field 'externalId'.",
+          errorreporter: 'INTEGRATIONS'
+        }
       ]
     },
     verboseFailureHint: FAILURE_HINT
