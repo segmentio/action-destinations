@@ -50,6 +50,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -75,6 +76,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -110,6 +112,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -147,6 +150,7 @@
           "default": {
             "@path": "$.context.page.url"
           },
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -172,6 +176,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -207,6 +212,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -244,6 +250,7 @@
           "default": {
             "@path": "$.properties.value"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -269,6 +276,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -292,6 +300,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -317,6 +326,7 @@
           "default": {
             "@path": "$.properties.product_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -342,6 +352,7 @@
           "default": {
             "@path": "$.properties.quantity"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -367,6 +378,7 @@
           "default": {
             "@path": "$.properties.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -392,6 +404,7 @@
           "default": {
             "@path": "$.properties.category"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -417,6 +430,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -452,6 +466,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -489,6 +504,7 @@
           "default": {
             "@path": "$.properties.price"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -514,6 +530,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -539,6 +556,7 @@
           "default": {
             "@path": "$.properties.product_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -564,6 +582,7 @@
           "default": {
             "@path": "$.properties.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -589,6 +608,7 @@
           "default": {
             "@path": "$.properties.category"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -614,6 +634,7 @@
           "default": {
             "@path": "$.properties.brand"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -639,6 +660,7 @@
           "default": {
             "@path": "$.properties.variant_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -664,6 +686,7 @@
           "default": {
             "@path": "$.properties.variant"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -689,6 +712,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -724,6 +748,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -761,6 +786,7 @@
           "default": {
             "@path": "$.properties.quantity"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -786,6 +812,7 @@
           "default": {
             "@path": "$.properties.price"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -811,6 +838,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -836,6 +864,7 @@
           "default": {
             "@path": "$.properties.product_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -861,6 +890,7 @@
           "default": {
             "@path": "$.properties.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -886,6 +916,7 @@
           "default": {
             "@path": "$.properties.category"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -911,6 +942,7 @@
           "default": {
             "@path": "$.properties.brand"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -936,6 +968,7 @@
           "default": {
             "@path": "$.properties.variant_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -961,6 +994,7 @@
           "default": {
             "@path": "$.properties.variant"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -986,6 +1020,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1021,6 +1056,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1058,6 +1094,7 @@
           "default": {
             "@path": "$.properties.value"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1083,6 +1120,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1108,6 +1146,7 @@
           "default": {
             "@path": "$.properties.coupon"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1133,6 +1172,7 @@
           "default": {
             "@path": "$.properties.order_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1156,6 +1196,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1209,6 +1250,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1221,6 +1263,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1244,6 +1287,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1267,6 +1311,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1290,6 +1335,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1313,6 +1359,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1336,6 +1383,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1359,6 +1407,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1382,6 +1431,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1419,6 +1469,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1454,6 +1505,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1491,6 +1543,7 @@
           "default": {
             "@path": "$.properties.coupon_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1514,6 +1567,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "promo",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1539,6 +1593,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1574,6 +1629,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1611,6 +1667,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1636,6 +1693,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1661,6 +1719,7 @@
           "default": {
             "@path": "$.properties.coupon"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1686,6 +1745,7 @@
           "default": {
             "@path": "$.properties.order_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1709,6 +1769,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1762,6 +1823,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1774,6 +1836,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1797,6 +1860,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1820,6 +1884,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1843,6 +1908,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1866,6 +1932,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1889,6 +1956,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1912,6 +1980,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1935,6 +2004,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1970,6 +2040,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1995,6 +2066,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2030,6 +2102,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2065,6 +2138,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "segment",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2090,6 +2164,7 @@
           "default": {
             "@path": "$.context.app.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2115,6 +2190,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2140,6 +2216,7 @@
           "default": {
             "@path": "$.context.device.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2165,6 +2242,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2190,6 +2268,7 @@
           "default": {
             "@path": "$.context.device.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2215,6 +2294,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2240,6 +2320,7 @@
           "default": {
             "@path": "$.context.device.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2265,6 +2346,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2300,6 +2382,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2337,6 +2420,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2362,6 +2446,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2385,6 +2470,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "segment",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2410,6 +2496,7 @@
           "default": {
             "@path": "$.context.app.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2435,6 +2522,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2460,6 +2548,7 @@
           "default": {
             "@path": "$.context.device.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2485,6 +2574,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2510,6 +2600,7 @@
           "default": {
             "@path": "$.context.device.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2535,6 +2626,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2560,6 +2652,7 @@
           "default": {
             "@path": "$.context.device.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2585,6 +2678,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2620,6 +2714,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -89,6 +89,7 @@
           "default": {
             "@path": "$.context.library.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -114,6 +115,7 @@
           "default": {
             "@path": "$.context.device.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -137,6 +139,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -172,6 +175,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -195,6 +199,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Good",
@@ -243,6 +248,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Low",
@@ -285,6 +291,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

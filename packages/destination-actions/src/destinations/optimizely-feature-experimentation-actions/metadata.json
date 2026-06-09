@@ -60,6 +60,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -95,6 +96,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -120,6 +122,7 @@
           "default": {
             "@path": "$.context.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -145,6 +148,7 @@
           "default": {
             "@path": "$.properties.revenue"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -170,6 +174,7 @@
           "default": {
             "@path": "$.properties.value"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -195,6 +200,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -220,6 +226,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -245,6 +252,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

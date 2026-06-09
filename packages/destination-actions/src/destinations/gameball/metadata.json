@@ -50,6 +50,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -75,6 +76,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -110,6 +112,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -145,6 +148,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -180,6 +184,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -227,6 +232,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -262,6 +268,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -297,6 +304,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -322,6 +330,7 @@
           "default": {
             "@path": "$.traits.displayName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -347,6 +356,7 @@
           "default": {
             "@path": "$.traits.first_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -372,6 +382,7 @@
           "default": {
             "@path": "$.traits.last_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -397,6 +408,7 @@
           "default": {
             "@path": "$.traits.gender"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -422,6 +434,7 @@
           "default": {
             "@path": "$.traits.birthday"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -447,6 +460,7 @@
           "default": {
             "@path": "$.traits.joinDate"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -472,6 +486,7 @@
           "default": {
             "@path": "$.traits.address.country"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -497,6 +512,7 @@
           "default": {
             "@path": "$.traits.address.city"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -522,6 +538,7 @@
           "default": {
             "@path": "$.traits.location.postalCode"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -547,6 +564,7 @@
           "default": {
             "@path": "$.context.locale"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -580,6 +598,7 @@
               "else": false
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -624,6 +643,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -636,6 +656,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -659,6 +680,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -682,6 +704,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -705,6 +728,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -728,6 +752,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -778,6 +803,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -790,6 +816,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -813,6 +840,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -836,6 +864,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -873,6 +902,7 @@
           "default": {
             "@path": "$.traits.totalSpent"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -898,6 +928,7 @@
           "default": {
             "@path": "$.traits.lastOrderDate"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -923,6 +954,7 @@
           "default": {
             "@path": "$.traits.totalOrders"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -948,6 +980,7 @@
           "default": {
             "@path": "$.traits.avgOrderAmount"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -973,6 +1006,7 @@
           "default": {
             "@path": "$.traits.tags"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -998,6 +1032,7 @@
           "default": {
             "@path": "$.traits.extra"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1023,6 +1058,7 @@
           "default": {
             "@path": "$.traits.referrerCode"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1048,6 +1084,7 @@
           "default": {
             "@path": "$.traits.levelOrder"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1073,6 +1110,7 @@
           "default": {
             "@path": "$.traits.deviceToken"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1120,6 +1158,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1155,6 +1194,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1190,6 +1230,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1215,6 +1256,7 @@
           "default": {
             "@path": "$.properties.order_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1240,6 +1282,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1265,6 +1308,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1290,6 +1334,7 @@
           "default": {
             "@path": "$.properties.subtotal"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1315,6 +1360,7 @@
           "default": {
             "@path": "$.properties.shipping"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1340,6 +1386,7 @@
           "default": {
             "@path": "$.properties.tax"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1365,6 +1412,7 @@
           "default": {
             "@path": "$.properties.discount"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1430,6 +1478,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1442,6 +1491,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1465,6 +1515,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1488,6 +1539,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1511,6 +1563,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1534,6 +1587,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1557,6 +1611,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1580,6 +1635,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1603,6 +1659,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1626,6 +1683,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1649,6 +1707,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1672,6 +1731,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1695,6 +1755,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1732,6 +1793,7 @@
           "default": {
             "@path": "$.properties.coupon"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1757,6 +1819,7 @@
           "default": {
             "@path": "$.properties.redeemedAmount"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1782,6 +1845,7 @@
           "default": {
             "@path": "$.properties.holdReference"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1815,6 +1879,7 @@
               "else": false
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1840,6 +1905,7 @@
           "default": {
             "@path": "$.properties.extra"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1865,6 +1931,7 @@
           "default": {
             "@path": "$.properties.merchantId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1890,6 +1957,7 @@
           "default": {
             "@path": "$.properties.merchantName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1915,6 +1983,7 @@
           "default": {
             "@path": "$.properties.branchId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1940,6 +2009,7 @@
           "default": {
             "@path": "$.properties.branchName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

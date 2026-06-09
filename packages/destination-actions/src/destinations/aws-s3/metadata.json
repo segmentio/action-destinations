@@ -140,6 +140,7 @@
             "integrations_object": "integrations_object",
             "properties_or_traits": "properties_or_traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -152,6 +153,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -175,6 +177,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -198,6 +201,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -221,6 +225,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -244,6 +249,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -267,6 +273,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -290,6 +297,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -313,6 +321,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -336,6 +345,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -359,6 +369,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -382,6 +393,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -419,6 +431,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -444,6 +457,7 @@
           "default": {
             "@path": "$.context.personas.computation_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -479,6 +493,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -504,6 +519,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -529,6 +545,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -554,6 +571,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -579,6 +597,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -604,6 +623,7 @@
           "default": {
             "@path": "$.context.personas.space_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -629,6 +649,7 @@
           "default": {
             "@path": "$.integrations"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -664,6 +685,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -687,6 +709,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -714,6 +737,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -737,6 +761,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 25000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -762,6 +787,7 @@
           "default": {
             "@path": "$.context.personas.computation_class"
           },
+          "format": null,
           "choices": [
             {
               "label": "Audience",

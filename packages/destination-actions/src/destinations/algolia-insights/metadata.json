@@ -60,6 +60,7 @@
           "default": {
             "@path": "$.properties.product_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -85,6 +86,7 @@
           "default": {
             "@path": "$.properties.search_index"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -120,6 +122,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -145,6 +148,7 @@
           "default": {
             "@path": "$.properties.position"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -180,6 +184,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -205,6 +210,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -230,6 +236,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -255,6 +262,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -278,6 +286,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Product Clicked",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -301,6 +310,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "click",
+          "format": null,
           "choices": [
             {
               "label": "view",
@@ -349,6 +359,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "purchase",
+          "format": null,
           "choices": [
             {
               "value": "purchase",
@@ -402,6 +413,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -413,6 +425,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -435,6 +448,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -457,6 +471,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -479,6 +494,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -501,6 +517,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -538,6 +555,7 @@
           "default": {
             "@path": "$.properties.search_index"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -573,6 +591,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -608,6 +627,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -633,6 +653,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -658,6 +679,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -683,6 +705,7 @@
           "default": {
             "@path": "$.properties.value"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -708,6 +731,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -733,6 +757,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -756,6 +781,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Conversion Event",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -779,6 +805,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "conversion",
+          "format": null,
           "choices": [
             {
               "label": "View",
@@ -829,6 +856,7 @@
           "default": {
             "@path": "$.properties.product_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -854,6 +882,7 @@
           "default": {
             "@path": "$.properties.search_index"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -889,6 +918,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -924,6 +954,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -949,6 +980,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -974,6 +1006,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -999,6 +1032,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1022,6 +1056,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Product Viewed",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1045,6 +1080,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "view",
+          "format": null,
           "choices": [
             {
               "label": "view",
@@ -1095,6 +1131,7 @@
           "default": {
             "@path": "$.properties.product_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1120,6 +1157,7 @@
           "default": {
             "@path": "$.properties.search_index"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1155,6 +1193,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1190,6 +1229,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1215,6 +1255,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1240,6 +1281,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1265,6 +1307,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1288,6 +1331,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Add to cart",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1311,6 +1355,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "conversion",
+          "format": null,
           "choices": [
             {
               "label": "view",
@@ -1371,6 +1416,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1383,6 +1429,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1406,6 +1453,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1443,6 +1491,7 @@
           "default": {
             "@path": "$.properties.search_index"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1478,6 +1527,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1513,6 +1563,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1538,6 +1589,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1563,6 +1615,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1588,6 +1641,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1611,6 +1665,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Product List Filtered",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1634,6 +1689,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "click",
+          "format": null,
           "choices": [
             {
               "label": "view",
@@ -1691,6 +1747,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1703,6 +1760,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1740,6 +1798,7 @@
           "default": {
             "@path": "$.properties.search_index"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1775,6 +1834,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1810,6 +1870,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1835,6 +1896,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1860,6 +1922,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1885,6 +1948,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1908,6 +1972,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Product List Viewed",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1931,6 +1996,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "view",
+          "format": null,
           "choices": [
             {
               "label": "view",

@@ -29,6 +29,7 @@
           "default": {
             "@path": "$.__segment_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -54,6 +55,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -77,6 +79,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -100,6 +103,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Sheet1",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -123,6 +127,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "RAW",
+          "format": null,
           "choices": [
             {
               "label": "Raw",
@@ -155,6 +160,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -178,6 +184,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -201,6 +208,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1001,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -224,6 +232,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 2000000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

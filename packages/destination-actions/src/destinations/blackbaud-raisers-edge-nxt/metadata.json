@@ -40,6 +40,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -65,6 +66,7 @@
           "default": {
             "@path": "$.properties.category"
           },
+          "format": null,
           "choices": [
             {
               "label": "Phone Call",
@@ -111,6 +113,7 @@
           "default": {
             "@path": "$.properties.completed"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -136,6 +139,7 @@
           "default": {
             "@path": "$.properties.completedDate"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -161,6 +165,7 @@
           "default": {
             "@path": "$.properties.description"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -184,6 +189,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Inbound",
+          "format": null,
           "choices": [
             {
               "label": "Inbound",
@@ -218,6 +224,7 @@
           "default": {
             "@path": "$.properties.endTime"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -241,6 +248,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -266,6 +274,7 @@
           "default": {
             "@path": "$.properties.location"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -289,6 +298,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -314,6 +324,7 @@
           "default": {
             "@path": "$.properties.outcome"
           },
+          "format": null,
           "choices": [
             {
               "label": "Successful",
@@ -346,6 +357,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Normal",
+          "format": null,
           "choices": [
             {
               "label": "High",
@@ -384,6 +396,7 @@
           "default": {
             "@path": "$.properties.startTime"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -409,6 +422,7 @@
           "default": {
             "@path": "$.properties.status"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -434,6 +448,7 @@
           "default": {
             "@path": "$.properties.summary"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -459,6 +474,7 @@
           "default": {
             "@path": "$.properties.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -484,6 +500,7 @@
           "default": {
             "@path": "$.properties.author"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -576,6 +593,7 @@
             },
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -587,6 +605,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -609,6 +628,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -631,6 +651,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -653,6 +674,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -675,6 +697,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -697,6 +720,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -719,6 +743,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -741,6 +766,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -788,6 +814,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -823,6 +850,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -846,6 +874,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -886,6 +915,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -897,6 +927,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -919,6 +950,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -941,6 +973,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -963,6 +996,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1010,6 +1044,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1045,6 +1080,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1080,6 +1116,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1115,6 +1152,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1150,6 +1188,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1185,6 +1224,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1220,6 +1260,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1255,6 +1296,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1278,6 +1320,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1313,6 +1356,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1352,6 +1396,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1363,6 +1408,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1385,6 +1431,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1407,6 +1454,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1459,6 +1507,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1470,6 +1519,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1492,6 +1542,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1514,6 +1565,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1536,6 +1588,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1583,6 +1636,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1618,6 +1672,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1653,6 +1708,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1688,6 +1744,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1723,6 +1780,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1758,6 +1816,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1800,6 +1859,7 @@
               "@path": "$.properties.acknowledgement.status"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1812,6 +1872,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1835,6 +1896,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1872,6 +1934,7 @@
           "default": {
             "@path": "$.properties.revenue"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1897,6 +1960,7 @@
           "default": {
             "@path": "$.properties.batchNumber"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1922,6 +1986,7 @@
           "default": {
             "@path": "$.properties.batchPrefix"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1947,6 +2012,7 @@
           "default": {
             "@path": "$.properties.checkDate"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1980,6 +2046,7 @@
           "default": {
             "@path": "$.properties.checkNumber"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2013,6 +2080,7 @@
           "default": {
             "@path": "$.properties.constituency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2036,6 +2104,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2061,6 +2130,7 @@
           "default": {
             "@path": "$.properties.defaultFundraiserCredits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2086,6 +2156,7 @@
           "default": {
             "@path": "$.properties.defaultSoftCredits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2111,6 +2182,7 @@
           "default": {
             "@path": "$.properties.fundId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2136,6 +2208,7 @@
           "default": {
             "@path": "$.properties.giftCode"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2161,6 +2234,7 @@
           "default": {
             "@path": "$.properties.giftStatus"
           },
+          "format": null,
           "choices": [
             {
               "label": "Active",
@@ -2207,6 +2281,7 @@
           "default": {
             "@path": "$.properties.isAnonymous"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2230,6 +2305,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2253,6 +2329,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2278,6 +2355,7 @@
           "default": {
             "@path": "$.properties.paymentMethod"
           },
+          "format": null,
           "choices": [
             {
               "label": "Cash",
@@ -2332,6 +2410,7 @@
           "default": {
             "@path": "$.properties.postDate"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2355,6 +2434,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "NotPosted",
+          "format": null,
           "choices": [
             {
               "label": "Posted",
@@ -2398,6 +2478,7 @@
               "@path": "$.properties.receipt.status"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2410,6 +2491,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2433,6 +2515,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2478,6 +2561,7 @@
               "@path": "$.properties.recurring_gift_schedule.start_date"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2490,6 +2574,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2513,6 +2598,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2536,6 +2622,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2573,6 +2660,7 @@
           "default": {
             "@path": "$.properties.reference"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2598,6 +2686,7 @@
           "default": {
             "@path": "$.properties.subtype"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2621,6 +2710,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Donation",
+          "format": null,
           "choices": [
             {
               "label": "Donation",
@@ -2734,6 +2824,7 @@
             },
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2745,6 +2836,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2767,6 +2859,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2789,6 +2882,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2811,6 +2905,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2833,6 +2928,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2855,6 +2951,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2877,6 +2974,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2899,6 +2997,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2946,6 +3045,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2981,6 +3081,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3004,6 +3105,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3044,6 +3146,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3055,6 +3158,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3077,6 +3181,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3099,6 +3204,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3121,6 +3227,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3168,6 +3275,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3203,6 +3311,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3238,6 +3347,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3273,6 +3383,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3308,6 +3419,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3343,6 +3455,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3378,6 +3491,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3413,6 +3527,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3436,6 +3551,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3471,6 +3587,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3510,6 +3627,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3521,6 +3639,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3543,6 +3662,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3565,6 +3685,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3617,6 +3738,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3628,6 +3750,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3650,6 +3773,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3672,6 +3796,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3694,6 +3819,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3741,6 +3867,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3776,6 +3903,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3811,6 +3939,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3846,6 +3975,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3881,6 +4011,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3916,6 +4047,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4020,6 +4152,7 @@
             },
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -4031,6 +4164,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4053,6 +4187,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4075,6 +4210,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4097,6 +4233,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4119,6 +4256,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4141,6 +4279,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4163,6 +4302,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4185,6 +4325,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4232,6 +4373,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4267,6 +4409,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4290,6 +4433,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4330,6 +4474,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -4341,6 +4486,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4363,6 +4509,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4385,6 +4532,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4407,6 +4555,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4454,6 +4603,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4489,6 +4639,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4524,6 +4675,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4559,6 +4711,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4594,6 +4747,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4629,6 +4783,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4664,6 +4819,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4699,6 +4855,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4722,6 +4879,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4757,6 +4915,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4796,6 +4955,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -4807,6 +4967,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4829,6 +4990,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4851,6 +5013,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4903,6 +5066,7 @@
             "primary": "",
             "type": ""
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -4914,6 +5078,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4936,6 +5101,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4958,6 +5124,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4980,6 +5147,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -5027,6 +5195,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5062,6 +5231,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5097,6 +5267,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5132,6 +5303,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5167,6 +5339,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5202,6 +5375,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

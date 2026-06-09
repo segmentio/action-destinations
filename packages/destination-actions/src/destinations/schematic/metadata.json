@@ -41,6 +41,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -64,6 +65,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -89,6 +91,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -116,6 +119,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -143,6 +147,7 @@
               "@path": "$.event"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -155,6 +160,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -206,6 +212,7 @@
               "@path": "$.context.groupId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -231,6 +238,7 @@
           "default": {
             "@path": "$.traits.company_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -254,6 +262,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -279,6 +288,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -306,6 +316,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -331,6 +342,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -354,6 +366,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -78,6 +78,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Create new record",
@@ -118,6 +119,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -162,6 +164,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -193,6 +196,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -224,6 +228,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -259,6 +264,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -271,6 +277,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -294,6 +301,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -343,6 +351,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -392,6 +401,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -435,6 +445,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -478,6 +489,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -521,6 +533,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -564,6 +577,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -607,6 +621,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -650,6 +665,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -693,6 +709,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -736,6 +753,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -767,6 +785,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -810,6 +829,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Create new record",
@@ -850,6 +870,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -894,6 +915,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -925,6 +947,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -956,6 +979,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -991,6 +1015,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1003,6 +1028,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1026,6 +1052,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1075,6 +1102,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1112,6 +1140,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1135,6 +1164,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1178,6 +1208,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Create new record",
@@ -1218,6 +1249,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -1262,6 +1294,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1293,6 +1326,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1324,6 +1358,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1359,6 +1394,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1371,6 +1407,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1394,6 +1431,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1443,6 +1481,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1480,6 +1519,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1511,6 +1551,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1554,6 +1595,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Create new record",
@@ -1594,6 +1636,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -1638,6 +1681,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1669,6 +1713,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1700,6 +1745,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1735,6 +1781,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1747,6 +1794,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1770,6 +1818,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1819,6 +1868,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1868,6 +1918,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1911,6 +1962,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1942,6 +1994,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1985,6 +2038,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2028,6 +2082,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2071,6 +2126,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2114,6 +2170,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2157,6 +2214,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2200,6 +2258,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2231,6 +2290,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2274,6 +2334,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Create new record",
@@ -2314,6 +2375,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -2358,6 +2420,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2389,6 +2452,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2420,6 +2484,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2455,6 +2520,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2467,6 +2533,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2490,6 +2557,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2539,6 +2607,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2576,6 +2645,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2607,6 +2677,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2638,6 +2709,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2669,6 +2741,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2700,6 +2773,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2731,6 +2805,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2774,6 +2849,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Create new record",
@@ -2814,6 +2890,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2845,6 +2922,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2876,6 +2954,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -2920,6 +2999,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2955,6 +3035,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2967,6 +3048,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2990,6 +3072,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3039,6 +3122,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3078,6 +3162,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3111,6 +3196,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3154,6 +3240,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3197,6 +3284,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3240,6 +3328,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3283,6 +3372,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3326,6 +3416,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3369,6 +3460,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3400,6 +3492,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3431,6 +3524,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3462,6 +3556,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3493,6 +3588,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3524,6 +3620,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3567,6 +3664,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3610,6 +3708,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3653,6 +3752,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3684,6 +3784,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3749,6 +3850,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -3800,6 +3902,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3832,6 +3935,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3864,6 +3968,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3906,6 +4011,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3918,6 +4024,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3941,6 +4048,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3990,6 +4098,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4027,6 +4136,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4071,6 +4181,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4115,6 +4226,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4159,6 +4271,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4203,6 +4316,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4247,6 +4361,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4291,6 +4406,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4335,6 +4451,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4379,6 +4496,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4423,6 +4541,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4489,6 +4608,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -4540,6 +4660,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4572,6 +4693,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4604,6 +4726,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4646,6 +4769,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -4658,6 +4782,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4681,6 +4806,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4730,6 +4856,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4767,6 +4894,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4790,6 +4918,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4856,6 +4985,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4888,6 +5018,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4920,6 +5051,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -4971,6 +5103,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5013,6 +5146,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -5025,6 +5159,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -5048,6 +5183,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -5097,6 +5233,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5136,6 +5273,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5170,6 +5308,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5214,6 +5353,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5258,6 +5398,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5302,6 +5443,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5346,6 +5488,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5390,6 +5533,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5434,6 +5578,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5466,6 +5611,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5498,6 +5644,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5530,6 +5677,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5562,6 +5710,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5594,6 +5743,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5638,6 +5788,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5682,6 +5833,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5726,6 +5878,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5758,6 +5911,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5824,6 +5978,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -5875,6 +6030,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5907,6 +6063,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5939,6 +6096,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5981,6 +6139,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -5993,6 +6152,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -6016,6 +6176,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -6065,6 +6226,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6102,6 +6264,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6134,6 +6297,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6166,6 +6330,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6198,6 +6363,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6230,6 +6396,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6262,6 +6429,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6328,6 +6496,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -6379,6 +6548,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6411,6 +6581,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6443,6 +6614,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6485,6 +6657,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -6497,6 +6670,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -6520,6 +6694,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -6569,6 +6744,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6618,6 +6794,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6662,6 +6839,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6694,6 +6872,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6738,6 +6917,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6782,6 +6962,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6826,6 +7007,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6870,6 +7052,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6914,6 +7097,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6958,6 +7142,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -6990,6 +7175,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -7056,6 +7242,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "OR",
+          "format": null,
           "choices": [
             {
               "label": "OR",
@@ -7107,6 +7294,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -7139,6 +7327,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 5000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -7171,6 +7360,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -7213,6 +7403,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -7225,6 +7416,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -7248,6 +7440,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -7297,6 +7490,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -7334,6 +7528,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -7366,6 +7561,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -38,6 +38,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -63,6 +64,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -98,6 +100,7 @@
               }
             }
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -121,6 +124,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -144,6 +148,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -167,6 +172,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -204,6 +210,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -229,6 +236,7 @@
           "default": {
             "@path": "$.traits.company"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -264,6 +272,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -299,6 +308,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -324,6 +334,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -349,6 +360,7 @@
           "default": {
             "@path": "$.traits.address.street"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -374,6 +386,7 @@
           "default": {
             "@path": "$.traits.address.city"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -399,6 +412,7 @@
           "default": {
             "@path": "$.traits.address.state"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -424,6 +438,7 @@
           "default": {
             "@path": "$.traits.address.country"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -459,6 +474,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -484,6 +500,7 @@
           "default": {
             "@path": "$.traits.website"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -507,6 +524,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -530,6 +548,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -553,6 +572,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -600,6 +620,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -623,6 +644,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -646,6 +668,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -669,6 +692,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -694,6 +718,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -719,6 +744,7 @@
           "default": {
             "@path": "$.traits.description"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -744,6 +770,7 @@
           "default": {
             "@path": "$.traits.address.street"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -769,6 +796,7 @@
           "default": {
             "@path": "$.traits.address.city"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -794,6 +822,7 @@
           "default": {
             "@path": "$.traits.address.state"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -829,6 +858,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -854,6 +884,7 @@
           "default": {
             "@path": "$.traits.website"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -879,6 +910,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -904,6 +936,7 @@
           "default": {
             "@path": "$.traits.employees"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -929,6 +962,7 @@
           "default": {
             "@path": "$.traits.industry"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -952,6 +986,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -975,6 +1010,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1010,6 +1046,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1033,6 +1070,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1056,6 +1094,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1085,6 +1124,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1108,6 +1148,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1131,6 +1172,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1160,6 +1202,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1213,6 +1256,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1225,6 +1269,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1254,6 +1299,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1283,6 +1329,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1306,6 +1353,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1347,6 +1395,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1370,6 +1419,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1393,6 +1443,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "upsert",
+          "format": null,
           "choices": [
             {
               "label": "Create",
@@ -1431,6 +1482,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1443,6 +1495,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1472,6 +1525,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1501,6 +1555,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1530,6 +1585,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1565,6 +1621,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1577,6 +1634,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1606,6 +1664,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1635,6 +1694,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1664,6 +1724,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1702,6 +1763,7 @@
             "connected_to_engage_audience": false,
             "should_create_list": true
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1714,6 +1776,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1740,6 +1803,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1763,6 +1827,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1789,6 +1854,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1827,6 +1893,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1850,6 +1917,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1875,6 +1943,7 @@
           "default": [
             "list_details"
           ],
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1900,6 +1969,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1941,6 +2011,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1966,6 +2037,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1991,6 +2063,7 @@
           "default": {
             "@path": "$.context.personas.computation_class"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2044,6 +2117,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2067,6 +2141,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2079,6 +2154,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2108,6 +2184,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2143,6 +2220,7 @@
                   }
                 }
               },
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2175,6 +2253,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2219,6 +2298,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2244,6 +2324,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -78,6 +78,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -103,6 +104,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -128,6 +130,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -151,6 +154,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Owner & followers (private)",
@@ -191,6 +195,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -214,6 +219,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -249,6 +255,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -274,6 +281,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -299,6 +307,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -324,6 +333,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -349,6 +359,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -372,6 +383,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Owner & followers (private)",
@@ -412,6 +424,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -435,6 +448,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -472,6 +486,7 @@
           "default": {
             "@path": "$.properties.activity_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -495,6 +510,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -520,6 +536,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -543,6 +560,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -568,6 +586,7 @@
           "default": {
             "@path": "$.context.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -591,6 +610,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -616,6 +636,7 @@
           "default": {
             "@path": "$.properties.deal_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -641,6 +662,7 @@
           "default": {
             "@path": "$.properties.subject"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -666,6 +688,7 @@
           "default": {
             "@path": "$.properties.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -691,6 +714,7 @@
           "default": {
             "@path": "$.properties.description"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -716,6 +740,7 @@
           "default": {
             "@path": "$.properties.note"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -741,6 +766,7 @@
           "default": {
             "@path": "$.properties.due_date"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -766,6 +792,7 @@
           "default": {
             "@path": "$.properties.due_time"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -791,6 +818,7 @@
           "default": {
             "@path": "$.properties.duration"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -816,6 +844,7 @@
           "default": {
             "@path": "$.properties.done"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -851,6 +880,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -876,6 +906,7 @@
           "default": {
             "@path": "$.properties.deal_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -899,6 +930,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -924,6 +956,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -947,6 +980,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -972,6 +1006,7 @@
           "default": {
             "@path": "$.context.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -997,6 +1032,7 @@
           "default": {
             "@path": "$.properties.title"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1022,6 +1058,7 @@
           "default": {
             "@path": "$.properties.value"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1047,6 +1084,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1072,6 +1110,7 @@
           "default": {
             "@path": "$.properties.stage_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1095,6 +1134,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Open",
@@ -1137,6 +1177,7 @@
           "default": {
             "@path": "$.properties.expected_close_date"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1162,6 +1203,7 @@
           "default": {
             "@path": "$.properties.success_probability"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1187,6 +1229,7 @@
           "default": {
             "@path": "$.properties.lost_reason"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1210,6 +1253,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Owner & followers (private)",
@@ -1250,6 +1294,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1273,6 +1318,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1320,6 +1366,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1343,6 +1390,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1368,6 +1416,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1391,6 +1440,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1416,6 +1466,7 @@
           "default": {
             "@path": "$.context.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1451,6 +1502,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1486,6 +1538,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1521,6 +1574,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1556,6 +1610,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1579,6 +1634,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Owner & followers (private)",
@@ -1633,6 +1689,7 @@
           "default": {
             "@path": "$.properties.note_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1658,6 +1715,7 @@
           "default": {
             "@path": "$.properties.lead_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1681,6 +1739,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1706,6 +1765,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1729,6 +1789,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1754,6 +1815,7 @@
           "default": {
             "@path": "$.context.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1777,6 +1839,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1802,6 +1865,7 @@
           "default": {
             "@path": "$.properties.deal_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1827,6 +1891,7 @@
           "default": {
             "@path": "$.properties.content"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

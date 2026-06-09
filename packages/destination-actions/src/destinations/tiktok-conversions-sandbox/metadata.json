@@ -48,6 +48,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -73,6 +74,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -98,6 +100,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -133,6 +136,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -168,6 +172,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -193,6 +198,7 @@
           "default": {
             "@path": "$.properties.order_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -218,6 +224,7 @@
           "default": {
             "@path": "$.properties.shop_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -253,6 +260,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -288,6 +296,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -323,6 +332,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -348,6 +358,7 @@
           "default": {
             "@path": "$.properties.lead_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -373,6 +384,7 @@
           "default": {
             "@path": "$.context.locale"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -398,6 +410,7 @@
           "default": {
             "@path": "$.context.page.url"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -423,6 +436,7 @@
           "default": {
             "@path": "$.context.page.referrer"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -448,6 +462,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -473,6 +488,7 @@
           "default": {
             "@path": "$.context.userAgent"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -496,6 +512,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -508,6 +525,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -531,6 +549,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -554,6 +573,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -577,6 +597,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -600,6 +621,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -623,6 +645,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -658,6 +681,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "product",
+          "format": null,
           "choices": [
             {
               "label": "product",
@@ -692,6 +716,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -727,6 +752,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -750,6 +776,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -775,6 +802,7 @@
           "default": {
             "@path": "$.properties.query"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -800,6 +828,7 @@
           "default": {
             "@path": "$.properties.limited_data_use"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -823,6 +852,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

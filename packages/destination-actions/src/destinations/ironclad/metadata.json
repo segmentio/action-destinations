@@ -70,6 +70,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -95,6 +96,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -118,6 +120,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -141,6 +144,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "displayed",
+          "format": null,
           "choices": [
             {
               "label": "Displayed",
@@ -211,6 +215,7 @@
               "@path": "$.context.screen"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -250,6 +255,7 @@
               "@path": "$.properties.customer_id"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

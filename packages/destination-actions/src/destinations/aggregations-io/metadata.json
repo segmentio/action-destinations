@@ -51,6 +51,7 @@
           "default": {
             "@path": "$."
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -74,6 +75,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -97,6 +99,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 300,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

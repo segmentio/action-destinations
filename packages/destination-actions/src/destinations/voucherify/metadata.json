@@ -60,6 +60,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -85,6 +86,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -110,6 +112,7 @@
           "default": {
             "@path": "$.traits.first_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -135,6 +138,7 @@
           "default": {
             "@path": "$.traits.last_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -160,6 +164,7 @@
           "default": {
             "@path": "$.traits.description"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -185,6 +190,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -210,6 +216,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -235,6 +242,7 @@
           "default": {
             "@path": "$.traits.birthdate"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -274,6 +282,7 @@
               "@path": "$.traits.address.country"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -285,6 +294,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -307,6 +317,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -329,6 +340,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -351,6 +363,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -373,6 +386,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -410,6 +424,7 @@
           "default": {
             "@path": "$.traits.metadata"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -435,6 +450,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -487,6 +503,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -499,6 +516,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -522,6 +540,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -564,6 +583,7 @@
               "@path": "$.properties.referral.referrer_id"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -575,6 +595,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -597,6 +618,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -636,6 +658,7 @@
               "@path": "$.properties.loyalty.code"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -647,6 +670,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -684,6 +708,7 @@
           "default": {
             "@path": "$.properties.metadata"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -719,6 +744,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -744,6 +770,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -786,6 +813,7 @@
               "@path": "$.email"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -798,6 +826,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -821,6 +850,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -858,6 +888,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -883,6 +914,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -908,6 +940,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

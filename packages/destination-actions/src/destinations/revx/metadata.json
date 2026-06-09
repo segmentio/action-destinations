@@ -40,6 +40,7 @@
           "default": {
             "@path": "$.context.device.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -65,6 +66,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -100,6 +102,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -125,6 +128,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -150,6 +154,7 @@
           "default": {
             "@path": "$.context.device.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -175,6 +180,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -200,6 +206,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -225,6 +232,7 @@
           "default": {
             "@path": "$.context.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -250,6 +258,7 @@
           "default": {
             "@path": "$.context.app.version"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -275,6 +284,7 @@
           "default": {
             "@path": "$.context.os.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -300,6 +310,7 @@
           "default": {
             "@path": "$.context.os.version"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -325,6 +336,7 @@
           "default": {
             "@path": "$.context.device.brand"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -350,6 +362,7 @@
           "default": {
             "@path": "$.context.device.manufacturer"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -375,6 +388,7 @@
           "default": {
             "@path": "$.context.device.model"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -400,6 +414,7 @@
           "default": {
             "@path": "$.context.network.carrier"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -425,6 +440,7 @@
           "default": {
             "@path": "$.context.location.country"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -450,6 +466,7 @@
           "default": {
             "@path": "$.context.location.region"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -475,6 +492,7 @@
           "default": {
             "@path": "$.context.location.city"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -498,6 +516,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -523,6 +542,7 @@
           "default": {
             "@path": "$.context.locale"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -556,6 +576,7 @@
               "@path": "$.properties.product_id"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -568,6 +589,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -591,6 +613,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -614,6 +637,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -664,6 +688,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -676,6 +701,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -699,6 +725,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -722,6 +749,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -759,6 +787,7 @@
           "default": {
             "@path": "$.context.location.latitude"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -784,6 +813,7 @@
           "default": {
             "@path": "$.context.location.longitude"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -809,6 +839,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

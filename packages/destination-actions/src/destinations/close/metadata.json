@@ -60,6 +60,7 @@
           "default": {
             "@path": "$.traits.company.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -85,6 +86,7 @@
           "default": {
             "@path": "$.traits.company.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -108,6 +110,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -131,6 +134,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -154,6 +158,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -179,6 +184,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -204,6 +210,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -229,6 +236,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -254,6 +262,7 @@
           "default": {
             "@path": "$.traits.website"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -279,6 +288,7 @@
           "default": {
             "@path": "$.traits.title"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -304,6 +314,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -327,6 +338,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -350,6 +362,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -373,6 +386,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -396,6 +410,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -419,6 +434,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -442,6 +458,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -52,6 +52,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -64,6 +65,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -99,6 +101,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -122,6 +125,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 200,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -207,6 +211,7 @@
               "@path": "$.context.locale"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -219,6 +224,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -242,6 +248,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -265,6 +272,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -288,6 +296,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "Subscribed",
@@ -324,6 +333,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "Subscribed",
@@ -360,6 +370,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -383,6 +394,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -420,6 +432,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -445,6 +458,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

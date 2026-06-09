@@ -212,6 +212,7 @@
               "@path": "$.context.personas.space_id"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -224,6 +225,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -247,6 +249,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -270,6 +273,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -293,6 +297,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -316,6 +321,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -339,6 +345,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -362,6 +369,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -385,6 +393,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -408,6 +417,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -431,6 +441,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -454,6 +465,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -477,6 +489,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -500,6 +513,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -523,6 +537,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -558,6 +573,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -581,6 +597,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "csv",
+          "format": null,
           "choices": [
             {
               "label": "csv",
@@ -621,6 +638,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": ",",
+          "format": null,
           "choices": [
             {
               "label": "comma",
@@ -671,6 +689,7 @@
           "default": {
             "@template": "/"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -694,6 +713,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -717,6 +737,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -740,6 +761,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "batch_size",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -767,6 +789,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "audience_action",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -806,6 +829,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -831,6 +855,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -866,6 +891,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -889,6 +915,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -912,6 +939,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "csv",
+          "format": null,
           "choices": [
             {
               "label": "csv",
@@ -952,6 +980,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": ",",
+          "format": null,
           "choices": [
             {
               "label": "comma",
@@ -1002,6 +1031,7 @@
           "default": {
             "@template": "/"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1025,6 +1055,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1048,6 +1079,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1071,6 +1103,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "batch_size",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

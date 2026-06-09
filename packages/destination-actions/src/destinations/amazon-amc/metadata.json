@@ -184,6 +184,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -209,6 +210,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -244,6 +246,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -269,6 +272,7 @@
           "default": {
             "@path": "$.properties.first_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -294,6 +298,7 @@
           "default": {
             "@path": "$.properties.last_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -319,6 +324,7 @@
           "default": {
             "@path": "$.properties.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -344,6 +350,7 @@
           "default": {
             "@path": "$.properties.postal"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -369,6 +376,7 @@
           "default": {
             "@path": "$.properties.state"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -394,6 +402,7 @@
           "default": {
             "@path": "$.properties.city"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -419,6 +428,7 @@
           "default": {
             "@path": "$.properties.address"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -444,6 +454,7 @@
           "default": {
             "@path": "$.context.personas.external_audience_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -483,6 +494,7 @@
               "@path": "$.properties.gpp"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -495,6 +507,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -518,6 +531,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "Granted",
@@ -550,6 +564,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "Granted",
@@ -582,6 +597,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -605,6 +621,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -640,6 +657,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -663,6 +681,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 10000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

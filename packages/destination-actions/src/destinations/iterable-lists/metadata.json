@@ -89,6 +89,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -114,6 +115,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -137,6 +139,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -172,6 +175,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -197,6 +201,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -222,6 +227,7 @@
           "default": {
             "@path": "$.context.personas.external_audience_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

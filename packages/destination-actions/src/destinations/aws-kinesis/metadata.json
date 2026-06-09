@@ -50,6 +50,7 @@
           "default": {
             "@path": "$."
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -75,6 +76,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -98,6 +100,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -121,6 +124,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "us-east-1",
@@ -210,6 +214,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -241,6 +246,7 @@
             "awsRegion",
             "streamName"
           ],
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -264,6 +270,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -292,6 +299,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -315,6 +323,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1000000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

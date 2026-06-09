@@ -51,6 +51,7 @@
           "default": {
             "@path": "$.context.personas.computation_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -76,6 +77,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -101,6 +103,7 @@
           "default": {
             "@path": "$.context.personas.computation_class"
           },
+          "format": null,
           "choices": [
             {
               "label": "audience",
@@ -133,6 +136,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "user",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -158,6 +162,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -183,6 +188,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -218,6 +224,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -241,6 +248,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "user_id_only",
+          "format": null,
           "choices": [
             {
               "value": "user_id_then_email",
@@ -297,6 +305,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -320,6 +329,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -343,6 +353,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "ADD",

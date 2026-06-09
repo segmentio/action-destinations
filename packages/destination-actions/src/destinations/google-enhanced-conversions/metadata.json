@@ -118,6 +118,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -153,6 +154,7 @@
               }
             }
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -178,6 +180,7 @@
           "default": {
             "@path": "$.properties.orderId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -203,6 +206,7 @@
           "default": {
             "@path": "$.context.userAgent"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -228,6 +232,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -253,6 +258,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -278,6 +284,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -301,6 +308,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -324,6 +332,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -359,6 +368,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -394,6 +404,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -429,6 +440,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -464,6 +476,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -499,6 +512,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -534,6 +548,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -569,6 +584,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -604,6 +620,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -639,6 +656,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -662,6 +680,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -685,6 +704,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -708,6 +728,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -733,6 +754,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -758,6 +780,7 @@
           "default": {
             "@path": "$.integrations.Google Ads Conversions.session_attributes_encoded"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -800,6 +823,7 @@
               "@path": "$.context.userAgent"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -812,6 +836,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -835,6 +860,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -858,6 +884,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -881,6 +908,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "date-time",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -904,6 +932,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -927,6 +956,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -964,6 +994,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -999,6 +1030,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1022,6 +1054,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1057,6 +1090,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1092,6 +1126,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1117,6 +1152,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1142,6 +1178,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1165,6 +1202,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "APP",
@@ -1201,6 +1239,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1224,6 +1263,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1247,6 +1287,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1270,6 +1311,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1308,6 +1350,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1320,6 +1363,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1343,6 +1387,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1366,6 +1411,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1401,6 +1447,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1424,6 +1471,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -1460,6 +1508,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -1496,6 +1545,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1519,6 +1569,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1554,6 +1605,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1577,6 +1629,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1600,6 +1653,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1625,6 +1679,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1650,6 +1705,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1675,6 +1731,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1698,6 +1755,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1721,6 +1779,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -1757,6 +1816,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -1793,6 +1853,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1816,6 +1877,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1851,6 +1913,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1874,6 +1937,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "UNSPECIFIED",
@@ -1920,6 +1984,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1955,6 +2020,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1978,6 +2044,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2001,6 +2068,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2024,6 +2092,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2057,6 +2126,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2102,6 +2172,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2125,6 +2196,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2160,6 +2232,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2195,6 +2268,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2230,6 +2304,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2265,6 +2340,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2300,6 +2376,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2335,6 +2412,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2370,6 +2448,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2405,6 +2484,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2430,6 +2510,7 @@
           "default": {
             "@path": "$.context.userAgent"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2453,6 +2534,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2476,6 +2558,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2521,6 +2604,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2544,6 +2628,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "UNSPECIFIED",
@@ -2590,6 +2675,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2625,6 +2711,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2648,6 +2735,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2671,6 +2759,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2694,6 +2783,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2727,6 +2817,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2760,6 +2851,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2795,6 +2887,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2830,6 +2923,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2865,6 +2959,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2900,6 +2995,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2935,6 +3031,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2970,6 +3067,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3005,6 +3103,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3040,6 +3139,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3075,6 +3175,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3100,6 +3201,7 @@
           "default": {
             "@path": "$.context.userAgent"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3123,6 +3225,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3146,6 +3249,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3191,6 +3295,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3214,6 +3319,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3237,6 +3343,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3260,6 +3367,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3285,6 +3393,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3310,6 +3419,7 @@
           "default": {
             "@path": "$.integrations.Google Ads Conversions.session_attributes_encoded"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3352,6 +3462,7 @@
               "@path": "$.context.userAgent"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3364,6 +3475,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3387,6 +3499,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3410,6 +3523,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3433,6 +3547,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "date-time",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3456,6 +3571,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3479,6 +3595,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3516,6 +3633,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3551,6 +3669,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3574,6 +3693,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3609,6 +3729,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3644,6 +3765,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3669,6 +3791,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3694,6 +3817,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3717,6 +3841,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "APP",
@@ -3753,6 +3878,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3776,6 +3902,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3799,6 +3926,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3822,6 +3950,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3860,6 +3989,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3872,6 +4002,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3895,6 +4026,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3918,6 +4050,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -3953,6 +4086,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -3976,6 +4110,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -4012,6 +4147,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -4048,6 +4184,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4071,6 +4208,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4116,6 +4254,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4139,6 +4278,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4162,6 +4302,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4187,6 +4328,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4212,6 +4354,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4237,6 +4380,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4260,6 +4404,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4283,6 +4428,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -4319,6 +4465,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -4355,6 +4502,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4378,6 +4526,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 1500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4434,6 +4583,7 @@
               "allowNull": false,
               "dynamic": true,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4457,6 +4607,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4480,6 +4631,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": "CONTACT_INFO",
+              "format": null,
               "choices": [
                 {
                   "label": "CONTACT INFO",
@@ -4516,6 +4668,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4550,6 +4703,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4573,6 +4727,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4596,6 +4751,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -4635,6 +4791,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4670,6 +4827,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4705,6 +4863,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4740,6 +4899,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4763,6 +4923,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4786,6 +4947,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4809,6 +4971,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4832,6 +4995,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4857,6 +5021,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4880,6 +5045,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -4916,6 +5082,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "GRANTED",
@@ -4954,6 +5121,7 @@
           "default": {
             "@path": "$.context.personas.external_audience_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -4977,6 +5145,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5000,6 +5169,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 10000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -5025,6 +5195,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

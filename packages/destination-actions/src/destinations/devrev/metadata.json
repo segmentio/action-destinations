@@ -49,6 +49,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -84,6 +85,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -109,6 +111,7 @@
           "default": {
             "@path": "$.properties.description"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -134,6 +137,7 @@
           "default": {
             "@path": "$.properties.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -157,6 +161,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -180,6 +185,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "p2",
+          "format": null,
           "choices": [
             {
               "value": "p0",
@@ -220,6 +226,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "issue",
+          "format": null,
           "choices": [
             {
               "value": "issue",
@@ -276,6 +283,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -311,6 +319,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -346,6 +355,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -381,6 +391,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -404,6 +415,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -427,6 +439,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -464,6 +477,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -489,6 +503,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -514,6 +529,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -549,6 +565,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -584,6 +601,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -619,6 +637,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -654,6 +673,7 @@
               }
             }
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -679,6 +699,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -704,6 +725,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -729,6 +751,7 @@
           "default": {
             "@path": "$.context"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -754,6 +777,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -789,6 +813,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "userRef",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -812,6 +837,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "accountRef",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -835,6 +861,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "workspaceRef",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

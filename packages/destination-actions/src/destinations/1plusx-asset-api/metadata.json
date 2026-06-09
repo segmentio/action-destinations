@@ -60,6 +60,7 @@
           "default": {
             "@template": "NAMESPACE:asset_uri"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -85,6 +86,7 @@
           "default": {
             "@path": "$.properties.title"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -110,6 +112,7 @@
           "default": {
             "@path": "$.properties.content"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -133,6 +136,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -90,6 +90,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -115,6 +116,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -140,6 +142,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": [
             {
               "label": "Track",
@@ -190,6 +193,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -215,6 +219,7 @@
           "default": {
             "@path": "$.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -240,6 +245,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -265,6 +271,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -290,6 +297,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -315,6 +323,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -350,6 +359,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -375,6 +385,7 @@
           "default": {
             "@path": "$.context"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -398,6 +409,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -421,6 +433,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

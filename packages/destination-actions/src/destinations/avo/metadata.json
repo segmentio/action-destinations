@@ -73,6 +73,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -98,6 +99,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -123,6 +125,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -148,6 +151,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -173,6 +177,7 @@
           "default": {
             "@path": "$.context.app.version"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -198,6 +203,7 @@
           "default": {
             "@path": "$.context.app.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -223,6 +229,7 @@
           "default": {
             "@path": "$.context.page.url"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

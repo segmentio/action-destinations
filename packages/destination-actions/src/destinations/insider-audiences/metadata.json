@@ -50,6 +50,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -75,6 +76,7 @@
           "default": {
             "@path": "$.context.personas.computation_class"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -98,6 +100,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -133,6 +136,7 @@
               }
             }
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -168,6 +172,7 @@
               }
             }
           },
+          "format": "text",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -203,6 +208,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -228,6 +234,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -253,6 +260,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -278,6 +286,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -313,6 +322,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -338,6 +348,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

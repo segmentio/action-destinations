@@ -67,6 +67,7 @@
               "@path": "$.timestamp"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -79,6 +80,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -102,6 +104,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -125,6 +128,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -148,6 +152,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -171,6 +176,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -194,6 +200,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -229,6 +236,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -252,6 +260,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -264,6 +273,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": false,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -287,6 +297,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": false,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -310,6 +321,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": false,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -333,6 +345,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": false,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -356,6 +369,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": false,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -407,6 +421,7 @@
               "@liquid": "{% if context.device.id and context.device.type == 'android' %}{{ context.device.id }}{% endif %}"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -419,6 +434,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -442,6 +458,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -465,6 +482,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -488,6 +506,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -511,6 +530,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -563,6 +583,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -575,6 +596,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -598,6 +620,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -712,6 +735,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -724,6 +748,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -747,6 +772,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -770,6 +796,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -793,6 +820,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -816,6 +844,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "date",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -839,6 +868,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "Male",
@@ -885,6 +915,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -915,6 +946,7 @@
               "@path": "$.properties.audience_membership"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -927,6 +959,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -950,6 +983,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -987,6 +1021,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1022,6 +1057,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1047,6 +1083,7 @@
           "default": {
             "@path": "$.context.personas.computation_class"
           },
+          "format": null,
           "choices": [
             {
               "label": "audience",
@@ -1079,6 +1116,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1102,6 +1140,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1127,6 +1166,7 @@
           "default": {
             "@liquid": "{% assign rokt_rtid = integrations['Rokt Conversions API'].rtid %}{% if rokt_rtid %}{{ rokt_rtid }}{% else %}{% assign parts = context.page.search | split: 'rtid=' %}{% if parts[1] %}{{ parts[1] | split: '&' | first }}{% endif %}{% endif %}"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -101,6 +101,7 @@
           "default": {
             "@path": "$.context.personas.external_audience_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -124,6 +125,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Email",
@@ -158,6 +160,7 @@
           "default": {
             "@path": "$.context.traits.email"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -181,6 +184,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -206,6 +210,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -229,6 +234,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

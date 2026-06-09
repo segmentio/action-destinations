@@ -42,6 +42,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -67,6 +68,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -90,6 +92,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -119,6 +122,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -144,6 +148,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -169,6 +174,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -194,6 +200,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -217,6 +224,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -242,6 +250,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": "180.1.12.125",
           "properties": null,
@@ -318,6 +327,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -329,6 +339,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -351,6 +362,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -373,6 +385,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -395,6 +408,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -442,6 +456,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -465,6 +480,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "add",
+          "format": null,
           "choices": [
             {
               "label": "Add",
@@ -497,6 +513,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -535,6 +552,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -560,6 +578,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -583,6 +602,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -612,6 +632,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -637,6 +658,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -662,6 +684,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -687,6 +710,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -710,6 +734,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -735,6 +760,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": "180.1.12.125",
           "properties": null,
@@ -811,6 +837,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -822,6 +849,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -844,6 +872,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -866,6 +895,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -888,6 +918,7 @@
               "allowNull": true,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -935,6 +966,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -958,6 +990,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "add",
+          "format": null,
           "choices": [
             {
               "label": "Add",
@@ -990,6 +1023,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 500,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1015,6 +1049,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1040,6 +1075,7 @@
           "default": {
             "@path": "$.context.app.namespace"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1065,6 +1101,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

@@ -88,6 +88,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "track",
+          "format": null,
           "choices": [
             {
               "label": "track",
@@ -126,6 +127,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -151,6 +153,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -176,6 +179,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -201,6 +205,7 @@
           "default": {
             "@path": "$.context.page.url"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -234,6 +239,7 @@
           "default": {
             "@path": "$.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -265,6 +271,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -290,6 +297,7 @@
           "default": {
             "@path": "$.receivedAt"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -313,6 +321,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -336,6 +345,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -361,6 +371,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -398,6 +409,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -423,6 +435,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -448,6 +461,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -473,6 +487,7 @@
           "default": {
             "@path": "$.context.ip"
           },
+          "format": "ipv4",
           "choices": null,
           "placeholder": null,
           "properties": null,

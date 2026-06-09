@@ -51,6 +51,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -86,6 +87,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -121,6 +123,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -156,6 +159,7 @@
               }
             }
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -191,6 +195,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -226,6 +231,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -263,6 +269,7 @@
           "default": {
             "@path": "$.properties.channel_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -288,6 +295,7 @@
           "default": {
             "@path": "$.properties.share_type"
           },
+          "format": null,
           "choices": [
             {
               "label": "Email",
@@ -326,6 +334,7 @@
           "default": {
             "@path": "$.properties.survey_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -361,6 +370,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -396,6 +406,7 @@
               }
             }
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -421,6 +432,7 @@
           "default": {
             "@path": "$.properties.variables"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

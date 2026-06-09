@@ -69,6 +69,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -94,6 +95,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -119,6 +121,7 @@
           "default": {
             "@path": "$.context.personas.audience_settings.behavioralActionTriggerReferences"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

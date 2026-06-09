@@ -322,6 +322,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -334,6 +335,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -357,6 +359,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -394,6 +397,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -429,6 +433,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -454,6 +459,7 @@
           "default": {
             "@path": "$.context.personas.computation_class"
           },
+          "format": null,
           "choices": [
             {
               "label": "Audience",
@@ -486,6 +492,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -509,6 +516,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 200,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -532,6 +540,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -557,6 +566,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -580,6 +590,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 0,
+          "format": null,
           "choices": [
             {
               "label": "0 secs",
@@ -657,6 +668,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -669,6 +681,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -692,6 +705,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -715,6 +729,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -750,6 +765,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Segment",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -775,6 +791,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -800,6 +817,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -835,6 +853,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -860,6 +879,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -883,6 +903,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 0,
+          "format": null,
           "choices": [
             {
               "label": "0 secs",
@@ -931,6 +952,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Opt In",
@@ -982,6 +1004,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -994,6 +1017,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1017,6 +1041,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1052,6 +1077,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1075,6 +1101,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1098,6 +1125,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 200,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1121,6 +1149,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1146,6 +1175,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1169,6 +1199,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 0,
+          "format": null,
           "choices": [
             {
               "label": "0 secs",
@@ -1245,6 +1276,7 @@
               "@path": "$.traits.phone"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1257,6 +1289,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1280,6 +1313,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1303,6 +1337,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1326,6 +1361,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1349,6 +1385,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1372,6 +1409,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1407,6 +1445,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1430,6 +1469,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1453,6 +1493,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 200,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1476,6 +1517,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Opt In",
@@ -1537,6 +1579,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1549,6 +1592,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": "email",
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1572,6 +1616,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1595,6 +1640,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1630,6 +1676,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "Segment",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1653,6 +1700,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1678,6 +1726,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1701,6 +1750,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1724,6 +1774,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 200,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1747,6 +1798,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1770,6 +1822,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Opt In",

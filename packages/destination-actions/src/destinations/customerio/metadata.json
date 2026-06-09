@@ -69,6 +69,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -94,6 +95,7 @@
           "default": {
             "@path": "$.context.device.token"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -119,6 +121,7 @@
           "default": {
             "@path": "$.context.app.version"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -144,6 +147,7 @@
           "default": {
             "@path": "$.context.device.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -169,6 +173,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -194,6 +199,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -217,6 +223,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -240,6 +247,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -263,6 +271,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -300,6 +309,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -325,6 +335,7 @@
           "default": {
             "@path": "$.context.device.token"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -348,6 +359,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -371,6 +383,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -408,6 +421,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -433,6 +447,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -458,6 +473,7 @@
           "default": {
             "@path": "$.properties.objectId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -493,6 +509,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -516,6 +533,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -539,6 +557,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -576,6 +595,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -599,6 +619,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -622,6 +643,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -659,6 +681,7 @@
           "default": {
             "@path": "$.properties.objectId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -694,6 +717,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -717,6 +741,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -740,6 +765,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -787,6 +813,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -812,6 +839,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -837,6 +865,7 @@
           "default": {
             "@template": "{{traits.email}}"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -872,6 +901,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -897,6 +927,7 @@
           "default": {
             "@path": "$.traits.objectId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -922,6 +953,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -947,6 +979,7 @@
           "default": {
             "@path": "$.traits.relationshipAttributes"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -972,6 +1005,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -995,6 +1029,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1030,6 +1065,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1053,6 +1089,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1076,6 +1113,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1113,6 +1151,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1138,6 +1177,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1163,6 +1203,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1188,6 +1229,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1213,6 +1255,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1238,6 +1281,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1261,6 +1305,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1284,6 +1329,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1307,6 +1353,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1344,6 +1391,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1369,6 +1417,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1394,6 +1443,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1419,6 +1469,7 @@
           "default": {
             "@path": "$.properties.url"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1444,6 +1495,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1469,6 +1521,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1492,6 +1545,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1515,6 +1569,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1538,6 +1593,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1575,6 +1631,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1600,6 +1657,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1625,6 +1683,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1650,6 +1709,7 @@
           "default": {
             "@path": "$.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1675,6 +1735,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1700,6 +1761,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1723,6 +1785,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1746,6 +1809,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1769,6 +1833,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1806,6 +1871,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1841,6 +1907,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1866,6 +1933,7 @@
           "default": {
             "@path": "$.traits.objectAttributes"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1891,6 +1959,7 @@
           "default": {
             "@path": "$.traits.relationshipAttributes"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1916,6 +1985,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1941,6 +2011,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1976,6 +2047,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1999,6 +2071,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2022,6 +2095,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2045,6 +2119,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2082,6 +2157,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2107,6 +2183,7 @@
           "default": {
             "@path": "$.previousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2130,6 +2207,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2153,6 +2231,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2190,6 +2269,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2213,6 +2293,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2236,6 +2317,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2273,6 +2355,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2296,6 +2379,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2319,6 +2403,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2356,6 +2441,7 @@
           "default": {
             "@path": "$.properties.deliveryId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2381,6 +2467,7 @@
           "default": {
             "@path": "$.properties.metric"
           },
+          "format": null,
           "choices": [
             {
               "label": "Delivered",
@@ -2439,6 +2526,7 @@
           "default": {
             "@path": "$.properties.recipient"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2464,6 +2552,7 @@
           "default": {
             "@path": "$.properties.reason"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2489,6 +2578,7 @@
           "default": {
             "@path": "$.properties.href"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2514,6 +2604,7 @@
           "default": {
             "@path": "$.properties.actionName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2539,6 +2630,7 @@
           "default": {
             "@path": "$.properties.actionValue"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2564,6 +2656,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2587,6 +2680,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2610,6 +2704,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2647,6 +2742,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2672,6 +2768,7 @@
           "default": {
             "@path": "$.properties.actionType"
           },
+          "format": null,
           "choices": [
             {
               "label": "Viewed",
@@ -2706,6 +2803,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2731,6 +2829,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2754,6 +2853,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2777,6 +2877,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2800,6 +2901,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 50,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

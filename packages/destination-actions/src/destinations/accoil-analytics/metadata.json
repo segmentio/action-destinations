@@ -40,6 +40,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -65,6 +66,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -90,6 +92,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -115,6 +118,7 @@
           "default": {
             "@path": "$.traits.role"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -140,6 +144,7 @@
           "default": {
             "@path": "$.traits.accountStatus"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -165,6 +170,7 @@
           "default": {
             "@path": "$.traits.createdAt"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -190,6 +196,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -215,6 +222,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -252,6 +260,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -277,6 +286,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -302,6 +312,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -339,6 +350,7 @@
           "default": {
             "@path": "$.anonymousId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -364,6 +376,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -389,6 +402,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -414,6 +428,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -439,6 +454,7 @@
           "default": {
             "@path": "$.traits.createdAt"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -464,6 +480,7 @@
           "default": {
             "@path": "$.traits.status"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -489,6 +506,7 @@
           "default": {
             "@path": "$.traits.plan"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -514,6 +532,7 @@
           "default": {
             "@path": "$.traits.mrr"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -539,6 +558,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -564,6 +584,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -601,6 +622,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -626,6 +648,7 @@
           "default": {
             "@path": "$.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -651,6 +674,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -688,6 +712,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -713,6 +738,7 @@
           "default": {
             "@path": "$.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -738,6 +764,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": "date-time",
           "choices": null,
           "placeholder": null,
           "properties": null,

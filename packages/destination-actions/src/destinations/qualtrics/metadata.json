@@ -48,6 +48,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -73,6 +74,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -108,6 +110,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -133,6 +136,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -158,6 +162,7 @@
           "default": {
             "@path": "$.traits.firstName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -183,6 +188,7 @@
           "default": {
             "@path": "$.traits.lastName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -216,6 +222,7 @@
               "else": "EN"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -239,6 +246,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -262,6 +270,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -297,6 +306,7 @@
           "allowNull": false,
           "dynamic": true,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -322,6 +332,7 @@
           "default": {
             "@path": "$.traits.qualtricsMailingListId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -347,6 +358,7 @@
           "default": {
             "@path": "$.traits.qualtricsContactId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -382,6 +394,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -417,6 +430,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -442,6 +456,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -467,6 +482,7 @@
           "default": {
             "@path": "$.traits.firstName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -492,6 +508,7 @@
           "default": {
             "@path": "$.traits.lastName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -525,6 +542,7 @@
               "else": "EN"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -548,6 +566,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -571,6 +590,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -596,6 +616,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -619,6 +640,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -654,6 +676,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -696,6 +719,7 @@
               "@path": "$.context"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

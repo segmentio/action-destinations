@@ -70,6 +70,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -93,6 +94,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -116,6 +118,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -141,6 +144,7 @@
           "default": {
             "@path": "$.context.device.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -166,6 +170,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -191,6 +196,7 @@
           "default": {
             "@path": "$.context.device.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -216,6 +222,7 @@
           "default": {
             "@path": "$.context.library.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -241,6 +248,7 @@
           "default": {
             "@path": "$.properties.revenue"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -266,6 +274,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

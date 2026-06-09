@@ -40,6 +40,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -67,6 +68,7 @@
               "@path": "$.userId"
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -92,6 +94,7 @@
           "default": {
             "@path": "$.messageId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -117,6 +120,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -142,6 +146,7 @@
           "default": {
             "@path": "$.receivedAt"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

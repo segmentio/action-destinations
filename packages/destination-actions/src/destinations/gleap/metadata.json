@@ -41,6 +41,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -66,6 +67,7 @@
           "default": {
             "@path": "$.properties.first_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -91,6 +93,7 @@
           "default": {
             "@path": "$.properties.last_name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -116,6 +119,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -141,6 +145,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -166,6 +171,7 @@
           "default": {
             "@path": "$.traits.company.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -191,6 +197,7 @@
           "default": {
             "@path": "$.traits.company.id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -216,6 +223,7 @@
           "default": {
             "@path": "$.context.locale"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -241,6 +249,7 @@
           "default": {
             "@path": "$.traits.plan"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -264,6 +273,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -289,6 +299,7 @@
           "default": {
             "@path": "$.context.page.url"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -312,6 +323,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -337,6 +349,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -362,6 +375,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -409,6 +423,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -434,6 +449,7 @@
           "default": {
             "@path": "$.type"
           },
+          "format": null,
           "choices": [
             {
               "label": "track",
@@ -472,6 +488,7 @@
           "default": {
             "@path": "$.context.page.url"
           },
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -497,6 +514,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -522,6 +540,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -547,6 +566,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

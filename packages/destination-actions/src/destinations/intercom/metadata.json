@@ -27,6 +27,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Lead",
@@ -61,6 +62,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -94,6 +96,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -119,6 +122,7 @@
           "default": {
             "@path": "$.traits.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -144,6 +148,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -169,6 +174,7 @@
           "default": {
             "@path": "$.traits.avatar"
           },
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -192,6 +198,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -217,6 +224,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -240,6 +248,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -263,6 +272,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -286,6 +296,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -323,6 +334,7 @@
           "default": {
             "@path": "$.traits.createdAt"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -348,6 +360,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -373,6 +386,7 @@
           "default": {
             "@path": "$.traits.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -398,6 +412,7 @@
           "default": {
             "@path": "$.groupId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -421,6 +436,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -446,6 +462,7 @@
           "default": {
             "@path": "$.traits.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -471,6 +488,7 @@
           "default": {
             "@path": "$.traits.monthly_spend"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -496,6 +514,7 @@
           "default": {
             "@path": "$.traits.plan"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -521,6 +540,7 @@
           "default": {
             "@path": "$.traits.employees"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -546,6 +566,7 @@
           "default": {
             "@path": "$.traits.website"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -571,6 +592,7 @@
           "default": {
             "@path": "$.traits.industry"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -594,6 +616,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -631,6 +654,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -656,6 +680,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -681,6 +706,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -706,6 +732,7 @@
           "default": {
             "@path": "$.properties.email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -731,6 +758,7 @@
           "default": {
             "@path": "$.properties.revenue"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -756,6 +784,7 @@
           "default": {
             "@path": "$.properties.currency"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -779,6 +808,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -804,6 +834,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

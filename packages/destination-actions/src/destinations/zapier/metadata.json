@@ -30,6 +30,7 @@
           "default": {
             "@path": "$."
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -53,6 +54,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": "password",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -76,6 +78,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -99,6 +102,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

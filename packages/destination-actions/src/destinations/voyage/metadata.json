@@ -40,6 +40,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -65,6 +66,7 @@
           "default": {
             "@path": "$.properties.OrderNumber"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -90,6 +92,7 @@
           "default": {
             "@path": "$.properties.SourceId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -115,6 +118,7 @@
           "default": {
             "@path": "$.properties.TokenId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -140,6 +144,7 @@
           "default": {
             "@path": "$.properties.CustomerId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -165,6 +170,7 @@
           "default": {
             "@path": "$.properties.Url"
           },
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -190,6 +196,7 @@
           "default": {
             "@path": "$.properties.OrderTotal"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -215,6 +222,7 @@
           "default": {
             "@path": "$.properties.TotalSpent"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -240,6 +248,7 @@
           "default": {
             "@path": "$.properties.FirstName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -265,6 +274,7 @@
           "default": {
             "@path": "$.properties.lastName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -290,6 +300,7 @@
           "default": {
             "@path": "$.properties.Phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -315,6 +326,7 @@
           "default": {
             "@path": "$.properties.Email"
           },
+          "format": "email",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -340,6 +352,7 @@
           "default": {
             "@path": "$.properties.Zip"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -365,6 +378,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -390,6 +404,7 @@
           "default": {
             "@path": "$.properties.ProductImageUrl"
           },
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -415,6 +430,7 @@
           "default": {
             "@path": "$.properties.LinkReference"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -440,6 +456,7 @@
           "default": {
             "@path": "$.properties.HomepageUrl"
           },
+          "format": "uri",
           "choices": null,
           "placeholder": null,
           "properties": null,

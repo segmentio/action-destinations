@@ -70,6 +70,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -93,6 +94,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -128,6 +130,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -153,6 +156,7 @@
           "default": {
             "@path": "$.traits.firstName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -178,6 +182,7 @@
           "default": {
             "@path": "$.traits.lastName"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -203,6 +208,7 @@
           "default": {
             "@path": "$.traits.title"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -228,6 +234,7 @@
           "default": {
             "@path": "$.traits.company"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -253,6 +260,7 @@
           "default": {
             "@path": "$.traits.country"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -278,6 +286,7 @@
           "default": {
             "@path": "$.context.device.advertisingId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -313,6 +322,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -348,6 +358,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -373,6 +384,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -396,6 +408,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "AUTO",
+          "format": null,
           "choices": [
             {
               "label": "Auto Detect",

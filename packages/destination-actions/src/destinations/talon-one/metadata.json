@@ -48,6 +48,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -71,6 +72,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -106,6 +108,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -129,6 +132,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -164,6 +168,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -201,6 +206,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -226,6 +232,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -249,6 +256,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -272,6 +280,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -295,6 +304,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -330,6 +340,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -342,6 +353,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -365,6 +377,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -414,6 +427,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -449,6 +463,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -461,6 +476,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -484,6 +500,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -531,6 +548,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -543,6 +561,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -566,6 +585,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -601,6 +621,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -626,6 +647,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -661,6 +683,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -673,6 +696,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -696,6 +720,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "String",
@@ -766,6 +791,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -789,6 +815,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -812,6 +839,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -835,6 +863,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -858,6 +887,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -883,6 +913,7 @@
           "default": {
             "@path": "$.traits"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -918,6 +949,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -932,6 +964,7 @@
               "default": {
                 "@path": "$.userId"
               },
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -955,6 +988,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -978,6 +1012,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1027,6 +1062,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1052,6 +1088,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1075,6 +1112,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "string",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1100,6 +1138,7 @@
           "default": {
             "@path": "$.properties.attributes"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1135,6 +1174,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1147,6 +1187,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1170,6 +1211,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1217,6 +1259,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1242,6 +1285,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1267,6 +1311,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1292,6 +1337,7 @@
           "default": {
             "@path": "$.properties.attributes"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1327,6 +1373,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1350,6 +1397,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": "http://mydomain.com/api/callback_here",
           "properties": null,
@@ -1373,6 +1421,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": "X-API-Key 123456789123456789123456789123456789",
           "properties": null,
@@ -1396,6 +1445,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "effects",
+          "format": null,
           "choices": null,
           "placeholder": "effects,customerProfile",
           "properties": null,
@@ -1419,6 +1469,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1442,6 +1493,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1456,6 +1508,7 @@
               "default": {
                 "@path": "$.userId"
               },
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1479,6 +1532,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1502,6 +1556,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1525,6 +1580,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1548,6 +1604,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "Open",
@@ -1588,6 +1645,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": {
@@ -1600,6 +1658,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1623,6 +1682,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1646,6 +1706,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1669,6 +1730,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1692,6 +1754,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1715,6 +1778,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1738,6 +1802,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1761,6 +1826,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1784,6 +1850,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1807,6 +1874,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1830,6 +1898,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1855,6 +1924,7 @@
                   "default": {
                     "@path": "$.properties.attributes"
                   },
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1878,6 +1948,7 @@
                   "allowNull": false,
                   "dynamic": false,
                   "default": null,
+                  "format": null,
                   "choices": null,
                   "placeholder": null,
                   "properties": null,
@@ -1913,6 +1984,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1938,6 +2010,7 @@
               "default": {
                 "@path": "$.properties.attributes"
               },
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -1985,6 +2058,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -1997,6 +2071,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2020,6 +2095,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "String",
@@ -2088,6 +2164,7 @@
               }
             ]
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2100,6 +2177,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2123,6 +2201,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": [
                 {
                   "label": "String",
@@ -2191,6 +2270,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2214,6 +2294,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": "http://mydomain.com/api/callback_here",
           "properties": null,
@@ -2237,6 +2318,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": "X-API-Key 123456789123456789123456789123456789",
           "properties": null,
@@ -2260,6 +2342,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "effects",
+          "format": null,
           "choices": null,
           "placeholder": "effects,customerProfile",
           "properties": null,
@@ -2283,6 +2366,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2306,6 +2390,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": false,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2331,6 +2416,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2354,6 +2440,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2377,6 +2464,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2400,6 +2488,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2423,6 +2512,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": [
             {
               "label": "Open",
@@ -2463,6 +2553,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -2475,6 +2566,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2498,6 +2590,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2521,6 +2614,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2544,6 +2638,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2567,6 +2662,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2590,6 +2686,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2613,6 +2710,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2636,6 +2734,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2659,6 +2758,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2682,6 +2782,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2705,6 +2806,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2730,6 +2832,7 @@
               "default": {
                 "@path": "$.properties.attributes"
               },
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2753,6 +2856,7 @@
               "allowNull": false,
               "dynamic": false,
               "default": null,
+              "format": null,
               "choices": null,
               "placeholder": null,
               "properties": null,
@@ -2788,6 +2892,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2811,6 +2916,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2836,6 +2942,7 @@
           "default": {
             "@path": "$.properties.attributes"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

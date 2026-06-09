@@ -50,6 +50,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -75,6 +76,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -100,6 +102,7 @@
           "default": {
             "@path": "$.context.campaign.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -123,6 +126,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -146,6 +150,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -169,6 +174,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -192,6 +198,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "email",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -229,6 +236,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -254,6 +262,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -279,6 +288,7 @@
           "default": {
             "@path": "$.event"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -304,6 +314,7 @@
           "default": {
             "@path": "$.context.campaign.name"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -329,6 +340,7 @@
           "default": {
             "@path": "$.context.campaign.medium"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -354,6 +366,7 @@
           "default": {
             "@path": "$.context.campaign.source"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -377,6 +390,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "web",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -414,6 +428,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -437,6 +452,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": null,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -462,6 +478,7 @@
           "default": {
             "@path": "$.properties.order_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -487,6 +504,7 @@
           "default": {
             "@path": "$.properties.total"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -512,6 +530,7 @@
           "default": {
             "@path": "$.properties.products"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -537,6 +556,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -560,6 +580,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "transaction",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -597,6 +618,7 @@
           "default": {
             "@path": "$.userId"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -622,6 +644,7 @@
           "default": {
             "@path": "$.timestamp"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -647,6 +670,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -670,6 +694,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": "custom",
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

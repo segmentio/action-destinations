@@ -78,6 +78,7 @@
           "default": {
             "@path": "$.context.personas.external_audience_id"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -103,6 +104,7 @@
           "default": {
             "@path": "$.context.personas.computation_key"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -128,6 +130,7 @@
           "default": {
             "@path": "$.properties"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -153,6 +156,7 @@
           "default": {
             "@path": "$.properties.phone"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -178,6 +182,7 @@
           "default": {
             "@path": "$.properties.email"
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -213,6 +218,7 @@
               }
             }
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -236,6 +242,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": true,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -259,6 +266,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": 100000,
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -284,6 +292,7 @@
           "default": [
             "external_audience_id"
           ],
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

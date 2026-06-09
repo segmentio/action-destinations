@@ -41,6 +41,7 @@
           "default": {
             "@path": "$."
           },
+          "format": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
