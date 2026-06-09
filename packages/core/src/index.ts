@@ -37,6 +37,7 @@ export {
   InvalidAuthenticationError,
   RetryableError,
   PayloadValidationError,
+  InvalidAudienceMembershipError,
   SelfTimeoutError,
   APIError,
   ErrorCodes,

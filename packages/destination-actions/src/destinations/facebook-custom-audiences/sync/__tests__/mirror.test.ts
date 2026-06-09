@@ -172,8 +172,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: engageMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -310,8 +309,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: engageMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -444,8 +442,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: engageMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -578,8 +575,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: retlMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -692,8 +688,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: retlMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -794,8 +789,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: retlMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -861,8 +855,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -870,13 +863,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Audience membership details missing'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Audience membership details missing'
       })
     })
@@ -938,8 +931,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -947,13 +939,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.'
       })
     })
