@@ -1,0 +1,63 @@
+{
+  "slug": "actions-playerzero-cloud",
+  "name": "PlayerZero Cloud",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "projectToken": {
+        "label": "PlayerZero Project Token",
+        "description": "The Project Token for the PlayerZero project you want to send data to. You can find this Token on the [Segment (Cloud) Connector](https://go.playerzero.app/connector/segment-cloud) page.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Forward page, screen, and track events from Segment to PlayerZero.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {}
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Forward identify, group, and alias events from Segment to PlayerZero.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {}
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "mapping": {},
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\" or type = \"group\" or type = \"alias\"",
+      "mapping": {},
+      "eventSlug": null
+    }
+  ]
+}

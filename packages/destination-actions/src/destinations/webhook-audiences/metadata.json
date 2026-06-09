@@ -1,0 +1,304 @@
+{
+  "slug": "actions-webhook-audiences",
+  "name": "Webhook Audiences",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "sharedSecret": {
+        "label": "Shared Secret",
+        "description": "If set, Segment will sign requests with an HMAC in the \"X-Signature\" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.",
+        "type": "password",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "createAudienceUrl": {
+        "label": "URL to send requests to create an audience",
+        "description": "If set, Segment will send a POST request with the audienceName in the JSON to the provided URL to create the audience. The expected JSON response must have \"externalId\".",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "getAudienceUrl": {
+        "label": "URL to send requests to get an audience",
+        "description": "If set, Segment will send a POST request with the externalId in the JSON to the provided URL to get the audience. The expected JSON response must have \"externalId\".",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "extras": {
+        "label": "Extra JSON fields to pass on to every request (as a JSON string)",
+        "description": "Extra JSON fields to pass on to every request. This must be a valid JSON string (e.g., \"{\\\"hello\\\": \\\"world\\\", \\\"foo\\\": \\\"bar\\\"}\"). The JSON will be parsed and merged into each request payload. Note: \"externalId\" and \"audienceName\" are reserved keys and cannot be used.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send an HTTP request.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "url": {
+          "label": "URL",
+          "description": "URL to deliver data to.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "method": {
+          "label": "Method",
+          "description": "HTTP method to use.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "POST",
+          "choices": [
+            {
+              "label": "POST",
+              "value": "POST"
+            },
+            {
+              "label": "PUT",
+              "value": "PUT"
+            },
+            {
+              "label": "PATCH",
+              "value": "PATCH"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 0,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "headers": {
+          "label": "Headers",
+          "description": "HTTP headers to send with each request. Only ASCII characters are supported.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "data": {
+          "label": "Data",
+          "description": "Payload to deliver to webhook URL (JSON-encoded).",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The mapping keys to batch events together by.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "url",
+            "method",
+            "headers"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "send",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "send",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "send",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "send",
+      "mapping": {
+        "method": "POST",
+        "batch_size": 0,
+        "data": {
+          "@path": "$."
+        },
+        "batch_keys": [
+          "url",
+          "method",
+          "headers"
+        ]
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

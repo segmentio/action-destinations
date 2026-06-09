@@ -1,0 +1,659 @@
+{
+  "slug": "actions-voiceops",
+  "name": "Voiceops",
+  "mode": "cloud",
+  "description": "Send Segment call-completed events to Voiceops for call ingestion, conference bridge splitting, and agent attribution.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "accessToken": {
+        "label": "Access Token",
+        "description": "Your Voiceops access token.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "baseUrl": {
+        "label": "Base URL",
+        "description": "Your Voiceops base URL.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "https://projectfrontline.net",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendCallCompleted": {
+      "title": "Send Call Completed",
+      "description": "Send a completed call event to Voiceops using the canonical Voiceops call payload.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Call Completed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "call_id": {
+          "label": "Call ID",
+          "description": "The external call identifier used by Voiceops.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.call_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "call_started_at": {
+          "label": "Call Started At",
+          "description": "The call start time as a Unix timestamp in seconds, for example `1712683200`.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.call_started_at"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "agent_email": {
+          "label": "Agent Email",
+          "description": "The email address for the primary handling agent.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.agent_email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "recording_url": {
+          "label": "Recording URL",
+          "description": "A direct URI to the call recording file, for example `https://example.com/audio.wav`.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.recording_url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "first_name": {
+          "label": "First Name",
+          "description": "The first name for the primary handling agent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.first_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "last_name": {
+          "label": "Last Name",
+          "description": "The last name for the primary handling agent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.last_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "channels": {
+          "label": "Channels",
+          "description": "Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.channels",
+              {
+                "channel": {
+                  "@path": "$.channel"
+                },
+                "type": {
+                  "@path": "$.type"
+                },
+                "recording_start_time": {
+                  "@path": "$.recording_start_time"
+                },
+                "identifier": {
+                  "@path": "$.identifier"
+                },
+                "first_name": {
+                  "@path": "$.first_name"
+                },
+                "last_name": {
+                  "@path": "$.last_name"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "channel": {
+              "label": "Channel",
+              "description": "The audio channel number.",
+              "type": "integer",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "type": {
+              "label": "Type",
+              "description": "The participant role for the channel. Supported values are CONTACT, HANDLING_AGENT, and TRANSFER_AGENT.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Contact",
+                  "value": "CONTACT"
+                },
+                {
+                  "label": "Handling Agent",
+                  "value": "HANDLING_AGENT"
+                },
+                {
+                  "label": "Transfer Agent",
+                  "value": "TRANSFER_AGENT"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "recording_start_time": {
+              "label": "Recording Start Time",
+              "description": "The participant start time as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "identifier": {
+              "label": "Identifier",
+              "description": "The participant identifier. HANDLING_AGENT entries must use an email address, while CONTACT and TRANSFER_AGENT entries can use any non-empty string.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "first_name": {
+              "label": "First Name",
+              "description": "The participant first name when available.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "last_name": {
+              "label": "Last Name",
+              "description": "The participant last name when available.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "arrayeditor",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "agentLegs": {
+          "label": "Agent Legs",
+          "description": "Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.agentLegs",
+              {
+                "agent_email": {
+                  "@path": "$.agent_email"
+                },
+                "started_at": {
+                  "@path": "$.started_at"
+                },
+                "ended_at": {
+                  "@path": "$.ended_at"
+                },
+                "first_name": {
+                  "@path": "$.first_name"
+                },
+                "last_name": {
+                  "@path": "$.last_name"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "agent_email": {
+              "label": "Agent Email",
+              "description": "The email address for the agent handling this leg of the call.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "started_at": {
+              "label": "Started At",
+              "description": "When this agent began handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:32:47.000Z`.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ended_at": {
+              "label": "Ended At",
+              "description": "When this agent stopped handling the call as an ISO 8601 / RFC3339 timestamp, for example `2025-12-08T13:37:47.000Z`.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "first_name": {
+              "label": "First Name",
+              "description": "The first name of the agent for this call leg.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "last_name": {
+              "label": "Last Name",
+              "description": "The last name of the agent for this call leg.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "arrayeditor",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "extraMetadata": {
+          "label": "Extra Metadata",
+          "description": "Additional call metadata to forward to Voiceops unchanged.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.extraMetadata"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send Call Completed",
+      "type": "automatic",
+      "partnerAction": "sendCallCompleted",
+      "subscribe": "type = \"track\" and event = \"Call Completed\"",
+      "mapping": {
+        "call_id": {
+          "@path": "$.properties.call_id"
+        },
+        "call_started_at": {
+          "@path": "$.properties.call_started_at"
+        },
+        "agent_email": {
+          "@path": "$.properties.agent_email"
+        },
+        "recording_url": {
+          "@path": "$.properties.recording_url"
+        },
+        "first_name": {
+          "@path": "$.properties.first_name"
+        },
+        "last_name": {
+          "@path": "$.properties.last_name"
+        },
+        "channels": {
+          "@arrayPath": [
+            "$.properties.channels",
+            {
+              "channel": {
+                "@path": "$.channel"
+              },
+              "type": {
+                "@path": "$.type"
+              },
+              "recording_start_time": {
+                "@path": "$.recording_start_time"
+              },
+              "identifier": {
+                "@path": "$.identifier"
+              },
+              "first_name": {
+                "@path": "$.first_name"
+              },
+              "last_name": {
+                "@path": "$.last_name"
+              }
+            }
+          ]
+        },
+        "agentLegs": {
+          "@arrayPath": [
+            "$.properties.agentLegs",
+            {
+              "agent_email": {
+                "@path": "$.agent_email"
+              },
+              "started_at": {
+                "@path": "$.started_at"
+              },
+              "ended_at": {
+                "@path": "$.ended_at"
+              },
+              "first_name": {
+                "@path": "$.first_name"
+              },
+              "last_name": {
+                "@path": "$.last_name"
+              }
+            }
+          ]
+        },
+        "extraMetadata": {
+          "@path": "$.properties.extraMetadata"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

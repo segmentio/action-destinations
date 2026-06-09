@@ -1,0 +1,441 @@
+{
+  "slug": "actions-pendo-web",
+  "name": "Pendo Web (actions)",
+  "mode": "device",
+  "description": "Send analytics events, User profile data and Account data to Pendo via Segment track(), identify() and group() events on your browser",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "Pendo API Key",
+        "description": "Pendo API Key",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "region": {
+        "label": "Region",
+        "description": "The region for your Pendo subscription.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "value": "https://cdn.pendo.io",
+            "label": "US (default)"
+          },
+          {
+            "value": "https://cdn.eu.pendo.io",
+            "label": "EU"
+          },
+          {
+            "value": "https://us1.cdn.pendo.io",
+            "label": "US restricted"
+          },
+          {
+            "value": "https://cdn.jpn.pendo.io",
+            "label": "Japan"
+          }
+        ],
+        "default": "https://cdn.pendo.io",
+        "depends_on": null
+      },
+      "cnameContentHost": {
+        "label": "Optional CNAME content host",
+        "description": "If you are using Pendo's CNAME feature, this will update your Pendo install snippet with your content host.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "disableUserTraitsOnLoad": {
+        "label": "Disable passing Segment's user traits to Pendo on start up",
+        "description": "Override sending Segment's user traits on load. This will prevent Pendo from initializing with the user traits from Segment (analytics.user().traits()). Allowing you to adjust the mapping of visitor metadata in Segment's identify event.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "disableGroupIdAndTraitsOnLoad": {
+        "label": "Disable passing Segment's group id and group traits to Pendo on start up",
+        "description": "Override sending Segment's group id for Pendo's account id. This will prevent Pendo from initializing with the group id from Segment (analytics.group().id()). Allowing you to adjust the mapping of account id in Segment's group event.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "track": {
+      "title": "Send Track Event",
+      "description": "Send Segment track() events to Pendo",
+      "platform": "web",
+      "defaultSubscription": "type=\"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "event": {
+          "label": "Event name",
+          "description": "The name of the analytics event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "metadata": {
+          "label": "Metadata",
+          "description": "Additional metadata to include in the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identify": {
+      "title": "Send Identify Event",
+      "description": "Send Segment identify() events to Pendo",
+      "platform": "web",
+      "defaultSubscription": "type=\"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "visitorId": {
+          "label": "Visitor ID",
+          "description": "Pendo Visitor ID. Maps to Segment userId",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "visitorData": {
+          "label": "Visitor Metadata",
+          "description": "Additional Visitor data to send",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "accountId": {
+          "label": "Account ID",
+          "description": "Pendo Account ID. Maps to Segment groupId.  Note: If you plan to change this, enable the setting \"Use custom Segment group trait for Pendo account id\"",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.groupId"
+              },
+              "then": {
+                "@path": "$.context.groupId"
+              },
+              "else": {
+                "@path": "$.groupId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "group": {
+      "title": "Send Group Event",
+      "description": "Send Segment group() events to Pendo",
+      "platform": "web",
+      "defaultSubscription": "type=\"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "visitorId": {
+          "label": "Visitor ID",
+          "description": "Pendo Visitor ID. Maps to Segment userId",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "accountId": {
+          "label": "Account ID",
+          "description": "Pendo Account ID. Maps to Segment groupId.  Note: If you plan to change this, enable the setting \"Use custom Segment group trait for Pendo account id\"",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "accountData": {
+          "label": "Account Metadata",
+          "description": "Additional Account data to send",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "parentAccountData": {
+          "label": "Parent Account Metadata",
+          "description": "Additional Parent Account data to send. Note: Contact Pendo to request enablement of Parent Account feature.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.parentAccount"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "Parent Account ID",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send Track Event",
+      "type": "automatic",
+      "partnerAction": "track",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "metadata": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Identify Event",
+      "type": "automatic",
+      "partnerAction": "identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "visitorId": {
+          "@path": "$.userId"
+        },
+        "visitorData": {
+          "@path": "$.traits"
+        },
+        "accountId": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.groupId"
+            },
+            "then": {
+              "@path": "$.context.groupId"
+            },
+            "else": {
+              "@path": "$.groupId"
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Group Event",
+      "type": "automatic",
+      "partnerAction": "group",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "visitorId": {
+          "@path": "$.userId"
+        },
+        "accountId": {
+          "@path": "$.groupId"
+        },
+        "accountData": {
+          "@path": "$.traits"
+        },
+        "parentAccountData": {
+          "@path": "$.traits.parentAccount"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

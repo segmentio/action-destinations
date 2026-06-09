@@ -1,0 +1,833 @@
+{
+  "slug": "actions-twilio-messaging-omnichannel",
+  "name": "Twilio Messaging Omnichannel",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "basic",
+    "fields": {
+      "username": {
+        "label": "Twilio Account SID.",
+        "description": "Twilio Account SID. This can be found in the [Twilio Console](https://www.twilio.com/docs/usage/api#authenticate-with-http:~:text=token%20in%20the-,Twilio%20Console,-after%20signing%20up).",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "password": {
+        "label": "AUTH Token",
+        "description": "AUTH Token. This can be found in the [Twilio Console](https://www.twilio.com/docs/usage/api#authenticate-with-http:~:text=token%20in%20the-,Twilio%20Console,-after%20signing%20up).",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendMessage": {
+      "title": "Send Message",
+      "description": "This operation creates and sends out messages to the specified recipients.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "fromObject": {
+          "label": "From",
+          "description": "Defines the fields applicable based on the selected sender type.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "from": {
+              "label": "From",
+              "description": "The type of sender.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Message Address Sender",
+                  "value": "MessageAddressSender"
+                },
+                {
+                  "label": "Agent ID Sender",
+                  "value": "AgentIdSender"
+                },
+                {
+                  "label": "Agent Pool ID Sender",
+                  "value": "AgentPoolIdSender"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "address": {
+              "label": "Address",
+              "description": "The identifier within a channel address space for an actor.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "from",
+                    "operator": "is",
+                    "value": "MessageAddressSender"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "channel": {
+              "label": "Channel",
+              "description": "The channels available for the Message entity.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Phone",
+                  "value": "phone"
+                },
+                {
+                  "label": "RCS",
+                  "value": "rcs"
+                },
+                {
+                  "label": "WhatsApp",
+                  "value": "whatsapp"
+                },
+                {
+                  "label": "Facebook Messenger",
+                  "value": "fbm"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "from",
+                    "operator": "is",
+                    "value": "MessageAddressSender"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "agent_id": {
+              "label": "Agent ID",
+              "description": "A reference to an Agent.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "from",
+                    "operator": "is",
+                    "value": "AgentIdSender"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "agent_pool_id": {
+              "label": "Agent Pool ID",
+              "description": "A reference to an Agent Pool.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "from",
+                    "operator": "is",
+                    "value": "AgentPoolIdSender"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "to": {
+          "label": "To",
+          "description": "An array of recipient objects to send the message(s) to.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "address": {
+              "label": "Address",
+              "description": "The identifier within a channel address space for an actor (e.g. phone number).",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "channel": {
+              "label": "Channel",
+              "description": "The channels available for the Message entity.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Phone",
+                  "value": "phone"
+                },
+                {
+                  "label": "WhatsApp",
+                  "value": "whatsapp"
+                },
+                {
+                  "label": "Facebook Messenger",
+                  "value": "fbm"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "variables": {
+              "label": "Variables",
+              "description": "To personalize content for each recipient, supply variables here with values to substitute into any Liquid templated content string or pre-stored Content template.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "keyvalue:only",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "content": {
+          "label": "Content",
+          "description": "Defines the fields applicable based on the selected content type.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "content_type": {
+              "label": "Content Type",
+              "description": "The type of message content.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Text Content",
+                  "value": "MessageContentText"
+                },
+                {
+                  "label": "Template Content",
+                  "value": "MessageContentTemplate"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "text": {
+              "label": "Text",
+              "description": "A simple string or templated content.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "content_type",
+                    "operator": "is",
+                    "value": "MessageContentText"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "title": {
+              "label": "Title",
+              "description": "Optional title prepended to the message.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "content_type",
+                    "operator": "is",
+                    "value": "MessageContentText"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "default_variables": {
+              "label": "Default Variables",
+              "description": "Default values for use within the templated content field text and title.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "content_type",
+                    "operator": "is",
+                    "value": "MessageContentText"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "keyvalue:only",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "content_id": {
+              "label": "Content ID",
+              "description": "A reference to a Content template.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "content_type",
+                    "operator": "is",
+                    "value": "MessageContentTemplate"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "channels": {
+          "label": "Channels",
+          "description": "A list of eligible channels to constrain Messages to; leave undefined to send across all available channels.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "schedule": {
+          "label": "Schedule",
+          "description": "A schedule defines when a communication will be sent to a recipient.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "send_at": {
+              "label": "Send At",
+              "description": "List of expressions defining when the message may be sent.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "quiet_hours": {
+              "label": "Quiet Hours",
+              "description": "List of expressions defining when the message may NOT be sent.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ignore_compliances": {
+              "label": "Ignore Compliances",
+              "description": "List of compliance rules to ignore.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "All",
+                  "value": "all"
+                },
+                {
+                  "label": "France Marketing",
+                  "value": "france_marketing"
+                },
+                {
+                  "label": "EU All",
+                  "value": "eu_all"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "frequency_cap": {
+              "label": "Frequency Cap",
+              "description": "Optimize the send time to prevent exceeding the count of communications sent to the recipient(s) for any time window of length period.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "count": {
+                  "label": "Count",
+                  "description": "The number of communications.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                },
+                "period": {
+                  "label": "Period",
+                  "description": "The duration for calculating the frequency count.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": "P1D",
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ttl": {
+              "label": "TTL",
+              "description": "Time-to-live for the communication.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "P1D",
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "use_domain": {
+          "label": "Use Domain",
+          "description": "The Domain to use for wrapping links for click-tracked links and shortened links.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "domain_name": {
+              "label": "Domain Name",
+              "description": "A fully qualified domain name (FQDN) that you have registered with your DNS provider.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "tags": {
+          "label": "Tags",
+          "description": "Custom metadata in the form of key-value pairs. Maximum size of a tag key is 128 characters. Maximum size of a tag value is 256 characters. There can be a maximum of 10 key-value pairs.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

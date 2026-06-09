@@ -1,0 +1,133 @@
+{
+  "slug": "actions-gainsight-px-cloud",
+  "name": "Gainsight Px Cloud (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "basic",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Gainsight PX API key. You can find this key in the \"Administration/Products\" screen.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "dataCenter": {
+        "label": "Data center",
+        "description": "The PX data center where your PX subscription is hosted.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "North America",
+            "value": "north_america"
+          },
+          {
+            "label": "Europe",
+            "value": "europe"
+          },
+          {
+            "label": "US2",
+            "value": "us2"
+          }
+        ],
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendEvent": {
+      "title": "Send Event",
+      "description": "Send entire event payload to Gainsight PX",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "segmentEvent": {
+          "label": "Segment Event",
+          "description": "The raw Segment event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Group User",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Track Page View",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "segmentEvent": {
+          "@path": "$."
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

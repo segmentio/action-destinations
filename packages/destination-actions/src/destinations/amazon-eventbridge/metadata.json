@@ -1,0 +1,313 @@
+{
+  "slug": "actions-amazon-eventbridge",
+  "name": "Amazon Eventbridge",
+  "mode": "cloud",
+  "description": "Amazon EventBridge is a serverless event bus service that makes it easy to connect your applications with data from a variety of sources.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "accountId": {
+        "label": "AWS Account ID",
+        "description": "The AWS Account ID that the event bus belongs to. This is used to generate the ARN for the event bus.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "region": {
+        "label": "AWS Region",
+        "description": "The AWS region that the event bus belongs to.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "us-east-1",
+            "value": "us-east-1"
+          },
+          {
+            "label": "us-east-2",
+            "value": "us-east-2"
+          },
+          {
+            "label": "us-west-1",
+            "value": "us-west-1"
+          },
+          {
+            "label": "us-west-2",
+            "value": "us-west-2"
+          },
+          {
+            "label": "eu-west-1",
+            "value": "eu-west-1"
+          },
+          {
+            "label": "eu-west-2",
+            "value": "eu-west-2"
+          },
+          {
+            "label": "eu-west-3",
+            "value": "eu-west-3"
+          },
+          {
+            "label": "ap-southeast-1",
+            "value": "ap-southeast-1"
+          },
+          {
+            "label": "ap-southeast-2",
+            "value": "ap-southeast-2"
+          },
+          {
+            "label": "sa-east-1",
+            "value": "sa-east-1"
+          },
+          {
+            "label": "ap-northeast-1",
+            "value": "ap-northeast-1"
+          },
+          {
+            "label": "ap-northeast-2",
+            "value": "ap-northeast-2"
+          },
+          {
+            "label": "ap-south-1",
+            "value": "ap-south-1"
+          },
+          {
+            "label": "ca-central-1",
+            "value": "ca-central-1"
+          },
+          {
+            "label": "eu-central-1",
+            "value": "eu-central-1"
+          }
+        ],
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send event data to Amazon EventBridge.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Create Partner Source",
+          "description": "Creates the Partner Event Source in Amazon EventBridge. This must be done before sending events.",
+          "inputFields": {},
+          "outputFields": {
+            "sourceId": {
+              "label": "Source ID",
+              "description": "The identifier for the source.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        },
+        "onMappingSave": {
+          "label": "Create Partner Source",
+          "description": "Creates the Partner Event Source in Amazon EventBridge. This must be done before sending events.",
+          "inputFields": {},
+          "outputFields": {
+            "sourceId": {
+              "label": "Source ID",
+              "description": "The identifier for the source.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "fields": {
+        "data": {
+          "label": "Detail",
+          "description": "The event data to send to Amazon EventBridge.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "detailType": {
+          "label": "Detail Type",
+          "description": "Detail Type of the event. Used to determine what fields to expect in the event Detail. Value cannot be longer than 128 characters.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": 128,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "resources": {
+          "label": "Resources",
+          "description": "AWS resources, identified by Amazon Resource Name (ARN), which the event primarily concerns. Any number, including zero, may be present.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "time": {
+          "label": "Time",
+          "description": "The timestamp the event occurred. Accepts a date in ISO 8601 format.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "(Hidden field): Enable Batching",
+          "description": "(Hidden field): Enable Batching",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "(Hidden field): Batch Size",
+          "description": "(Hidden field): Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 20,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": 1,
+          "maximum": 20,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

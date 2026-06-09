@@ -1,0 +1,424 @@
+{
+  "slug": "databricks",
+  "name": "Databricks",
+  "mode": "warehouse",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "warehouseId": {
+        "label": "Warehouse ID",
+        "description": "The ID of the existing Databricks warehouse instance to use.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendCustomEvent": {
+      "title": "Send Custom Event",
+      "description": "Record custom events in Databricks",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "event": {
+          "label": "Table Name",
+          "description": "The name of the table.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Columns",
+          "description": "Additional columns to write to Databricks.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "messageId": {
+          "label": "ID",
+          "description": "Name of column for the unique identifier for the message.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Event Type",
+          "description": "The type of event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "receivedAt": {
+          "label": "Received At",
+          "description": "Time when event was received.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.receivedAt"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Linked Audience Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "sendCustomEvent",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "entity_context": {
+            "@json": {
+              "mode": "encode",
+              "value": {
+                "@path": "$.properties.data_graph_entity_context"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "audience_key": {
+            "@path": "$.properties.audience_key"
+          },
+          "personas_computation_key": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "personas_computation_id": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "personas_computation_run_id": {
+            "@path": "$.context.personas.computation_run_id"
+          },
+          "personas_activation_id": {
+            "@path": "$.context.personas.event_emitter_id"
+          },
+          "event_name": {
+            "@path": "$.event"
+          }
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "receivedAt": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Linked Audience Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "sendCustomEvent",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "entity_context": {
+            "@json": {
+              "mode": "encode",
+              "value": {
+                "@path": "$.properties.data_graph_entity_context"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "audience_key": {
+            "@path": "$.properties.audience_key"
+          },
+          "personas_computation_key": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "personas_computation_id": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "personas_computation_run_id": {
+            "@path": "$.context.personas.computation_run_id"
+          },
+          "personas_activation_id": {
+            "@path": "$.context.personas.event_emitter_id"
+          },
+          "event_name": {
+            "@path": "$.event"
+          }
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "receivedAt": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Linked Audience Profile Entered",
+      "type": "specificEvent",
+      "partnerAction": "sendCustomEvent",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "entity_context": {
+            "@json": {
+              "mode": "encode",
+              "value": {
+                "@path": "$.properties.data_graph_entity_context"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "audience_key": {
+            "@path": "$.properties.audience_key"
+          },
+          "personas_computation_key": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "personas_computation_id": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "personas_computation_run_id": {
+            "@path": "$.context.personas.computation_run_id"
+          },
+          "personas_activation_id": {
+            "@path": "$.context.personas.event_emitter_id"
+          },
+          "event_name": {
+            "@path": "$.event"
+          }
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "receivedAt": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "name": "Linked Audience Profile Exited",
+      "type": "specificEvent",
+      "partnerAction": "sendCustomEvent",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "entity_context": {
+            "@json": {
+              "mode": "encode",
+              "value": {
+                "@path": "$.properties.data_graph_entity_context"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "audience_key": {
+            "@path": "$.properties.audience_key"
+          },
+          "personas_computation_key": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "personas_computation_id": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "personas_computation_run_id": {
+            "@path": "$.context.personas.computation_run_id"
+          },
+          "personas_activation_id": {
+            "@path": "$.context.personas.event_emitter_id"
+          },
+          "event_name": {
+            "@path": "$.event"
+          }
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "receivedAt": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "sendCustomEvent",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "journey_metadata": {
+            "@json": {
+              "mode": "encode",
+              "value": {
+                "@path": "$.properties.journey_metadata"
+              }
+            }
+          },
+          "journey_context": {
+            "@json": {
+              "mode": "encode",
+              "value": {
+                "@path": "$.properties.journey_context"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "personas_computation_key": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "personas_computation_id": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "personas_activation_id": {
+            "@path": "$.context.personas.event_emitter_id"
+          },
+          "personas_computation_class": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "event_name": {
+            "@path": "$.event"
+          }
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "receivedAt": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

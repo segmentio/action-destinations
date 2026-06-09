@@ -1,0 +1,1413 @@
+{
+  "slug": "actions-facebook-custom-audiences",
+  "name": "Facebook Custom Audiences (Actions)",
+  "mode": "cloud",
+  "description": "The Facebook Custom Audiences destination.",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "retlAdAccountId": {
+        "label": "Advertiser Account ID",
+        "description": "Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named \"Advertiser Account ID\".",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "engageAdAccountId": {
+        "label": "Advertiser Account ID",
+        "description": "Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named \"Advertiser Account ID\".",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "audienceDescription": {
+        "label": "Description",
+        "description": "A brief description about your audience.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "sync": {
+      "title": "Sync Audience",
+      "description": "Sync data to Facebook Custom Audiences.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": {
+        "default": "mirror",
+        "label": "Sync Mode",
+        "description": "Define how the records will be synced to Facebook Custom Audiences.",
+        "choices": [
+          {
+            "value": "mirror",
+            "label": "Mirror"
+          },
+          {
+            "value": "upsert",
+            "label": "Upsert"
+          },
+          {
+            "value": "delete",
+            "label": "Delete"
+          }
+        ]
+      },
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Select or create an audience in Facebook",
+          "description": "When saving this mapping, Segment will either create a new audience in Facebook or connect to an existing one. To create a new audience, enter the name of the audience. To connect to an existing audience, select the audience ID from the dropdown.",
+          "inputFields": {
+            "operation": {
+              "label": "Create a new custom audience or connect to an existing one?",
+              "description": "Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "create",
+              "choices": [
+                {
+                  "label": "Create New Audience",
+                  "value": "create"
+                },
+                {
+                  "label": "Connect to Existing Audience",
+                  "value": "existing"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "audienceName": {
+              "label": "Audience Creation Name",
+              "description": "The name of the audience in Facebook.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "existingAudienceId": {
+              "label": "Existing Audience ID",
+              "description": "The ID of the audience in Facebook.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "existing"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "outputFields": {
+            "audienceName": {
+              "label": "Audience Name",
+              "description": "The name of the audience in Facebook this mapping is connected to.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "audienceId": {
+              "label": "Audience ID",
+              "description": "The ID of the audience in Facebook.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "fields": {
+        "externalId": {
+          "label": "External ID",
+          "description": "Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "User’s email (ex: foo@bar.com)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "phone": {
+          "label": "Phone",
+          "description": "User’s phone number, including country code. Punctuation and spaces are ok (ex: 1-234-567-8910 or +44 844 412 4653)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "birth": {
+          "label": "Date of Birth",
+          "description": "User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "year": {
+              "label": "Year",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "month": {
+              "label": "Month",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "day": {
+              "label": "Day",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Name",
+          "description": "User’s name. Include as many fields as possible for better match rates. Use a-z only. No punctuation. Special characters in UTF-8 format",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "first": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "first": {
+              "label": "First Name",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "last": {
+              "label": "Last Name",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "firstInitial": {
+              "label": "First Initial",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "gender": {
+          "label": "Gender",
+          "description": "User’s gender (m for male, f for female)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "city": {
+          "label": "City",
+          "description": "User’s city. Use a-z only. No punctuation. No special characters.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.city"
+              },
+              "then": {
+                "@path": "$.traits.city"
+              },
+              "else": {
+                "@path": "$.properties.city"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "state": {
+          "label": "State",
+          "description": "User’s state. Use the 2-character ANSI abbreviation code, Normalize states outside the US with no punctuation and no special characters.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.state"
+              },
+              "then": {
+                "@path": "$.traits.state"
+              },
+              "else": {
+                "@path": "$.properties.state"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "zip": {
+          "label": "Postal Code",
+          "description": "User’s postal code. For the US, use only the first 5 digits. For the UK, use the Area/District/Sector format.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.postal_code"
+              },
+              "else": {
+                "@path": "$.properties.postal_code"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "country": {
+          "label": "Country",
+          "description": "User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.country"
+              },
+              "then": {
+                "@path": "$.traits.country"
+              },
+              "else": {
+                "@path": "$.properties.country"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "mobileAdId": {
+          "label": "Mobile Advertising ID",
+          "description": "User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "appId": {
+          "label": "App ID",
+          "description": "The app ID of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "pageId": {
+          "label": "Page ID",
+          "description": "The page ID of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "igAccountIds": {
+          "label": "Instagram Account IDs",
+          "description": "The Instagram account ID of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "external_audience_id": {
+          "label": "Facebook List ID",
+          "description": "The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 10000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "sync",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "sync",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "sync",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "sync",
+      "mapping": {
+        "externalId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "name": {
+          "first": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "last": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          }
+        },
+        "gender": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.gender"
+            },
+            "then": {
+              "@path": "$.traits.gender"
+            },
+            "else": {
+              "@path": "$.properties.gender"
+            }
+          }
+        },
+        "city": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.city"
+            },
+            "then": {
+              "@path": "$.traits.city"
+            },
+            "else": {
+              "@path": "$.properties.city"
+            }
+          }
+        },
+        "state": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.state"
+            },
+            "then": {
+              "@path": "$.traits.state"
+            },
+            "else": {
+              "@path": "$.properties.state"
+            }
+          }
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.postal_code"
+            },
+            "then": {
+              "@path": "$.traits.postal_code"
+            },
+            "else": {
+              "@path": "$.properties.postal_code"
+            }
+          }
+        },
+        "country": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.country"
+            },
+            "then": {
+              "@path": "$.traits.country"
+            },
+            "else": {
+              "@path": "$.properties.country"
+            }
+          }
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

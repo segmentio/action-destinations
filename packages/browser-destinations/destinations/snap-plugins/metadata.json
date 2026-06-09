@@ -1,0 +1,21 @@
+{
+  "slug": "snap-plugins",
+  "name": "Snap Browser Plugins",
+  "mode": "device",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "snapPlugin": {
+      "title": "Snap Browser Plugin",
+      "description": "Enriches all Segment payloads with Snap click_id Querystring and _scid Cookie values",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}

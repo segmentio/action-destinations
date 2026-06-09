@@ -1,0 +1,1008 @@
+{
+  "slug": "actions-linkedin-conversions",
+  "name": "LinkedIn Conversions API",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {}
+  },
+  "audienceConfig": null,
+  "actions": {
+    "streamConversion": {
+      "title": "Stream Conversion Event",
+      "description": "Directly streams conversion events to a specific conversion rule.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": {
+        "onMappingSave": {
+          "label": "Create a Conversion Rule",
+          "description": "When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.\n To configure: either provide an existing conversion rule ID or fill in the fields below to create a new conversion rule.",
+          "inputFields": {
+            "adAccountId": {
+              "label": "Ad Account",
+              "description": "The ad account to use when creating the conversion event. (When updating a conversion rule after initially creating it, changes to this field will be ignored. LinkedIn does not allow Ad Account IDs to be updated for a conversion rule.)",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "campaignId": {
+              "label": "Add Campaigns to Conversion",
+              "description": "Select one or more advertising campaigns from your ad account to associate with the configured conversion rule. Segment will only add the selected campaigns to the conversion rule. Deselecting a campaign will not disassociate it from the conversion rule.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "conversionRuleId": {
+              "label": "Existing Conversion Rule ID",
+              "description": "The ID of an existing conversion rule to stream events to. If defined, we will not create a new conversion rule.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": true,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Name",
+              "description": "The name of the conversion rule.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "conversionRuleId",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "conversionType": {
+              "label": "Conversion Type",
+              "description": "The type of conversion rule.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Add to Cart",
+                  "value": "ADD_TO_CART"
+                },
+                {
+                  "label": "Download",
+                  "value": "DOWNLOAD"
+                },
+                {
+                  "label": "Install",
+                  "value": "INSTALL"
+                },
+                {
+                  "label": "Key Page View",
+                  "value": "KEY_PAGE_VIEW"
+                },
+                {
+                  "label": "Lead",
+                  "value": "LEAD"
+                },
+                {
+                  "label": "Purchase",
+                  "value": "PURCHASE"
+                },
+                {
+                  "label": "Sign Up",
+                  "value": "SIGN_UP"
+                },
+                {
+                  "label": "Other",
+                  "value": "OTHER"
+                },
+                {
+                  "label": "Talent Lead",
+                  "value": "TALENT_LEAD"
+                },
+                {
+                  "label": "Job Apply",
+                  "value": "JOB_APPLY"
+                },
+                {
+                  "label": "Save",
+                  "value": "SAVE"
+                },
+                {
+                  "label": "Start Checkout",
+                  "value": "START_CHECKOUT"
+                },
+                {
+                  "label": "Schedule",
+                  "value": "SCHEDULE"
+                },
+                {
+                  "label": "View Content",
+                  "value": "VIEW_CONTENT"
+                },
+                {
+                  "label": "View Video",
+                  "value": "VIEW_VIDEO"
+                },
+                {
+                  "label": "Add Billing Info",
+                  "value": "ADD_BILLING_INFO"
+                },
+                {
+                  "label": "Book Appointment",
+                  "value": "BOOK_APPOINTMENT"
+                },
+                {
+                  "label": "Request Quote",
+                  "value": "REQUEST_QUOTE"
+                },
+                {
+                  "label": "Search",
+                  "value": "SEARCH"
+                },
+                {
+                  "label": "Subscribe",
+                  "value": "SUBSCRIBE"
+                },
+                {
+                  "label": "Ad Click",
+                  "value": "AD_CLICK"
+                },
+                {
+                  "label": "Ad View",
+                  "value": "AD_VIEW"
+                },
+                {
+                  "label": "Complete Signup",
+                  "value": "COMPLETE_SIGNUP"
+                },
+                {
+                  "label": "Submit Application",
+                  "value": "SUBMIT_APPLICATION"
+                },
+                {
+                  "label": "Phone Call",
+                  "value": "PHONE_CALL"
+                },
+                {
+                  "label": "Invite",
+                  "value": "INVITE"
+                },
+                {
+                  "label": "Login",
+                  "value": "LOGIN"
+                },
+                {
+                  "label": "Share",
+                  "value": "SHARE"
+                },
+                {
+                  "label": "Donate",
+                  "value": "DONATE"
+                },
+                {
+                  "label": "Add to List",
+                  "value": "ADD_TO_LIST"
+                },
+                {
+                  "label": "Rate",
+                  "value": "RATE"
+                },
+                {
+                  "label": "Start Trial",
+                  "value": "START_TRIAL"
+                },
+                {
+                  "label": "Outbound Click",
+                  "value": "OUTBOUND_CLICK"
+                },
+                {
+                  "label": "Contact",
+                  "value": "CONTACT"
+                },
+                {
+                  "label": "Marketing Qualified Lead",
+                  "value": "MARKETING_QUALIFIED_LEAD"
+                },
+                {
+                  "label": "Sales Qualified Lead",
+                  "value": "SALES_QUALIFIED_LEAD"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "conversionRuleId",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "attribution_type": {
+              "label": "Attribution Type",
+              "description": "The attribution type for the conversion rule.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Each Campaign",
+                  "value": "LAST_TOUCH_BY_CAMPAIGN"
+                },
+                {
+                  "label": "Single Campaign",
+                  "value": "LAST_TOUCH_BY_CONVERSION"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "conversionRuleId",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "post_click_attribution_window_size": {
+              "label": "Post-Click Attribution Window Size",
+              "description": "Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 30.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": 30,
+              "choices": [
+                {
+                  "label": "1 day",
+                  "value": 1
+                },
+                {
+                  "label": "7 days",
+                  "value": 7
+                },
+                {
+                  "label": "30 days",
+                  "value": 30
+                },
+                {
+                  "label": "90 days",
+                  "value": 90
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "conversionRuleId",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "view_through_attribution_window_size": {
+              "label": "View-Through Attribution Window Size",
+              "description": "Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": 7,
+              "choices": [
+                {
+                  "label": "1 day",
+                  "value": 1
+                },
+                {
+                  "label": "7 days",
+                  "value": 7
+                },
+                {
+                  "label": "30 days",
+                  "value": 30
+                },
+                {
+                  "label": "90 days",
+                  "value": 90
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "conversionRuleId",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "ID",
+              "description": "The ID of the conversion rule.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Name",
+              "description": "The name of the conversion rule.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "conversionType": {
+              "label": "Conversion Type",
+              "description": "The type of conversion rule.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "attribution_type": {
+              "label": "Attribution Type",
+              "description": "The attribution type for the conversion rule.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "post_click_attribution_window_size": {
+              "label": "Post-Click Attribution Window Size",
+              "description": "Conversion window timeframe (in days) of a member clicking on a LinkedIn Ad (a post-click conversion) within which conversions will be attributed to a LinkedIn ad.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "view_through_attribution_window_size": {
+              "label": "View-Through Attribution Window Size",
+              "description": "Conversion window timeframe (in days) of a member seeing a LinkedIn Ad (a view-through conversion) within which conversions will be attributed to a LinkedIn ad. Allowed values are 1, 7, 30 or 90. Default is 7.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "fields": {
+        "conversionHappenedAt": {
+          "label": "Timestamp",
+          "description": "Epoch timestamp in milliseconds at which the conversion event happened. If your source records conversion timestamps in second, insert 000 at the end to transform it to milliseconds.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "conversionValue": {
+          "label": "Conversion Value",
+          "description": "The monetary value for this conversion. Example: {“currencyCode”: “USD”, “amount”: “50.0”}.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "currencyCode": {
+              "@path": "$.properties.currency"
+            },
+            "amount": {
+              "@path": "$.properties.revenue"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "currencyCode": {
+              "label": "Currency Code",
+              "description": "ISO format",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "amount": {
+              "label": "Amount",
+              "description": "Value of the conversion in decimal string. Can be dynamically set up or have a fixed value.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "eventId": {
+          "label": "Event ID",
+          "description": "The unique id for each event. This field is optional and is used for deduplication.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "linkedInUUID": {
+          "label": "LinkedIn First Party Ads Tracking UUID",
+          "description": "First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "acxiomID": {
+          "label": "Acxiom ID",
+          "description": "User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "oracleID": {
+          "label": "Oracle ID",
+          "description": "User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userInfo": {
+          "label": "User Info",
+          "description": "Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "firstName": {
+              "label": "First Name",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "lastName": {
+              "label": "Last Name",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "companyName": {
+              "label": "Company Name",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "title": {
+              "label": "Title",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "countryCode": {
+              "label": "Country Code",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "externalIds": {
+          "label": "External ID",
+          "description": "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 5000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

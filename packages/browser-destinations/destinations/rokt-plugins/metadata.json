@@ -1,0 +1,21 @@
+{
+  "slug": "rokt-plugins",
+  "name": "Rokt Browser Plugins",
+  "mode": "device",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "roktPlugin": {
+      "title": "Rokt Browser Plugin",
+      "description": "Enriches all Segment payloads with Rokt rtid Querystring value",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}

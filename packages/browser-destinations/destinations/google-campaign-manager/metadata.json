@@ -1,0 +1,580 @@
+{
+  "slug": "actions-google-campaign-manager",
+  "name": "Google Tag for Campaign Manager",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "advertiserId": {
+        "label": "Advertiser ID",
+        "description": "In Campaign Manager, go to Floodlight -> Configuration, and Advertiser ID is located under the Configuration heading.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "DC-",
+        "depends_on": null
+      },
+      "allowAdPersonalizationSignals": {
+        "label": "Allow Ad Personalization Signals",
+        "description": "This feature can be disabled if you do not want the global site tag to allow personalized remarketing data for site users.",
+        "type": "boolean",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "conversionLinker": {
+        "label": "Conversion Linker",
+        "description": "This feature can be disabled if you do not want the global site tag to set first party cookies on your site domain.",
+        "type": "boolean",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "enableConsentMode": {
+        "label": "Enable Consent Mode",
+        "description": "Set to true to enable Google’s [Consent Mode](https://support.google.com/analytics/answer/9976101?hl=en). Set to false by default.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "adUserDataConsentState": {
+        "label": "Ad User Data Consent State",
+        "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Granted",
+            "value": "granted"
+          },
+          {
+            "label": "Denied",
+            "value": "denied"
+          }
+        ],
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
+      "adPersonalizationConsentState": {
+        "label": "Ad Personalization Consent State",
+        "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Granted",
+            "value": "granted"
+          },
+          {
+            "label": "Denied",
+            "value": "denied"
+          }
+        ],
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
+      "defaultAdsStorageConsentState": {
+        "label": "Default Ads Storage Consent State",
+        "description": "The default value for ad cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Granted",
+            "value": "granted"
+          },
+          {
+            "label": "Denied",
+            "value": "denied"
+          }
+        ],
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
+      "defaultAnalyticsStorageConsentState": {
+        "label": "Default Analytics Storage Consent State",
+        "description": "The default value for analytics cookies consent state. This is only used if Enable Consent Mode is on. Set to  “granted” if it is not explicitly set. Consent state can be updated for each user in the Set Configuration Fields action.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Granted",
+            "value": "granted"
+          },
+          {
+            "label": "Denied",
+            "value": "denied"
+          }
+        ],
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "counterActivity": {
+      "title": "Counter Activity",
+      "description": "Record non-monetary conversion data such as unique users, conversions, and session length.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "activityGroupTagString": {
+          "label": "Activity Group Tag String",
+          "description": "An identifier for the Floodlight activity group associated with this activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "activityTagString": {
+          "label": "Activity Tag String",
+          "description": "An identifier for your Floodlight activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enableDynamicTags": {
+          "label": "Enable Dynamic Tags",
+          "description": "In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "countingMethod": {
+          "label": "Counting Method",
+          "description": "Specifies how conversions will be counted for this Floodlight activity.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "standard",
+              "label": "Standard"
+            },
+            {
+              "value": "unique",
+              "label": "Unique"
+            },
+            {
+              "value": "per_session",
+              "label": "Per Session"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "sessionId": {
+          "label": "Session ID",
+          "description": "Use this field to insert a unique session ID if you’re using counter tags with a per session counting methodology. The session ID tells Campaign Manager 360 to count only one event per session on your site.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "uVariables": {
+          "label": "U Variables",
+          "description": "Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dcCustomParams": {
+          "label": "Custom Parameters",
+          "description": "You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "salesActivity": {
+      "title": "Sales Activity",
+      "description": "Record monetary data for conversions, such as cost and the number of items sold.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "activityGroupTagString": {
+          "label": "Activity Group Tag String",
+          "description": "An identifier for the Floodlight activity group associated with this activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "activityTagString": {
+          "label": "Activity Tag String",
+          "description": "An identifier for your Floodlight activity, which appears as a parameter in your tags. This value is case sensitive.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enableDynamicTags": {
+          "label": "Enable Dynamic Tags",
+          "description": "In Campaign Manager, go to Floodlight -> Configuration, under Tags, if **Dynamic** is selected, select **True**.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "countingMethod": {
+          "label": "Counting Method",
+          "description": "Specifies how conversions will be counted for this Floodlight activity.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "transactions",
+              "label": "Transactions"
+            },
+            {
+              "value": "items_sold",
+              "label": "Items Sold"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "transactionId": {
+          "label": "Transaction ID",
+          "description": "Use this field to insert a unique numerical identifier for each transaction.  Can be alphanumeric.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.order_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "value": {
+          "label": "Value",
+          "description": "Use this field to pass the revenue generated by a transaction. Typically the purchase price and value does not include taxes or shipping.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.total"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "quantity": {
+          "label": "Quantity",
+          "description": "\n      Use this field to pass the number of items sold during a transaction:\n      - If you're counting each transaction as a single conversion, the value is 1.\n      - If you're counting each item sold during a single transaction as a separate conversion, insert the number of items sold as part of each transaction as the value.\n      - The value must be an integer greater than zero.\n      ",
+          "type": "integer",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "uVariables": {
+          "label": "U Variables",
+          "description": "Custom Floodlight variables enable you to capture information beyond the basics (visits and revenue) that you can collect with standard parameters in your tags.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dcCustomParams": {
+          "label": "Custom Parameters",
+          "description": "You can insert custom data into event snippets with the dc_custom_params field. This field accepts any values you want to pass to Google Marketing Platform.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

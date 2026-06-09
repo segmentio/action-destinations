@@ -1,0 +1,22 @@
+{
+  "slug": "google-ec-plugins",
+  "name": "Google Enhanced Conversions Browser Plugins",
+  "mode": "device",
+  "description": "Browser plugin to enrich Segment event payloads with data specifically for Google Enhanced Conversions.",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "sessionAttributesEncoded": {
+      "title": "Session Attributes Encoded Plugin",
+      "description": "Enriches Segment payloads with Session Attributes Encoded values from the page URL.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}
