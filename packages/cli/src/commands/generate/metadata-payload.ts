@@ -28,7 +28,7 @@ export interface PublicActionField {
   label: string | undefined
   description: string | undefined
   type: string
-  required: boolean
+  required: boolean | { conditions: Array<{ fieldKey: string; operator: string; value: unknown }> }
   multiple: boolean
   allowNull: boolean
   dynamic: boolean
@@ -71,6 +71,7 @@ export interface PublicAction {
       outputFields: Record<string, PublicActionField>
     }
   > | null
+  dynamicFields: Record<string, string[]> | null
   fields: Record<string, PublicActionField>
 }
 
@@ -145,7 +146,7 @@ export function serializeActionField(field: any): PublicActionField {
     label: field.label,
     description: field.description,
     type: field.type,
-    required: field.required === true,
+    required: typeof field.required === 'object' && field.required !== null ? field.required : field.required === true,
     multiple: field.multiple ?? false,
     allowNull: field.allowNull ?? false,
     dynamic: typeof field.dynamic === 'function' ? true : field.dynamic ?? false,
@@ -209,6 +210,23 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
     }
   }
 
+  let dynamicFields: Record<string, string[]> | null = null
+  if (action.dynamicFields && typeof action.dynamicFields === 'object') {
+    dynamicFields = {}
+    for (const [fieldKey, fieldDynamic] of Object.entries(action.dynamicFields as Record<string, any>)) {
+      if (typeof fieldDynamic === 'function') continue
+      if (typeof fieldDynamic === 'object' && fieldDynamic !== null) {
+        const keys = Object.keys(fieldDynamic).filter((k) => k === '__keys__' || k === '__values__')
+        if (keys.length > 0) {
+          dynamicFields[fieldKey] = keys
+        }
+      }
+    }
+    if (Object.keys(dynamicFields).length === 0) {
+      dynamicFields = null
+    }
+  }
+
   return {
     title: action.title ?? actionKey,
     description: action.description ?? '',
@@ -218,6 +236,7 @@ export function serializeAction(actionKey: string, action: any): PublicAction {
     hasPerformBatch: typeof action.performBatch === 'function',
     syncMode,
     hooks: Object.keys(hooks).length > 0 ? hooks : null,
+    dynamicFields,
     fields
   }
 }
