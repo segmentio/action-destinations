@@ -183,6 +183,74 @@ beforeEach((done) => {
 
 describe('Hubspot.upsertObject', () => {
   describe('where syncMode = upsert', () => {
+    describe('Hubspot datetime field receives an epoch string value', () => {
+      it('should allow a plain string value (e.g. Unix epoch) to match a HubSpot datetime field', async () => {
+        const epochPayload = {
+          event: 'Test Custom Object Event',
+          type: 'track',
+          userId: 'user_id_1',
+          properties: {
+            email: 'test@test.com',
+            regular: {
+              datetime_prop: '1780382814'
+            },
+            sensitive: {}
+          }
+        } as Partial<SegmentEvent>
+
+        const epochMapping = {
+          __segment_internal_sync_mode: 'upsert',
+          object_details: {
+            object_type: 'contact',
+            id_field_name: 'email',
+            id_field_value: { '@path': '$.properties.email' },
+            property_group: 'contactinformation'
+          },
+          properties: { '@path': '$.properties.regular' },
+          sensitive_properties: { '@path': '$.properties.sensitive' },
+          association_sync_mode: 'upsert',
+          associations: [],
+          enable_batching: true,
+          batch_size: 100
+        }
+
+        nock(HUBSPOT_BASE_URL)
+          .get('/crm/v3/properties/contact')
+          .reply(200, {
+            results: [
+              {
+                name: 'datetime_prop',
+                type: 'datetime',
+                fieldType: 'date',
+                hasUniqueValue: false
+              }
+            ]
+          })
+
+        nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact?dataSensitivity=sensitive').reply(200, { results: [] })
+
+        nock(HUBSPOT_BASE_URL)
+          .post('/crm/v3/objects/contact/batch/upsert')
+          .reply(200, {
+            status: 'COMPLETE',
+            results: [{ id: '1', properties: { email: 'test@test.com', datetime_prop: '1780382814' } }]
+          })
+
+        nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/read').reply(200, { results: [] })
+
+        const event = createTestEvent(epochPayload)
+
+        await expect(
+          testDestination.testAction('upsertObject', {
+            event,
+            settings,
+            useDefaultMappings: true,
+            mapping: epochMapping
+          })
+        ).resolves.not.toThrow()
+      })
+    })
+
     describe('Hubspot object schema has a mis-matched property', () => {
       it('should throw an error explaining the property type mismatch.', async () => {
         const event = createTestEvent(payload)
