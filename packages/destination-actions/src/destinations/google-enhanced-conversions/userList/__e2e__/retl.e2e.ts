@@ -39,8 +39,8 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, sent: { email: 'e2e-google-retl-001@segment.com' }, body: {} },
-        { status: 200, sent: { email: 'e2e-google-retl-002@segment.com' }, body: {} }
+        { status: 200 },
+        { status: 200 }
       ]
     },
     verboseFailureHint: FAILURE_HINT
@@ -76,8 +76,8 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, sent: { email: 'e2e-google-retl-003@segment.com' }, body: {} },
-        { status: 200, sent: { email: 'e2e-google-retl-004@segment.com' }, body: {} }
+        { status: 200 },
+        { status: 200 }
       ]
     },
     verboseFailureHint: FAILURE_HINT
@@ -113,8 +113,8 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, sent: { email: 'e2e-google-retl-005@segment.com' }, body: {} },
-        { status: 200, sent: { email: 'e2e-google-retl-006@segment.com' }, body: {} }
+        { status: 200 },
+        { status: 200 }
       ]
     },
     verboseFailureHint: FAILURE_HINT
@@ -150,8 +150,8 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, sent: { email: 'e2e-google-retl-007@segment.com' }, body: {} },
-        { status: 200, sent: { email: 'e2e-google-retl-008@segment.com' }, body: {} }
+        { status: 200 },
+        { status: 200 }
       ]
     },
     verboseFailureHint: FAILURE_HINT

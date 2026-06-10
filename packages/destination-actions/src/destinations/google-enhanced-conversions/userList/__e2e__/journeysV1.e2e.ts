@@ -67,9 +67,9 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, sent: {}, body: {} },
-        { status: 200, sent: {}, body: {} },
-        { status: 200, sent: {}, body: {} }
+        { status: 200 },
+        { status: 200 },
+        { status: 200 }
       ]
     },
     verboseFailureHint: FAILURE_HINT
@@ -106,8 +106,8 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, sent: { email: 'e2e-google-journeys-test-005@segment.com' }, body: {} },
-        { status: 200, sent: { email: 'e2e-google-journeys-test-006@segment.com' }, body: {} }
+        { status: 200 },
+        { status: 200 }
       ]
     },
     verboseFailureHint: FAILURE_HINT

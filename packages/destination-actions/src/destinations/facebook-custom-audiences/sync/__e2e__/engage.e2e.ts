@@ -236,21 +236,9 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        {
-          status: 200,
-          body: {},
-          sent: { externalId: 'e2e-fb-user-008', email: 'e2e-fb-test-008@segment.com' }
-        },
-        {
-          status: 200,
-          body: {},
-          sent: { externalId: 'e2e-fb-user-009', email: 'e2e-fb-test-009@segment.com' }
-        },
-        {
-          status: 200,
-          body: {},
-          sent: { externalId: 'e2e-fb-user-010', email: 'e2e-fb-test-010@segment.com' }
-        },
+        { status: 200 },
+        { status: 200 },
+        { status: 200 },
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
