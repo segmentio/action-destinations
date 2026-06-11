@@ -169,18 +169,16 @@ export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = strin
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas<ComputationKey>
+    personas: {
+      computation_class: 'audience'
+      computation_key: ComputationKey
+      computation_id: string
+      external_audience_id?: string
+    }
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
   properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
-}
-
-export interface E2EJourneysV1AudiencePersonas<ComputationKey extends string = string> {
-  computation_class: 'journey_step'
-  computation_key: ComputationKey
-  computation_id: string
-  external_audience_id?: string
 }
 
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
@@ -189,25 +187,16 @@ export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string =
   messageId: string
   timestamp: string
   context: {
-    personas: E2EJourneysV1AudiencePersonas<ComputationKey>
+    personas: {
+      computation_class: 'journey_step'
+      computation_key: ComputationKey
+      computation_id: string
+      external_audience_id?: string
+    }
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
   properties: { [k: string]: JSONValue }
-}
-
-export interface E2EEngageAudiencePersonas<ComputationKey extends string = string> {
-  computation_class: 'audience'
-  computation_key: ComputationKey
-  computation_id: string
-  external_audience_id?: string
-}
-
-export interface E2EJourneysV2AudiencePersonas<ComputationKey extends string = string> {
-  computation_class: 'journey_step'
-  computation_key: ComputationKey
-  computation_id: string
-  external_audience_id?: string
 }
 
 export interface E2EJourneysV2AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
@@ -216,7 +205,12 @@ export interface E2EJourneysV2AudienceTrackEvent<ComputationKey extends string =
   messageId: string
   timestamp: string
   context: {
-    personas: E2EJourneysV2AudiencePersonas<ComputationKey>
+    personas: {
+      computation_class: 'journey_step'
+      computation_key: ComputationKey
+      computation_id: string
+      external_audience_id?: string
+    }
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
@@ -232,7 +226,12 @@ export interface E2EEngageAudienceTrackEvent<ComputationKey extends string = str
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas<ComputationKey>
+    personas: {
+      computation_class: 'audience'
+      computation_key: ComputationKey
+      computation_id: string
+      external_audience_id?: string
+    }
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
@@ -244,7 +243,12 @@ export interface E2EEngageAudienceIdentifyEvent<ComputationKey extends string = 
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas<ComputationKey>
+    personas: {
+      computation_class: 'audience'
+      computation_key: ComputationKey
+      computation_id: string
+      external_audience_id?: string
+    }
     audienceFields?: Record<string, unknown>
   }
   traits: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
