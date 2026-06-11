@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Switch between the latest field configuration and the legacy fields. New instances default to the latest fields.
+   */
+  data_format?: string
+  /**
    * The conversion event type. For custom events, you must use the predefined event name "custom". Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).
    */
   event_name: string
@@ -25,6 +29,10 @@ export interface Payload {
    * When action_source is web or offline, it defines whether the user has opted out of tracking for web conversion events. While when action_source is app_android or app_ios, it defines whether the user has enabled Limit Ad Tracking on their iOS device, or opted out of Ads Personalization on their Android device.
    */
   opt_out?: boolean
+  /**
+   * Defines whether the user has enabled ATT permission on their iOS device.
+   */
+  advertiser_tracking_enabled?: boolean
   /**
    * Object containing customer information data. Note, It is required at least one of 1) em, 2) hashed_maids or 3) pair client_ip_address + client_user_agent..
    */
@@ -95,7 +103,7 @@ export interface Payload {
     partner_id?: string | null
   }
   /**
-   * Object containing customer information data.
+   * Object containing custom event data.
    */
   custom_data?: {
     /**
@@ -123,9 +131,25 @@ export interface Payload {
        */
       item_price?: number
       /**
-       * The number of items purchased
+       * The number of items purchased.
        */
       quantity?: number
+      /**
+       * The brand of a product.
+       */
+      item_brand?: string
+      /**
+       * The brand ID of a product. Max 64 characters.
+       */
+      item_brand_id?: string
+      /**
+       * The category of a product.
+       */
+      item_category?: string
+      /**
+       * The name of a product.
+       */
+      item_name?: string
     }[]
     /**
      * Total number of products in the event.
@@ -140,9 +164,25 @@ export interface Payload {
      */
     search_string?: string
     /**
-     * opt_out_type is the field where we accept opt outs for your users’ privacy preference.  It can handle multiple values with commas separated.
+     * Accepts opt outs for your users' privacy preference. Can handle multiple values with commas separated.
      */
     opt_out_type?: string
+    /**
+     * The brand of the content associated with the event.
+     */
+    content_brand?: string
+    /**
+     * The category of the content associated with the event.
+     */
+    content_category?: string
+    /**
+     * The name of the page or product associated with the event.
+     */
+    content_name?: string
+    /**
+     * Predicted lifetime value of user associated with the event.
+     */
+    predicted_ltv?: number
   }
   /**
    * The app store app ID.
@@ -151,7 +191,7 @@ export interface Payload {
   /**
    * Name of the app.
    */
-  app_name: string
+  app_name?: string
   /**
    * Version of the app.
    */
@@ -161,7 +201,7 @@ export interface Payload {
    */
   device_brand?: string
   /**
-   * User device’s mobile carrier.
+   * User device's mobile carrier.
    */
   device_carrier?: string
   /**
@@ -176,6 +216,230 @@ export interface Payload {
    * Version of the device operating system.
    */
   os_version?: string
+  /**
+   * Object containing custom event data.
+   */
+  custom_data_2?: {
+    /**
+     * ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.
+     */
+    currency?: string
+    /**
+     * Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.
+     */
+    value?: number
+    /**
+     * Product IDs as an array of strings.
+     */
+    content_ids?: string[]
+    /**
+     * Total number of products in the event.
+     */
+    num_items?: number
+    /**
+     * The order ID.
+     */
+    order_id?: string
+    /**
+     * Search string related to the conversion event.
+     */
+    search_string?: string
+    /**
+     * The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.
+     */
+    opt_out_type?: string
+    /**
+     * The brand of the content associated with the event.
+     */
+    content_brand?: string
+    /**
+     * The category of the content associated with the event.
+     */
+    content_category?: string
+    /**
+     * The name of the page or product associated with the event.
+     */
+    content_name?: string
+    /**
+     * Predicted lifetime value of user associated with the event.
+     */
+    predicted_ltv?: number
+  }
+  /**
+   * A list of objects containing information about products.
+   */
+  contents?: {
+    /**
+     * The id of the item.
+     */
+    id?: string
+    /**
+     * The price of the item.
+     */
+    item_price?: number
+    /**
+     * The number of items purchased.
+     */
+    quantity?: number
+    /**
+     * The brand of the product.
+     */
+    item_brand?: string
+    /**
+     * The brand ID of the product. Max 64 characters.
+     */
+    item_brand_id?: string
+    /**
+     * The category of the product.
+     */
+    item_category?: string
+    /**
+     * The name of the product.
+     */
+    item_name?: string
+  }[]
+  /**
+   * Object containing information about the application where event occurred.
+   */
+  app_info?: {
+    /**
+     * App ID in Google Play Store, AppStore or other stores.
+     */
+    app_id?: string
+    /**
+     * Name of the app.
+     */
+    app_name?: string
+    /**
+     * App package name.
+     */
+    app_package_name?: string
+    /**
+     * The name of the app distributor or store from which the app was installed.
+     */
+    app_store?: string
+    /**
+     * App version.
+     */
+    app_version?: string
+    /**
+     * App install time. Will be converted to Unix timestamp in seconds before sending.
+     */
+    install_time?: string | number
+    /**
+     * User Agent request header.
+     */
+    user_agent?: string
+    /**
+     * Inner height of the window or viewport.
+     */
+    window_height?: number
+    /**
+     * Inner width of the window or viewport.
+     */
+    window_width?: number
+  }
+  /**
+   * Object containing information about the device where event occurred.
+   */
+  device_info?: {
+    /**
+     * Battery charge level percentage.
+     */
+    battery_level?: number
+    /**
+     * Device brand.
+     */
+    brand?: string
+    /**
+     * User device's mobile carrier.
+     */
+    carrier?: string
+    /**
+     * Number of CPU cores.
+     */
+    cpu_cores?: number
+    /**
+     * External storage free space in GB.
+     */
+    external_storage_free_space?: number
+    /**
+     * External storage size in GB.
+     */
+    external_storage_size?: number
+    /**
+     * Device form factor (desktop, laptop, cellphone, tablet, smartwatch, tv, vr, console, other).
+     */
+    form_factor?: string
+    /**
+     * Kernel version of the device's operating system.
+     */
+    kernel_version?: string
+    /**
+     * List of user installed languages. ISO 639-1 format.
+     */
+    languages?: string[]
+    /**
+     * Device locale in BCP-47 format.
+     */
+    locale?: string
+    /**
+     * Device model name.
+     */
+    model?: string
+    /**
+     * Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).
+     */
+    network_type?: string
+    /**
+     * OS Family (ios, android, macos, windows, linux, bsd, other).
+     */
+    os_family?: string
+    /**
+     * Short name of the OS.
+     */
+    os_name?: string
+    /**
+     * Marketing name for the release version.
+     */
+    os_release_name?: string
+    /**
+     * Full name of the OS version.
+     */
+    os_version?: string
+    /**
+     * Screen density, PPI.
+     */
+    screen_density?: number
+    /**
+     * Screen height in pixels.
+     */
+    screen_height?: number
+    /**
+     * Screen width in pixels.
+     */
+    screen_width?: number
+    /**
+     * Internal storage free space in GB.
+     */
+    storage_free_space?: number
+    /**
+     * Internal storage size in GB.
+     */
+    storage_size?: number
+    /**
+     * Device timezone.
+     */
+    timezone?: string
+    /**
+     * Timezone abbreviation.
+     */
+    timezone_abbr?: string
+    /**
+     * Device type.
+     */
+    type?: string
+  }
   /**
    * Whether the event occurred when the user device was connected to wifi.
    */
