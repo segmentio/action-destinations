@@ -135,6 +135,20 @@ export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string
   enrichedTraits?: Record<string, unknown>
 }
 
+export interface E2EJourneysV2AudienceEventOptions<ComputationKey extends string = string> {
+  computationKey: ComputationKey
+  computationId: string
+  externalAudienceId?: string
+  eventName?: string
+  journeyId?: string
+  journeyName?: string
+  userId?: string
+  anonymousId?: string
+  email?: string
+  audienceFields?: Record<string, unknown>
+  enrichedTraits?: Record<string, unknown>
+}
+
 export interface E2ERetlAudienceEventOptions<ComputationKey extends string = string> {
   eventName: 'new' | 'updated' | 'deleted'
   computationKey: ComputationKey
@@ -178,6 +192,29 @@ export interface E2EEngageAudiencePersonas<ComputationKey extends string = strin
   computation_key: ComputationKey
   computation_id: string
   external_audience_id?: string
+}
+
+export interface E2EJourneysV2AudiencePersonas<ComputationKey extends string = string> {
+  computation_class: 'journey_step'
+  computation_key: ComputationKey
+  computation_id: string
+  external_audience_id?: string
+}
+
+export interface E2EJourneysV2AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
+  type: 'track'
+  event: string
+  messageId: string
+  timestamp: string
+  context: {
+    personas: E2EJourneysV2AudiencePersonas<ComputationKey>
+    traits?: { email?: string }
+    audienceFields?: Record<string, unknown>
+  }
+  properties: {
+    journey_context: { [k: string]: JSONValue }
+    journey_metadata: { journey_id: string; journey_name: string; [k: string]: JSONValue }
+  } & { [k: string]: JSONValue }
 }
 
 export interface E2EEngageAudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {

@@ -6,6 +6,8 @@ import type {
   E2EEngageAudienceEvent,
   E2EJourneysV1AudienceEventOptions,
   E2EJourneysV1AudienceTrackEvent,
+  E2EJourneysV2AudienceEventOptions,
+  E2EJourneysV2AudienceTrackEvent,
   E2ERetlAudienceEventOptions,
   E2ERetlAudienceTrackEvent
 } from './e2e-types'
@@ -141,6 +143,62 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
   }
 
   return event as E2EJourneysV1AudienceTrackEvent<ComputationKey>
+}
+
+/*
+ * Journeys V2 events use computation_class 'journey_step' (not 'audience') and carry
+ * journey_context / journey_metadata in properties instead of properties[<computation_key>].
+ * Journeys V2 events never contain a membership boolean, so the action treats them as "add"
+ * via its journey_step fallback. Only track events supported.
+ */
+export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
+  options: E2EJourneysV2AudienceEventOptions<ComputationKey>
+): E2EJourneysV2AudienceTrackEvent<ComputationKey> {
+  const {
+    computationKey,
+    computationId,
+    externalAudienceId,
+    eventName,
+    journeyId,
+    journeyName,
+    userId,
+    anonymousId,
+    email,
+    audienceFields,
+    enrichedTraits
+  } = options
+
+  const event = {
+    messageId: '$guid',
+    timestamp: '$now',
+    ...(userId && { userId }),
+    ...(anonymousId && { anonymousId }),
+    type: 'track',
+    event: eventName ?? 'Test Journeys V2 Audience Membership Event',
+    properties: {
+      journey_context: {
+        [computationKey]: {}
+      },
+      journey_metadata: {
+        epoch_id: '$guid',
+        journey_id: journeyId ?? 'jver_e2e_journey',
+        journey_name: journeyName ?? 'e2e journey'
+      },
+      ...(enrichedTraits as { [k: string]: JSONValue })
+    },
+    context: {
+      personas: {
+        computation_class: 'journey_step',
+        computation_key: computationKey,
+        computation_id: computationId,
+        ...(externalAudienceId && { external_audience_id: externalAudienceId })
+      },
+      ...(audienceFields && { audienceFields }),
+      ...(email && { traits: { email } })
+    }
+  }
+
+  return event as E2EJourneysV2AudienceTrackEvent<ComputationKey>
 }
 
 /*
