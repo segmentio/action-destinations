@@ -90,8 +90,7 @@
     "istanbul-lib-instrument/semver": "6.3.1",
     "fast-xml-parser": "5.5.9",
     "picomatch": "2.3.2",
-    "lodash": "4.18.1",
-    "liquidjs": "10.25.7"
+    "lodash": "4.18.1"
   },
   "husky": {
     "hooks": {
@@ -129,7 +128,7 @@
   },
   "dependencies": {
     "chance": "^1.1.8",
-    "liquidjs": "^10.25.7",
+    "liquidjs": "^10.27.0",
     "xml-js": "^1.6.11"
   }
 }

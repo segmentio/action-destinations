@@ -35,7 +35,7 @@
   "dependencies": {
     "@braze/web-sdk": "npm:@braze/web-sdk@^5",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
-    "@segment/actions-core": "3.168.1-staging.2",
+    "@segment/actions-core": "3.168.1-staging.3",
     "@segment/browser-destination-runtime": "1.97.1-staging.2"
   },
   "peerDependencies": {
