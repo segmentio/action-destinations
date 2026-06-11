@@ -23,21 +23,29 @@ export interface Payload {
    */
   eventId?: string
   /**
-   * Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   * Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. At least one user identifier is required.
    */
   email?: string
   /**
-   * First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   * First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. At least one user identifier is required.
    */
   linkedInUUID?: string
   /**
-   * User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   * User identifier for matching with LiveRamp identity graph. At least one user identifier is required.
    */
   acxiomID?: string
   /**
-   * User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.
+   * User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. At least one user identifier is required.
    */
   oracleID?: string
+  /**
+   * The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.
+   */
+  ipAddress?: string
+  /**
+   * The Google Advertising ID (GAID) is a unique, user-resettable, anonymous identifier for Android devices. Do not hash this value. iOS advertising IDs (IDFA) are not supported. At least one user identifier is required.
+   */
+  googleAID?: string
   /**
    * Object containing additional fields for user matching. If this object is defined, both firstName and lastName are required.
    */
