@@ -2,6 +2,8 @@ import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
+import { CustomerIOBatchResponse } from './types'
+import { MultiStatusResponse, JSONLikeObject, ModifiedResponse, HTTPError } from '@segment/actions-core'
 
 const isEmail = (value: string): boolean => {
   return (fullFormats.email as RegExp).test(value)
@@ -197,20 +199,41 @@ export const resolveIdentifiers = ({
   }
 }
 
-export const sendBatch = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
+export const sendBatch = async <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
   if (!options?.length) {
     return
   }
 
+  const payloads = options.map((opts) => ({ ...opts.payload }))
+
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
 
-  return request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
-    method: 'post',
-    json: {
-      batch
+  try {
+    const response: ModifiedResponse<CustomerIOBatchResponse> = await request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
+      method: 'post',
+      json: {
+        batch
+      }
+    })
+
+    return parseResponse(response, payloads, batch)
+  } catch (error) {
+    const multiStatusResponse = new MultiStatusResponse()
+    const status = error instanceof HTTPError ? error.response.status : 500
+    const errormessage = error instanceof Error ? error.message : 'Unknown error'
+
+    for (let i = 0; i < payloads.length; i++) {
+      multiStatusResponse.setErrorResponseAtIndex(i, {
+        status,
+        errormessage,
+        sent: batch[i] as unknown as JSONLikeObject,
+        body: payloads[i] as unknown as JSONLikeObject
+      })
     }
-  })
+
+    return multiStatusResponse
+  }
 }
 
 export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
@@ -219,6 +242,39 @@ export const sendSingle = <Payload extends BasePayload>(request: Function, optio
     method: 'post',
     json
   })
+}
+
+export const parseResponse = <Payload extends BasePayload>(
+  response: ModifiedResponse<CustomerIOBatchResponse>,
+  payloads: Payload[],
+  batch: Record<string, unknown>[]
+): MultiStatusResponse => {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  const errors = response.data?.errors ?? []
+  const errorStatus = response.status >= 200 && response.status < 300 ? 400 : response.status
+  for (const error of errors) {
+    if (error.batch_index != null) {
+      multiStatusResponse.setErrorResponseAtIndex(error.batch_index, {
+        status: errorStatus,
+        errormessage: error.message || error.reason || 'Unknown error',
+        sent: batch[error.batch_index] as unknown as JSONLikeObject,
+        body: payloads[error.batch_index] as unknown as JSONLikeObject
+      })
+    }
+  }
+
+  for (let i = 0; i < payloads.length; i++) {
+    if (!multiStatusResponse.isErrorResponseAtIndex(i)) {
+      multiStatusResponse.setSuccessResponseAtIndex(i, {
+        status: response.status,
+        sent: batch[i] as unknown as JSONLikeObject,
+        body: payloads[i] as unknown as JSONLikeObject
+      })
+    }
+  }
+
+  return multiStatusResponse
 }
 
 export { isIsoDate }
