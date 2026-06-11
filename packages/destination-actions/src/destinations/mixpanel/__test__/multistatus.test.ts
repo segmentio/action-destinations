@@ -10,7 +10,6 @@ beforeEach(() => {
 
 const settings = {
   projectToken: 'test-api-key',
-  apiSecret: 'test-proj-token',
   apiRegion: 'US'
 }
 

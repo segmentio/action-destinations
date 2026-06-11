@@ -5,7 +5,6 @@ import { ApiRegions, StrictMode } from '../../common/utils'
 import { SegmentEvent } from '@segment/actions-core'
 
 const testDestination = createTestIntegration(Destination)
-const MIXPANEL_API_SECRET = 'test-api-key'
 const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
 const timestamp = '2021-08-17T15:21:15.449Z'
 
@@ -64,7 +63,6 @@ const mapping = {
 
 const settingsObj = {
   projectToken: MIXPANEL_PROJECT_TOKEN,
-  apiSecret: MIXPANEL_API_SECRET,
   apiRegion: ApiRegions.US
 }
 
@@ -98,7 +96,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.EU
       }
     })
@@ -116,7 +113,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.IN
       }
     })
@@ -134,7 +130,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       }
     })
     expect(responses.length).toBe(1)
@@ -152,7 +147,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         sourceName
       }
     })
@@ -180,7 +174,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       }
     })
     expect(responses.length).toBe(1)
@@ -199,7 +192,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -217,7 +209,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US,
         strictMode: StrictMode.ON
       }
@@ -236,7 +227,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US,
         strictMode: StrictMode.OFF
       }
@@ -268,7 +258,6 @@ describe('Mixpanel.trackPurchase', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })

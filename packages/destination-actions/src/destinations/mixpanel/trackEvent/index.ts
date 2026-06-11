@@ -43,7 +43,7 @@ const callMixpanelApi = async (
       method: 'post',
       json: events,
       headers: {
-        authorization: `Basic ${Buffer.from(`${settings.apiSecret}:`).toString('base64')}`
+        authorization: `Basic ${Buffer.from(`${settings.projectToken}:`).toString('base64')}`
       },
       throwHttpErrors: throwHttpErrors
     }
