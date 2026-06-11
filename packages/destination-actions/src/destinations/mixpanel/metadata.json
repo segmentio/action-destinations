@@ -15,16 +15,6 @@
         "default": null,
         "depends_on": null
       },
-      "apiSecret": {
-        "label": "Secret Key",
-        "description": "Mixpanel project secret.",
-        "type": "password",
-        "required": true,
-        "multiple": false,
-        "choices": null,
-        "default": null,
-        "depends_on": null
-      },
       "apiRegion": {
         "label": "Data Residency",
         "description": "Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)",

@@ -6004,6 +6004,10 @@
               "value": "ecommerce.product_viewed"
             },
             {
+              "label": "Cart Updated",
+              "value": "ecommerce.cart_updated"
+            },
+            {
               "label": "Checkout Started",
               "value": "ecommerce.checkout_started"
             },
@@ -6419,9 +6423,18 @@
         },
         "cart_id": {
           "label": "Cart ID",
-          "description": "Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.",
+          "description": "Unique identifier for the cart. Required for cart_updated. For checkout and order events, if no value is passed, Braze will determine a default value for the user cart mapping.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -6435,6 +6448,11 @@
           "depends_on": {
             "match": "any",
             "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
               {
                 "fieldKey": "name",
                 "operator": "is",
@@ -6464,6 +6482,11 @@
           "required": {
             "match": "any",
             "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
               {
                 "fieldKey": "name",
                 "operator": "is",
@@ -6502,6 +6525,11 @@
               {
                 "fieldKey": "name",
                 "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
                 "value": "ecommerce.checkout_started"
               },
               {
@@ -6518,6 +6546,204 @@
                 "fieldKey": "name",
                 "operator": "is",
                 "value": "ecommerce.order_refunded"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "action": {
+          "label": "Action",
+          "description": "The cart action that was performed (add, remove, or replace).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.action"
+          },
+          "choices": [
+            {
+              "label": "Add",
+              "value": "add"
+            },
+            {
+              "label": "Remove",
+              "value": "remove"
+            },
+            {
+              "label": "Replace",
+              "value": "replace"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "subtotal_value": {
+          "label": "Subtotal Value",
+          "description": "Subtotal monetary value of the cart before tax and shipping.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.subtotal"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tax": {
+          "label": "Tax",
+          "description": "Tax amount applied to the transaction.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.tax"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "shipping": {
+          "label": "Shipping",
+          "description": "Shipping cost for the transaction.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.shipping"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
               }
             ]
           },
@@ -7741,6 +7967,10 @@
               "value": "ecommerce.product_viewed"
             },
             {
+              "label": "Cart Updated",
+              "value": "ecommerce.cart_updated"
+            },
+            {
               "label": "Checkout Started",
               "value": "ecommerce.checkout_started"
             },
@@ -8156,9 +8386,18 @@
         },
         "cart_id": {
           "label": "Cart ID",
-          "description": "Unique identifier for the cart. If no value is passed, Braze will determine a default value (shared across cart, checkout, and order events) for the user cart mapping.",
+          "description": "Unique identifier for the cart. Required for cart_updated. For checkout and order events, if no value is passed, Braze will determine a default value for the user cart mapping.",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -8172,6 +8411,11 @@
           "depends_on": {
             "match": "any",
             "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
               {
                 "fieldKey": "name",
                 "operator": "is",
@@ -8201,6 +8445,11 @@
           "required": {
             "match": "any",
             "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
               {
                 "fieldKey": "name",
                 "operator": "is",
@@ -8239,6 +8488,11 @@
               {
                 "fieldKey": "name",
                 "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
                 "value": "ecommerce.checkout_started"
               },
               {
@@ -8255,6 +8509,204 @@
                 "fieldKey": "name",
                 "operator": "is",
                 "value": "ecommerce.order_refunded"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "action": {
+          "label": "Action",
+          "description": "The cart action that was performed (add, remove, or replace).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.action"
+          },
+          "choices": [
+            {
+              "label": "Add",
+              "value": "add"
+            },
+            {
+              "label": "Remove",
+              "value": "remove"
+            },
+            {
+              "label": "Replace",
+              "value": "replace"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "subtotal_value": {
+          "label": "Subtotal Value",
+          "description": "Subtotal monetary value of the cart before tax and shipping.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.subtotal"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tax": {
+          "label": "Tax",
+          "description": "Tax amount applied to the transaction.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.tax"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "shipping": {
+          "label": "Shipping",
+          "description": "Shipping cost for the transaction.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.shipping"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.cart_updated"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.checkout_started"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_placed"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.order_cancelled"
               }
             ]
           },
@@ -9216,6 +9668,50 @@
           "format": null,
           "additionalProperties": false
         },
+        "catalog_type": {
+          "label": "Catalog Trigger Type",
+          "description": "Required to use Braze catalog trigger features. Accepted values: price_drop, back_in_stock.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.type"
+          },
+          "choices": [
+            {
+              "label": "Price Drop",
+              "value": "price_drop"
+            },
+            {
+              "label": "Back In Stock",
+              "value": "back_in_stock"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "ecommerce.product_viewed"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "product": {
           "label": "Product",
           "description": "Product details associated with the ecommerce event.",
@@ -9406,6 +9902,537 @@
         }
       }
     },
+    "mergeUsers": {
+      "title": "Merge Users [Beta]",
+      "description": "Merge one identified user into another identified user. The merge will occur asynchronously and can take between 5-10 minutes. This Action is in Public Beta.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "previousIdType": {
+          "label": "Type of Identifier to merge",
+          "description": "The type of identifier for the user to be merged. One of: external_id, user_alias, email, or phone.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "external_id",
+          "choices": [
+            {
+              "label": "External ID",
+              "value": "external_id"
+            },
+            {
+              "label": "User Alias",
+              "value": "user_alias"
+            },
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Phone",
+              "value": "phone"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "previousIdValue": {
+          "label": "ID value to merge",
+          "description": "The value of the user identifier to be merged.",
+          "type": "string",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "previousIdType",
+                "operator": "is_not",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.previousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "previousIdType",
+                "operator": "is_not",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "previousAliasIdValue": {
+          "label": "User Alias value to merge",
+          "description": "The value of the user alias identifier to be merged. Required if the previous identifier type is user_alias.",
+          "type": "object",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "previousIdType",
+                "operator": "is",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "alias_label": {
+              "label": "User Alias Label",
+              "description": "The label of the user alias for the user to be merged.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "alias_name": {
+              "label": "User Alias Name",
+              "description": "The name of the user alias for the user to be merged.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "previousIdType",
+                "operator": "is",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "keepIdType": {
+          "label": "Type of Identifier to keep",
+          "description": "The type of the user identifier to be kept. One of: external_id, user_alias, email, or phone.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "external_id",
+          "choices": [
+            {
+              "label": "External ID",
+              "value": "external_id"
+            },
+            {
+              "label": "User Alias",
+              "value": "user_alias"
+            },
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Phone",
+              "value": "phone"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "keepIdValue": {
+          "label": "ID value to keep",
+          "description": "The value of the user identifier to be kept.",
+          "type": "string",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "keepIdType",
+                "operator": "is_not",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "keepIdType",
+                "operator": "is_not",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "keepAliasIdValue": {
+          "label": "User Alias value to keep",
+          "description": "The value of the user alias identifier for the user to be kept. Required if the keep identifier type is user_alias.",
+          "type": "object",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "keepIdType",
+                "operator": "is",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "alias_label": {
+              "label": "User Alias Label",
+              "description": "The label of the user alias to be kept.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "alias_name": {
+              "label": "User Alias Name",
+              "description": "The name of the user alias to be kept.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "keepIdType",
+                "operator": "is",
+                "value": "user_alias"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "keepIdPrioritization": {
+          "label": "Rule Prioritization (ID to keep)",
+          "description": "Rule determining which user to merge if multiple users are found.",
+          "type": "string",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "keepIdType",
+                "operator": "is",
+                "value": "email"
+              },
+              {
+                "fieldKey": "keepIdType",
+                "operator": "is",
+                "value": "phone"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "identified",
+              "label": "Identified"
+            },
+            {
+              "value": "unidentified",
+              "label": "Unidentified"
+            },
+            {
+              "value": "most_recently_updated",
+              "label": "Most Recently Updated"
+            },
+            {
+              "value": "least_recently_updated",
+              "label": "Least Recently Updated"
+            },
+            {
+              "value": "identified,most_recently_updated",
+              "label": "Identified, Most Recently Updated"
+            },
+            {
+              "value": "unidentified,most_recently_updated",
+              "label": "Unidentified, Most Recently Updated"
+            },
+            {
+              "value": "identified,least_recently_updated",
+              "label": "Identified, Least Recently Updated"
+            },
+            {
+              "value": "unidentified,least_recently_updated",
+              "label": "Unidentified, Least Recently Updated"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "previousIdPrioritization": {
+          "label": "Rule Prioritization (ID to merge)",
+          "description": "Rule determining which user to merge if multiple users are found.",
+          "type": "string",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "previousIdType",
+                "operator": "is",
+                "value": "email"
+              },
+              {
+                "fieldKey": "previousIdType",
+                "operator": "is",
+                "value": "phone"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "identified",
+              "label": "Identified"
+            },
+            {
+              "value": "unidentified",
+              "label": "Unidentified"
+            },
+            {
+              "value": "most_recently_updated",
+              "label": "Most Recently Updated"
+            },
+            {
+              "value": "least_recently_updated",
+              "label": "Least Recently Updated"
+            },
+            {
+              "value": "identified,most_recently_updated",
+              "label": "Identified, Most Recently Updated"
+            },
+            {
+              "value": "unidentified,most_recently_updated",
+              "label": "Unidentified, Most Recently Updated"
+            },
+            {
+              "value": "identified,least_recently_updated",
+              "label": "Identified, Least Recently Updated"
+            },
+            {
+              "value": "unidentified,least_recently_updated",
+              "label": "Unidentified, Least Recently Updated"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 50,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
     "debouncePlugin": {
       "title": "Debounce Middleware",
       "description": "When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent. Debounce functionality requires a frontend client to work. Therefore, it cannot be used with server-side libraries or with Engage.",
@@ -9424,7 +10451,7 @@
       "name": "Track Calls",
       "type": "automatic",
       "partnerAction": "trackEvent",
-      "subscribe": "type = \"track\" and event != \"Order Completed\" and event != \"Checkout Started\" and event != \"Order Refunded\" and event != \"Order Cancelled\" and event != \"Product Viewed\"",
+      "subscribe": "type = \"track\" and event != \"Order Completed\" and event != \"Checkout Started\" and event != \"Order Refunded\" and event != \"Order Cancelled\" and event != \"Product Viewed\" and event != \"Product Added\" and event != \"Product Removed\"",
       "mapping": {
         "external_id": {
           "@path": "$.userId"
@@ -9525,6 +10552,18 @@
         },
         "total_value": {
           "@path": "$.properties.total"
+        },
+        "action": {
+          "@path": "$.properties.action"
+        },
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
         },
         "total_discounts": {
           "@path": "$.properties.discount"
@@ -9653,6 +10692,18 @@
         "total_value": {
           "@path": "$.properties.total"
         },
+        "action": {
+          "@path": "$.properties.action"
+        },
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
         "total_discounts": {
           "@path": "$.properties.discount"
         },
@@ -9779,6 +10830,18 @@
         },
         "total_value": {
           "@path": "$.properties.total"
+        },
+        "action": {
+          "@path": "$.properties.action"
+        },
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
         },
         "total_discounts": {
           "@path": "$.properties.discount"
@@ -9907,6 +10970,18 @@
         "total_value": {
           "@path": "$.properties.total"
         },
+        "action": {
+          "@path": "$.properties.action"
+        },
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
         "total_discounts": {
           "@path": "$.properties.discount"
         },
@@ -10034,6 +11109,18 @@
         "total_value": {
           "@path": "$.properties.total"
         },
+        "action": {
+          "@path": "$.properties.action"
+        },
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
         "total_discounts": {
           "@path": "$.properties.discount"
         },
@@ -10058,6 +11145,9 @@
         },
         "enable_batching": true,
         "batch_size": 75,
+        "catalog_type": {
+          "@path": "$.properties.type"
+        },
         "product": {
           "product_id": {
             "@path": "$.properties.product_id"
@@ -10079,6 +11169,264 @@
           }
         },
         "name": "ecommerce.product_viewed"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Product Added (beta)",
+      "type": "automatic",
+      "partnerAction": "ecommerce",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "braze_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.braze_id"
+            },
+            "then": {
+              "@path": "$.context.traits.braze_id"
+            },
+            "else": {
+              "@path": "$.properties.braze_id"
+            }
+          }
+        },
+        "cancel_reason": {
+          "@path": "$.properties.reason"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "checkout_id": {
+          "@path": "$.properties.checkout_id"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "cart_id": {
+          "@path": "$.properties.cart_id"
+        },
+        "total_value": {
+          "@path": "$.properties.total"
+        },
+        "action": "add",
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "total_discounts": {
+          "@path": "$.properties.discount"
+        },
+        "discounts": {
+          "@arrayPath": [
+            "$.properties.discount_items",
+            {
+              "code": {
+                "@path": "$.code"
+              },
+              "amount": {
+                "@path": "$.amount"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "source": {
+          "@path": "$.properties.source"
+        },
+        "enable_batching": true,
+        "batch_size": 75,
+        "products": [
+          {
+            "product_id": {
+              "@path": "$.properties.product_id"
+            },
+            "product_name": {
+              "@path": "$.properties.name"
+            },
+            "variant_id": {
+              "@path": "$.properties.variant"
+            },
+            "image_url": {
+              "@path": "$.properties.image_url"
+            },
+            "product_url": {
+              "@path": "$.properties.url"
+            },
+            "quantity": {
+              "@path": "$.properties.quantity"
+            },
+            "price": {
+              "@path": "$.properties.price"
+            }
+          }
+        ],
+        "name": "ecommerce.cart_updated"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Product Removed (beta)",
+      "type": "automatic",
+      "partnerAction": "ecommerce",
+      "subscribe": "event = \"Product Removed\"",
+      "mapping": {
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "braze_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.braze_id"
+            },
+            "then": {
+              "@path": "$.context.traits.braze_id"
+            },
+            "else": {
+              "@path": "$.properties.braze_id"
+            }
+          }
+        },
+        "cancel_reason": {
+          "@path": "$.properties.reason"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "checkout_id": {
+          "@path": "$.properties.checkout_id"
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "cart_id": {
+          "@path": "$.properties.cart_id"
+        },
+        "total_value": {
+          "@path": "$.properties.total"
+        },
+        "action": "remove",
+        "subtotal_value": {
+          "@path": "$.properties.subtotal"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "total_discounts": {
+          "@path": "$.properties.discount"
+        },
+        "discounts": {
+          "@arrayPath": [
+            "$.properties.discount_items",
+            {
+              "code": {
+                "@path": "$.code"
+              },
+              "amount": {
+                "@path": "$.amount"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "source": {
+          "@path": "$.properties.source"
+        },
+        "enable_batching": true,
+        "batch_size": 75,
+        "products": [
+          {
+            "product_id": {
+              "@path": "$.properties.product_id"
+            },
+            "product_name": {
+              "@path": "$.properties.name"
+            },
+            "variant_id": {
+              "@path": "$.properties.variant"
+            },
+            "image_url": {
+              "@path": "$.properties.image_url"
+            },
+            "product_url": {
+              "@path": "$.properties.url"
+            },
+            "quantity": {
+              "@path": "$.properties.quantity"
+            },
+            "price": {
+              "@path": "$.properties.price"
+            }
+          }
+        ],
+        "name": "ecommerce.cart_updated"
       },
       "eventSlug": null
     },

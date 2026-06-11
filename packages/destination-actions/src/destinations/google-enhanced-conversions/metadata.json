@@ -4558,7 +4558,7 @@
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": {
-        "default": "add",
+        "default": "mirror",
         "label": "How to sync records",
         "description": "Define how the records will be synced to Google",
         "choices": [

@@ -799,6 +799,92 @@
           "format": null,
           "additionalProperties": false
         },
+        "columns_to_hash": {
+          "label": "Columns to Hash",
+          "description": "Columns whose values will be hashed before writing to the file.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "column_name": {
+              "label": "Column Name",
+              "description": "The name of the column to hash.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": [
+                "variable",
+                "function",
+                "enrichment"
+              ],
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "hash_algorithm": {
+              "label": "Hash Algorithm",
+              "description": "The hashing algorithm to apply.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "sha256",
+              "choices": [
+                {
+                  "label": "SHA256",
+                  "value": "sha256"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": [
+                "variable",
+                "function",
+                "enrichment"
+              ],
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "arrayeditor",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "batch_keys": {
           "label": "Batch Keys",
           "description": "The keys to use for batching the events.",
