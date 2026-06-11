@@ -81,13 +81,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true
       },
-      // TODO: maybe we should just require service account instead?
-      apiSecret: {
-        label: 'Secret Key',
-        description: 'Mixpanel project secret.',
-        type: 'password',
-        required: true
-      },
       apiRegion: {
         label: 'Data Residency',
         description:
@@ -115,7 +108,6 @@ const destination: DestinationDefinition<Settings> = {
       return request(`https://mixpanel.com/api/app/validate-project-credentials/`, {
         method: 'post',
         body: JSON.stringify({
-          api_secret: settings.apiSecret,
           project_token: settings.projectToken
         })
       })
