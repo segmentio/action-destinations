@@ -105,7 +105,7 @@ const destination: DestinationDefinition<Settings> = {
     {
       name: 'Track Calls',
       subscribe:
-        'type = "track" and event != "Order Completed" and event != "Checkout Started" and event != "Order Refunded" and event != "Order Cancelled" and event != "Product Viewed"',
+        'type = "track" and event != "Order Completed" and event != "Checkout Started" and event != "Order Refunded" and event != "Order Cancelled" and event != "Product Viewed" and event != "Product Added" and event != "Product Removed"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
@@ -169,6 +169,50 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...defaultValues(ecommerceSingleProduct.fields),
         name: EVENT_NAMES.PRODUCT_VIEWED
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Product Added (beta)',
+      subscribe: 'event = "Product Added"',
+      partnerAction: 'ecommerce',
+      mapping: {
+        ...defaultValues(ecommerce.fields),
+        name: EVENT_NAMES.CART_UPDATED,
+        action: 'add',
+        products: [
+          {
+            product_id: { '@path': '$.properties.product_id' },
+            product_name: { '@path': '$.properties.name' },
+            variant_id: { '@path': '$.properties.variant' },
+            image_url: { '@path': '$.properties.image_url' },
+            product_url: { '@path': '$.properties.url' },
+            quantity: { '@path': '$.properties.quantity' },
+            price: { '@path': '$.properties.price' }
+          }
+        ]
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Product Removed (beta)',
+      subscribe: 'event = "Product Removed"',
+      partnerAction: 'ecommerce',
+      mapping: {
+        ...defaultValues(ecommerce.fields),
+        name: EVENT_NAMES.CART_UPDATED,
+        action: 'remove',
+        products: [
+          {
+            product_id: { '@path': '$.properties.product_id' },
+            product_name: { '@path': '$.properties.name' },
+            variant_id: { '@path': '$.properties.variant' },
+            image_url: { '@path': '$.properties.image_url' },
+            product_url: { '@path': '$.properties.url' },
+            quantity: { '@path': '$.properties.quantity' },
+            price: { '@path': '$.properties.price' }
+          }
+        ]
       },
       type: 'automatic'
     },

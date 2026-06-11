@@ -1,9 +1,10 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { 
+import {
   commonFields,
   product,
+  catalog_type,
 } from '../ecommerce/fields'
 import { send } from '../ecommerce/functions'
 
@@ -12,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
   description: '(Beta) Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.',
   fields: {
     ...commonFields,
+    catalog_type,
     product
   },
   syncMode: {
