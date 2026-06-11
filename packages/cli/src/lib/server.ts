@@ -21,7 +21,8 @@ import {
   ActionHookType,
   ActionHookResponse,
   AudienceDestinationConfigurationWithCreateGet,
-  RequestFn
+  RequestFn,
+  Personas
 } from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
@@ -298,7 +299,12 @@ function setupRoutes(def: DestinationDefinition | null): void {
             mapping: mapping || req.body.payload || {},
             auth: req.body.auth || {},
             features: req.body.features || {},
-            subscriptionMetadata: req.body.subscriptionMetadata || {}
+            subscriptionMetadata: req.body.subscriptionMetadata || {},
+            personasContext: (() => {
+              return Array.isArray(req.body.payload)
+                ? req.body.payload[0]?.context?.personas
+                : req.body.payload?.context?.personas
+            })() as Personas | undefined
           }
 
           if (Array.isArray(eventParams.data)) {
