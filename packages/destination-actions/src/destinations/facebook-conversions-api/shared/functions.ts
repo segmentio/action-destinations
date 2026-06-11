@@ -19,9 +19,11 @@ import {
   InitiateCheckoutEventData,
   PageEventData,
   PurchaseEventData,
+  AppendEventDetails,
+  AppendValueEventData,
   GeneratedAppData,
   UserData,
-  Content
+  Content,
 } from './types'
 import {
   API_VERSION,
@@ -30,7 +32,8 @@ import {
   US_STATE_CODES,
   COUNTRY_CODES,
   CURRENCY_ISO_CODES,
-  EventType
+  EventType,
+  FEATURE_FLAG_APPEND_VALUE
 } from './constants'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
@@ -53,7 +56,7 @@ export function send<P extends AnyPayload, T extends EventDataType>(
   request: RequestClient,
   payload: P,
   settings: Settings,
-  getDataFunction: (payload: P) => T,
+  getDataFunction: (payload: P, features?: Features, statsContext?: StatsContext) => T,
   eventType: EventTypeKey,
   features?: Features,
   statsContext?: StatsContext
@@ -64,7 +67,7 @@ export function send<P extends AnyPayload, T extends EventDataType>(
 
   validate(payload, eventType)
 
-  const data = getDataFunction(payload)
+  const data = getDataFunction(payload, features, statsContext)
 
   const json: RequestJSON = {
     data: [data],
@@ -186,15 +189,23 @@ export function getAddToCartEventData(payload: AddToCartPayload | AddToCart2Payl
   return data
 }
 
-export function getCustomEventData(payload: CustomPayload | Custom2Payload): CustomEventData {
+export function getCustomEventData(payload: CustomPayload | Custom2Payload, features?: Features, statsContext?: StatsContext): CustomEventData | AppendValueEventData {
   const baseEventData = getBaseEventData(payload)
-  const { custom_data, event_name } = payload
+  const { is_append_event, append_event_details, custom_data, event_name } = payload
 
   const data: CustomEventData = {
     event_name,
     ...baseEventData,
     custom_data: { ...custom_data }
   }
+
+  if (is_append_event) {
+    if (!features?.[FEATURE_FLAG_APPEND_VALUE]) {
+      throw new PayloadValidationError('AppendValue is not enabled for this destination. Please contact Segment support so the feature can be enabled for your Segment workspace.')
+    }
+    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+  }
+
   return data
 }
 
@@ -229,10 +240,10 @@ export function getPageViewEventData(payload: PageViewPayload | PageView2Payload
   return data
 }
 
-export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload): PurchaseEventData {
+export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload, features?: Features, statsContext?: StatsContext): PurchaseEventData | AppendValueEventData {
   const baseEventData = getBaseEventData(payload)
 
-  const { custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } =
+  const { is_append_event, append_event_details, order_id, predicted_ltv, custom_data, currency, value, content_ids, net_revenue, content_name, content_type, num_items, contents } =
     payload
 
   const data: PurchaseEventData = {
@@ -242,6 +253,8 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
       ...custom_data,
       currency,
       value,
+      ...(order_id && { order_id }),
+      ...(typeof predicted_ltv === 'number' && { predicted_ltv }),
       ...(typeof net_revenue === 'number' && { net_revenue }),
       ...(Array.isArray(content_ids) && content_ids.length > 0 && { content_ids }),
       ...(content_name && { content_name }),
@@ -250,6 +263,17 @@ export function getPurchaseEventData(payload: PurchasePayload | Purchase2Payload
       ...(typeof num_items === 'number' && { num_items })
     }
   }
+
+  if (is_append_event) {
+    if (!features?.[FEATURE_FLAG_APPEND_VALUE]) {
+      throw new PayloadValidationError('AppendValue is not enabled for this destination. Please contact Segment support so the feature can be enabled for your Segment workspace.')
+    }
+    if (!append_event_details) {
+      throw new PayloadValidationError('If sending an AppendValue, Append Event Details must be provided.')
+    }
+    return convertToAppendValueEventData(data, append_event_details as AppendEventDetails, statsContext)
+  }
+
   return data
 }
 
@@ -292,6 +316,67 @@ export function getViewContentEventData(payload: ViewContentPayload | ViewConten
     }
   }
   return data
+}
+
+export const convertToAppendValueEventData = (
+  data: CustomEventData | PurchaseEventData,
+  append_event_details?: AppendEventDetails,
+  statsContext?: StatsContext
+): AppendValueEventData => {
+  const statsClient = statsContext?.statsClient
+  const tags = statsContext?.tags
+
+  const {
+    event_name,
+    custom_data: { order_id: _order_id, net_revenue: _net_revenue, predicted_ltv: _predicted_ltv, ...restCustomData }
+  } = data
+
+  const {
+    original_event_time,
+    original_event_order_id,
+    original_event_id,
+    net_revenue_to_append,
+    predicted_ltv_to_append
+  } = append_event_details || {}
+
+  if (!append_event_details) {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, Append Event Details must be provided.')
+  }
+
+  if (!original_event_time) {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, Append Event Details field "Original Event Time" is required')
+  }
+
+  if (!original_event_order_id && !original_event_id) {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, one of "Append Event Details > Original Event ID" or "Append Event Details > Original Order ID" must be provided')
+  }
+
+  if (typeof net_revenue_to_append !== 'number' && typeof predicted_ltv_to_append !== 'number') {
+    statsClient?.incr('append_value_event.error', 1, tags)
+    throw new PayloadValidationError('If sending an AppendValue, at least one of "Append Event Details > Net Revenue" or "Append Event Details > Predicted Lifetime Value" must be provided as a number')
+  }
+
+  const appendValueEventData: AppendValueEventData = {
+    ...data,
+    event_name: 'AppendValue',
+    custom_data: {
+      ...restCustomData,
+      ...(typeof net_revenue_to_append === 'number' ? { net_revenue: net_revenue_to_append } : {}),
+      ...(typeof predicted_ltv_to_append === 'number' ? { predicted_ltv: predicted_ltv_to_append } : {})
+    },
+    original_event_data: {
+      event_name,
+      event_time: original_event_time,
+      ...(original_event_order_id ? { order_id: original_event_order_id } : {}),
+      ...(original_event_id ? { event_id: original_event_id } : {})
+    }
+  }
+
+  statsClient?.incr('append_value_event.success', 1, tags)
+  return appendValueEventData
 }
 
 export const generateAppData = (app_data: AnyPayload['app_data_field']): GeneratedAppData | undefined => {
@@ -396,6 +481,12 @@ export const clean = (value: string | undefined): string | undefined => {
  * @param payload
  * @see https://developers.facebook.com/docs/marketing-api/audiences/guides/custom-audiences#hash
  */
+const trimIfString = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed || undefined
+}
+
 export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData => {
   const {
     email,
@@ -419,8 +510,20 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     madId,
     fbLoginID,
     partner_id,
-    partner_name
+    partner_name,
+    ctwa_clid
   } = payloadUserData ?? {}
+
+  const trimmedClientIpAddress = trimIfString(client_ip_address)
+  const trimmedClientUserAgent = trimIfString(client_user_agent)
+  const trimmedFbc = trimIfString(fbc)
+  const trimmedFbp = trimIfString(fbp)
+  const trimmedSubscriptionID = trimIfString(subscriptionID)
+  const trimmedAnonId = trimIfString(anonId)
+  const trimmedMadId = trimIfString(madId)
+  const trimmedPartnerId = trimIfString(partner_id)
+  const trimmedPartnerName = trimIfString(partner_name)
+  const trimmedCtwaClid = trimIfString(ctwa_clid)
 
   const em = cleanAndHash(email)
 
@@ -478,7 +581,6 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
   const external_id = hashArray(externalId)
 
   const userData: UserData = {
-    // Hashing this is recommended but not required
     ...(em ? { em } : {}),
     ...(ph ? { ph } : {}),
     ...(ge ? { ge } : {}),
@@ -490,17 +592,18 @@ export const getUserData = (payloadUserData: AnyPayload['user_data']): UserData 
     ...(zp ? { zp } : {}),
     ...(countryValue ? { country: countryValue } : {}),
     ...(external_id ? { external_id } : {}),
-    ...(client_ip_address ? { client_ip_address } : {}),
-    ...(client_user_agent ? { client_user_agent } : {}),
-    ...(fbc ? { fbc } : {}),
-    ...(fbp ? { fbp } : {}),
-    ...(subscriptionID ? { subscription_id: subscriptionID } : {}),
+    ...(trimmedClientIpAddress ? { client_ip_address: trimmedClientIpAddress } : {}),
+    ...(trimmedClientUserAgent ? { client_user_agent: trimmedClientUserAgent } : {}),
+    ...(trimmedFbc ? { fbc: trimmedFbc } : {}),
+    ...(trimmedFbp ? { fbp: trimmedFbp } : {}),
+    ...(trimmedSubscriptionID ? { subscription_id: trimmedSubscriptionID } : {}),
     ...(typeof leadID === 'number' ? { lead_id: leadID } : {}),
-    ...(anonId ? { anon_id: anonId } : {}),
-    ...(madId ? { madid: madId } : {}),
+    ...(trimmedAnonId ? { anon_id: trimmedAnonId } : {}),
+    ...(trimmedMadId ? { madid: trimmedMadId } : {}),
     ...(typeof fbLoginID === 'number' ? { fb_login_id: fbLoginID } : {}),
-    ...(partner_id ? { partner_id } : {}),
-    ...(partner_name ? { partner_name } : {})
+    ...(trimmedPartnerId ? { partner_id: trimmedPartnerId } : {}),
+    ...(trimmedPartnerName ? { partner_name: trimmedPartnerName } : {}),
+    ...(trimmedCtwaClid ? { ctwa_clid: trimmedCtwaClid } : {})
   }
   return userData
 }
