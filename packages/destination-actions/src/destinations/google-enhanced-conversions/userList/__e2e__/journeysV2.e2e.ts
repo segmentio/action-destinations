@@ -30,7 +30,7 @@ const fixtures: E2EFixture[] = [
     verboseFailureHint: FAILURE_HINT
   },
   {
-    description: 'JourneysV2 Audience: Add a user with default syncMode (mirror) via journey_step track event',
+    description: 'JourneysV2 Audience: Remove a user with default syncMode (mirror) via journey_step track event',
     subscribe: 'type = "track"',
     mapping: {
       ...defaultValues(userList.fields),
@@ -40,6 +40,7 @@ const fixtures: E2EFixture[] = [
     },
     mode: 'single',
     event: createE2EJourneysV2AudienceEvent({
+      action: 'remove',
       computationKey: COMPUTATION_KEY,
       computationId: COMPUTATION_ID,
       externalAudienceId: '$externalAudienceId',

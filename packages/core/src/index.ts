@@ -145,6 +145,7 @@ export type {
   E2EEngageAudiencePersonas,
   E2EJourneysV1AudienceEventOptions,
   E2EJourneysV1AudienceTrackEvent,
+  E2EJourneysV1AudiencePersonas,
   E2EJourneysV2AudienceEventOptions,
   E2EJourneysV2AudienceTrackEvent,
   E2EJourneysV2AudiencePersonas,

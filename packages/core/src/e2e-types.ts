@@ -136,6 +136,8 @@ export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string
 }
 
 export interface E2EJourneysV2AudienceEventOptions<ComputationKey extends string = string> {
+  /** Whether the user is entering ('add') or exiting ('remove') the journey step. Sets properties[computationKey]. Defaults to 'add'. */
+  action?: 'add' | 'remove'
   computationKey: ComputationKey
   computationId: string
   externalAudienceId?: string
@@ -174,13 +176,20 @@ export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = strin
   properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }
 
+export interface E2EJourneysV1AudiencePersonas<ComputationKey extends string = string> {
+  computation_class: 'journey_step'
+  computation_key: ComputationKey
+  computation_id: string
+  external_audience_id?: string
+}
+
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'track'
   event: string
   messageId: string
   timestamp: string
   context: {
-    personas: E2EEngageAudiencePersonas<ComputationKey>
+    personas: E2EJourneysV1AudiencePersonas<ComputationKey>
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
@@ -214,7 +223,7 @@ export interface E2EJourneysV2AudienceTrackEvent<ComputationKey extends string =
   properties: {
     journey_context: { [k: string]: JSONValue }
     journey_metadata: { journey_id: string; journey_name: string; [k: string]: JSONValue }
-  } & { [k: string]: JSONValue }
+  } & { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }
 
 export interface E2EEngageAudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {

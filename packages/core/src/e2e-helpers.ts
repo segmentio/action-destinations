@@ -130,37 +130,11 @@ export function createE2EEngageAudienceEvent<ComputationKey extends string>(
 export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
   options: E2EJourneysV1AudienceEventOptions<ComputationKey>
 ): E2EJourneysV1AudienceTrackEvent<ComputationKey> {
-  const { eventName, enrichedTraits } = options
-  const base = buildAudienceEventBase(options)
-
-  const event = {
-    ...base,
-    type: 'track',
-    event: eventName ?? 'Test Journeys V1 Audience Membership Event',
-    properties: {
-      ...(enrichedTraits as { [k: string]: JSONValue })
-    }
-  }
-
-  return event as E2EJourneysV1AudienceTrackEvent<ComputationKey>
-}
-
-/*
- * Journeys V2 events use computation_class 'journey_step' (not 'audience') and carry
- * journey_context / journey_metadata in properties instead of properties[<computation_key>].
- * Journeys V2 events never contain a membership boolean, so the action treats them as "add"
- * via its journey_step fallback. Only track events supported.
- */
-export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
-  options: E2EJourneysV2AudienceEventOptions<ComputationKey>
-): E2EJourneysV2AudienceTrackEvent<ComputationKey> {
   const {
     computationKey,
     computationId,
     externalAudienceId,
     eventName,
-    journeyId,
-    journeyName,
     userId,
     anonymousId,
     email,
@@ -174,8 +148,60 @@ export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
     ...(userId && { userId }),
     ...(anonymousId && { anonymousId }),
     type: 'track',
+    event: eventName ?? 'Test Journeys V1 Audience Membership Event',
+    properties: {
+      ...(enrichedTraits as { [k: string]: JSONValue })
+    },
+    context: {
+      personas: {
+        computation_class: 'journey_step',
+        computation_key: computationKey,
+        computation_id: computationId,
+        ...(externalAudienceId && { external_audience_id: externalAudienceId })
+      },
+      ...(audienceFields && { audienceFields }),
+      ...(email && { traits: { email } })
+    }
+  }
+
+  return event as E2EJourneysV1AudienceTrackEvent<ComputationKey>
+}
+
+/*
+ * Journeys V2 events use computation_class 'journey_step' (not 'audience') and carry
+ * journey_context / journey_metadata in properties alongside properties[<computation_key>],
+ * the membership boolean (true = entering the step / add, false = exiting / remove).
+ * Only track events supported.
+ */
+export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
+  options: E2EJourneysV2AudienceEventOptions<ComputationKey>
+): E2EJourneysV2AudienceTrackEvent<ComputationKey> {
+  const {
+    action = 'add',
+    computationKey,
+    computationId,
+    externalAudienceId,
+    eventName,
+    journeyId,
+    journeyName,
+    userId,
+    anonymousId,
+    email,
+    audienceFields,
+    enrichedTraits
+  } = options
+
+  const membership = action === 'add'
+
+  const event = {
+    messageId: '$guid',
+    timestamp: '$now',
+    ...(userId && { userId }),
+    ...(anonymousId && { anonymousId }),
+    type: 'track',
     event: eventName ?? 'Test Journeys V2 Audience Membership Event',
     properties: {
+      [computationKey]: membership,
       journey_context: {
         [computationKey]: {}
       },
