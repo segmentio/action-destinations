@@ -237,7 +237,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     email: {
       label: 'Email',
       description:
-        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. At least one user identifier is required.',
       type: 'string',
       required: false,
       default: { '@path': '$.traits.email' },
@@ -246,21 +246,36 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
       description:
-        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. At least one user identifier is required.',
       type: 'string',
       required: false
     },
     acxiomID: {
       label: 'Acxiom ID',
       description:
-        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'User identifier for matching with LiveRamp identity graph. At least one user identifier is required.',
       type: 'string',
       required: false
     },
     oracleID: {
       label: 'Oracle ID',
       description:
-        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. At least one user identifier is required.',
+      type: 'string',
+      required: false
+    },
+    ipAddress: {
+      label: 'IP Address',
+      description:
+        "The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.",
+      type: 'string',
+      format: 'ipv4',
+      required: false
+    },
+    googleAID: {
+      label: 'Google Advertising ID',
+      description:
+        'The Google Advertising ID (GAID) is a unique, user-resettable, anonymous identifier for Android devices. Do not hash this value. iOS advertising IDs (IDFA) are not supported. At least one user identifier is required.',
       type: 'string',
       required: false
     },
@@ -395,8 +410,8 @@ function validate(payload: Payload, conversionTime: number) {
     throw new PayloadValidationError('Timestamp should be within the past 90 days.')
   }
 
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID && !payload.ipAddress && !payload.googleAID) {
+    throw new PayloadValidationError('At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, or Google Advertising ID).')
   }
 }
 
