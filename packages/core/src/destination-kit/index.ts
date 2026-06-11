@@ -240,6 +240,7 @@ interface AuthSettings<Settings> {
 interface RefreshAuthSettings<Settings> {
   settings: Settings
   auth: OAuth2ClientCredentials
+  features?: Features
 }
 
 interface Authentication<Settings> {
@@ -565,7 +566,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   async refreshAccessToken(
     settings: Settings,
     oauthData: OAuth2ClientCredentials,
-    synchronizeRefreshAccessToken?: () => Promise<void>
+    synchronizeRefreshAccessToken?: () => Promise<void>,
+    features?: Features
   ): Promise<RefreshAccessTokenResult | undefined> {
     if (!(this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')) {
       throw new IntegrationError(
@@ -591,7 +593,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     // Invoke synchronizeRefreshAccessToken handler if synchronizeRefreshAccessToken option is passed.
     // This will ensure that there is only one active refresh happening at a time.
     await synchronizeRefreshAccessToken?.()
-    return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData })
+    return this.authentication.refreshAccessToken(requestClient, { settings, auth: oauthData, features })
   }
 
   private partnerAction(
@@ -1063,7 +1065,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     const newTokens = await this.refreshAccessToken(
       destinationSettings,
       oauthSettings,
-      options?.synchronizeRefreshAccessToken
+      options?.synchronizeRefreshAccessToken,
+      options?.features
     )
 
     if (!newTokens) {
