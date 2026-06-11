@@ -72,7 +72,7 @@ function validate(payload: Payload): string | undefined {
         device_info: {
             ios_advertising_id,
             android_advertising_id,
-            ios_idfv, 
+            ios_idfv,
             android_uuid
         } = {},
         user_identities: {
@@ -82,7 +82,7 @@ function validate(payload: Payload): string | undefined {
         rtid
     } = payload
 
-    if(!(email || customerid || rtid || ios_advertising_id || android_advertising_id || ios_idfv || android_uuid)) {
+    if(!(trimmed(email) || trimmed(customerid) || trimmed(rtid) || trimmed(ios_advertising_id) || trimmed(android_advertising_id) || trimmed(ios_idfv) || trimmed(android_uuid))) {
         return 'At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.'
     }
 }
@@ -100,7 +100,7 @@ function buildJSONItem(payload: Payload): RoktJSON {
             http_header_user_agent,
             ios_advertising_id,
             android_advertising_id,
-            ios_idfv, 
+            ios_idfv,
             android_uuid
         } = {},
         user_identities: {
@@ -116,22 +116,31 @@ function buildJSONItem(payload: Payload): RoktJSON {
             gender,
             ...restUserAttributes
         } = {},
-        ip, 
+        ip,
         rtid
     } = payload
 
+    const trimmedUserAgent = trimmed(http_header_user_agent)
+    const trimmedIosAdId = trimmed(ios_advertising_id)
+    const trimmedAndroidAdId = trimmed(android_advertising_id)
+    const trimmedIosIdfv = trimmed(ios_idfv)
+    const trimmedAndroidUuid = trimmed(android_uuid)
+    const trimmedEmail = trimmed(email)
+    const trimmedCustomerId = trimmed(customerid)
+    const trimmedRtid = trimmed(rtid)
+
     const device_info: RoktJSON['device_info'] = {
-        ...(http_header_user_agent ? { http_header_user_agent } : {}),
-        ...(ios_advertising_id ? { ios_advertising_id } : {}),
-        ...(android_advertising_id ? { android_advertising_id } : {}),
-        ...(ios_idfv ? { ios_idfv } : {}),
-        ...(android_uuid ? { android_uuid } : {})
+        ...(trimmedUserAgent ? { http_header_user_agent: trimmedUserAgent } : {}),
+        ...(trimmedIosAdId ? { ios_advertising_id: trimmedIosAdId } : {}),
+        ...(trimmedAndroidAdId ? { android_advertising_id: trimmedAndroidAdId } : {}),
+        ...(trimmedIosIdfv ? { ios_idfv: trimmedIosIdfv } : {}),
+        ...(trimmedAndroidUuid ? { android_uuid: trimmedAndroidUuid } : {})
     }
 
     const user_identities: RoktJSON['user_identities'] = {
-        ...(email ? maybeHash(email, hashEmail, 'email', 'other', (value) => value.toLocaleLowerCase().trim()) : {}),
-        ...(customerid ? { customerid } : {}),
-        ...(rtid ? { other2: rtid } : {})
+        ...(trimmedEmail ? maybeHash(trimmedEmail, hashEmail, 'email', 'other', (value) => value.toLocaleLowerCase().trim()) : {}),
+        ...(trimmedCustomerId ? { customerid: trimmedCustomerId } : {}),
+        ...(trimmedRtid ? { other2: trimmedRtid } : {})
     }
 
     const audienceJSON = getAudienceJSON(payload)
@@ -144,12 +153,19 @@ function buildJSONItem(payload: Payload): RoktJSON {
 
     const { audience_name, status } = audienceJSON?.data?.custom_attributes || {}
 
+    const trimmedFirstname = trimmed(firstname)
+    const trimmedLastname = trimmed(lastname)
+    const trimmedMobile = trimmed(mobile)
+    const trimmedBillingZipcode = trimmed(billingzipcode)
+    const trimmedDob = trimmed(dob)
+    const trimmedIp = trimmed(ip)
+
     const user_attributes: RoktJSON['user_attributes'] = {
-        ...(firstname ? maybeHash(firstname, hashFirstName, 'firstname', 'firstnamesha256', (value) => value.trim()) : {}),
-        ...(lastname ? maybeHash(lastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
-        ...(mobile ? maybeHash(mobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
-        ...(billingzipcode ? maybeHash(billingzipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256', (value) => value.trim()) : {}),
-        ...(dob ? { dob: new Date(dob).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
+        ...(trimmedFirstname ? maybeHash(trimmedFirstname, hashFirstName, 'firstname', 'firstnamesha256', (value) => value.trim()) : {}),
+        ...(trimmedLastname ? maybeHash(trimmedLastname, hashLastName, 'lastname', 'lastnamesha256', (value) => value.trim()) : {}),
+        ...(trimmedMobile ? maybeHash(trimmedMobile, hashMobile, 'mobile', 'mobilesha256', (value) => value.trim()) : {}),
+        ...(trimmedBillingZipcode ? maybeHash(trimmedBillingZipcode, hashBillingZipcode, 'billingzipcode', 'billingzipsha256', (value) => value.trim()) : {}),
+        ...(trimmedDob ? { dob: new Date(trimmedDob).toISOString().slice(0, 10).replace(/-/g, '')} : {}),
         ...(gender === 'm' || gender === 'f' ? { gender } : {}),
         ...(restUserAttributes && Object.keys(restUserAttributes).length > 0 ? sanitize(restUserAttributes, ['boolean', 'string', 'number'], true) : {}),
         ...(audience_name && status ? { [`segment_${audience_name}`]: status === 'add' } : {})
@@ -158,11 +174,11 @@ function buildJSONItem(payload: Payload): RoktJSON {
     const item: RoktJSON = {
         environment: 'production',
         device_info,
-        user_attributes, 
-        user_identities, 
-        ...(rtid ? { integration_attributes: { "1277": { passbackconversiontrackingid: rtid } } } : {}),
+        user_attributes,
+        user_identities,
+        ...(trimmedRtid ? { integration_attributes: { "1277": { passbackconversiontrackingid: trimmedRtid } } } : {}),
         ...(events && events.length > 0 ? { events } : {}),
-        ...(ip ? {ip} : {})
+        ...(trimmedIp ? { ip: trimmedIp } : {})
     }
 
     return item
@@ -273,6 +289,14 @@ function sanitize(obj: Record<string, unknown> | undefined, allowedTypes: ('stri
         }
     })
     return result
+}
+
+function trimmed(value: string | undefined | null): string | undefined {
+    if (typeof value === 'string') {
+        const trimmed = value.trim()
+        return trimmed || undefined
+    }
+    return undefined
 }
 
 function maybeHash(value: string | undefined, shouldHash: boolean | undefined, key: string, hashedKey: string, cleaningFunction?: (input: string) => string): Record<string, string> {
