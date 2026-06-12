@@ -63,6 +63,8 @@ export interface E2EBaseFixture {
   expect: E2EExpectation
   /** Hint shown in verbose mode when this fixture fails. Helps developers diagnose common issues. */
   verboseFailureHint?: string
+  /** Feature flags passed to the action, to exercise flag-gated code branches end-to-end. */
+  features?: Record<string, boolean>
 }
 
 export interface E2ESingleFixture extends E2EBaseFixture {

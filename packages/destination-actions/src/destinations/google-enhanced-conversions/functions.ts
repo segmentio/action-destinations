@@ -589,9 +589,9 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
-      else if (computation_class === 'journey_step') {
-        // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-        // Should always adds the user, never delete
+      else if (computation_class === 'journey_step' && audienceMembership === undefined) {
+        // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
+        // so there is no membership signal — always add.
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
     } else {
@@ -609,8 +609,8 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       } else if (computation_class === 'journey_step') {
-        // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-        // Should always adds the user, never delete
+        // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
+        // so there is no membership signal — always add.
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
     }
@@ -842,13 +842,16 @@ const updateMultiStatusResponseWithSuccess = (
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
   sentBody: JSONLikeObject | string,
-  failedPayloadIndices: Set<number>
+  failedPayloadIndices: Set<number>,
+  operationByIndex: Map<number, JSONLikeObject>
 ) => {
   validPayloadIndicesBitmap.forEach((index) => {
     if (!failedPayloadIndices.has(index)) {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: sentBody,
+        // Surface the actual operation sent to Google for this payload ({ create: ... } or
+        // { remove: ... }) so add/remove is observable per item. Falls back to sentBody defensively.
+        sent: operationByIndex.get(index) ?? sentBody,
         body: executedJob.data as JSONLikeObject
       })
     }
@@ -869,6 +872,13 @@ export const handlePartialFailureResponse = (
       )?.index
 
       if (failedIndex >= 0) {
+        // KNOWN BUG (pre-existing; out of scope for this PR — fix tracked in <JIRA-LINK>):
+        // Introduced in https://github.com/segmentio/action-destinations/pull/2853 (Multistatus Support).
+        // For batches that contain BOTH adds and removes, a Google-side partial-failure error can be
+        // attributed to the wrong original payload index. `failedIndex` is the position within a
+        // single operations array (adds-only or removes-only, as sent to Google), but
+        // `validPayloadIndicesBitmap` is indexed across all valid payloads (adds and removes mixed),
+        // so the two index spaces don't line up. Mapping is correct for all-add or all-remove batches.
         const originalIndex = validPayloadIndicesBitmap[failedIndex]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
@@ -956,6 +966,10 @@ const extractBatchUserIdentifiers = (
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
+  // Maps each original payload index to the exact operation object sent to Google for that
+  // payload ({ create: ... } or { remove: ... }), so the per-payload multi-status `sent` field
+  // reflects the actual add/remove decision rather than a generic value.
+  const operationByIndex = new Map<number, JSONLikeObject>()
 
   //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
@@ -994,13 +1008,17 @@ const extractBatchUserIdentifiers = (
 
     validPayloadIndicesBitmap.push(index)
     if (operationType === true) {
-      addUserIdentifiers.push({ create: { userIdentifiers } })
+      const operation = { create: { userIdentifiers } }
+      addUserIdentifiers.push(operation)
+      operationByIndex.set(index, operation)
     } else {
-      removeUserIdentifiers.push({ remove: { userIdentifiers } })
+      const operation = { remove: { userIdentifiers } }
+      removeUserIdentifiers.push(operation)
+      operationByIndex.set(index, operation)
     }
   })
 
-  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap }
+  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap, operationByIndex }
 }
 
 // Helper function to determine operation type
@@ -1021,9 +1039,9 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
       audienceMembership === false
     ) {
       return false
-    } else if (computation_class === 'journey_step') {
-      // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-      // Should always adds the user, never delete
+    } else if (computation_class === 'journey_step' && audienceMembership === undefined) {
+      // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
+      // so there is no membership signal — always add.
       return true
     }
   }
@@ -1041,8 +1059,8 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
     ) {
       return false
     } else if (computation_class === 'journey_step') {
-      // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-      // Should always adds the user, never delete
+      // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
+      // so there is no membership signal — always add.
       return true
     }
   }
@@ -1082,15 +1100,16 @@ export const processBatchPayload = async (
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Extract user identifiers and validPayloadIndicesBitmap from payloads
-  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
-    payloads,
-    id_type,
-    multiStatusResponse,
-    syncMode,
-    features,
-    audienceMemberships,
-    personasContext
-  )
+  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap, operationByIndex } =
+    extractBatchUserIdentifiers(
+      payloads,
+      id_type,
+      multiStatusResponse,
+      syncMode,
+      features,
+      audienceMemberships,
+      personasContext
+    )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Step1 :- Create an Offline user data job
@@ -1152,7 +1171,8 @@ export const processBatchPayload = async (
       validPayloadIndicesBitmap,
       multiStatusResponse,
       sentBody,
-      failedPayloadIndices
+      failedPayloadIndices,
+      operationByIndex
     )
   }
   return multiStatusResponse
