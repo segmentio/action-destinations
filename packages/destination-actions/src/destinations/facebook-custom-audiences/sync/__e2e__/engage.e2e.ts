@@ -8,6 +8,10 @@ const COMPUTATION_ID = 'aud_e2e_facebook_001'
 const FAILURE_HINT =
   'Ensure E2E_FACEBOOK_CUSTOM_AUDIENCES_ACCESS_TOKEN and E2E_FACEBOOK_CUSTOM_AUDIENCES_AD_ACCOUNT_ID are set. The token must have ads_management permission.'
 
+// Note: the `sent` object also includes `audienceId`, but we intentionally do not assert it here.
+// It resolves to the audience created during the e2e run (a different id each run), and the runner
+// does not substitute the $externalAudienceId marker inside expectations — so there is no stable
+// value to assert. We assert the operation (method) and the hashed identifier row instead.
 const fixtures: E2EFixture[] = [
   {
     description: 'Single event: add a user to the audience via identify',
@@ -79,7 +83,12 @@ const fixtures: E2EFixture[] = [
     ],
     expect: {
       status: 'success',
-      jsonContains: [{ status: 200 }, { status: 200 }, { status: 200 }]
+      // All adds => POST. data row is [externalId, hashedEmail, ...empty identifier slots].
+      jsonContains: [
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-002', '2a0927f79c0d8dbf12ca428ba51bdb546b6e612e9cb65e6df4b75d637f8696f7', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-003', '63812a0b58b3d40cb802a69aae0208400c5da53341faacbadf11fbc2ed8bec5e', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-004', '36bca65f27804d68271e85dd6539bb601bc70b8d57a385480e95f7f5c8b8b281', '', '', '', '', '', '', '', '', '', '', '', '', ''] } }
+      ]
     },
     verboseFailureHint: FAILURE_HINT
   },
@@ -119,7 +128,12 @@ const fixtures: E2EFixture[] = [
     ],
     expect: {
       status: 'success',
-      jsonContains: [{ status: 200 }, { status: 200 }, { status: 200 }]
+      // All removes => DELETE.
+      jsonContains: [
+        { status: 200, sent: { method: 'DELETE', data: ['e2e-fb-user-002', '2a0927f79c0d8dbf12ca428ba51bdb546b6e612e9cb65e6df4b75d637f8696f7', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'DELETE', data: ['e2e-fb-user-003', '63812a0b58b3d40cb802a69aae0208400c5da53341faacbadf11fbc2ed8bec5e', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'DELETE', data: ['e2e-fb-user-004', '36bca65f27804d68271e85dd6539bb601bc70b8d57a385480e95f7f5c8b8b281', '', '', '', '', '', '', '', '', '', '', '', '', ''] } }
+      ]
     },
     verboseFailureHint: FAILURE_HINT
   },
@@ -177,12 +191,15 @@ const fixtures: E2EFixture[] = [
     ],
     expect: {
       status: 'success',
+      // Indexes 0,1,2 are adds (POST); indexes 3,4 are removes (DELETE). Per-index sent operation
+      // must stay aligned with the original payload order even though adds/removes are sent as
+      // two separate Facebook requests.
       jsonContains: [
-        { status: 200 },
-        { status: 200 },
-        { status: 200 },
-        { status: 200 },
-        { status: 200 }
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-005', '63590a80cfc4b727847e97b64b7e908479597052effe780a02f2cd15113e17a0', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-006', 'c2f84c216f71811d7b0fc06d30d7784f0a9299587422477f68706d7d34f3334d', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-007', '242557ab9fdf0f9206600b352231fc4a8450c4a05a124fa1ee03fbc852ef7605', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'DELETE', data: ['e2e-fb-user-002', '2a0927f79c0d8dbf12ca428ba51bdb546b6e612e9cb65e6df4b75d637f8696f7', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'DELETE', data: ['e2e-fb-user-003', '63812a0b58b3d40cb802a69aae0208400c5da53341faacbadf11fbc2ed8bec5e', '', '', '', '', '', '', '', '', '', '', '', '', ''] } }
       ]
     },
     verboseFailureHint: FAILURE_HINT
@@ -236,9 +253,9 @@ const fixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200 },
-        { status: 200 },
-        { status: 200 },
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-008', 'b44ddc1f21dce143a163b617eae3f6e921a87398d708df0d0ba49593ae76c2d2', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'POST', data: ['e2e-fb-user-009', '6240c5bfbe17f3e6b17ed986031200b3a82b7dec9842d108a3106c87fb8a0130', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
+        { status: 200, sent: { method: 'DELETE', data: ['e2e-fb-user-010', '374bc76dbe337e73a7bbc0bfcb6b10f5df1f3efa62d48f747ee4d208a18b08cb', '', '', '', '', '', '', '', '', '', '', '', '', ''] } },
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',

@@ -1,9 +1,9 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { getJourneysMemberships } from '../functions'
+import { getJourneysV1Memberships } from '../functions'
 import { RawData } from '../types'
-import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../../constants'
+import { BASE_URL } from '../../constants'
 
 let testDestination = createTestIntegration(Destination)
 
@@ -51,15 +51,15 @@ function makeJourneyEvent(email: string, userId: string) {
 }
 
 // ---------------------------------------------------------------------------
-// getJourneysMemberships (unit tests)
+// getJourneysV1Memberships (unit tests)
 // ---------------------------------------------------------------------------
-describe('getJourneysMemberships', () => {
+describe('getJourneysV1Memberships', () => {
   it('returns undefined when rawDatas is undefined', () => {
-    expect(getJourneysMemberships(undefined)).toBeUndefined()
+    expect(getJourneysV1Memberships(undefined)).toBeUndefined()
   })
 
   it('returns undefined when rawDatas is an empty array', () => {
-    expect(getJourneysMemberships([])).toBeUndefined()
+    expect(getJourneysV1Memberships([])).toBeUndefined()
   })
 
   it('returns undefined when no events are journey_step', () => {
@@ -67,7 +67,7 @@ describe('getJourneysMemberships', () => {
       { context: { personas: { computation_class: 'audience' } } },
       { context: { personas: { computation_class: 'audience' } } }
     ]
-    expect(getJourneysMemberships(rawDatas)).toBeUndefined()
+    expect(getJourneysV1Memberships(rawDatas)).toBeUndefined()
   })
 
   it('returns an array of true values when all events are journey_step', () => {
@@ -76,17 +76,17 @@ describe('getJourneysMemberships', () => {
       { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} },
       { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} }
     ]
-    const result = getJourneysMemberships(rawDatas)
+    const result = getJourneysV1Memberships(rawDatas)
     expect(result).toEqual([true, true, true])
     expect(result).toHaveLength(3)
   })
 
-  it('throws PayloadValidationError when batch contains a mix of journey_step and non-journey_step', () => {
+  it('throws InvalidAudienceMembershipError when batch contains a mix of journey_step and non-journey_step', () => {
     const rawDatas: RawData[] = [
       { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} },
       { context: { personas: { computation_class: 'audience' } } }
     ]
-    expect(() => getJourneysMemberships(rawDatas)).toThrow(
+    expect(() => getJourneysV1Memberships(rawDatas)).toThrow(
       'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
     )
   })
@@ -95,7 +95,7 @@ describe('getJourneysMemberships', () => {
     const rawDatas: RawData[] = [
       { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} }
     ]
-    const result = getJourneysMemberships(rawDatas)
+    const result = getJourneysV1Memberships(rawDatas)
     expect(result).toEqual([true])
   })
 
@@ -105,25 +105,23 @@ describe('getJourneysMemberships', () => {
       { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: false } },
       { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: true } }
     ]
-    const result = getJourneysMemberships(rawDatas)
+    const result = getJourneysV1Memberships(rawDatas)
     expect(result).toEqual([true, true, true])
   })
 })
 
 // ---------------------------------------------------------------------------
-// Feature flag gating (integration tests)
+// journey_step batch behavior (integration tests)
 // ---------------------------------------------------------------------------
-describe('FacebookCustomAudiences.sync - journey_step with feature flag', () => {
+describe('FacebookCustomAudiences.sync - journey_step', () => {
   beforeEach(() => {
     testDestination = createTestIntegration(Destination)
     nock.cleanAll()
   })
 
-  it('should add all journey_step users when feature flag is enabled', async () => {
-    const events = [
-      makeJourneyEvent('user1@test.com', 'user-1'),
-      makeJourneyEvent('user2@test.com', 'user-2')
-    ]
+  // JourneysV1: journey_step events without per-event membership booleans => all users added.
+  it('JourneysV1: adds all journey_step users (no membership booleans)', async () => {
+    const events = [makeJourneyEvent('user1@test.com', 'user-1'), makeJourneyEvent('user2@test.com', 'user-2')]
 
     nock(BASE_URL)
       .post(new RegExp(`/${AUDIENCE_ID}/users`))
@@ -139,8 +137,7 @@ describe('FacebookCustomAudiences.sync - journey_step with feature flag', () => 
       events,
       settings,
       mapping: journeyMapping,
-      auth,
-      features: { [FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]: true }
+      auth
     })
 
     expect(responses).toBeDefined()
@@ -148,7 +145,9 @@ describe('FacebookCustomAudiences.sync - journey_step with feature flag', () => 
     expect(successResponses).toHaveLength(2)
   })
 
-  it('should not override audienceMemberships when properties[computation_key] is already a boolean', async () => {
+  // JourneysV2: journey_step events that DO carry membership booleans => add and remove honored
+  // (the journey membership override is skipped when audienceMemberships are already booleans).
+  it('JourneysV2: honors per-event membership booleans (add + remove)', async () => {
     const events = [
       createTestEvent({
         type: 'track',
@@ -208,8 +207,7 @@ describe('FacebookCustomAudiences.sync - journey_step with feature flag', () => 
       events,
       settings,
       mapping: journeyMapping,
-      auth,
-      features: { [FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]: true }
+      auth
     })
 
     expect(responses).toBeDefined()
@@ -217,26 +215,5 @@ describe('FacebookCustomAudiences.sync - journey_step with feature flag', () => 
     expect(successResponses).toHaveLength(2)
     expect(addNock.isDone()).toBe(true)
     expect(deleteNock.isDone()).toBe(true)
-  })
-
-  it('should fail with missing membership details when feature flag is disabled', async () => {
-    const events = [
-      makeJourneyEvent('user1@test.com', 'user-1'),
-      makeJourneyEvent('user2@test.com', 'user-2')
-    ]
-
-    const responses = await testDestination.executeBatch('sync', {
-      events,
-      settings,
-      mapping: journeyMapping,
-      auth,
-      features: {}
-    })
-
-    expect(responses).toBeDefined()
-    const errorResponses = responses.filter((r: any) => r.status >= 400)
-    expect(errorResponses).toHaveLength(2)
-    expect(errorResponses[0].errormessage).toBe('Audience membership details missing')
-    expect(errorResponses[1].errormessage).toBe('Audience membership details missing')
   })
 })

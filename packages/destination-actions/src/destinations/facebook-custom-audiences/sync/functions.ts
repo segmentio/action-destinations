@@ -53,15 +53,20 @@ export async function send(
   rawData?: RawData[]
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
- 
-  const journeyV1Memberships = getJourneysV1Memberships(rawData)
-  if (Array.isArray(journeyV1Memberships) && journeyV1Memberships.length > 0) {
-    if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
-      // If audienceMemberships is already populated with booleans then we can assume JourneysV2. 
-      // Otherwise we assume JourneysV1 and overwrite the audienceMemberships with all true since JourneysV1 only adds users to audiences.
-      // JourneysV2 allows users to be added and removed from audiences. 
-      audienceMemberships = journeyV1Memberships
-    }
+
+  // getJourneysV1Memberships also throws if the batch mixes journey_step and non-journey_step events.
+  const isJourney = getJourneysV1Memberships(rawData) !== undefined
+  if (isJourney && !audienceMemberships?.every((m) => typeof m === 'boolean')) {
+    // If audienceMemberships is already populated with booleans we assume JourneysV2 (which can add
+    // AND remove users), so we leave it untouched. Otherwise we assume JourneysV1 (which only adds)
+    // and set all memberships to true.
+    //
+    // NOTE: the membership array is sized to `payloads`, NOT to `rawData`. `rawData` is the full,
+    // unfiltered batch, but invalid payloads are dropped before they reach here — so `payloads` may
+    // be shorter. Building the array from `payloads.length` keeps it aligned and avoids a spurious
+    // "Audience membership details count does not match batch payload count." error that would fail
+    // the whole batch when one event was filtered out.
+    audienceMemberships = new Array(payloads.length).fill(true)
   }
 
   const audienceId = getAudienceId(payloads[0], hookOutputs)
