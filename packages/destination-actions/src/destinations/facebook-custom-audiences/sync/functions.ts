@@ -12,17 +12,15 @@ import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow, RawData } from './types'
-import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../constants'
+import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
 /*
- * Temporary function to handle audience membership when preset journeys_step_entered_track is in use.
- * All users will be added to the audience (no removals).
- * This function will be removed once the Journeys team have migrated customers off of the
- * journeys_step_entered_track preset.
+ * If events contain computation_class === 'journey_step' the payloads may be for JourneysV1. 
+ * journeysV1 always adds users to the audience. 
  */
-export function getJourneysMemberships(rawDatas: RawData[] | undefined): boolean[] | undefined {
+export function getJourneysV1Memberships(rawDatas: RawData[] | undefined): boolean[] | undefined {
   if (!rawDatas || (Array.isArray(rawDatas) && rawDatas.length === 0)) {
     return undefined
   }
@@ -55,14 +53,14 @@ export async function send(
   rawData?: RawData[]
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
-
-  if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
-    const journeyMemberships = getJourneysMemberships(rawData)
-    if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
-      if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
-        // The above check is to ensure that the future JourneysVs preset will be able to add + remove users from the audience.
-        audienceMemberships = journeyMemberships
-      }
+ 
+  const journeyV1Memberships = getJourneysV1Memberships(rawData)
+  if (Array.isArray(journeyV1Memberships) && journeyV1Memberships.length > 0) {
+    if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
+      // If audienceMemberships is already populated with booleans then we can assume JourneysV2. 
+      // Otherwise we assume JourneysV1 and overwrite the audienceMemberships with all true since JourneysV1 only adds users to audiences.
+      // JourneysV2 allows users to be added and removed from audiences. 
+      audienceMemberships = journeyV1Memberships
     }
   }
 
