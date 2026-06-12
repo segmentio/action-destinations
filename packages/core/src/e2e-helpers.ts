@@ -134,7 +134,6 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
     computationKey,
     computationId,
     externalAudienceId,
-    eventName,
     userId,
     anonymousId,
     email,
@@ -148,7 +147,7 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
     ...(userId && { userId }),
     ...(anonymousId && { anonymousId }),
     type: 'track',
-    event: eventName ?? 'Test Journeys V1 Audience Membership Event',
+    event: 'Audience Entered',
     properties: {
       ...(enrichedTraits as { [k: string]: JSONValue })
     },

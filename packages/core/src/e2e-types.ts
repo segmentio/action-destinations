@@ -127,7 +127,6 @@ export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string
   computationKey: ComputationKey
   computationId: string
   externalAudienceId?: string
-  eventName?: string
   userId?: string
   anonymousId?: string
   email?: string
@@ -183,7 +182,7 @@ export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = strin
 
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'track'
-  event: string
+  event: "Audience Entered"
   messageId: string
   timestamp: string
   context: {

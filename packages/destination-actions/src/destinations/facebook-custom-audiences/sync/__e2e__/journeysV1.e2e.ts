@@ -18,7 +18,6 @@ const fixtures: E2EFixture[] = [
       computationKey: COMPUTATION_KEY,
       computationId: COMPUTATION_ID,
       externalAudienceId: '$externalAudienceId',
-      eventName: 'Journeys Step Entered',
       userId: 'e2e-fb-journeys-user-001',
       email: 'e2e-fb-journeys-001@segment.com',
       enrichedTraits: { [COMPUTATION_KEY]: true }
@@ -36,7 +35,6 @@ const fixtures: E2EFixture[] = [
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
         externalAudienceId: '$externalAudienceId',
-        eventName: 'Journeys Step Entered',
         userId: 'e2e-fb-journeys-user-002',
         email: 'e2e-fb-journeys-002@segment.com',
         enrichedTraits: { [COMPUTATION_KEY]: true }
@@ -45,7 +43,6 @@ const fixtures: E2EFixture[] = [
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
         externalAudienceId: '$externalAudienceId',
-        eventName: 'Journeys Step Entered',
         userId: 'e2e-fb-journeys-user-003',
         email: 'e2e-fb-journeys-003@segment.com',
         enrichedTraits: { [COMPUTATION_KEY]: true }
@@ -54,7 +51,6 @@ const fixtures: E2EFixture[] = [
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
         externalAudienceId: '$externalAudienceId',
-        eventName: 'Journeys Step Entered',
         userId: 'e2e-fb-journeys-user-004',
         email: 'e2e-fb-journeys-004@segment.com',
         enrichedTraits: { [COMPUTATION_KEY]: true }
