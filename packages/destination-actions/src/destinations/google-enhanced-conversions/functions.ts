@@ -859,7 +859,7 @@ export const handlePartialFailureResponse = (
       )?.index
 
       if (failedIndex >= 0) {
-        // KNOWN BUG (pre-existing; out of scope for this PR — fix tracked in <JIRA-LINK>):
+        // KNOWN BUG (pre-existing; out of scope for this PR — fix tracked in STRATCONN-6862):
         // Introduced in https://github.com/segmentio/action-destinations/pull/2853 (Multistatus Support).
         // For batches that contain BOTH adds and removes, a Google-side partial-failure error can be
         // attributed to the wrong original payload index. `failedIndex` is the position within a
