@@ -303,7 +303,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership, personasContext }) => {
+  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
     return await handleUpdate(
       request,
@@ -315,13 +315,12 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership,
-      personasContext
+      audienceMembership
     )
   },
   performBatch: async (
     request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership, personasContext }
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
@@ -334,8 +333,7 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership,
-      personasContext
+      audienceMembership
     )
   }
 }

@@ -30,7 +30,7 @@ import {
   AudienceMembership,
   FLAGS
 } from '@segment/actions-core'
-import { StatsContext, Personas } from '@segment/actions-core/destination-kit'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
@@ -528,8 +528,7 @@ const extractUserIdentifiers = (
   syncMode?: string,
   features?: Features | undefined,
   statsContext?: StatsContext | undefined,
-  audienceMembership?: AudienceMembership,
-  personasContext?: Personas
+  audienceMembership?: AudienceMembership
 ) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
@@ -571,7 +570,6 @@ const extractUserIdentifiers = (
     }
   }
 
-  const { computation_class } = personasContext || {}
   for (const payload of payloads) {
     if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
       if (
@@ -589,11 +587,6 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
-      else if (computation_class === 'journey_step' && audienceMembership === undefined) {
-        // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
-        // so there is no membership signal — always add.
-        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
-      }
     } else {
       // Map user data to Google Ads API format
       if (
@@ -608,10 +601,6 @@ const extractUserIdentifiers = (
         (syncMode === 'mirror' && payload.event_name === 'deleted')
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
-      } else if (computation_class === 'journey_step') {
-        // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
-        // so there is no membership signal — always add.
-        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
     }
   }
@@ -729,8 +718,7 @@ export const handleUpdate = async (
   syncMode?: string,
   features?: Features | undefined,
   statsContext?: StatsContext,
-  audienceMembership?: AudienceMembership,
-  personasContext?: Personas
+  audienceMembership?: AudienceMembership
 ) => {
   const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -744,8 +732,7 @@ export const handleUpdate = async (
     syncMode,
     features,
     statsContext,
-    audienceMembership,
-    personasContext
+    audienceMembership
   )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
@@ -960,8 +947,7 @@ const extractBatchUserIdentifiers = (
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
   features?: Features,
-  audienceMemberships?: AudienceMembership[],
-  personasContext?: Personas
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
@@ -996,7 +982,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index], personasContext)
+    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index])
     if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -1022,8 +1008,7 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership, personasContext?: Personas): boolean | undefined => {
-  const { computation_class } = personasContext || {}
+const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership): boolean | undefined => {
   if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     if (
       payload.event_name === 'Audience Entered' ||
@@ -1039,10 +1024,6 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
       audienceMembership === false
     ) {
       return false
-    } else if (computation_class === 'journey_step' && audienceMembership === undefined) {
-      // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
-      // so there is no membership signal — always add.
-      return true
     }
   }
   else {
@@ -1058,10 +1039,6 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
       (syncMode === 'mirror' && payload.event_name === 'deleted')
     ) {
       return false
-    } else if (computation_class === 'journey_step') {
-      // Journeys V1 only: legacy journeys_step_entered_track omits properties[computation_key],
-      // so there is no membership signal — always add.
-      return true
     }
   }
   return undefined
@@ -1090,8 +1067,7 @@ export const processBatchPayload = async (
   syncMode?: string,
   features?: Features | undefined,
   statsContext?: StatsContext,
-  audienceMemberships?: AudienceMembership[],
-  personasContext?: Personas
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const externalAudienceId = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -1107,8 +1083,7 @@ export const processBatchPayload = async (
       multiStatusResponse,
       syncMode,
       features,
-      audienceMemberships,
-      personasContext
+      audienceMemberships
     )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
