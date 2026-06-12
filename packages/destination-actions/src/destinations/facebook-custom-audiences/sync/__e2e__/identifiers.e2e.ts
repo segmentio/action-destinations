@@ -22,10 +22,10 @@ const fixtures: E2EFixture[] = [
     // last/first name, first initial, gender, city, state, zip, country and mobileAdId. The fields
     // without a default @path are wired explicitly in `mapping`.
     //
-    // Note: appId/pageId/igAccountIds are also mapped and sent (they land in the request body's
-    // app_ids/page_ids/ig_account_ids arrays), but they are NOT surfaced in the per-item `sent`
-    // object, so there is no stable value to assert for them here — the row below covers the 15
-    // schema slots that `sent.data` exposes.
+    // Note: appId/pageId/igAccountIds are intentionally NOT exercised here. They land in the request
+    // body's app_ids/page_ids/ig_account_ids arrays (not in the per-item `sent` row, so there is
+    // nothing to assert), and Meta validates them against real registered Facebook app/page/IG IDs —
+    // sending placeholder values fails the live request with "(#100) invalid app id".
     description: 'Identifiers: every schema slot (incl. birth, first initial, mobileAdId) is normalized and hashed',
     subscribe: 'type = "track" or type = "identify"',
     mapping: {
@@ -40,10 +40,7 @@ const fixtures: E2EFixture[] = [
         last: { '@path': '$.traits.last_name' },
         firstInitial: { '@path': '$.traits.first_initial' }
       },
-      mobileAdId: { '@path': '$.traits.madid' },
-      appId: { '@path': '$.traits.app_id' },
-      pageId: { '@path': '$.traits.page_id' },
-      igAccountIds: { '@path': '$.traits.ig_ids' }
+      mobileAdId: { '@path': '$.traits.madid' }
     },
     mode: 'batchWithMultistatus',
     events: [
@@ -68,10 +65,7 @@ const fixtures: E2EFixture[] = [
           state: 'California',
           postal_code: '94105-1234',
           country: 'United States',
-          madid: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
-          app_id: 'app_999',
-          page_id: 'page_888',
-          ig_ids: 'ig_777'
+          madid: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
         }
       })
     ],
