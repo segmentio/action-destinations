@@ -1,8 +1,8 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { getAccessToken } from './functions'
 
 import sendForm from './sendForm'
+import { getAccessToken } from './functions'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Marketo Private',
@@ -10,6 +10,8 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
+    // Custom scheme: each customer supplies their own Marketo client id/secret, so we
+    // mint the token inline (see functions.ts) rather than using the platform OAuth flow.
     scheme: 'custom',
     fields: {
       client_id: {
@@ -24,16 +26,17 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       },
-      api_endpoint: {
-        label: 'API Endpoint',
-        description: 'Your Marketo REST API Endpoint in this format: https://<your_account_id>.mktorest.com.',
+      marketo_api_domain: {
+        label: 'Marketo API Domain',
+        description: 'Your Marketo REST API Domain in this format: https://<your_account_id>.mktorest.com.',
         type: 'string',
         format: 'uri',
         required: true
       }
     },
-    testAuthentication: async (request, { settings }) => {
-     
+    testAuthentication: (request, { settings }) => {
+      // Successfully minting a token validates the client id/secret and API domain.
+      return getAccessToken(request, settings)
     }
   },
 

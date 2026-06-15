@@ -10,7 +10,7 @@ export interface Settings {
    */
   client_secret: string
   /**
-   * Your Marketo REST API Endpoint in this format: https://<your_account_id>.mktorest.com.
+   * Your Marketo REST API Domain in this format: https://<your_account_id>.mktorest.com.
    */
-  api_endpoint: string
+  marketo_api_domain: string
 }

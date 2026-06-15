@@ -6,6 +6,18 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-marketo-private'
 
+// Marketo returns HTTP 200 with this body shape; the token endpoint returns an access token.
+function mockMarketo() {
+  nock(/.*/)
+    .persist()
+    .post(/identity\/oauth\/token/)
+    .reply(200, { access_token: 'test-access-token', token_type: 'bearer', expires_in: 3599 })
+  nock(/.*/)
+    .persist()
+    .post(/submitForm/)
+    .reply(200, { requestId: 'abc', success: true, result: [{ id: 1, status: 'created' }] })
+}
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
@@ -13,9 +25,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
-      nock(/.*/).persist().put(/.*/).reply(200)
+      mockMarketo()
 
       const event = createTestEvent({
         properties: eventData
@@ -28,7 +38,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
-      const request = responses[0].request
+      const request = responses[responses.length - 1].request
       const rawBody = await request.text()
 
       try {
@@ -47,9 +57,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const action = destination.actions[actionSlug]
       const [eventData, settingsData] = generateTestData(seedName, destination, action, false)
 
-      nock(/.*/).persist().get(/.*/).reply(200)
-      nock(/.*/).persist().post(/.*/).reply(200)
-      nock(/.*/).persist().put(/.*/).reply(200)
+      mockMarketo()
 
       const event = createTestEvent({
         properties: eventData
@@ -62,7 +70,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         auth: undefined
       })
 
-      const request = responses[0].request
+      const request = responses[responses.length - 1].request
       const rawBody = await request.text()
 
       try {

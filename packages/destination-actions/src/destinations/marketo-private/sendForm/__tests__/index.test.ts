@@ -7,153 +7,148 @@ const testDestination = createTestIntegration(Destination)
 const settings = {
   client_id: 'test-client-id',
   client_secret: 'test-client-secret',
-  api_endpoint: 'https://123-ABC-456.mktorest.com'
+  marketo_api_domain: 'https://123-ABC-456.mktorest.com'
 }
 
 const SUBMIT_FORM_PATH = '/rest/v1/leads/submitForm.json'
 
-function mockAuth() {
-  nock(settings.api_endpoint)
-    .post('/identity/oauth/token')
-    .reply(200, { access_token: 'token', token_type: 'bearer', expires_in: 3599, scope: 'scope' })
+// Mapping mirrors the action fields. leadFormFields / visitorData are free-form objects.
+const mapping = {
+  event_name: 'Form Submitted',
+  email: 'jane@example.com',
+  formId: '64',
+  leadFormFields: {
+    email: 'jane@example.com',
+    firstName: 'Jane',
+    phone: null,
+    company: undefined
+  },
+  visitorData: {
+    email: 'jane@example.com',
+    pageURL: 'https://www.mongodb.com/products'
+  },
+  cookie: 'id:abc&token:xyz'
 }
+
+function mockToken() {
+  nock(settings.marketo_api_domain)
+    .post('/identity/oauth/token')
+    .reply(200, { access_token: 'test-access-token', token_type: 'bearer', expires_in: 3599 })
+}
+
+const event = createTestEvent({ event: 'Form Submitted', properties: { email: 'jane@example.com' } })
 
 describe('MarketoPrivate.sendForm', () => {
   afterEach(() => {
     nock.cleanAll()
   })
 
-  it('submits a Form Submitted event and routes to the default (MG) form', async () => {
-    mockAuth()
+  it('mints a token and submits the form, stripping null/undefined fields', async () => {
+    mockToken()
 
     let capturedBody: any
-    nock(settings.api_endpoint)
-      .post(SUBMIT_FORM_PATH, (body) => {
+    let authHeader: string | undefined
+    nock(settings.marketo_api_domain)
+      .post(SUBMIT_FORM_PATH, (body: any) => {
         capturedBody = body
         return true
       })
-      .reply(200, { requestId: 'abc', success: true, result: [{ id: 1, status: 'created' }] })
+      .reply(function (this: { req: { headers: Record<string, string | string[]> } }) {
+        const header = this.req.headers.authorization
+        authHeader = Array.isArray(header) ? header[0] : header
+        return [200, { requestId: 'abc', success: true, result: [{ id: 1, status: 'created' }] }]
+      })
 
-    const event = createTestEvent({
-      event: 'Form Submitted',
-      properties: {
-        formid: 'Int_MG_Something',
-        email: 'jane@example.com',
-        first_name: 'Jane',
-        last_name: 'Doe',
-        url: 'https://www.mongodb.com/products'
-      }
-    })
+    const responses = await testDestination.testAction('sendForm', { event, settings, mapping })
 
-    const responses = await testDestination.testAction('sendForm', {
-      event,
-      settings,
-      useDefaultMappings: true
-    })
+    // Two calls: token then submitForm.
+    expect(responses.length).toBe(2)
+    expect(responses[1].status).toBe(200)
 
-    expect(responses[responses.length - 1].status).toBe(200)
-    expect(capturedBody.formId).toBe(64)
+    // Bearer header is set from the minted token.
+    expect(authHeader).toBe('Bearer test-access-token')
+
+    // Payload shape.
+    expect(capturedBody.formId).toBe('64')
     expect(capturedBody.input[0].leadFormFields.email).toBe('jane@example.com')
     expect(capturedBody.input[0].leadFormFields.firstName).toBe('Jane')
-    // removeEmpty strips unset fields.
+    expect(capturedBody.input[0].cookie).toBe('id:abc&token:xyz')
+
+    // removeEmpty strips null and undefined.
     expect(capturedBody.input[0].leadFormFields).not.toHaveProperty('phone')
+    expect(capturedBody.input[0].leadFormFields).not.toHaveProperty('company')
   })
 
-  it('routes contact us forms to form 47 and includes route-specific fields', async () => {
-    mockAuth()
+  it('succeeds on a created/updated result with no errors', async () => {
+    mockToken()
+    nock(settings.marketo_api_domain)
+      .post(SUBMIT_FORM_PATH)
+      .reply(200, { requestId: 'abc', success: true, result: [{ id: 7, status: 'updated' }] })
 
-    let capturedBody: any
-    nock(settings.api_endpoint)
-      .post(SUBMIT_FORM_PATH, (body) => {
-        capturedBody = body
-        return true
-      })
-      .reply(200, { requestId: 'abc', success: true, result: [{ id: 1, status: 'created' }] })
-
-    const event = createTestEvent({
-      event: 'Form Submitted',
-      properties: {
-        formid: 'Int_CU_Contact',
-        email: 'lead@example.com',
-        initialInterest1: 'Atlas'
-      }
-    })
-
-    await testDestination.testAction('sendForm', {
-      event,
-      settings,
-      useDefaultMappings: true
-    })
-
-    expect(capturedBody.formId).toBe(47)
-    expect(capturedBody.input[0].leadFormFields.customField1).toBe('Atlas')
+    const responses = await testDestination.testAction('sendForm', { event, settings, mapping })
+    expect(responses[1].status).toBe(200)
   })
 
-  it('routes Registration Succeeded to the Atlas Product form with the Atlas campaign id', async () => {
-    mockAuth()
+  it('throws InvalidAuthenticationError on a response-level auth error (602)', async () => {
+    mockToken()
+    nock(settings.marketo_api_domain)
+      .post(SUBMIT_FORM_PATH)
+      .reply(200, { requestId: 'abc', success: false, errors: [{ code: '602', message: 'Access token expired' }] })
 
-    let capturedBody: any
-    nock(settings.api_endpoint)
-      .post(SUBMIT_FORM_PATH, (body) => {
-        capturedBody = body
-        return true
-      })
-      .reply(200, { requestId: 'abc', success: true, result: [{ id: 1, status: 'created' }] })
-
-    const event = createTestEvent({
-      event: 'Registration Succeeded',
-      properties: {
-        email: 'newuser@example.com'
-      }
+    await expect(testDestination.testAction('sendForm', { event, settings, mapping })).rejects.toMatchObject({
+      code: 'INVALID_AUTHENTICATION'
     })
-
-    await testDestination.testAction('sendForm', {
-      event,
-      settings,
-      useDefaultMappings: true
-    })
-
-    expect(capturedBody.formId).toBe(2)
-    expect(capturedBody.input[0].leadFormFields.campaignID).toBe('atlas-registration-1537380126407')
   })
 
-  it('throws for unsupported events', async () => {
-    const event = createTestEvent({
-      event: 'Some Other Event',
-      properties: { email: 'lead@example.com' }
-    })
+  it('throws a RetryableError on a transient response-level error (611)', async () => {
+    mockToken()
+    nock(settings.marketo_api_domain)
+      .post(SUBMIT_FORM_PATH)
+      .reply(200, { requestId: 'abc', success: false, errors: [{ code: '611', message: 'System error' }] })
 
-    await expect(
-      testDestination.testAction('sendForm', {
-        event,
-        settings,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError('is not supported')
+    await expect(testDestination.testAction('sendForm', { event, settings, mapping })).rejects.toMatchObject({
+      code: 'RETRYABLE_ERROR'
+    })
   })
 
-  it('throws a PayloadValidationError when Marketo skips the submission', async () => {
-    mockAuth()
-
-    nock(settings.api_endpoint)
+  it('throws a RetryableError on a transient record-level error (1016)', async () => {
+    mockToken()
+    nock(settings.marketo_api_domain)
       .post(SUBMIT_FORM_PATH)
       .reply(200, {
         requestId: 'abc',
         success: true,
-        result: [{ status: 'skipped', reasons: [{ code: '1003', message: 'Field email not found' }] }]
+        result: [{ status: 'skipped', reasons: [{ code: '1016', message: 'Too many imports queued' }] }]
       })
 
-    const event = createTestEvent({
-      event: 'Form Submitted',
-      properties: { formid: 'Int_MG', email: 'lead@example.com' }
+    await expect(testDestination.testAction('sendForm', { event, settings, mapping })).rejects.toMatchObject({
+      code: 'RETRYABLE_ERROR'
     })
+  })
 
-    await expect(
-      testDestination.testAction('sendForm', {
-        event,
-        settings,
-        useDefaultMappings: true
+  it('throws a permanent IntegrationError on a non-retryable record-level skip (1004)', async () => {
+    mockToken()
+    nock(settings.marketo_api_domain)
+      .post(SUBMIT_FORM_PATH)
+      .reply(200, {
+        requestId: 'abc',
+        success: true,
+        result: [{ status: 'skipped', reasons: [{ code: '1004', message: 'Lead not found' }] }]
       })
-    ).rejects.toThrowError('Marketo rejected the form submission')
+
+    await expect(testDestination.testAction('sendForm', { event, settings, mapping })).rejects.toMatchObject({
+      code: 'PAYLOAD_VALIDATION_FAILED'
+    })
+  })
+
+  it('throws a permanent IntegrationError on a non-retryable response-level error (609)', async () => {
+    mockToken()
+    nock(settings.marketo_api_domain)
+      .post(SUBMIT_FORM_PATH)
+      .reply(200, { requestId: 'abc', success: false, errors: [{ code: '609', message: 'Invalid JSON' }] })
+
+    await expect(testDestination.testAction('sendForm', { event, settings, mapping })).rejects.toMatchObject({
+      code: 'PAYLOAD_VALIDATION_FAILED'
+    })
   })
 })

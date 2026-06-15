@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
+import { send } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Form',
@@ -58,10 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-
-
-
-    
     return send(request, settings, payload)
   }
 }
