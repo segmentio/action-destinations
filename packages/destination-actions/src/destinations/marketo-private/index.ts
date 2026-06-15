@@ -1,5 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { getAccessToken } from './functions'
 
 import sendForm from './sendForm'
 
@@ -10,18 +11,30 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'custom',
-    fields: {},
-    testAuthentication: (request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
+    fields: {
+      client_id: {
+        label: 'Client ID',
+        description: 'Your Marketo REST API Client ID.',
+        type: 'password',
+        required: true
+      },
+      client_secret: {
+        label: 'Client Secret',
+        description: 'Your Marketo REST API Client Secret.',
+        type: 'password',
+        required: true
+      },
+      api_endpoint: {
+        label: 'API Endpoint',
+        description: 'Your Marketo REST API Endpoint in this format: https://<your_account_id>.mktorest.com.',
+        type: 'string',
+        format: 'uri',
+        required: true
+      }
+    },
+    testAuthentication: async (request, { settings }) => {
+     
     }
-  },
-
-  onDelete: async (request, { settings, payload }) => {
-    // Return a request that performs a GDPR delete for the provided Segment userId or anonymousId
-    // provided in the payload. If your destination does not support GDPR deletion you should not
-    // implement this function and should remove it completely.
   },
 
   actions: {
