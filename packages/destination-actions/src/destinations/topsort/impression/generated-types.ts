@@ -14,9 +14,9 @@ export interface Payload {
    */
   opaqueUserId: string
   /**
-   * Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.
+   * Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters. Required for onsite sponsored events; omit for offsite or organic events, which are attributed via entity, externalCampaignId/externalVendorId and channel instead.
    */
-  resolvedBidId: string
+  resolvedBidId?: string
   /**
    * Additional attribution information.
    */
@@ -119,4 +119,10 @@ export interface Payload {
    * The channel where the event occurred.
    */
   channel?: string
+  /**
+   * Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { "gclid": "..." } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Typically only set for offsite events.
+   */
+  dsp_metadata?: {
+    [k: string]: unknown
+  }
 }

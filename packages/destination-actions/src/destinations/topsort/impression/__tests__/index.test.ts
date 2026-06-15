@@ -1,5 +1,4 @@
 import nock from 'nock'
-import { AggregateAjvError } from '@segment/ajv-human-errors'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import type { SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
@@ -232,20 +231,42 @@ describe('Topsort.impression', () => {
     })
   })
 
-  it('should fail because it misses a required field (resolvedBidId)', async () => {
+  it('should be successful for an offsite impression without resolvedBidId', async () => {
     nock(/.*/).persist().post(/.*/).reply(200)
 
-    const event = createTestEvent({})
+    const event = createTestEvent({
+      properties: {
+        externalVendorId: '1234',
+        externalCampaignId: 'campaignId1234',
+        entity: { id: '677061', type: 'product' },
+        channel: 'offsite',
+        dsp_metadata: { gclid: 'google-click-id-123' }
+      }
+    })
 
-    await expect(
-      testDestination.testAction('impression', {
-        event,
-        settings: {
-          api_key: 'bar'
-        },
-        useDefaultMappings: true
-      })
-    ).rejects.toThrowError(AggregateAjvError)
+    const responses = await testDestination.testAction('impression', {
+      event,
+      settings: {
+        api_key: 'bar'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(200)
+    const impression = (responses[0].options.json as { impressions: Record<string, unknown>[] }).impressions[0]
+    expect(impression).not.toHaveProperty('resolvedBidId')
+    expect(responses[0].options.json).toMatchObject({
+      impressions: expect.arrayContaining([
+        expect.objectContaining({
+          externalVendorId: '1234',
+          externalCampaignId: 'campaignId1234',
+          entity: { id: '677061', type: 'product' },
+          channel: 'offsite',
+          dsp_metadata: { gclid: 'google-click-id-123' }
+        })
+      ])
+    })
   })
 })
 

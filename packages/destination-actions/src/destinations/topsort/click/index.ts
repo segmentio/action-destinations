@@ -41,9 +41,9 @@ const action: ActionDefinition<Settings, Payload> = {
     resolvedBidId: {
       label: 'Resolved Bid ID',
       description:
-        'Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.',
+        'Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters. Required for onsite sponsored events; omit for offsite or organic events, which are attributed via entity, externalCampaignId/externalVendorId and channel instead.',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.properties.resolvedBidId'
       }
@@ -263,6 +263,16 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@path': '$.properties.channel'
+      }
+    },
+    dsp_metadata: {
+      label: 'DSP Metadata',
+      description:
+        'Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { "gclid": "..." } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Typically only set for offsite events.',
+      type: 'object',
+      required: false,
+      default: {
+        '@path': '$.properties.dsp_metadata'
       }
     }
   },
