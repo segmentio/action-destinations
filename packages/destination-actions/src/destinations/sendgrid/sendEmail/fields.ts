@@ -150,7 +150,7 @@ export const fields: Record<string, InputField> = {
   send_at: {
     label: 'Send At',
     description:
-      'The time to send the email. ISO 8601 format. E.g. 2024-09-23T12:00:00Z. A send cannot be scheduled more than 72 hours in advance.Before sending it to SendGrid, Segment will convert the timestamp to Unix format, which satisfies SendGrid’s requirements.',
+      'The time to send the email. ISO 8601 format. E.g. 2024-09-23T12:00:00Z. A send cannot be scheduled more than 72 hours in advance. Before sending it to SendGrid, Segment will convert the timestamp to Unix format, which satisfies SendGrid’s requirements.',
     type: 'string',
     format: 'date-time',
     required: false
