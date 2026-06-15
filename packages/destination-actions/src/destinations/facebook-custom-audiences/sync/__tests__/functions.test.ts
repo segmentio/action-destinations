@@ -1,6 +1,7 @@
 import * as crypto from 'crypto'
 import {
   getAudienceId,
+  isJourneyPayloads,
   validate,
   getData,
   normalizeMonth,
@@ -12,6 +13,7 @@ import {
   normalizeCountry
 } from '../functions'
 import { Payload } from '../generated-types'
+import { RawData } from '../types'
 
 const sha256 = (value: string) => crypto.createHash('sha256').update(value).digest('hex')
 
@@ -20,6 +22,46 @@ const basePayload: Payload = {
   enable_batching: true,
   batch_size: 1000
 }
+
+// ---------------------------------------------------------------------------
+// isJourneyPayloads
+// ---------------------------------------------------------------------------
+describe('isJourneyPayloads', () => {
+  const journeyRaw: RawData = { context: { personas: { computation_class: 'journey_step' } } }
+  const audienceRaw: RawData = { context: { personas: { computation_class: 'audience' } } }
+
+  it('returns false when rawDatas is undefined', () => {
+    expect(isJourneyPayloads(undefined)).toBe(false)
+  })
+
+  it('returns false when rawDatas is an empty array', () => {
+    expect(isJourneyPayloads([])).toBe(false)
+  })
+
+  it('returns true when all events are journey_step', () => {
+    expect(isJourneyPayloads([journeyRaw, journeyRaw])).toBe(true)
+  })
+
+  it('returns false when no events are journey_step', () => {
+    expect(isJourneyPayloads([audienceRaw, audienceRaw])).toBe(false)
+  })
+
+  it('returns false when events have no computation_class', () => {
+    expect(isJourneyPayloads([{}, { context: {} }, { context: { personas: {} } }])).toBe(false)
+  })
+
+  it('throws when the batch mixes journey_step and non-journey_step events', () => {
+    expect(() => isJourneyPayloads([journeyRaw, audienceRaw])).toThrow(
+      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
+    )
+  })
+
+  it('throws when journey_step events are mixed with events missing computation_class', () => {
+    expect(() => isJourneyPayloads([journeyRaw, {}])).toThrow(
+      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
+    )
+  })
+})
 
 // ---------------------------------------------------------------------------
 // getAudienceId

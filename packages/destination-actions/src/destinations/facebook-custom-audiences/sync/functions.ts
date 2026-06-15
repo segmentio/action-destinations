@@ -17,12 +17,12 @@ import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
 /*
- * If events contain computation_class === 'journey_step' the payloads may be for JourneysV1. 
- * journeysV1 always adds users to the audience. 
+ * Payloads with computation_class === 'journey_step' are Journeys payloads. 
+ * Check that all or none are Journeys payloads. If some are and some aren't, throw an error (which should never happen)
  */
-export function getJourneysV1Memberships(rawDatas: RawData[] | undefined): boolean[] | undefined {
+export function isJourneyPayloads(rawDatas: RawData[] | undefined): boolean {
   if (!rawDatas || (Array.isArray(rawDatas) && rawDatas.length === 0)) {
-    return undefined
+    return false
   }
 
   const isJourneyStep = rawDatas.map((raw) => raw?.context?.personas?.computation_class === 'journey_step')
@@ -36,10 +36,10 @@ export function getJourneysV1Memberships(rawDatas: RawData[] | undefined): boole
   }
 
   if (noneJourney) {
-    return undefined
+    return false
   }
 
-  return new Array(rawDatas.length).fill(true)
+  return true
 }
 
 export async function send(
@@ -54,8 +54,8 @@ export async function send(
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
 
-  // getJourneysV1Memberships also throws if the batch mixes journey_step and non-journey_step events.
-  const isJourney = getJourneysV1Memberships(rawData) !== undefined
+  // isJourneyPayloads also throws if the batch mixes journey_step and non-journey_step events.
+  const isJourney = isJourneyPayloads(rawData) !== undefined
   if (isJourney && !audienceMemberships?.every((m) => typeof m === 'boolean')) {
     // If audienceMemberships is already populated with booleans we assume JourneysV2 (which can add
     // AND remove users), so we leave it untouched. Otherwise we assume JourneysV1 (which only adds)
