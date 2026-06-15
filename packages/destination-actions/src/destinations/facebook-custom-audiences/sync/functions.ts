@@ -70,7 +70,7 @@ export async function send(
   const errorMessage = validate(payloads, audienceId, audienceMemberships)
 
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()
