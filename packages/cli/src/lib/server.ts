@@ -299,12 +299,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
             mapping: mapping || req.body.payload || {},
             auth: req.body.auth || {},
             features: req.body.features || {},
-            subscriptionMetadata: req.body.subscriptionMetadata || {},
-            personasContext: (() => {
-              return Array.isArray(req.body.payload)
-                ? req.body.payload[0]?.context?.personas
-                : req.body.payload?.context?.personas
-            })() as Personas | undefined
+            subscriptionMetadata: req.body.subscriptionMetadata || {}
           }
 
           if (Array.isArray(eventParams.data)) {

@@ -1454,10 +1454,17 @@ describe('GoogleEnhancedConversions', () => {
         errormessage: "Email provided doesn't seem to be in a valid format.",
         errorreporter: 'INTEGRATIONS'
       })
-      //success
+      //success - `sent` now carries the actual add operation sent to Google for this payload
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: '/customers/1234/userLists/1234:run',
+        sent: {
+          create: {
+            userIdentifiers: [
+              { hashedEmail: '369274ed2ac3d833f5e09ec23e7dc8cd3f962521c37c38bfe8e0b690aeda9217' },
+              { hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0' }
+            ]
+          }
+        },
         body: { done: true }
       })
 
@@ -1606,7 +1613,14 @@ describe('GoogleEnhancedConversions', () => {
 
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: '/customers/1234/userLists/1234:run',
+        sent: {
+          create: {
+            userIdentifiers: [
+              { hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674' },
+              { hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0' }
+            ]
+          }
+        },
         body: {
           done: true
         }

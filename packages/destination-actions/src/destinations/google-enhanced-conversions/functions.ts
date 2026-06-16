@@ -30,7 +30,7 @@ import {
   AudienceMembership,
   FLAGS
 } from '@segment/actions-core'
-import { StatsContext, Personas } from '@segment/actions-core/destination-kit'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
@@ -528,8 +528,7 @@ const extractUserIdentifiers = (
   syncMode?: string,
   features?: Features | undefined,
   statsContext?: StatsContext | undefined,
-  audienceMembership?: AudienceMembership,
-  personasContext?: Personas
+  audienceMembership?: AudienceMembership
 ) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
@@ -571,7 +570,6 @@ const extractUserIdentifiers = (
     }
   }
 
-  const { computation_class } = personasContext || {}
   for (const payload of payloads) {
     if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
       if (
@@ -589,11 +587,6 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
-      else if (computation_class === 'journey_step') {
-        // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-        // Should always adds the user, never delete
-        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
-      }
     } else {
       // Map user data to Google Ads API format
       if (
@@ -608,10 +601,6 @@ const extractUserIdentifiers = (
         (syncMode === 'mirror' && payload.event_name === 'deleted')
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
-      } else if (computation_class === 'journey_step') {
-        // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-        // Should always adds the user, never delete
-        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
       }
     }
   }
@@ -729,8 +718,7 @@ export const handleUpdate = async (
   syncMode?: string,
   features?: Features | undefined,
   statsContext?: StatsContext,
-  audienceMembership?: AudienceMembership,
-  personasContext?: Personas
+  audienceMembership?: AudienceMembership
 ) => {
   const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -744,8 +732,7 @@ export const handleUpdate = async (
     syncMode,
     features,
     statsContext,
-    audienceMembership,
-    personasContext
+    audienceMembership
   )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
@@ -842,13 +829,16 @@ const updateMultiStatusResponseWithSuccess = (
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
   sentBody: JSONLikeObject | string,
-  failedPayloadIndices: Set<number>
+  failedPayloadIndices: Set<number>,
+  operationByIndex: Map<number, JSONLikeObject>
 ) => {
   validPayloadIndicesBitmap.forEach((index) => {
     if (!failedPayloadIndices.has(index)) {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: sentBody,
+        // Surface the actual operation sent to Google for this payload ({ create: ... } or
+        // { remove: ... }) so add/remove is observable per item. Falls back to sentBody defensively.
+        sent: operationByIndex.get(index) ?? sentBody,
         body: executedJob.data as JSONLikeObject
       })
     }
@@ -869,6 +859,13 @@ export const handlePartialFailureResponse = (
       )?.index
 
       if (failedIndex >= 0) {
+        // KNOWN BUG (pre-existing; out of scope for this PR — fix tracked in STRATCONN-6862):
+        // Introduced in https://github.com/segmentio/action-destinations/pull/2853 (Multistatus Support).
+        // For batches that contain BOTH adds and removes, a Google-side partial-failure error can be
+        // attributed to the wrong original payload index. `failedIndex` is the position within a
+        // single operations array (adds-only or removes-only, as sent to Google), but
+        // `validPayloadIndicesBitmap` is indexed across all valid payloads (adds and removes mixed),
+        // so the two index spaces don't line up. Mapping is correct for all-add or all-remove batches.
         const originalIndex = validPayloadIndicesBitmap[failedIndex]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
@@ -950,12 +947,15 @@ const extractBatchUserIdentifiers = (
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
   features?: Features,
-  audienceMemberships?: AudienceMembership[],
-  personasContext?: Personas
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
+  // Maps each original payload index to the exact operation object sent to Google for that
+  // payload ({ create: ... } or { remove: ... }), so the per-payload multi-status `sent` field
+  // reflects the actual add/remove decision rather than a generic value.
+  const operationByIndex = new Map<number, JSONLikeObject>()
 
   //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
@@ -982,7 +982,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index], personasContext)
+    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index])
     if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -994,18 +994,21 @@ const extractBatchUserIdentifiers = (
 
     validPayloadIndicesBitmap.push(index)
     if (operationType === true) {
-      addUserIdentifiers.push({ create: { userIdentifiers } })
+      const operation = { create: { userIdentifiers } }
+      addUserIdentifiers.push(operation)
+      operationByIndex.set(index, operation)
     } else {
-      removeUserIdentifiers.push({ remove: { userIdentifiers } })
+      const operation = { remove: { userIdentifiers } }
+      removeUserIdentifiers.push(operation)
+      operationByIndex.set(index, operation)
     }
   })
 
-  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap }
+  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap, operationByIndex }
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership, personasContext?: Personas): boolean | undefined => {
-  const { computation_class } = personasContext || {}
+const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership): boolean | undefined => {
   if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     if (
       payload.event_name === 'Audience Entered' ||
@@ -1021,10 +1024,6 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
       audienceMembership === false
     ) {
       return false
-    } else if (computation_class === 'journey_step') {
-      // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-      // Should always adds the user, never delete
-      return true
     }
   }
   else {
@@ -1040,10 +1039,6 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
       (syncMode === 'mirror' && payload.event_name === 'deleted')
     ) {
       return false
-    } else if (computation_class === 'journey_step') {
-      // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
-      // Should always adds the user, never delete
-      return true
     }
   }
   return undefined
@@ -1072,8 +1067,7 @@ export const processBatchPayload = async (
   syncMode?: string,
   features?: Features | undefined,
   statsContext?: StatsContext,
-  audienceMemberships?: AudienceMembership[],
-  personasContext?: Personas
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const externalAudienceId = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -1082,15 +1076,15 @@ export const processBatchPayload = async (
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Extract user identifiers and validPayloadIndicesBitmap from payloads
-  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
-    payloads,
-    id_type,
-    multiStatusResponse,
-    syncMode,
-    features,
-    audienceMemberships,
-    personasContext
-  )
+  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap, operationByIndex } =
+    extractBatchUserIdentifiers(
+      payloads,
+      id_type,
+      multiStatusResponse,
+      syncMode,
+      features,
+      audienceMemberships
+    )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Step1 :- Create an Offline user data job
@@ -1152,7 +1146,8 @@ export const processBatchPayload = async (
       validPayloadIndicesBitmap,
       multiStatusResponse,
       sentBody,
-      failedPayloadIndices
+      failedPayloadIndices,
+      operationByIndex
     )
   }
   return multiStatusResponse
