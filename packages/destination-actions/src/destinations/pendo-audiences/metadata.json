@@ -1,0 +1,371 @@
+{
+  "slug": "actions-pendo-audiences",
+  "name": "Pendo Audiences",
+  "mode": "cloud",
+  "description": "Sync Segment Engage Audiences to Pendo Segments.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "integrationKey": {
+        "label": "Integration Key",
+        "description": "Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "region": {
+        "label": "Region",
+        "description": "The region your Pendo account is hosted in.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "US1",
+            "value": "US1"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          },
+          {
+            "label": "JP",
+            "value": "JP"
+          },
+          {
+            "label": "AU",
+            "value": "AU"
+          }
+        ],
+        "default": "DEFAULT",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "audienceName": {
+        "label": "Pendo Segment Name",
+        "description": "A name for the Pendo Segment. Leave blank to use the Segment audience name.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "syncAudience": {
+      "title": "Sync to Pendo Segment",
+      "description": "Sync Segment Engage Audience membership to a Pendo Segment by adding or removing visitors.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "visitorId": {
+          "label": "Visitor ID",
+          "description": "The Pendo Visitor ID for the user. Maps to the userId in Segment by default.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traitsOrProperties": {
+          "label": "Traits or Properties",
+          "description": "Traits or Properties object from the identify() or track() call emitted by Engage.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "segmentAudienceKey": {
+          "label": "Segment Audience Key",
+          "description": "Segment Audience Key. Used to determine whether the user is being added to or removed from the Pendo Segment.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "segmentAudienceId": {
+          "label": "Segment External Audience ID",
+          "description": "The External Audience ID from Segment, which maps to the Pendo Segment ID.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch events",
+          "description": "When enabled, events are batched and sent to Pendo using the batch patch endpoint (up to 1000 visitors per request).",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Max Batch Size",
+          "description": "Maximum number of visitors to include in a single batch request. Must be between 1 and 1000.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 1000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "visitorId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "visitorId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "visitorId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "visitorId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 1000
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

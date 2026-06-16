@@ -1,0 +1,1526 @@
+{
+  "slug": "actions-rokt-capi",
+  "name": "Rokt Conversions API",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Your Rokt CAPI API Key. Contact your Rokt representative to obtain this value.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "apiSecret": {
+        "label": "API Secret",
+        "description": "Your Rokt CAPI API Secret. Contact your Rokt representative to obtain this value.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send analytics data to Rokt CAPI.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "eventDetails": {
+          "label": "Event Details",
+          "description": "Details about the event to be sent to Rokt CAPI.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "conversiontype": {
+              "@path": "$.event"
+            },
+            "confirmationref": {
+              "@path": "$.properties.order_id"
+            },
+            "amount": {
+              "@path": "$.properties.revenue"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "source_message_id": {
+              "@path": "$.messageId"
+            },
+            "timestamp_unixtime_ms": {
+              "@path": "$.timestamp"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "conversiontype": {
+              "label": "Conversion Type",
+              "description": "Type of conversion, This should usually be mapped to the Segment track() event name. e.g., \"Order Completed\".",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "confirmationref": {
+              "label": "Confirmation Reference",
+              "description": "Unique ID for the conversion, ideally an order ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "amount": {
+              "label": "Amount",
+              "description": "Monetary amount associated with the conversion.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "currency": {
+              "label": "Currency",
+              "description": "3-letter ISO currency code (e.g. USD, EUR).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "source_message_id": {
+              "label": "Source Message ID",
+              "description": "Unique identifier for the source message.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "timestamp_unixtime_ms": {
+              "label": "Event Timestamp",
+              "description": "Event timestamp in Unix time milliseconds.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "eventProperties": {
+          "label": "Additional Custom Attributes",
+          "description": "Additional custom attributes for the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "hashingConfiguration": {
+          "label": "Hashing Configuration",
+          "description": "Specify if email and certain user attributes should be hashed before sending.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "hashEmail": {
+              "label": "Hash Email",
+              "description": "If enabled, Segment will ensure that the email address is hashed using SHA256 before sending.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "hashFirstName": {
+              "label": "Hash First Name",
+              "description": "If enabled, Segment will ensure that the first name is hashed using SHA256 before sending.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "hashLastName": {
+              "label": "Hash Last Name",
+              "description": "If enabled, Segment will ensure that the last name is hashed using SHA256 before sending.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "hashMobile": {
+              "label": "Hash Mobile Number",
+              "description": "If enabled, Segment will ensure that the mobile number is hashed using SHA256 before sending.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "hashBillingZipcode": {
+              "label": "Hash Billing Zip Code",
+              "description": "If enabled, Segment will ensure that the billing zip code is hashed using SHA256 before sending.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_info": {
+          "label": "Device Information",
+          "description": "Information about the user device.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "http_header_user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "ios_advertising_id": {
+              "@liquid": "{% if context.device.advertisingId and context.device.type == 'ios' %}{{ context.device.advertisingId }}{% endif %}"
+            },
+            "android_advertising_id": {
+              "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+            },
+            "ios_idfv": {
+              "@liquid": "{% if context.device.id and context.device.type == 'ios' %}{{ context.device.id }}{% endif %}"
+            },
+            "android_uuid": {
+              "@liquid": "{% if context.device.id and context.device.type == 'android' %}{{ context.device.id }}{% endif %}"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "http_header_user_agent": {
+              "label": "User Agent",
+              "description": "Device user agent.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ios_advertising_id": {
+              "label": "iOS Advertising ID",
+              "description": "Advertising ID from an iOS mobile device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "android_advertising_id": {
+              "label": "Android Advertising ID",
+              "description": "Advertising ID from an Android mobile device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ios_idfv": {
+              "label": "iOS ID for Vendor",
+              "description": "ID for Vendor from an iOS mobile device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "android_uuid": {
+              "label": "Android UUID",
+              "description": "UUID from an Android mobile device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_identities": {
+          "label": "User Identities",
+          "description": "Unique user identifiers used to identify the user. At least one identifier is required, or the advertising ID in device info.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "customerid": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email",
+              "description": "User email address. This can be in plain text or hashed using SHA256. If you send plain text and would like Segment to hash the email address for you, enable the \"Hash Email\" field.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "customerid": {
+              "label": "Customer ID",
+              "description": "Unique customer identifier.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_attributes": {
+          "label": "User Attributes",
+          "description": "Attributes related to the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "firstname": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "lastname": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "mobile": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "billingzipcode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.properties.address.postal_code"
+                }
+              }
+            },
+            "dob": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.birthday"
+                },
+                "then": {
+                  "@path": "$.traits.birthday"
+                },
+                "else": {
+                  "@path": "$.properties.birthday"
+                }
+              }
+            },
+            "gender": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.gender"
+                },
+                "then": {
+                  "@path": "$.traits.gender"
+                },
+                "else": {
+                  "@path": "$.properties.gender"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "firstname": {
+              "label": "First Name",
+              "description": "User first name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "lastname": {
+              "label": "Last Name",
+              "description": "User last name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "mobile": {
+              "label": "Mobile Number",
+              "description": "User mobile number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "billingzipcode": {
+              "label": "Billing Zip Code",
+              "description": "User billing zip code.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dob": {
+              "label": "Date of Birth",
+              "description": "User date of birth in ISO8601 format (YYYY-MM-DD).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "gender": {
+              "label": "Gender",
+              "description": "User gender",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Male",
+                  "value": "m"
+                },
+                {
+                  "label": "Female",
+                  "value": "f"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "ip": {
+          "label": "IP Address",
+          "description": "IP address of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "audienceDetails": {
+          "label": "Audience Details",
+          "description": "Details of the audience to add the user to or remove the user from. If connecting to a Segment Engage Audience, leave this field empty.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "customAudienceName": {
+              "@path": "$.properties.audience_name"
+            },
+            "customAudienceMembership": {
+              "@path": "$.properties.audience_membership"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "customAudienceName": {
+              "label": "Audience Name",
+              "description": "Name of the audience for audience membership updates. If connecting to a Segment Engage Audience leave the field empty.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "customAudienceMembership": {
+              "label": "Audience Membership",
+              "description": "Boolean indicating whether the user is a member of the audience. If connecting to a Segment Engage Audience leave this field empty.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "engageAudienceName": {
+          "label": "Audience Name",
+          "description": "Name of the audience for audience membership updates. If connecting to a Segment Engage Audience, leave the detault mapping as is.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traitsOrProps": {
+          "label": "Traits or properties object",
+          "description": "Object that contains audience name and value.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "computationAction": {
+          "label": "Segment Computation Action",
+          "description": "Hidden field used to verify that the payload is generated by an Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": 1,
+          "maximum": 100,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable sending events in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "rtid": {
+          "label": "RTID",
+          "description": "ROKT RTID value from the page URL. The 'Rokt Browser Plugin' Action automatically captures this value from the querystring in the browser, then passes it to this field.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@liquid": "{% assign rokt_rtid = integrations['Rokt Conversions API'].rtid %}{% if rokt_rtid %}{{ rokt_rtid }}{% else %}{% assign parts = context.page.search | split: 'rtid=' %}{% if parts[1] %}{{ parts[1] | split: '&' | first }}{% endif %}{% endif %}"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "roktPlugin": {
+      "title": "Rokt Browser Plugin",
+      "description": "Enriches all Segment payloads with Rokt rtid Querystring value",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {}
+    }
+  },
+  "presets": [
+    {
+      "name": "Send",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "eventDetails": {
+          "conversiontype": {
+            "@path": "$.event"
+          },
+          "confirmationref": {
+            "@path": "$.properties.order_id"
+          },
+          "amount": {
+            "@path": "$.properties.revenue"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "source_message_id": {
+            "@path": "$.messageId"
+          },
+          "timestamp_unixtime_ms": {
+            "@path": "$.timestamp"
+          }
+        },
+        "device_info": {
+          "http_header_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "ios_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'ios' %}{{ context.device.advertisingId }}{% endif %}"
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
+          "ios_idfv": {
+            "@liquid": "{% if context.device.id and context.device.type == 'ios' %}{{ context.device.id }}{% endif %}"
+          },
+          "android_uuid": {
+            "@liquid": "{% if context.device.id and context.device.type == 'android' %}{{ context.device.id }}{% endif %}"
+          }
+        },
+        "user_identities": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "customerid": {
+            "@path": "$.userId"
+          }
+        },
+        "user_attributes": {
+          "firstname": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "lastname": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "mobile": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "billingzipcode": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.properties.address.postal_code"
+              }
+            }
+          },
+          "dob": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthday"
+              },
+              "then": {
+                "@path": "$.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "audienceDetails": {
+          "customAudienceName": {
+            "@path": "$.properties.audience_name"
+          },
+          "customAudienceMembership": {
+            "@path": "$.properties.audience_membership"
+          }
+        },
+        "engageAudienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "traitsOrProps": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "computationAction": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "batch_size": 100,
+        "enable_batching": true,
+        "rtid": {
+          "@liquid": "{% assign rokt_rtid = integrations['Rokt Conversions API'].rtid %}{% if rokt_rtid %}{{ rokt_rtid }}{% else %}{% assign parts = context.page.search | split: 'rtid=' %}{% if parts[1] %}{{ parts[1] | split: '&' | first }}{% endif %}{% endif %}"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Sync Engage Audience",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "eventDetails": {
+          "conversiontype": {
+            "@path": "$.event"
+          },
+          "confirmationref": {
+            "@path": "$.properties.order_id"
+          },
+          "amount": {
+            "@path": "$.properties.revenue"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "source_message_id": {
+            "@path": "$.messageId"
+          },
+          "timestamp_unixtime_ms": {
+            "@path": "$.timestamp"
+          }
+        },
+        "device_info": {
+          "http_header_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "ios_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'ios' %}{{ context.device.advertisingId }}{% endif %}"
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
+          "ios_idfv": {
+            "@liquid": "{% if context.device.id and context.device.type == 'ios' %}{{ context.device.id }}{% endif %}"
+          },
+          "android_uuid": {
+            "@liquid": "{% if context.device.id and context.device.type == 'android' %}{{ context.device.id }}{% endif %}"
+          }
+        },
+        "user_identities": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "customerid": {
+            "@path": "$.userId"
+          }
+        },
+        "user_attributes": {
+          "firstname": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.first_name"
+              },
+              "then": {
+                "@path": "$.traits.first_name"
+              },
+              "else": {
+                "@path": "$.properties.first_name"
+              }
+            }
+          },
+          "lastname": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.last_name"
+              },
+              "then": {
+                "@path": "$.traits.last_name"
+              },
+              "else": {
+                "@path": "$.properties.last_name"
+              }
+            }
+          },
+          "mobile": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "billingzipcode": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.properties.address.postal_code"
+              }
+            }
+          },
+          "dob": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.birthday"
+              },
+              "then": {
+                "@path": "$.traits.birthday"
+              },
+              "else": {
+                "@path": "$.properties.birthday"
+              }
+            }
+          },
+          "gender": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.gender"
+              },
+              "then": {
+                "@path": "$.traits.gender"
+              },
+              "else": {
+                "@path": "$.properties.gender"
+              }
+            }
+          }
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "audienceDetails": {
+          "customAudienceName": {
+            "@path": "$.properties.audience_name"
+          },
+          "customAudienceMembership": {
+            "@path": "$.properties.audience_membership"
+          }
+        },
+        "engageAudienceName": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "traitsOrProps": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "computationAction": {
+          "@path": "$.context.personas.computation_class"
+        },
+        "batch_size": 100,
+        "enable_batching": true,
+        "rtid": {
+          "@path": "$.traits.rtid"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Rokt Browser Plugin",
+      "type": "automatic",
+      "partnerAction": "roktPlugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "mapping": {},
+      "eventSlug": null
+    }
+  ]
+}

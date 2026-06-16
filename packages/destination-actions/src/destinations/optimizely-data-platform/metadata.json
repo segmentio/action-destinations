@@ -1,0 +1,2559 @@
+{
+  "slug": "actions-optimizely-data-platform",
+  "name": "Optimizely Data Platform",
+  "mode": "cloud",
+  "description": "Sync Segment analytics events and user profile data to Optimizely Data Platform",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "Api Key",
+        "description": "Api Key used for Optimizely API authorization when sending events",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "region": {
+        "label": "Region",
+        "description": "Optimizely Region to sync data to. Default is US",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "Europe",
+            "value": "EU"
+          },
+          {
+            "label": "Australia",
+            "value": "AU"
+          }
+        ],
+        "default": "US",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "customEvent": {
+      "title": "Ecommerce Event",
+      "description": "Send Segment Ecommerce track() events to Optimizely Data Platform",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "user_identifiers": {
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "anonymousId": {
+              "label": "Segment Anonymous ID",
+              "description": "Segment Anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "Segment User ID",
+              "description": "Segment User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "User Email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "optimizely_vuid": {
+              "label": "Optimizely VUID",
+              "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fs_user_id": {
+              "label": "Feature Experimentation ID",
+              "description": "Feature Experimentation user ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "web_user_id": {
+              "label": "Web Experimentation ID",
+              "description": "Web User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_type": {
+          "label": "Optimizely Event Type",
+          "description": "The Optimizely Event Type. Defaults to \"custom\" if not provided",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_action": {
+          "label": "Optimizely Event Action",
+          "description": "The name of the Optimizely Event Action.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "products": {
+          "label": "Product details",
+          "description": "Product details to associate with the event. Product ID field is required for each product",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                },
+                "qty": {
+                  "@path": "$.quantity"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "product_id": {
+              "label": "Product ID",
+              "description": "Identifier for the product",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "qty": {
+              "label": "Quantity",
+              "description": "Quantity of the product",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "order_id": {
+          "label": "Order ID",
+          "description": "Identifier for the order",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.order_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "total": {
+          "label": "Order Total",
+          "description": "Total value of the order",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.total"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "Event timestamp",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "nonEcommCustomEvent": {
+      "title": "Custom Event",
+      "description": "Send Segment custom track() events to Optimizely Data Platform",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "user_identifiers": {
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "anonymousId": {
+              "label": "Segment Anonymous ID",
+              "description": "Segment Anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "Segment User ID",
+              "description": "Segment User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "User Email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "optimizely_vuid": {
+              "label": "Optimizely VUID",
+              "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fs_user_id": {
+              "label": "Feature Experimentation ID",
+              "description": "Feature Experimentation user ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "web_user_id": {
+              "label": "Web Experimentation ID",
+              "description": "Web User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_type": {
+          "label": "Optimizely Event Type",
+          "description": "The Optimizely Event Type. Defaults to \"custom\" if not provided",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_action": {
+          "label": "Optimizely Event Action",
+          "description": "The name of the Optimizely Event Action.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "data": {
+          "label": "Event Properties",
+          "description": "Additional information to send with your custom event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "Event timestamp",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "upsertContact": {
+      "title": "Upsert Contact",
+      "description": "Send user profile data from Segment to Optimizely Data Platform. Creates or updates a user profile in Optimzely Data Platform",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "user_identifiers": {
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "anonymousId": {
+              "label": "Segment Anonymous ID",
+              "description": "Segment Anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "Segment User ID",
+              "description": "Segment User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "User Email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "optimizely_vuid": {
+              "label": "Optimizely VUID",
+              "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fs_user_id": {
+              "label": "Feature Experimentation ID",
+              "description": "Feature Experimentation user ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "web_user_id": {
+              "label": "Web Experimentation ID",
+              "description": "Web User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "company": {
+          "label": "Company Name",
+          "description": "The name of the company associated with the Contact",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.company"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "title": {
+          "label": "Title",
+          "description": "The Contact's Title",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.title"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Name",
+          "description": "Contact's full name",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "firstname": {
+          "label": "First Name",
+          "description": "Contact's first name",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.first_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "lastname": {
+          "label": "Last Name",
+          "description": "Contact's last name",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.last_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "gender": {
+          "label": "Gender",
+          "description": "Contact's gender",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.gender"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "DOB": {
+          "label": "Birthday",
+          "description": "Contact's birthday. The format should be datetime",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.birthday"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "phone": {
+          "label": "Phone",
+          "description": "Contact's phone number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.phone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "age": {
+          "label": "Age",
+          "description": "Contact's age.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.age"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "address": {
+          "label": "Address",
+          "description": "Address details object",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "street": {
+              "@path": "$.traits.address.street"
+            },
+            "city": {
+              "@path": "$.traits.address.city"
+            },
+            "state": {
+              "@path": "$.traits.address.state"
+            },
+            "zip": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "country": {
+              "@path": "$.traits.address.country"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "street": {
+              "label": "Street",
+              "description": "The user's street.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "description": "The user's city.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "state": {
+              "label": "State",
+              "description": "The user's state or region.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "zip": {
+              "label": "Zip code",
+              "description": "Zip or postal code",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "country": {
+              "label": "Country",
+              "description": "The user's country.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "avatar": {
+          "label": "avatar",
+          "description": "The user's avatar image URL.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.avatar"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "additional_traits": {
+          "label": "Addition User Traits",
+          "description": "Additional user profile details",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "emailEvent": {
+      "title": "Email Event",
+      "description": "Send email related Segment track() events to Optimizely Data Platform",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "user_identifiers": {
+          "label": "User identifiers",
+          "description": "User identifier details to send to Optimizely. ",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "optimizely_vuid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "then": {
+                  "@path": "$.properties.optimizely_vuid"
+                },
+                "else": {
+                  "@path": "$.context.traits.optimizely_vuid"
+                }
+              }
+            },
+            "fs_user_id": {
+              "@path": "$.userId"
+            },
+            "web_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "anonymousId": {
+              "label": "Segment Anonymous ID",
+              "description": "Segment Anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "Segment User ID",
+              "description": "Segment User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "User Email address. This is a required field",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "optimizely_vuid": {
+              "label": "Optimizely VUID",
+              "description": "Optimizely VUID - user cookie generated created by Optimizely Javascript library",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fs_user_id": {
+              "label": "Feature Experimentation ID",
+              "description": "Feature Experimentation user ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "web_user_id": {
+              "label": "Web Experimentation ID",
+              "description": "Web User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_action": {
+          "label": "Optimizely Event Action",
+          "description": "The name of the Optimizely Event Action.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "campaign": {
+          "label": "Campaign Name",
+          "description": "The campaign name",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.campaign_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "campaign_id": {
+          "label": "Campaign ID",
+          "description": "The campaign unique identifier",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.campaign_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "link_url": {
+          "label": "Link URL",
+          "description": "URL of the link which was clicked",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.link_url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "Event timestamp",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of event data to Optimizely.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Number of events to batch before sending to Optimizely.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Product Viewed",
+      "type": "automatic",
+      "partnerAction": "customEvent",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "product",
+        "products": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "detail"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Product Added",
+      "type": "automatic",
+      "partnerAction": "customEvent",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "product",
+        "products": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "add_to_cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Product Removed",
+      "type": "automatic",
+      "partnerAction": "customEvent",
+      "subscribe": "type = \"track\" and event = \"Product Removed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "product",
+        "products": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "remove_from_cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Order Completed",
+      "type": "automatic",
+      "partnerAction": "customEvent",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "event_type": "order",
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "qty": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "order_id": {
+          "@path": "$.properties.order_id"
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "purchase"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Email Sent",
+      "type": "automatic",
+      "partnerAction": "emailEvent",
+      "subscribe": "type = \"track\" and event = \"Email Sent\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "sent"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Email Link Clicked",
+      "type": "automatic",
+      "partnerAction": "emailEvent",
+      "subscribe": "type = \"track\" and event = \"Email Link Clicked\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "click"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Email Opened",
+      "type": "automatic",
+      "partnerAction": "emailEvent",
+      "subscribe": "type = \"track\" and event = \"Email Opened\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "open"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Unsubscribed",
+      "type": "automatic",
+      "partnerAction": "emailEvent",
+      "subscribe": "type = \"track\" and event = \"Unsubscribed\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "unsubscribe"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Email Marked as Spam",
+      "type": "automatic",
+      "partnerAction": "emailEvent",
+      "subscribe": "type = \"track\" and event = \"Email Marked as Spam\"",
+      "mapping": {
+        "user_identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "optimizely_vuid": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "then": {
+                "@path": "$.properties.optimizely_vuid"
+              },
+              "else": {
+                "@path": "$.context.traits.optimizely_vuid"
+              }
+            }
+          },
+          "fs_user_id": {
+            "@path": "$.userId"
+          },
+          "web_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "campaign": {
+          "@path": "$.properties.campaign_name"
+        },
+        "campaign_id": {
+          "@path": "$.properties.campaign_id"
+        },
+        "link_url": {
+          "@path": "$.properties.link_url"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "event_action": "spam_report"
+      },
+      "eventSlug": null
+    }
+  ]
+}

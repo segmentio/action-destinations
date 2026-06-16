@@ -1,0 +1,1948 @@
+{
+  "slug": "actions-epsilon",
+  "name": "Epsilon (Actions)",
+  "mode": "cloud",
+  "description": "Sync analytics events and user profile details to Epsilon",
+  "authentication": {
+    "scheme": "basic",
+    "fields": {
+      "dtm_cid": {
+        "label": "Company ID",
+        "description": "Your Company ID. Contact Epsilon support for assistance.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "dtm_cmagic": {
+        "label": "Company Magic",
+        "description": "Company Magic. Contact Epsilon support for assistance.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendEvent": {
+      "title": "Standard Fields Event",
+      "description": "Sync an event containing standard fields only to Epsilon",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "id": {
+          "label": "Cache Buster",
+          "description": "Unique identifier for the message. Used for cache busting.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "appId": {
+          "label": "App ID / Namespace",
+          "description": "The namespace of the Mobile App.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.namespace"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtm_event": {
+          "label": "Event Name",
+          "description": "The name of the event to send to Epsilon.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Custom event",
+              "value": "custom"
+            },
+            {
+              "label": "First App Open/App Download",
+              "value": "firstOpen"
+            },
+            {
+              "label": "App Open",
+              "value": "appOpen"
+            },
+            {
+              "label": "Sign in/Create Account",
+              "value": "signIn"
+            },
+            {
+              "label": "Shop Department View",
+              "value": "department"
+            },
+            {
+              "label": "Shop Category View",
+              "value": "category"
+            },
+            {
+              "label": "Shop Subcategory View",
+              "value": "subcategory"
+            },
+            {
+              "label": "Shop Product View",
+              "value": "product"
+            },
+            {
+              "label": "Add to Favorites",
+              "value": "addFavorites"
+            },
+            {
+              "label": "Add to Saved List",
+              "value": "addSavedList"
+            },
+            {
+              "label": "Find a Store",
+              "value": "store"
+            },
+            {
+              "label": "Reward Signup",
+              "value": "rewardSignup"
+            },
+            {
+              "label": "Add to Cart",
+              "value": "cart"
+            },
+            {
+              "label": "Transaction Complete",
+              "value": "conversion"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "version": {
+          "label": "App Version",
+          "description": "The version of the Mobile App.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtm_fid": {
+          "label": "Form ID",
+          "description": "Form ID used in Epsilon’s system to identify app visits vs. conversions.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.form_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtm_promo_id": {
+          "label": "Promo ID",
+          "description": "Promo ID used in Epsilon’s system to identify the promotion associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.promo_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "identifiers": {
+          "label": "Identifiers",
+          "description": "Unique identifiers for the user.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "deviceID": {
+              "@path": "$.context.device.id"
+            },
+            "advertisingId": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "dtm_user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "dtm_user_ip": {
+              "@path": "$.context.ip"
+            },
+            "dtm_email_hash": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "dtm_mobile_hash": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "dtm_user_id": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "deviceID": {
+              "label": "Device ID",
+              "description": "Mobile Device ID (IDFV or Google App Set ID).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "advertisingId": {
+              "label": "Advertising ID",
+              "description": "Mobile Ad ID (IDFA or Google Add ID).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dtm_user_agent": {
+              "label": "User Agent",
+              "description": "User agent of the mobile device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dtm_user_ip": {
+              "label": "IP Address",
+              "description": "IP address of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dtm_email_hash": {
+              "label": "Email address",
+              "description": "Accepts hashed or unhashed emails. Segment will ensure that a non hashed email is hashed before being sent to Epsilon",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dtm_mobile_hash": {
+              "label": "Mobile Hash",
+              "description": "Accepts hashed or unhashed mobile numbers. Segment will ensure that a non hashed mobile number is hashed before being sent to Epsilon",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "dtm_user_id": {
+              "label": "User ID",
+              "description": "Unique identifier for the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "deviceType": {
+          "label": "Device Type",
+          "description": "Type of the device (e.g., iOS, Android).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
+          },
+          "choices": [
+            {
+              "label": "iOS",
+              "value": "ios"
+            },
+            {
+              "label": "Android",
+              "value": "android"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_department": {
+          "label": "Department",
+          "description": "Department of the product.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.department"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "department",
+                  "category",
+                  "subcategory",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_category": {
+          "label": "Category",
+          "description": "Category of the product.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.category"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "category",
+                  "subcategory",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_sub_category": {
+          "label": "Sub Category",
+          "description": "Sub-category of the product.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.sub_category"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "subcategory",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_product_id": {
+          "label": "Product ID",
+          "description": "Unique identifier for the product",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.product_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_brand": {
+          "label": "Brand",
+          "description": "Brand of the product.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.brand"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_upc": {
+          "label": "Universal Product Code",
+          "description": "Manufacturer Universal Product Code for the product.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.upc"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_mpn": {
+          "label": "Manufacturer Model Part Number",
+          "description": "Manufacturer Model Part Number for the product.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.mpn"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "product",
+                  "addFavorites",
+                  "addSavedList",
+                  "cart"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_transaction_id": {
+          "label": "Transaction ID",
+          "description": "Unique identifier for the transaction.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.order_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtm_conv_val": {
+          "label": "Conversion Value",
+          "description": "Contains the total purchase price in decimal format. Do not include any tax or shipping costs.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.total"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtm_items": {
+          "label": "Items Purchased",
+          "description": "An array of all items in the conversion.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_discount": {
+                  "@path": "$.discount"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "product_id": {
+              "label": "Product ID",
+              "description": "Unique identifier / SKU for the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "item_amount": {
+              "label": "Item Amount",
+              "description": "Unit cost / price for 1 unit of the item.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "item_quantity": {
+              "label": "Item Quantity",
+              "description": "number of SKU items in the transaction.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "item_discount": {
+              "label": "Item Discount",
+              "description": "Discount value from the original amount.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "dtm_conv_curr": {
+          "label": "Currency",
+          "description": "Currency of the transaction. Use ISO 4217 currency codes (e.g., USD, EUR).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_conv_type": {
+          "label": "Order Type",
+          "description": "Differentiate between types of online purchases (Delivery, Pickup, etc.)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.order_type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dtmc_conv_store_location": {
+          "label": "Store Location",
+          "description": "For Pickup conversions, denote the store location of the pickup.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.store_location"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": [
+                  "custom",
+                  "conversion"
+                ]
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "customEventName": {
+          "label": "Custom Event Name",
+          "description": "The name of the custom event to send to Epsilon.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "dtm_event",
+                "operator": "is",
+                "value": "custom"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "customProperties": {
+          "label": "Custom Properties",
+          "description": "Add custom properties to the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "First App Open/App Download",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "event = \"Application Installed\"",
+      "mapping": {
+        "id": {
+          "@path": "$.messageId"
+        },
+        "appId": {
+          "@path": "$.context.app.namespace"
+        },
+        "version": {
+          "@path": "$.context.app.version"
+        },
+        "dtm_fid": {
+          "@path": "$.properties.form_id"
+        },
+        "dtm_promo_id": {
+          "@path": "$.properties.promo_id"
+        },
+        "identifiers": {
+          "deviceID": {
+            "@path": "$.context.device.id"
+          },
+          "advertisingId": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "dtm_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "dtm_user_ip": {
+            "@path": "$.context.ip"
+          },
+          "dtm_email_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "dtm_mobile_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "dtm_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "deviceType": {
+          "@path": "$.context.device.type"
+        },
+        "dtmc_department": {
+          "@path": "$.properties.department"
+        },
+        "dtmc_category": {
+          "@path": "$.properties.category"
+        },
+        "dtmc_sub_category": {
+          "@path": "$.properties.sub_category"
+        },
+        "dtmc_product_id": {
+          "@path": "$.properties.product_id"
+        },
+        "dtmc_brand": {
+          "@path": "$.properties.brand"
+        },
+        "dtmc_upc": {
+          "@path": "$.properties.upc"
+        },
+        "dtmc_mpn": {
+          "@path": "$.properties.mpn"
+        },
+        "dtmc_transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "dtm_conv_val": {
+          "@path": "$.properties.total"
+        },
+        "dtm_items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_discount": {
+                "@path": "$.discount"
+              }
+            }
+          ]
+        },
+        "dtm_conv_curr": {
+          "@path": "$.properties.currency"
+        },
+        "dtmc_conv_type": {
+          "@path": "$.properties.order_type"
+        },
+        "dtmc_conv_store_location": {
+          "@path": "$.properties.store_location"
+        },
+        "customEventName": {
+          "@path": "$.event"
+        },
+        "dtm_event": "firstOpen"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "App Open",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "event = \"Application Opened\"",
+      "mapping": {
+        "id": {
+          "@path": "$.messageId"
+        },
+        "appId": {
+          "@path": "$.context.app.namespace"
+        },
+        "version": {
+          "@path": "$.context.app.version"
+        },
+        "dtm_fid": {
+          "@path": "$.properties.form_id"
+        },
+        "dtm_promo_id": {
+          "@path": "$.properties.promo_id"
+        },
+        "identifiers": {
+          "deviceID": {
+            "@path": "$.context.device.id"
+          },
+          "advertisingId": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "dtm_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "dtm_user_ip": {
+            "@path": "$.context.ip"
+          },
+          "dtm_email_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "dtm_mobile_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "dtm_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "deviceType": {
+          "@path": "$.context.device.type"
+        },
+        "dtmc_department": {
+          "@path": "$.properties.department"
+        },
+        "dtmc_category": {
+          "@path": "$.properties.category"
+        },
+        "dtmc_sub_category": {
+          "@path": "$.properties.sub_category"
+        },
+        "dtmc_product_id": {
+          "@path": "$.properties.product_id"
+        },
+        "dtmc_brand": {
+          "@path": "$.properties.brand"
+        },
+        "dtmc_upc": {
+          "@path": "$.properties.upc"
+        },
+        "dtmc_mpn": {
+          "@path": "$.properties.mpn"
+        },
+        "dtmc_transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "dtm_conv_val": {
+          "@path": "$.properties.total"
+        },
+        "dtm_items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_discount": {
+                "@path": "$.discount"
+              }
+            }
+          ]
+        },
+        "dtm_conv_curr": {
+          "@path": "$.properties.currency"
+        },
+        "dtmc_conv_type": {
+          "@path": "$.properties.order_type"
+        },
+        "dtmc_conv_store_location": {
+          "@path": "$.properties.store_location"
+        },
+        "customEventName": {
+          "@path": "$.event"
+        },
+        "dtm_event": "appOpen"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Sign in/Create Account",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "event = \"Signed In\"",
+      "mapping": {
+        "id": {
+          "@path": "$.messageId"
+        },
+        "appId": {
+          "@path": "$.context.app.namespace"
+        },
+        "version": {
+          "@path": "$.context.app.version"
+        },
+        "dtm_fid": {
+          "@path": "$.properties.form_id"
+        },
+        "dtm_promo_id": {
+          "@path": "$.properties.promo_id"
+        },
+        "identifiers": {
+          "deviceID": {
+            "@path": "$.context.device.id"
+          },
+          "advertisingId": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "dtm_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "dtm_user_ip": {
+            "@path": "$.context.ip"
+          },
+          "dtm_email_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "dtm_mobile_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "dtm_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "deviceType": {
+          "@path": "$.context.device.type"
+        },
+        "dtmc_department": {
+          "@path": "$.properties.department"
+        },
+        "dtmc_category": {
+          "@path": "$.properties.category"
+        },
+        "dtmc_sub_category": {
+          "@path": "$.properties.sub_category"
+        },
+        "dtmc_product_id": {
+          "@path": "$.properties.product_id"
+        },
+        "dtmc_brand": {
+          "@path": "$.properties.brand"
+        },
+        "dtmc_upc": {
+          "@path": "$.properties.upc"
+        },
+        "dtmc_mpn": {
+          "@path": "$.properties.mpn"
+        },
+        "dtmc_transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "dtm_conv_val": {
+          "@path": "$.properties.total"
+        },
+        "dtm_items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_discount": {
+                "@path": "$.discount"
+              }
+            }
+          ]
+        },
+        "dtm_conv_curr": {
+          "@path": "$.properties.currency"
+        },
+        "dtmc_conv_type": {
+          "@path": "$.properties.order_type"
+        },
+        "dtmc_conv_store_location": {
+          "@path": "$.properties.store_location"
+        },
+        "customEventName": {
+          "@path": "$.event"
+        },
+        "dtm_event": "signIn"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Saved List",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "event = \"Product Added To Wishlist\"",
+      "mapping": {
+        "id": {
+          "@path": "$.messageId"
+        },
+        "appId": {
+          "@path": "$.context.app.namespace"
+        },
+        "version": {
+          "@path": "$.context.app.version"
+        },
+        "dtm_fid": {
+          "@path": "$.properties.form_id"
+        },
+        "dtm_promo_id": {
+          "@path": "$.properties.promo_id"
+        },
+        "identifiers": {
+          "deviceID": {
+            "@path": "$.context.device.id"
+          },
+          "advertisingId": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "dtm_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "dtm_user_ip": {
+            "@path": "$.context.ip"
+          },
+          "dtm_email_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "dtm_mobile_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "dtm_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "deviceType": {
+          "@path": "$.context.device.type"
+        },
+        "dtmc_department": {
+          "@path": "$.properties.department"
+        },
+        "dtmc_category": {
+          "@path": "$.properties.category"
+        },
+        "dtmc_sub_category": {
+          "@path": "$.properties.sub_category"
+        },
+        "dtmc_product_id": {
+          "@path": "$.properties.product_id"
+        },
+        "dtmc_brand": {
+          "@path": "$.properties.brand"
+        },
+        "dtmc_upc": {
+          "@path": "$.properties.upc"
+        },
+        "dtmc_mpn": {
+          "@path": "$.properties.mpn"
+        },
+        "dtmc_transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "dtm_conv_val": {
+          "@path": "$.properties.total"
+        },
+        "dtm_items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_discount": {
+                "@path": "$.discount"
+              }
+            }
+          ]
+        },
+        "dtm_conv_curr": {
+          "@path": "$.properties.currency"
+        },
+        "dtmc_conv_type": {
+          "@path": "$.properties.order_type"
+        },
+        "dtmc_conv_store_location": {
+          "@path": "$.properties.store_location"
+        },
+        "customEventName": {
+          "@path": "$.event"
+        },
+        "dtm_event": "addSavedList"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Cart",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "id": {
+          "@path": "$.messageId"
+        },
+        "appId": {
+          "@path": "$.context.app.namespace"
+        },
+        "version": {
+          "@path": "$.context.app.version"
+        },
+        "dtm_fid": {
+          "@path": "$.properties.form_id"
+        },
+        "dtm_promo_id": {
+          "@path": "$.properties.promo_id"
+        },
+        "identifiers": {
+          "deviceID": {
+            "@path": "$.context.device.id"
+          },
+          "advertisingId": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "dtm_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "dtm_user_ip": {
+            "@path": "$.context.ip"
+          },
+          "dtm_email_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "dtm_mobile_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "dtm_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "deviceType": {
+          "@path": "$.context.device.type"
+        },
+        "dtmc_department": {
+          "@path": "$.properties.department"
+        },
+        "dtmc_category": {
+          "@path": "$.properties.category"
+        },
+        "dtmc_sub_category": {
+          "@path": "$.properties.sub_category"
+        },
+        "dtmc_product_id": {
+          "@path": "$.properties.product_id"
+        },
+        "dtmc_brand": {
+          "@path": "$.properties.brand"
+        },
+        "dtmc_upc": {
+          "@path": "$.properties.upc"
+        },
+        "dtmc_mpn": {
+          "@path": "$.properties.mpn"
+        },
+        "dtmc_transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "dtm_conv_val": {
+          "@path": "$.properties.total"
+        },
+        "dtm_items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_discount": {
+                "@path": "$.discount"
+              }
+            }
+          ]
+        },
+        "dtm_conv_curr": {
+          "@path": "$.properties.currency"
+        },
+        "dtmc_conv_type": {
+          "@path": "$.properties.order_type"
+        },
+        "dtmc_conv_store_location": {
+          "@path": "$.properties.store_location"
+        },
+        "customEventName": {
+          "@path": "$.event"
+        },
+        "dtm_event": "cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Transaction Complete",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "id": {
+          "@path": "$.messageId"
+        },
+        "appId": {
+          "@path": "$.context.app.namespace"
+        },
+        "version": {
+          "@path": "$.context.app.version"
+        },
+        "dtm_fid": {
+          "@path": "$.properties.form_id"
+        },
+        "dtm_promo_id": {
+          "@path": "$.properties.promo_id"
+        },
+        "identifiers": {
+          "deviceID": {
+            "@path": "$.context.device.id"
+          },
+          "advertisingId": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "dtm_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "dtm_user_ip": {
+            "@path": "$.context.ip"
+          },
+          "dtm_email_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "dtm_mobile_hash": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "dtm_user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "deviceType": {
+          "@path": "$.context.device.type"
+        },
+        "dtmc_department": {
+          "@path": "$.properties.department"
+        },
+        "dtmc_category": {
+          "@path": "$.properties.category"
+        },
+        "dtmc_sub_category": {
+          "@path": "$.properties.sub_category"
+        },
+        "dtmc_product_id": {
+          "@path": "$.properties.product_id"
+        },
+        "dtmc_brand": {
+          "@path": "$.properties.brand"
+        },
+        "dtmc_upc": {
+          "@path": "$.properties.upc"
+        },
+        "dtmc_mpn": {
+          "@path": "$.properties.mpn"
+        },
+        "dtmc_transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "dtm_conv_val": {
+          "@path": "$.properties.total"
+        },
+        "dtm_items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_discount": {
+                "@path": "$.discount"
+              }
+            }
+          ]
+        },
+        "dtm_conv_curr": {
+          "@path": "$.properties.currency"
+        },
+        "dtmc_conv_type": {
+          "@path": "$.properties.order_type"
+        },
+        "dtmc_conv_store_location": {
+          "@path": "$.properties.store_location"
+        },
+        "customEventName": {
+          "@path": "$.event"
+        },
+        "dtm_event": "conversion"
+      },
+      "eventSlug": null
+    }
+  ]
+}

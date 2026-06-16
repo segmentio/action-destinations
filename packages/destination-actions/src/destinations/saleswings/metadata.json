@@ -1,0 +1,1344 @@
+{
+  "slug": "actions-saleswings",
+  "name": "Saleswings (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Segment.io API key for your SalesWings project.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "environment": {
+        "label": "Environment",
+        "description": "SalesWings environment this destination is connected with.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "value": "helium",
+            "label": "Helium (live environment)"
+          },
+          {
+            "value": "ozone",
+            "label": "Ozone (test environment)"
+          }
+        ],
+        "default": "helium",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "submitTrackEvent": {
+      "title": "Submit Track Event",
+      "description": "Send your Segment Track events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "kind": {
+          "label": "Custom Event Kind",
+          "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Track",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "data": {
+          "label": "Custom Event Data",
+          "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userID": {
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymousID": {
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "Identified email of the Segment User.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "referrerUrl": {
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "values": {
+          "label": "Custom Attribute Values",
+          "description": "Custom attribute values associated with the SalesWings custom event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "submitIdentifyEvent": {
+      "title": "Submit Identify Event",
+      "description": "Send your Segment Identify events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "kind": {
+          "label": "Custom Event Kind",
+          "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Identify",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "data": {
+          "label": "Custom Event Data",
+          "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userID": {
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymousID": {
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "Identified email of the Segment User.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "referrerUrl": {
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "values": {
+          "label": "Custom Attribute Values",
+          "description": "Custom attribute values associated with the SalesWings custom event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "submitPageEvent": {
+      "title": "Submit Page Event",
+      "description": "Send your Segment Page events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "userID": {
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymousID": {
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "referrerUrl": {
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "submitScreenEvent": {
+      "title": "Submit Screen Event",
+      "description": "Send your Segment Screen events to SalesWings to use them for tagging, scoring and prioritising your leads.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"screen\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "kind": {
+          "label": "Custom Event Kind",
+          "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Screen",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "data": {
+          "label": "Custom Event Data",
+          "description": "String description of the SalesWings custom event payload (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userID": {
+          "label": "Segment User ID",
+          "description": "Permanent identifier of a Segment user the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymousID": {
+          "label": "Segment Anonymous User ID",
+          "description": "A pseudo-unique substitute for a Segment user ID the event is attributed to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "Identified email of the Segment User.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "URL",
+          "description": "URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.url"
+              },
+              "then": {
+                "@path": "$.properties.url"
+              },
+              "else": {
+                "@path": "$.context.page.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "referrerUrl": {
+          "label": "Referrer URL",
+          "description": "Referrer URL associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.referrer"
+              },
+              "then": {
+                "@path": "$.properties.referrer"
+              },
+              "else": {
+                "@path": "$.context.page.referrer"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "User Agent associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Event Timestamp",
+          "description": "When the event was sent.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "values": {
+          "label": "Custom Attribute Values",
+          "description": "Custom attribute values associated with the SalesWings custom event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Submit Track Event",
+      "type": "automatic",
+      "partnerAction": "submitTrackEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "kind": "Track",
+        "data": {
+          "@path": "$.event"
+        },
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "values": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Submit Identify Event",
+      "type": "automatic",
+      "partnerAction": "submitIdentifyEvent",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "kind": "Identify",
+        "data": {
+          "@path": "$.traits.email"
+        },
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "values": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Submit Page Event",
+      "type": "automatic",
+      "partnerAction": "submitPageEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Submit Screen Event",
+      "type": "automatic",
+      "partnerAction": "submitScreenEvent",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "kind": "Screen",
+        "data": {
+          "@path": "$.name"
+        },
+        "userID": {
+          "@path": "$.userId"
+        },
+        "anonymousID": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "url": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.url"
+            },
+            "then": {
+              "@path": "$.properties.url"
+            },
+            "else": {
+              "@path": "$.context.page.url"
+            }
+          }
+        },
+        "referrerUrl": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.referrer"
+            },
+            "then": {
+              "@path": "$.properties.referrer"
+            },
+            "else": {
+              "@path": "$.context.page.referrer"
+            }
+          }
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "values": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

@@ -1,0 +1,562 @@
+{
+  "slug": "actions-display-video-360",
+  "name": "Display and Video 360 (Actions)",
+  "mode": "cloud",
+  "authentication": null,
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "advertiserId": {
+        "label": "Advertiser ID",
+        "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "accountType": {
+        "label": "Account Type",
+        "description": "The type of the advertiser account you have linked to this Display & Video 360 destination.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Advertiser",
+            "value": "DISPLAY_VIDEO_ADVERTISER"
+          },
+          {
+            "label": "Partner",
+            "value": "DISPLAY_VIDEO_PARTNER"
+          },
+          {
+            "label": "Publisher",
+            "value": "GOOGLE_AD_MANAGER"
+          }
+        ],
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "syncAudience": {
+      "title": "Sync Audience [Beta]",
+      "description": "Sync users to a Display & Video 360 audience. This action is currently in beta.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the Display & Video 360.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "external_audience_id": {
+          "label": "External Audience ID",
+          "description": "The Audience ID in Google's DB.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "mobile_advertising_id": {
+          "label": "Mobile Advertising ID",
+          "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "google_gid": {
+          "label": "Google GID",
+          "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.DV360.google_gid"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "partner_provided_id": {
+          "label": "Partner Provided ID",
+          "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "addToAudience": {
+      "title": "Add to Audience",
+      "description": "Add a user to a Display & Video 360 audience.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the Display & Video 360.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "external_audience_id": {
+          "label": "External Audience ID",
+          "description": "The Audience ID in Google's DB.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "mobile_advertising_id": {
+          "label": "Mobile Advertising ID",
+          "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "google_gid": {
+          "label": "Google GID",
+          "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.DV360.google_gid"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "partner_provided_id": {
+          "label": "Partner Provided ID",
+          "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "removeFromAudience": {
+      "title": "Remove from Audience",
+      "description": "Remove users from an audience",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Exited\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests to the Display & Video 360.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "external_audience_id": {
+          "label": "External Audience ID",
+          "description": "The Audience ID in Google's DB.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "mobile_advertising_id": {
+          "label": "Mobile Advertising ID",
+          "description": "Mobile Advertising ID. Android Advertising ID or iOS IDFA.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "google_gid": {
+          "label": "Google GID",
+          "description": "Google GID - ID is deprecated in some areas and will eventually sunset.  ID is included for those who were on the legacy destination.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.DV360.google_gid"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "partner_provided_id": {
+          "label": "Partner Provided ID",
+          "description": "Partner Provided ID - Equivalent to the Segment Anonymous ID.  Segment Audience must include Anonymous Ids to match effectively.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Entered",
+      "type": "specificEvent",
+      "partnerAction": "addToAudience",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "name": "Entities Audience Exited",
+      "type": "specificEvent",
+      "partnerAction": "removeFromAudience",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "addToAudience",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "removeFromAudience",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "addToAudience",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

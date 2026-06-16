@@ -1,0 +1,416 @@
+{
+  "slug": "actions-iterable-lists",
+  "name": "Iterable Lists",
+  "mode": "cloud",
+  "description": "Sync users to Iterable Lists",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "updateExistingUsersOnly": {
+        "label": "Update existing users only",
+        "description": "When true, Iterable ignores requests for unknown userIds and email addresses. This field is only relevant for non-email based Iterable projects: For email-based projects users will continue to be created in Iterable if a user is added or removed from a List.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "globalUnsubscribe": {
+        "label": "Global Unsubscribe",
+        "description": "Unsubscribe email from list's associated channel - essentially a global unsubscribe. Only valid for unsubscribe action.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "campaignId": {
+        "label": "Campaign ID",
+        "description": "The numeric Campaign ID to associate with the unsubscribe. Only valid for unsubscribe action.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "syncAudience": {
+      "title": "Sync To Iterable Lists",
+      "description": "Sync Segment Audience to Iterable Lists",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "email": {
+          "label": "Email",
+          "description": "Email address of the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "User ID",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "dataFields": {
+          "label": "Additional traits or identifiers",
+          "description": "Additional traits or identifiers to sync to Iterable. You will need to ensure these traits or objects are included via Event Settings > Customized Setup.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traitsOrProperties": {
+          "label": "Traits or Properties",
+          "description": "Traits or Properties object from the identify() or track() call emitted by Engage",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "segmentAudienceKey": {
+          "label": "Segment Audience Key",
+          "description": "Segment Audience Key. Maps to the Iterable List \"Name\" when the list is created in Iterable.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "segmentAudienceId": {
+          "label": "Segment External Audience ID",
+          "description": "Segment External Audience ID. Maps to the List ID when the list is created in Iterable.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traitsOrProperties": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.properties"
+            }
+          }
+        },
+        "segmentAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        },
+        "segmentAudienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        }
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

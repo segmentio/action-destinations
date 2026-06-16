@@ -1,0 +1,4779 @@
+{
+  "slug": "actions-mixpanel",
+  "name": "Mixpanel (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "projectToken": {
+        "label": "Project Token",
+        "description": "Mixpanel project token.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "apiSecret": {
+        "label": "Secret Key",
+        "description": "Mixpanel project secret.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "apiRegion": {
+        "label": "Data Residency",
+        "description": "Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US 🇺🇸",
+            "value": "US 🇺🇸"
+          },
+          {
+            "label": "EU 🇪🇺",
+            "value": "EU 🇪🇺"
+          },
+          {
+            "label": "IN 🇮🇳",
+            "value": "IN 🇮🇳"
+          }
+        ],
+        "default": "US 🇺🇸",
+        "depends_on": null
+      },
+      "sourceName": {
+        "label": "Source Name",
+        "description": "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event/page/screen call.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "strictMode": {
+        "label": "Strict Mode",
+        "description": "This value, if it's 1 (recommended), Mixpanel will validate the events you are trying to send and return errors per event that failed. Learn more about the Mixpanel [Import Events API](https://developer.mixpanel.com/reference/import-events)",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "1",
+            "value": "1"
+          },
+          {
+            "label": "0",
+            "value": "0"
+          }
+        ],
+        "default": "1",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Send an event to Mixpanel. [Learn more about Events in Mixpanel](https://help.mixpanel.com/hc/en-us/articles/360041995352-Mixpanel-Concepts-Events?source=segment-actions)",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "event": {
+          "label": "Event Name",
+          "description": "The name of the action being performed.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "distinct_id": {
+          "label": "Distinct ID",
+          "description": "A distinct ID specified by you.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "A distinct ID randomly generated prior to calling identify.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "The distinct ID after calling identify.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "group_id": {
+          "label": "Group ID",
+          "description": "The unique identifier of the group that performed this event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "insert_id": {
+          "label": "Insert ID",
+          "description": "A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "time": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_name": {
+          "label": "App Name",
+          "description": "The name of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_namespace": {
+          "label": "App Namespace",
+          "description": "The namespace of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.namespace"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_build": {
+          "label": "App Build",
+          "description": "The current build of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.build"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_version": {
+          "label": "App Version",
+          "description": "The current version of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "os_name": {
+          "label": "OS Name",
+          "description": "The name of the mobile operating system or browser that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.os.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "os_version": {
+          "label": "OS Version",
+          "description": "The version of the mobile operating system or browser the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.os.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_id": {
+          "label": "Device ID",
+          "description": "A unique identifier for the device the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_type": {
+          "label": "Device Type",
+          "description": "The type of the user's device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_name": {
+          "label": "Device Name",
+          "description": "The name of the user's device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_manufacturer": {
+          "label": "Device Manufacturer",
+          "description": "The device manufacturer that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_model": {
+          "label": "Device Model",
+          "description": "The device model that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.model"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "bluetooth": {
+          "label": "Bluetooth Enabled",
+          "description": "Whether bluetooth is enabled.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.bluetooth"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "carrier": {
+          "label": "Carrier",
+          "description": "The carrier that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.carrier"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "cellular": {
+          "label": "Cellular Enabled",
+          "description": "Whether cellular is enabled.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.cellular"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "wifi": {
+          "label": "Wifi",
+          "description": "Set to true if user’s device has an active, available Wifi connection, false if not.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.wifi"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "country": {
+          "label": "Country",
+          "description": "The current country of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.location.country"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "region": {
+          "label": "Region",
+          "description": "The current region of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.location.region"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "language": {
+          "label": "Language",
+          "description": "The language set by the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.locale"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "library_name": {
+          "label": "Library Name",
+          "description": "The name of the SDK used to send events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "library_version": {
+          "label": "Library Version",
+          "description": "The version of the SDK used to send events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "ip": {
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "idfa": {
+          "label": "Identifier For Advertiser (IDFA)",
+          "description": "Identifier for Advertiser. _(iOS)_",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "else": {
+                "@path": "$.context.device.idfa"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "URL",
+          "description": "The full URL of the webpage on which the event is triggered.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "screen_width": {
+          "label": "Screen width",
+          "description": "Width, in pixels, of the device screen.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.screen.width"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "screen_height": {
+          "label": "Screen height",
+          "description": "Height, in pixels, of the device screen.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.screen.height"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "screen_density": {
+          "label": "Screen density",
+          "description": "Pixel density of the device screen.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.screen.density"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "referrer": {
+          "label": "Referrer",
+          "description": "Referrer url",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.referrer"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "User agent",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "advertising_id": {
+          "label": "Advertising ID",
+          "description": "Advertising ID",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "ad_tracking_enabled": {
+          "label": "Ad Tracking Enabled",
+          "description": "Ad Tracking Enabled (true or false)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timezone": {
+          "label": "Timezone",
+          "description": "The event timezone",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.timezone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_platform": {
+          "label": "App Platform",
+          "description": "The App Platform, if applicable",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.platform"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Event Original Name",
+          "description": "The Event Original Name, if applicable",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_properties": {
+          "label": "Event Properties",
+          "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "context": {
+          "label": "Event context",
+          "description": "An object of key-value pairs that provides useful context about the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "utm_properties": {
+          "label": "UTM Properties",
+          "description": "UTM Tracking Properties",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "utm_source": {
+              "label": "UTM Source",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_medium": {
+              "label": "UTM Medium",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_campaign": {
+              "label": "UTM Campaign",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_term": {
+              "label": "UTM Term",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_content": {
+              "label": "UTM Content",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Data to Mixpanel",
+          "description": "Set as true to ensure Segment sends data to Mixpanel in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 2000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgentData": {
+          "label": "User Agent Data",
+          "description": "The user agent data of device sending the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "mobile": {
+              "@path": "$.context.userAgentData.mobile"
+            },
+            "platform": {
+              "@path": "$.context.userAgentData.platform"
+            },
+            "architecture": {
+              "@path": "$.context.userAgentData.architecture"
+            },
+            "bitness": {
+              "@path": "$.context.userAgentData.bitness"
+            },
+            "model": {
+              "@path": "$.context.userAgentData.model"
+            },
+            "platformVersion": {
+              "@path": "$.context.userAgentData.platformVersion"
+            },
+            "uaFullVersion": {
+              "@path": "$.context.userAgentData.uaFullVersion"
+            },
+            "wow64": {
+              "@path": "$.context.userAgentData.wow64"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "mobile": {
+              "label": "Mobile",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "platform": {
+              "label": "Platform",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "architecture": {
+              "label": "Architecture",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "bitness": {
+              "label": "Bitness",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "model": {
+              "label": "Model",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "platformVersion": {
+              "label": "PlatformVersion",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "uaFullVersion": {
+              "label": "UaFullVersion",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "wow64": {
+              "label": "wow64",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Set the user ID for a particular device ID or update user properties. Learn more about [User Profiles](https://help.mixpanel.com/hc/en-us/articles/115004501966?source=segment-actions) and [Identity Management](https://help.mixpanel.com/hc/en-us/articles/360041039771-Getting-Started-with-Identity-Management?source=segment-actions).",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "ip": {
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "The unique user identifier set by you",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "The generated anonymous ID for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "User Properties",
+          "description": "Properties to set on the user profile",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "groupIdentifyUser": {
+      "title": "Group Identify User",
+      "description": "Updates or adds properties to a group profile. The profile is created if it does not exist. [Learn more about Group Analytics.](https://help.mixpanel.com/hc/en-us/articles/360025333632-Group-Analytics?source=segment-actions)",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "group_key": {
+          "label": "Group Key",
+          "description": "The group key you specified in Mixpanel under Project settings. If this is not specified, it will be defaulted to \"$group_id\".",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "group_id": {
+          "label": "Group ID",
+          "description": "The unique identifier of the group. If there is a trait that matches the group key, it will override this value.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Group Properties",
+          "description": "The properties to set on the group profile.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "alias": {
+      "title": "Alias",
+      "description": "Create an alias to a distinct id. This action is primarily supported for the sake of customers using the legacy identity management in their Mixpanel project. For new customers or those who have [migrated](https://help.mixpanel.com/hc/en-us/articles/360039133851-Moving-to-Identity-Merge?source=segment-actions) to the [new identity management](https://help.mixpanel.com/hc/en-us/articles/360041039771-Getting-Started-with-Identity-Management?source=segment-actions) in Mixpanel should use `identify`.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "alias": {
+          "label": "Alias",
+          "description": "A new distinct id to be merged with the original distinct id. Each alias can only map to one distinct id.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "distinct_id": {
+          "label": "Distinct ID",
+          "description": "A distinct id to be merged with the alias.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.previousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "trackPurchase": {
+      "title": "Track Purchase",
+      "description": "Send an 'Order Completed' Event to Mixpanel.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "generatePurchaseEventPerProduct": {
+          "label": "Generate Purchase Event Per Product",
+          "description": "When enabled, send \"Product Purchased\" with each product within the event.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "distinct_id": {
+          "label": "Distinct ID",
+          "description": "A distinct ID specified by you.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "A distinct ID randomly generated prior to calling identify.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "The distinct ID after calling identify.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "group_id": {
+          "label": "Group ID",
+          "description": "The unique identifier of the group that performed this event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "insert_id": {
+          "label": "Insert ID",
+          "description": "A random id that is unique to an event. Mixpanel uses $insert_id to deduplicate events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "time": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Mixpanel expects epoch timestamp in millisecond or second. Please note, Mixpanel only accepts this field as the timestamp. If the field is empty, it will be set to the time Mixpanel servers receive it.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_name": {
+          "label": "App Name",
+          "description": "The name of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_namespace": {
+          "label": "App Namespace",
+          "description": "The namespace of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.namespace"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_build": {
+          "label": "App Build",
+          "description": "The current build of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.build"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_version": {
+          "label": "App Version",
+          "description": "The current version of your application.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "os_name": {
+          "label": "OS Name",
+          "description": "The name of the mobile operating system or browser that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.os.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "os_version": {
+          "label": "OS Version",
+          "description": "The version of the mobile operating system or browser the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.os.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_id": {
+          "label": "Device ID",
+          "description": "A unique identifier for the device the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_type": {
+          "label": "Device Type",
+          "description": "The type of the user's device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_name": {
+          "label": "Device Name",
+          "description": "The name of the user's device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_manufacturer": {
+          "label": "Device Manufacturer",
+          "description": "The device manufacturer that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "device_model": {
+          "label": "Device Model",
+          "description": "The device model that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.model"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "bluetooth": {
+          "label": "Bluetooth Enabled",
+          "description": "Whether bluetooth is enabled.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.bluetooth"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "carrier": {
+          "label": "Carrier",
+          "description": "The carrier that the user is using.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.carrier"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "cellular": {
+          "label": "Cellular Enabled",
+          "description": "Whether cellular is enabled.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.cellular"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "wifi": {
+          "label": "Wifi",
+          "description": "Set to true if user’s device has an active, available Wifi connection, false if not.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.wifi"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "country": {
+          "label": "Country",
+          "description": "The current country of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.location.country"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "region": {
+          "label": "Region",
+          "description": "The current region of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.location.region"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "language": {
+          "label": "Language",
+          "description": "The language set by the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.locale"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "library_name": {
+          "label": "Library Name",
+          "description": "The name of the SDK used to send events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "library_version": {
+          "label": "Library Version",
+          "description": "The version of the SDK used to send events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "ip": {
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "idfa": {
+          "label": "Identifier For Advertiser (IDFA)",
+          "description": "Identifier for Advertiser. _(iOS)_",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              },
+              "else": {
+                "@path": "$.context.device.idfa"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "URL",
+          "description": "The full URL of the webpage on which the event is triggered.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "screen_width": {
+          "label": "Screen width",
+          "description": "Width, in pixels, of the device screen.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.screen.width"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "screen_height": {
+          "label": "Screen height",
+          "description": "Height, in pixels, of the device screen.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.screen.height"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "screen_density": {
+          "label": "Screen density",
+          "description": "Pixel density of the device screen.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.screen.density"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "referrer": {
+          "label": "Referrer",
+          "description": "Referrer url",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.referrer"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgent": {
+          "label": "User Agent",
+          "description": "User agent",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "advertising_id": {
+          "label": "Advertising ID",
+          "description": "Advertising ID",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "ad_tracking_enabled": {
+          "label": "Ad Tracking Enabled",
+          "description": "Ad Tracking Enabled (true or false)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timezone": {
+          "label": "Timezone",
+          "description": "The event timezone",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.timezone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "app_platform": {
+          "label": "App Platform",
+          "description": "The App Platform, if applicable",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.platform"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Event Original Name",
+          "description": "The Event Original Name, if applicable",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_properties": {
+          "label": "Event Properties",
+          "description": "An object of key-value pairs that represent additional data to be sent along with the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "context": {
+          "label": "Event context",
+          "description": "An object of key-value pairs that provides useful context about the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "utm_properties": {
+          "label": "UTM Properties",
+          "description": "UTM Tracking Properties",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "utm_source": {
+              "@path": "$.context.campaign.source"
+            },
+            "utm_medium": {
+              "@path": "$.context.campaign.medium"
+            },
+            "utm_campaign": {
+              "@path": "$.context.campaign.name"
+            },
+            "utm_term": {
+              "@path": "$.context.campaign.term"
+            },
+            "utm_content": {
+              "@path": "$.context.campaign.content"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "utm_source": {
+              "label": "UTM Source",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_medium": {
+              "label": "UTM Medium",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_campaign": {
+              "label": "UTM Campaign",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_term": {
+              "label": "UTM Term",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "utm_content": {
+              "label": "UTM Content",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Data to Mixpanel",
+          "description": "Set as true to ensure Segment sends data to Mixpanel in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 2000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userAgentData": {
+          "label": "User Agent Data",
+          "description": "The user agent data of device sending the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "mobile": {
+              "@path": "$.context.userAgentData.mobile"
+            },
+            "platform": {
+              "@path": "$.context.userAgentData.platform"
+            },
+            "architecture": {
+              "@path": "$.context.userAgentData.architecture"
+            },
+            "bitness": {
+              "@path": "$.context.userAgentData.bitness"
+            },
+            "model": {
+              "@path": "$.context.userAgentData.model"
+            },
+            "platformVersion": {
+              "@path": "$.context.userAgentData.platformVersion"
+            },
+            "uaFullVersion": {
+              "@path": "$.context.userAgentData.uaFullVersion"
+            },
+            "wow64": {
+              "@path": "$.context.userAgentData.wow64"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "mobile": {
+              "label": "Mobile",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "platform": {
+              "label": "Platform",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "architecture": {
+              "label": "Architecture",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "bitness": {
+              "label": "Bitness",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "model": {
+              "label": "Model",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "platformVersion": {
+              "label": "PlatformVersion",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "uaFullVersion": {
+              "label": "UaFullVersion",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "wow64": {
+              "label": "wow64",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "products": {
+          "label": "Products",
+          "description": "Products in the order.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "product_id"
+                },
+                "sku": {
+                  "@path": "sku"
+                },
+                "category": {
+                  "@path": "category"
+                },
+                "name": {
+                  "@path": "name"
+                },
+                "brand": {
+                  "@path": "brand"
+                },
+                "variant": {
+                  "@path": "variant"
+                },
+                "price": {
+                  "@path": "price"
+                },
+                "quantity": {
+                  "@path": "quantity"
+                },
+                "coupon": {
+                  "@path": "coupon"
+                },
+                "position": {
+                  "@path": "position"
+                },
+                "url": {
+                  "@path": "url"
+                },
+                "image_url": {
+                  "@path": "image_url"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "product_id": {
+              "label": "Product Id",
+              "description": "Database id of the product being viewed.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "sku": {
+              "label": "SKU",
+              "description": "Sku of the product being viewed.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "category": {
+              "label": "Category",
+              "description": "Product category being viewed.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Name",
+              "description": "Name of the product being viewed.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "brand": {
+              "label": "Brand",
+              "description": "Brand associated with the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "variant": {
+              "label": "Variant",
+              "description": "Variant of the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "price": {
+              "label": "Price",
+              "description": "Price ($) of the product being viewed.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "Quantity of a product.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "coupon": {
+              "label": "Coupon",
+              "description": "Coupon code associated with a product (for example, MAY_DEALS_3).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "position": {
+              "label": "position",
+              "description": "Position in the product list (ex. 3).",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "url": {
+              "label": "url",
+              "description": "URL of the product page.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "image_url": {
+              "label": "Image url",
+              "description": "Image url of the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "event": {
+          "label": "Event Name",
+          "description": "The name of the action being performed.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "incrementProperties": {
+      "title": "Increment Properties",
+      "description": "Increment the value of a user profile property. [Learn More](https://developer.mixpanel.com/reference/profile-numerical-add).",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "ip": {
+          "label": "IP Address",
+          "description": "The IP address of the user. This is only used for geolocation and won't be stored.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "The unique user identifier set by you",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "The generated anonymous ID for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "increment": {
+          "label": "Increment Numerical Properties",
+          "description": "Object of properties and the values to increment or decrement. For example: `{\"purchases\": 1, \"items\": 6}}.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.increment"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\" and event != \"Order Completed\"",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Order Completed Calls",
+      "type": "automatic",
+      "partnerAction": "trackPurchase",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "generatePurchaseEventPerProduct": true,
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        },
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "product_id"
+              },
+              "sku": {
+                "@path": "sku"
+              },
+              "category": {
+                "@path": "category"
+              },
+              "name": {
+                "@path": "name"
+              },
+              "brand": {
+                "@path": "brand"
+              },
+              "variant": {
+                "@path": "variant"
+              },
+              "price": {
+                "@path": "price"
+              },
+              "quantity": {
+                "@path": "quantity"
+              },
+              "coupon": {
+                "@path": "coupon"
+              },
+              "position": {
+                "@path": "position"
+              },
+              "url": {
+                "@path": "url"
+              },
+              "image_url": {
+                "@path": "image_url"
+              }
+            }
+          ]
+        },
+        "event": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Calls",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event": {
+          "@template": "Viewed {{name}}"
+        },
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Screen Calls",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "event": {
+          "@template": "Viewed {{name}}"
+        },
+        "distinct_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "group_id": {
+          "@path": "$.context.groupId"
+        },
+        "insert_id": {
+          "@path": "$.messageId"
+        },
+        "time": {
+          "@path": "$.timestamp"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "app_build": {
+          "@path": "$.context.app.build"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "os_name": {
+          "@path": "$.context.os.name"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "device_id": {
+          "@path": "$.context.device.id"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "device_name": {
+          "@path": "$.context.device.name"
+        },
+        "device_manufacturer": {
+          "@path": "$.context.device.manufacturer"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "bluetooth": {
+          "@path": "$.context.network.bluetooth"
+        },
+        "carrier": {
+          "@path": "$.context.network.carrier"
+        },
+        "cellular": {
+          "@path": "$.context.network.cellular"
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "region": {
+          "@path": "$.context.location.region"
+        },
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "library_name": {
+          "@path": "$.context.library.name"
+        },
+        "library_version": {
+          "@path": "$.context.library.version"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "idfa": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "then": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "else": {
+              "@path": "$.context.device.idfa"
+            }
+          }
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "screen_width": {
+          "@path": "$.context.screen.width"
+        },
+        "screen_height": {
+          "@path": "$.context.screen.height"
+        },
+        "screen_density": {
+          "@path": "$.context.screen.density"
+        },
+        "referrer": {
+          "@path": "$.context.page.referrer"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "ad_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "timezone": {
+          "@path": "$.context.timezone"
+        },
+        "app_platform": {
+          "@path": "$.context.app.platform"
+        },
+        "name": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "event_properties": {
+          "@path": "$.properties"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "utm_properties": {
+          "utm_source": {
+            "@path": "$.context.campaign.source"
+          },
+          "utm_medium": {
+            "@path": "$.context.campaign.medium"
+          },
+          "utm_campaign": {
+            "@path": "$.context.campaign.name"
+          },
+          "utm_term": {
+            "@path": "$.context.campaign.term"
+          },
+          "utm_content": {
+            "@path": "$.context.campaign.content"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "userAgentData": {
+          "mobile": {
+            "@path": "$.context.userAgentData.mobile"
+          },
+          "platform": {
+            "@path": "$.context.userAgentData.platform"
+          },
+          "architecture": {
+            "@path": "$.context.userAgentData.architecture"
+          },
+          "bitness": {
+            "@path": "$.context.userAgentData.bitness"
+          },
+          "model": {
+            "@path": "$.context.userAgentData.model"
+          },
+          "platformVersion": {
+            "@path": "$.context.userAgentData.platformVersion"
+          },
+          "uaFullVersion": {
+            "@path": "$.context.userAgentData.uaFullVersion"
+          },
+          "wow64": {
+            "@path": "$.context.userAgentData.wow64"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Calls",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Group Calls",
+      "type": "automatic",
+      "partnerAction": "groupIdentifyUser",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "group_id": {
+          "@path": "$.groupId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

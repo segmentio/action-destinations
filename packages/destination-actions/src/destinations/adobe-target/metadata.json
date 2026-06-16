@@ -1,0 +1,104 @@
+{
+  "slug": "actions-adobe-target-cloud",
+  "name": "Adobe Target Cloud Mode",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "client_code": {
+        "label": "Client Code",
+        "description": "Your Adobe Target client code. To find your client code in Adobe Target, navigate to **Administration > Implementation**. The client code is shown at the top under Account Details.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "bearer_token": {
+        "label": "Authentication Token",
+        "description": "If you choose to require authentication for Adobe Target's Profile API, you will need to generate an authentication token. Tokens can be generated in your Adobe Target account under the Implementation Settings tab or via the [Adobe.IO Authentication Token API](https://developers.adobetarget.com/api/#authentication-tokens). Input the authentication token here. Note: Authentication tokens expire so a new token will need to be generated and updated here prior to expiration.",
+        "type": "password",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "updateProfile": {
+      "title": "Update Profile",
+      "description": "Update an existing user profile in Adobe Target.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "user_id": {
+          "label": "Mbox 3rd Party ID",
+          "description": "A user's unique visitor ID. This field is used to fetch a matching profile in Adobe Target to make an update on. For more information, please see our Adobe Target Destination documentation.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Profile Attributes",
+          "description": "Profile parameters specific to a user. Please note, Adobe recommends that PII is hashed prior to sending to Adobe.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

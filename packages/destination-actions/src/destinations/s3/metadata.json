@@ -1,0 +1,805 @@
+{
+  "slug": "actions-s3",
+  "name": "AWS S3 (Actions)",
+  "mode": "cloud",
+  "description": "Sync Segment event data to AWS S3.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "iam_role_arn": {
+        "label": "IAM Role ARN",
+        "description": "IAM role ARN with write permissions to the S3 bucket. Format: arn:aws:iam::account-id:role/role-name",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "s3_aws_bucket_name": {
+        "label": "AWS Bucket Name",
+        "description": "Name of the S3 bucket where the files will be uploaded to.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "s3_aws_region": {
+        "label": "AWS Region Code",
+        "description": "Region Code where the S3 bucket is hosted. See [AWS S3 Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-regions)",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "iam_external_id": {
+        "label": "IAM External ID",
+        "description": "The External ID to your IAM role. Generate a secure string and treat it like a password.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "syncToS3": {
+      "title": "Sync to S3",
+      "description": "Syncs Segment event data to S3.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "columns": {
+          "label": "Columns",
+          "description": "Column to write to the S3 CSV file.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "event_name": {
+              "@path": "$.event"
+            },
+            "event_type": {
+              "@path": "$.type"
+            },
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "anonymous_id": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "properties": {
+              "@path": "$.properties"
+            },
+            "traits": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits"
+                },
+                "then": {
+                  "@path": "$.traits"
+                },
+                "else": {
+                  "@path": "$.context.traits"
+                }
+              }
+            },
+            "context": {
+              "@path": "$.context"
+            },
+            "timestamp": {
+              "@path": "$.timestamp"
+            },
+            "message_id": {
+              "@path": "$.messageId"
+            },
+            "integrations": {
+              "@path": "$.integrations"
+            },
+            "audience_name": {
+              "@path": "$.context.personas.computation_key"
+            },
+            "audience_id": {
+              "@path": "$.context.personas.computation_id"
+            },
+            "audience_space_id": {
+              "@path": "$.context.personas.space_id"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "event_name": {
+              "label": "Event Name",
+              "description": "Name of the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "event_type": {
+              "label": "Event Type",
+              "description": "The type of event",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "user_id": {
+              "label": "User ID",
+              "description": "User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "anonymous_id": {
+              "label": "Anonymous ID",
+              "description": "Anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "Email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "properties": {
+              "label": "Properties",
+              "description": "Properties of the event",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "traits": {
+              "label": "Traits",
+              "description": "User traits",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "context": {
+              "label": "Context",
+              "description": "Context of the event",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "timestamp": {
+              "label": "Timestamp",
+              "description": "Timestamp of the event",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "message_id": {
+              "label": "Message ID",
+              "description": "Name of column for the unique identifier for the message.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "integrations": {
+              "label": "Integrations Object",
+              "description": "Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "audience_name": {
+              "label": "Audience Name",
+              "description": "Name of the audience",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "audience_id": {
+              "label": "Audience ID",
+              "description": "ID of the audience",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "audience_space_id": {
+              "label": "Audience Space ID",
+              "description": "ID of the Engage Space where the Audience was generated",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "audience_action_column_name": {
+          "label": "Audience Action Column Name",
+          "description": "Name of the column that will contain the action for the audience. true if the user is in the audience, false if not.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "audience_action",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable",
+            "literal"
+          ],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size_column_name": {
+          "label": "Batch Size Column Name",
+          "description": "Specify the column name to store the batch size when the event is sent to S3. Leave blank if no column is required",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "batch_size",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable",
+            "literal"
+          ],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traits_or_props": {
+          "label": "Traits or Props - Hidden Field",
+          "description": "Field used to retrieve Audience value",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "computation_key": {
+          "label": "Audience_Key - Hidden Field",
+          "description": "Field used to retrieve Audience Key",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable Batching Hidden Field",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable",
+            "literal"
+          ],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "s3_aws_folder_name": {
+          "label": "AWS Subfolder Name",
+          "description": "Name of the S3 Subfolder where the files will be uploaded to. e.g. segmentdata/ or segmentdata/audiences/",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "filename_prefix": {
+          "label": "Filename prefix",
+          "description": "Prefix to append to the name of the uploaded file.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable",
+            "literal"
+          ],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "delimiter": {
+          "label": "Delimeter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": ",",
+          "choices": [
+            {
+              "label": "comma",
+              "value": ","
+            },
+            {
+              "label": "pipe",
+              "value": "|"
+            },
+            {
+              "label": "tab",
+              "value": "tab"
+            },
+            {
+              "label": "semicolon",
+              "value": ";"
+            },
+            {
+              "label": "colon",
+              "value": ":"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable",
+            "literal"
+          ],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "file_extension": {
+          "label": "File Extension",
+          "description": "File extension for the uploaded file.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "csv",
+          "choices": [
+            {
+              "label": "csv",
+              "value": "csv"
+            },
+            {
+              "label": "txt",
+              "value": "txt"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable",
+            "literal"
+          ],
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "s3_aws_folder_name"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

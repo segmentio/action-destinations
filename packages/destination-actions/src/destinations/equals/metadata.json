@@ -1,0 +1,75 @@
+{
+  "slug": "actions-equals",
+  "name": "Equals",
+  "mode": "cloud",
+  "description": "Send Segment analytics data to Equals.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "url": {
+        "label": "Equals URL",
+        "description": "Equals URL to send data to.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send Segment analytics data to Equals",
+      "platform": "cloud",
+      "defaultSubscription": "type = track or type = page or type = screen or type = identify or type = group",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "data": {
+          "label": "Data",
+          "description": "Payload to deliver to Equals. Detaults to sending the entire Segment payload.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "type = track or type = page or type = screen or type = identify or type = group",
+      "mapping": {
+        "data": {
+          "@path": "$."
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

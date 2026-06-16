@@ -1,0 +1,1800 @@
+{
+  "slug": "actions-responsys",
+  "name": "Responsys (Actions)",
+  "mode": "cloud",
+  "description": "Send Profile List Member and Profile Extension Table data to Responsys.",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "segmentWriteKey": {
+        "label": "Segment Source WriteKey",
+        "description": "Optionally forward Responses from Segment's requests to Responsys to a Segment Source.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "segmentWriteKeyRegion": {
+        "label": "Segment WriteKey Region",
+        "description": "Segment Region to forward responses from Responsys to. Segment Source WriteKey must also be populated",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          }
+        ],
+        "default": "US",
+        "depends_on": null
+      },
+      "username": {
+        "label": "Username",
+        "description": "Responsys username",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "userPassword": {
+        "label": "Password",
+        "description": "Responsys password",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "baseUrl": {
+        "label": "Responsys endpoint URL",
+        "description": "Responsys endpoint URL. Refer to Responsys documentation for more details. Must start with 'HTTPS://'. See [Responsys docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-develop/API/GetStarted/Authentication/auth-endpoints-rest.htm).",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "defaultFolderName": {
+        "label": "Default Folder Name",
+        "description": "Name of the folder where the Profile Extension Table is located.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "profileListName": {
+        "label": "Default Profile List Name",
+        "description": "Name of the Profile Extension Table's Contact List.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "profileExtensionTable": {
+        "label": "Default PET Name",
+        "description": "Default Profile Extension Table (PET) Name. Required if using the \"Send Custom Traits\" Action. Can be overridden in the mapping.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "insertOnNoMatch": {
+        "label": "Insert On No Match",
+        "description": "Indicates what should be done for records where a match is not found.",
+        "type": "boolean",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "matchColumnName1": {
+        "label": "First Column Match",
+        "description": "First match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "RIID",
+            "value": "RIID"
+          },
+          {
+            "label": "CUSTOMER_ID",
+            "value": "CUSTOMER_ID"
+          },
+          {
+            "label": "EMAIL_ADDRESS",
+            "value": "EMAIL_ADDRESS"
+          },
+          {
+            "label": "MOBILE_NUMBER",
+            "value": "MOBILE_NUMBER"
+          },
+          {
+            "label": "EMAIL_MD5_HASH",
+            "value": "EMAIL_MD5_HASH"
+          },
+          {
+            "label": "EMAIL_SHA256_HASH",
+            "value": "EMAIL_SHA256_HASH"
+          }
+        ],
+        "default": "EMAIL_ADDRESS",
+        "depends_on": null
+      },
+      "matchColumnName2": {
+        "label": "Second Column Match",
+        "description": "Second match column for determining whether an insert or update should occur.\n                      A trailing underscore (_) is added to the match column name at the time of request \n                      to Responsys. \n                      This aligns with Responsys’ naming conventions for match columns.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "RIID",
+            "value": "RIID"
+          },
+          {
+            "label": "CUSTOMER_ID",
+            "value": "CUSTOMER_ID"
+          },
+          {
+            "label": "EMAIL_ADDRESS",
+            "value": "EMAIL_ADDRESS"
+          },
+          {
+            "label": "MOBILE_NUMBER",
+            "value": "MOBILE_NUMBER"
+          },
+          {
+            "label": "EMAIL_MD5_HASH",
+            "value": "EMAIL_MD5_HASH"
+          },
+          {
+            "label": "EMAIL_SHA256_HASH",
+            "value": "EMAIL_SHA256_HASH"
+          }
+        ],
+        "default": null,
+        "depends_on": null
+      },
+      "updateOnMatch": {
+        "label": "Update On Match",
+        "description": "Controls how the existing record should be updated. Defaults to Replace All.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Replace All",
+            "value": "REPLACE_ALL"
+          },
+          {
+            "label": "No Update",
+            "value": "NO_UPDATE"
+          }
+        ],
+        "default": "REPLACE_ALL",
+        "depends_on": null
+      },
+      "textValue": {
+        "label": "Text Value",
+        "description": "Value of incoming preferred email format data. For example, 'T' may represent a preference for Text formatted email.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "matchOperator": {
+        "label": "Match Operator",
+        "description": "Operator to join match column names.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "None",
+            "value": "NONE"
+          },
+          {
+            "label": "And",
+            "value": "AND"
+          }
+        ],
+        "default": "AND",
+        "depends_on": null
+      },
+      "optoutValue": {
+        "label": "Optout Value",
+        "description": "Value of incoming opt-out status data that represents an optout status. For example, 'O' may represent an opt-out status.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "rejectRecordIfChannelEmpty": {
+        "label": "Reject Record If Channel Empty",
+        "description": "String containing comma-separated channel codes that if specified will result in record rejection when the channel address field is null. See [Responsys API docs](https://docs.oracle.com/en/cloud/saas/marketing/responsys-rest-api/op-rest-api-v1.3-lists-listname-members-post.html)",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "defaultPermissionStatus": {
+        "label": "Default Permission Status",
+        "description": "This value must be specified as either OPTIN or OPTOUT. Defaults to OPTOUT. Can be overridden in the mapping.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Opt In",
+            "value": "OPTIN"
+          },
+          {
+            "label": "Opt Out",
+            "value": "OPTOUT"
+          }
+        ],
+        "default": "OPTOUT",
+        "depends_on": null
+      },
+      "htmlValue": {
+        "label": "Preferred Email Format",
+        "description": "Value of incoming preferred email format data. For example, 'H' may represent a preference for HTML formatted email.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "optinValue": {
+        "label": "Optin Value",
+        "description": "Value of incoming opt-in status data that represents an opt-in status. For example, 'I' may represent an opt-in status.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendAudience": {
+      "title": "Send Audience",
+      "description": "Send Engage Audience to a Profile Extension Table in Responsys",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "userData": {
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "EMAIL_ADDRESS_": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "EMAIL_ADDRESS_": {
+              "label": "Email address",
+              "description": "The user's email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "CUSTOMER_ID_": {
+              "label": "Customer ID",
+              "description": "Responsys Customer ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "computation_key": {
+          "label": "Segment Audience Key",
+          "description": "A unique identifier assigned to a specific audience in Segment.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traits_or_props": {
+          "label": "Traits or Properties",
+          "description": "Hidden field used to access traits or properties objects from Engage payloads.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "computation_class": {
+          "label": "Segment Audience Computation Class",
+          "description": "Hidden field used to verify that the payload is generated by an Audience. Payloads not containing computation_class = 'audience' or 'journey_step' will be dropped before the perform() fuction call.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "choices": [
+            {
+              "label": "Audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 200,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "stringify": {
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "retry": {
+          "label": "Delay (seconds)",
+          "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 0,
+          "choices": [
+            {
+              "label": "0 secs",
+              "value": 0
+            },
+            {
+              "label": "30 secs",
+              "value": 30
+            },
+            {
+              "label": "120 secs",
+              "value": 120
+            },
+            {
+              "label": "300 secs",
+              "value": 300
+            },
+            {
+              "label": "480 secs",
+              "value": 480
+            },
+            {
+              "label": "600 secs",
+              "value": 600
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "sendAudienceAsPet": {
+      "title": "Send Audience as PET (Profile Extension Table)",
+      "description": "Send Engage Audience to a separate, newly created Profile Extension Table in Responsys",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "userData": {
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "EMAIL_ADDRESS_": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "EMAIL_ADDRESS_": {
+              "label": "Email address",
+              "description": "The user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "CUSTOMER_ID_": {
+              "label": "Customer ID",
+              "description": "Responsys Customer ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "RIID_": {
+              "label": "Recipient ID",
+              "description": "Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "folder_name": {
+          "label": "Folder Name",
+          "description": "The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Segment",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "pet_name": {
+          "label": "Profile Extension Table Name",
+          "description": "The PET (Profile Extension Table) name. The default value is the audience key in Segment.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "computation_key": {
+          "label": "Segment Audience Key",
+          "description": "A unique identifier assigned to a specific audience in Segment.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "traits_or_props": {
+          "label": "Traits or Properties",
+          "description": "Hidden field used to access traits or properties objects from Engage payloads.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.properties"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "retry": {
+          "label": "Delay (seconds)",
+          "description": "A delay of the selected seconds will be added before retrying a failed request.\n                Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 0,
+          "choices": [
+            {
+              "label": "0 secs",
+              "value": 0
+            },
+            {
+              "label": "30 secs",
+              "value": 30
+            },
+            {
+              "label": "120 secs",
+              "value": 120
+            },
+            {
+              "label": "300 secs",
+              "value": 300
+            },
+            {
+              "label": "480 secs",
+              "value": 480
+            },
+            {
+              "label": "600 secs",
+              "value": 600
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "default_permission_status": {
+          "label": "Default Permission Status",
+          "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Opt In",
+              "value": "OPTIN"
+            },
+            {
+              "label": "Opt Out",
+              "value": "OPTOUT"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "sendCustomTraits": {
+      "title": "Send Custom Traits",
+      "description": "Send Custom Traits to a Profile Extension Table in Responsys",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "userData": {
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "EMAIL_ADDRESS_": {
+              "@path": "$.traits.email"
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "EMAIL_ADDRESS_": {
+              "label": "Email address",
+              "description": "The user's email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "CUSTOMER_ID_": {
+              "label": "Customer ID",
+              "description": "Responsys Customer ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "pet_name": {
+          "label": "Profile Extension Table Name",
+          "description": "The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 200,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "stringify": {
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "retry": {
+          "label": "Delay (seconds)",
+          "description": "A delay of the selected seconds will be added before retrying a failed request.\n                    Max delay allowed is 600 secs (10 mins). The default is 0 seconds.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 0,
+          "choices": [
+            {
+              "label": "0 secs",
+              "value": 0
+            },
+            {
+              "label": "30 secs",
+              "value": 30
+            },
+            {
+              "label": "120 secs",
+              "value": 120
+            },
+            {
+              "label": "300 secs",
+              "value": 300
+            },
+            {
+              "label": "480 secs",
+              "value": 480
+            },
+            {
+              "label": "600 secs",
+              "value": 600
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "upsertListMember": {
+      "title": "Upsert Profile List Member",
+      "description": "Create or update a Profile List Member in Responsys",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "userData": {
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "EMAIL_ADDRESS_": {
+              "@path": "$.traits.email"
+            },
+            "EMAIL_MD5_HASH_": {
+              "@path": "$.traits.email_md5_hash_"
+            },
+            "EMAIL_SHA256_HASH_": {
+              "@path": "$.traits.email_sha256_hash"
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            },
+            "MOBILE_NUMBER_": {
+              "@path": "$.traits.phone"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "EMAIL_ADDRESS_": {
+              "label": "Email Address",
+              "description": "The user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "EMAIL_MD5_HASH_": {
+              "label": "Email Address MD5 Hash",
+              "description": "An MD5 Hash of the user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "EMAIL_SHA256_HASH_": {
+              "label": "Email Address SHA256 Hash",
+              "description": "A SHA256 Hash of the user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "RIID_": {
+              "label": "Recipient ID",
+              "description": "Recipient ID (RIID). RIID is required if Email Address is empty.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "CUSTOMER_ID_": {
+              "label": "Customer ID",
+              "description": "Responsys Customer ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "MOBILE_NUMBER_": {
+              "label": "Mobile Number",
+              "description": "The user's Mobile Phone Number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "stringify": {
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 200,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "default_permission_status": {
+          "label": "Default Permission Status",
+          "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Opt In",
+              "value": "OPTIN"
+            },
+            {
+              "label": "Opt Out",
+              "value": "OPTOUT"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "sendToPet": {
+      "title": "Send to PET (Profile Extension Table)",
+      "description": "Send values to a Profile Extension Table in Responsys.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "userData": {
+          "label": "Recipient Data",
+          "description": "Record data that represents field names and corresponding values for each profile.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "EMAIL_ADDRESS_": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "CUSTOMER_ID_": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "EMAIL_ADDRESS_": {
+              "label": "Email address",
+              "description": "The user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "CUSTOMER_ID_": {
+              "label": "Customer ID",
+              "description": "Responsys Customer ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "RIID_": {
+              "label": "Recipient ID",
+              "description": "Recipient ID (RIID). RIID is required if Email Address and Customer ID are empty. Only use it if the corresponding profile already exists in Responsys.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "folder_name": {
+          "label": "Folder Name",
+          "description": "The name of the folder where the new Profile Extension Table will be created. Overrides the default folder name in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Segment",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "pet_name": {
+          "label": "Profile Extension Table Name",
+          "description": "The PET (Profile Extension Table) name. Overrides the default Profile Extension Table name in Settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of when the event occurred.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "use_responsys_async_api": {
+          "label": "Use Responsys Async API",
+          "description": "Once enabled, Segment will collect events into batches of 200 before sending to Responsys.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 200,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "stringify": {
+          "label": "Stringify Recipient Data",
+          "description": "If true, all Recipient data will be converted to strings before being sent to Responsys.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "default_permission_status": {
+          "label": "Default Permission Status",
+          "description": "This value must be specified as either OPTIN or OPTOUT. It defaults to the value defined in this destination settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Opt In",
+              "value": "OPTIN"
+            },
+            {
+              "label": "Opt Out",
+              "value": "OPTOUT"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}
