@@ -21,8 +21,7 @@ import {
   ActionHookType,
   ActionHookResponse,
   AudienceDestinationConfigurationWithCreateGet,
-  RequestFn,
-  Personas
+  RequestFn
 } from '@segment/actions-core/destination-kit'
 interface ResponseError extends Error {
   status?: number
