@@ -45,9 +45,9 @@ describe('Hubspot Web (Actions)', () => {
 
     await event.load(Context.system(), {} as Analytics)
 
-    const scripts = Array.from(document.querySelectorAll('script'))
-    const hubspotScript = scripts.find((s) => s.src.includes('hs-scripts.com'))
-    expect(hubspotScript?.id).toBe('hs-script-loader')
+    const loaderScripts = Array.from(document.querySelectorAll<HTMLScriptElement>('script#hs-script-loader'))
+    expect(loaderScripts).toHaveLength(1)
+    expect(loaderScripts[0].src).toBe('https://js.hs-scripts.com/12345.js')
   })
 
   test('loads hubspot analytics with EU script', async () => {
