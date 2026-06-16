@@ -4,7 +4,10 @@ import addToContactList from './addToContactList'
 import removeFromContactList from './removeFromContactList'
 import triggerEvent from './triggerEvent'
 import upsertContact from './upsertContact'
-import { createWsseHeader, API_BASE } from './emarsys-helper'
+import { isLegacyAuth, createWsseHeader, getApiBaseUrl, getAuthHeader } from './emarsys-helper'
+import { USER_AGENT_HEADER } from './constants'
+
+import triggerEngagementEvent from './triggerEngagementEvent'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Emarsys (Actions)',
@@ -14,29 +17,113 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      api_user: {
-        label: 'API username',
-        description: 'Your Emarsys API username',
+      auth_type: {
+        label: 'Authentication Method',
+        description: 'Select which authentication method to use.',
         type: 'string',
-        required: true
+        default: 'new',
+        choices: [
+          { label: 'New (Recommended)', value: 'new' },
+          { label: 'Legacy', value: 'legacy' }
+        ]
+      },
+      api_user: {
+        label: 'API username (legacy)',
+        description: 'Your Emarsys API username. Required when using legacy authentication.',
+        type: 'string',
+        required: false,
+        depends_on: {
+          match: 'any',
+          conditions: [
+            { fieldKey: 'auth_type', operator: 'is', value: undefined },
+            { fieldKey: 'auth_type', operator: 'is', value: 'legacy' }
+          ]
+        }
       },
       api_password: {
-        label: 'API password',
-        description: 'Your Emarsys API password.',
+        label: 'API password (legacy)',
+        description: 'Your Emarsys API password. Required when using legacy authentication.',
         type: 'password',
-        required: true
+        required: false,
+        depends_on: {
+          match: 'any',
+          conditions: [
+            { fieldKey: 'auth_type', operator: 'is', value: undefined },
+            { fieldKey: 'auth_type', operator: 'is', value: 'legacy' }
+          ]
+        }
+      },
+      apiAuthEndpoint: {
+        label: 'Auth endpoint',
+        description: 'Authentication endpoint URL. Required when using new (OIDC) authentication.',
+        type: 'string',
+        format: 'uri',
+        required: false,
+        default: 'https://auth.emarsys.net/oauth2/token',
+        depends_on: {
+          conditions: [{ fieldKey: 'auth_type', operator: 'is', value: 'new' }]
+        }
+      },
+      apiBaseUrl: {
+        label: 'API base URL',
+        description: 'The base URL for API requests. Required when using new (OIDC) authentication.',
+        type: 'string',
+        format: 'uri',
+        required: false,
+        default: 'https://api.emarsys.net/api/v3/',
+        depends_on: {
+          conditions: [{ fieldKey: 'auth_type', operator: 'is', value: 'new' }]
+        }
+      },
+      apiClientId: {
+        label: 'API ClientId',
+        description: 'The ClientId for API authentication. Required when using new (OIDC) authentication.',
+        type: 'string',
+        required: false,
+        depends_on: {
+          conditions: [{ fieldKey: 'auth_type', operator: 'is', value: 'new' }]
+        }
+      },
+      apiClientSecret: {
+        label: 'API Client Secret',
+        description: 'The Client Secret for API authentication. Required when using new (OIDC) authentication.',
+        type: 'password',
+        required: false,
+        depends_on: {
+          conditions: [{ fieldKey: 'auth_type', operator: 'is', value: 'new' }]
+        }
       }
     },
-    testAuthentication: async (request) => {
-      const data = await request(`${API_BASE}settings`)
+    testAuthentication: async (request, { settings }) => {
+      if (isLegacyAuth(settings)) {
+        if (!settings.api_user) {
+          throw new Error('The API username (legacy) is required')
+        }
+        if (!settings.api_password) {
+          throw new Error('The API password (legacy) is required')
+        }
+      } else {
+        if (!settings.apiAuthEndpoint) {
+          throw new Error('The authentication endpoint URL is required')
+        }
+        if (!settings.apiBaseUrl) {
+          throw new Error('The base URL is required')
+        }
+        if (!settings.apiClientId || !settings.apiClientSecret) {
+          throw new Error('OIDC client credentials are required')
+        }
+      }
+
+      const authHeader = await getAuthHeader(request, settings)
+      const data = await request(`${getApiBaseUrl(settings)}settings`, {
+        method: 'get',
+        headers: authHeader,
+        throwHttpErrors: false
+      })
       if (data && data.content) {
         const api_data = JSON.parse(data.content)
-        if (api_data && api_data.replyCode !== undefined && api_data.replyCode == 0) {
-          if (api_data.data && api_data.data.id) {
-            if (api_data.data.id > 0) {
-              return true
-            }
-          }
+        if (api_data?.replyCode === 0 && api_data?.data?.id > 0) {
+          return true
         }
       }
       throw new Error('Authentication failed')
@@ -47,14 +134,28 @@ const destination: DestinationDefinition<Settings> = {
     upsertContact,
     addToContactList,
     removeFromContactList,
-    triggerEvent
+    triggerEvent,
+    triggerEngagementEvent
   },
 
   extendRequest: ({ settings }) => {
-    return {
-      headers: { 'X-WSSE': createWsseHeader(settings) },
-      responseType: 'json'
+    let extendRequestReturn = {}
+    if (isLegacyAuth(settings)) {
+      extendRequestReturn = {
+        headers: {
+          'User-Agent': USER_AGENT_HEADER,
+          'X-WSSE': createWsseHeader(settings)
+        },
+        responseType: 'json'
+      }
+    } else {
+      extendRequestReturn = {
+        headers: {
+          'User-Agent': USER_AGENT_HEADER
+        }
+      }
     }
+    return extendRequestReturn
   }
 }
 

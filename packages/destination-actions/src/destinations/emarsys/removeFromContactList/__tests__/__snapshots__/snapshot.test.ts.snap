@@ -10,6 +10,22 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for Emarsys's removeFromContactList destination action: all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for Emarsys's removeFromContactList destination action: required fields 1`] = `
 Object {
   "contactlistid": 2204312625217536,
@@ -17,5 +33,21 @@ Object {
     "cc%KG4p)Ar0bgD",
   ],
   "key_id": "cc%KG4p)Ar0bgD",
+}
+`;
+
+exports[`Testing snapshot for Emarsys's removeFromContactList destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
 }
 `;
