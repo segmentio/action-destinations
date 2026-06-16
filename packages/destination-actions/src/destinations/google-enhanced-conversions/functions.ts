@@ -590,7 +590,7 @@ const extractUserIdentifiers = (
         // Neither add nor remove resolved (e.g. 'mirror' default with an unrecognized event_name and
         // no audienceMembership signal): the payload is silently dropped. Track so flag-driven
         // regressions in the membership logic are observable.
-        statsContext?.statsClient?.incr('extractUserIdentifiers.no_operation', 1, [
+        statsContext?.statsClient?.incr('google_ec.user_list.no_operation', 1, [
           ...(statsContext?.tags ?? []),
           'feature_flag:on'
         ])
@@ -610,7 +610,7 @@ const extractUserIdentifiers = (
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
       } else {
-        statsContext?.statsClient?.incr('extractUserIdentifiers.no_operation', 1, [
+        statsContext?.statsClient?.incr('google_ec.user_list.no_operation', 1, [
           ...(statsContext?.tags ?? []),
           'feature_flag:off'
         ])
@@ -716,7 +716,7 @@ const processOperations = async (
       // Partial failure on a batch containing BOTH adds and removes: the error-to-payload index
       // mapping is known to be unreliable here (STRATCONN-6862). Track to quantify real-world
       // blast radius and gauge when the fix should be prioritized.
-      statsContext?.statsClient?.incr('partial_failure.mixed_batch', 1, [
+      statsContext?.statsClient?.incr('google_ec.user_list.mixed_batch_partial_failure', 1, [
         ...(statsContext?.tags ?? []),
         `feature_flag:${features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP] ? 'on' : 'off'}`
       ])
@@ -1012,7 +1012,7 @@ const extractBatchUserIdentifiers = (
       // Neither add nor remove resolved for this payload (e.g. 'mirror' default with an unrecognized
       // event_name and no audienceMembership signal). Track so flag-driven regressions in the
       // membership logic are observable rather than silently surfacing as payload validation errors.
-      statsContext?.statsClient?.incr('error.undetermined_operation_type', 1, [
+      statsContext?.statsClient?.incr('google_ec.user_list.undetermined_operation_type', 1, [
         ...(statsContext?.tags ?? []),
         `feature_flag:${features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP] ? 'on' : 'off'}`
       ])
