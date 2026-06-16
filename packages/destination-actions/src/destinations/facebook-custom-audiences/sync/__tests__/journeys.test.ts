@@ -1,8 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { getJourneysV1Memberships } from '../functions'
-import { RawData } from '../types'
 import { BASE_URL } from '../../constants'
 
 let testDestination = createTestIntegration(Destination)
@@ -51,67 +49,10 @@ function makeJourneyEvent(email: string, userId: string) {
 }
 
 // ---------------------------------------------------------------------------
-// getJourneysV1Memberships (unit tests)
-// ---------------------------------------------------------------------------
-describe('getJourneysV1Memberships', () => {
-  it('returns undefined when rawDatas is undefined', () => {
-    expect(getJourneysV1Memberships(undefined)).toBeUndefined()
-  })
-
-  it('returns undefined when rawDatas is an empty array', () => {
-    expect(getJourneysV1Memberships([])).toBeUndefined()
-  })
-
-  it('returns undefined when no events are journey_step', () => {
-    const rawDatas: RawData[] = [
-      { context: { personas: { computation_class: 'audience' } } },
-      { context: { personas: { computation_class: 'audience' } } }
-    ]
-    expect(getJourneysV1Memberships(rawDatas)).toBeUndefined()
-  })
-
-  it('returns an array of true values when all events are journey_step', () => {
-    const rawDatas: RawData[] = [
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} },
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} },
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} }
-    ]
-    const result = getJourneysV1Memberships(rawDatas)
-    expect(result).toEqual([true, true, true])
-    expect(result).toHaveLength(3)
-  })
-
-  it('throws InvalidAudienceMembershipError when batch contains a mix of journey_step and non-journey_step', () => {
-    const rawDatas: RawData[] = [
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} },
-      { context: { personas: { computation_class: 'audience' } } }
-    ]
-    expect(() => getJourneysV1Memberships(rawDatas)).toThrow(
-      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
-    )
-  })
-
-  it('returns array matching rawDatas length for single event', () => {
-    const rawDatas: RawData[] = [
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: {} }
-    ]
-    const result = getJourneysV1Memberships(rawDatas)
-    expect(result).toEqual([true])
-  })
-
-  it('returns all true even when properties[computation_key] is a boolean', () => {
-    const rawDatas: RawData[] = [
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: true } },
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: false } },
-      { context: { personas: { computation_class: 'journey_step', computation_key: 'my_audience' } }, properties: { my_audience: true } }
-    ]
-    const result = getJourneysV1Memberships(rawDatas)
-    expect(result).toEqual([true, true, true])
-  })
-})
-
-// ---------------------------------------------------------------------------
 // journey_step batch behavior (integration tests)
+//
+// Unit tests for isJourneyPayloads (which replaced getJourneysV1Memberships) live in
+// functions.test.ts. The cases below exercise the end-to-end JourneysV1/V2 batch behavior.
 // ---------------------------------------------------------------------------
 describe('FacebookCustomAudiences.sync - journey_step', () => {
   beforeEach(() => {
