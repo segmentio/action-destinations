@@ -240,7 +240,7 @@ describe('Topsort.impression', () => {
         externalCampaignId: 'campaignId1234',
         entity: { id: '677061', type: 'product' },
         channel: 'offsite',
-        dsp_metadata: { gclid: 'google-click-id-123' }
+        dspMetadata: { gclid: 'google-click-id-123' }
       }
     })
 
@@ -256,6 +256,7 @@ describe('Topsort.impression', () => {
     expect(responses[0].status).toBe(200)
     const impression = (responses[0].options.json as { impressions: Record<string, unknown>[] }).impressions[0]
     expect(impression).not.toHaveProperty('resolvedBidId')
+    expect(impression).not.toHaveProperty('dspMetadata')
     expect(responses[0].options.json).toMatchObject({
       impressions: expect.arrayContaining([
         expect.objectContaining({
@@ -264,6 +265,34 @@ describe('Topsort.impression', () => {
           entity: { id: '677061', type: 'product' },
           channel: 'offsite',
           dsp_metadata: { gclid: 'google-click-id-123' }
+        })
+      ])
+    })
+  })
+
+  it('should coerce non-string dspMetadata values to strings', async () => {
+    nock(/.*/).persist().post(/.*/).reply(200)
+
+    const event = createTestEvent({
+      properties: {
+        resolvedBidId: 'thisisaresolvedbidid',
+        dspMetadata: { gclid: 'abc', score: 42, nested: { a: 1 } }
+      }
+    })
+
+    const responses = await testDestination.testAction('impression', {
+      event,
+      settings: {
+        api_key: 'bar'
+      },
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject({
+      impressions: expect.arrayContaining([
+        expect.objectContaining({
+          dsp_metadata: { gclid: 'abc', score: '42', nested: '{"a":1}' }
         })
       ])
     })

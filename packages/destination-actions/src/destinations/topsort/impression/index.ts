@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TopsortAPIClient } from '../client'
-import { NormalizeDeviceType } from '../functions'
+import { NormalizeDeviceType, NormalizeDspMetadata } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Impression',
@@ -265,23 +265,28 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.channel'
       }
     },
-    dsp_metadata: {
+    dspMetadata: {
       label: 'DSP Metadata',
       description:
-        'Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { "gclid": "..." } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Typically only set for offsite events.',
+        'Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { "gclid": "..." } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Values must be strings (the API expects a map of string to string); non-string values are JSON-stringified before sending. Typically only set for offsite events.',
       type: 'object',
       required: false,
       default: {
-        '@path': '$.properties.dsp_metadata'
+        '@path': '$.properties.dspMetadata'
       }
     }
   },
   perform: (request, { payload, settings }) => {
     const client = new TopsortAPIClient(request, settings)
 
-    payload.deviceType = NormalizeDeviceType(payload.deviceType)
+    const { dspMetadata, ...rest } = payload
+    const impression = {
+      ...rest,
+      deviceType: NormalizeDeviceType(payload.deviceType),
+      dsp_metadata: NormalizeDspMetadata(dspMetadata)
+    }
     return client.sendEvent({
-      impressions: [payload]
+      impressions: [impression]
     })
   }
 }

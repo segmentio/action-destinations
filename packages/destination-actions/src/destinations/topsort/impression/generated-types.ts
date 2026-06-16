@@ -120,9 +120,9 @@ export interface Payload {
    */
   channel?: string
   /**
-   * Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { "gclid": "..." } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Typically only set for offsite events.
+   * Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { "gclid": "..." } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Values must be strings (the API expects a map of string to string); non-string values are JSON-stringified before sending. Typically only set for offsite events.
    */
-  dsp_metadata?: {
+  dspMetadata?: {
     [k: string]: unknown
   }
 }
