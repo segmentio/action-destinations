@@ -46,9 +46,9 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 // TEMPORARY DEBUG LOGGING — gated behind the 'actions-ms-bing-ads-audiences-debug-logging'
-// feature flag. Enables logging of the raw request payloads and Bing Ads API responses
-// (including error bodies) so they can be inspected in the centralized logging pipeline.
-// Remove once debugging is complete.
+// feature flag. Logs non-sensitive request metadata (identifier type + item count) and the
+// Bing Ads API response/error bodies to the centralized logging pipeline. It intentionally
+// does NOT log CustomerListItems (hashed emails / CRM IDs). Remove once debugging is complete.
 const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
 
 const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
