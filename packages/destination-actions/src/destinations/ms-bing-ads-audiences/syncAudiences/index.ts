@@ -54,7 +54,15 @@ const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
 const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
   Boolean(features && features[DEBUG_LOGGING_FLAG])
 
-// TEMPORARY: logs the request payload sent to Bing Ads and the raw response body.
+// Cap logged bodies so a large or malformed response can't produce oversized log entries.
+const MAX_LOGGED_BODY_LENGTH = 4096
+
+const truncate = (value: string): string =>
+  value.length > MAX_LOGGED_BODY_LENGTH ? `${value.slice(0, MAX_LOGGED_BODY_LENGTH)}…[truncated]` : value
+
+// TEMPORARY: logs the Bing Ads response body, plus non-sensitive metadata about the request.
+// We intentionally do NOT log CustomerListItems (hashed emails / CRM IDs) — only the
+// identifier type and item count — to avoid leaking customer-match identifiers into logs.
 const logBingAdsResponse = (
   logger: Logger | undefined,
   debugLogging: boolean,
@@ -66,13 +74,17 @@ const logBingAdsResponse = (
   if (!debugLogging || !logger) {
     return
   }
+  const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
   logger.info(
     `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
-      `sent=${JSON.stringify(sentPayload)} response=${JSON.stringify(response.data)}`
+      `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
+      `response=${truncate(JSON.stringify(response.data))}`
   )
 }
 
 // TEMPORARY: logs the error body returned by Bing Ads when an Apply call fails.
+// The body is read as text (not assumed to be JSON) and size-capped, then the response is
+// cloned so handleHttpError can still consume the original body.
 const logBingAdsError = async (
   logger: Logger | undefined,
   debugLogging: boolean,
@@ -84,11 +96,11 @@ const logBingAdsError = async (
   }
   let body: string
   try {
-    body = error instanceof HTTPError ? JSON.stringify(await error.response?.clone().json()) : String(error)
+    body = error instanceof HTTPError ? (await error.response?.clone().text()) ?? '' : String(error)
   } catch {
     body = error instanceof Error ? error.message : String(error)
   }
-  logger.error(`[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} error=${body}`)
+  logger.error(`[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} error=${truncate(body)}`)
 }
 
 /**

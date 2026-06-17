@@ -264,6 +264,92 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     expect(payloadArg[0].email).toBe('add1@segment.com')
   })
 
+  describe('debug logging (actions-ms-bing-ads-audiences-debug-logging flag)', () => {
+    const DEBUG_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
+
+    const makeLogger = () =>
+      ({
+        info: jest.fn(),
+        error: jest.fn(),
+        warn: jest.fn(),
+        debug: jest.fn(),
+        crit: jest.fn(),
+        log: jest.fn(),
+        withTags: jest.fn(),
+        level: 'info',
+        name: 'test'
+      } as any)
+
+    const addEvent = () =>
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'demo@segment.com' } }
+      })
+
+    it('does not log when the flag is off', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, {})
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: false }
+      })
+
+      expect(logger.info).not.toHaveBeenCalled()
+      expect(logger.error).not.toHaveBeenCalled()
+    })
+
+    it('logs response metadata when the flag is on, without leaking CustomerListItems', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.info).toHaveBeenCalledTimes(1)
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('[ms-bing-ads-audiences][DEBUG]')
+      expect(logged).toContain('identifierType=Email')
+      expect(logged).toContain('itemCount=1')
+      // The hashed identifier must never be logged.
+      expect(logged).not.toContain('5a95f052958dac8ed1d66d74eb481b3ccdbbc953b583c5ff0325be6b091d6281')
+    })
+
+    it('logs the error body and still lets handleHttpError consume the response', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
+      const logger = makeLogger()
+
+      const response = await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.error).toHaveBeenCalledTimes(1)
+      const logged = (logger.error as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('[ms-bing-ads-audiences][DEBUG] Apply failed')
+      expect(logged).toContain('boom')
+
+      // handleHttpError must still be able to read the (cloned) response body.
+      expect(utils.handleHttpError).toHaveBeenCalled()
+      expect(response[0].status).toBe(500)
+    })
+  })
+
   it('should throw non-HTTP errors in batch mode', async () => {
     // Create a custom error that is NOT an HTTPError
     const customError = new Error('Custom non-HTTP error')
