@@ -2,7 +2,7 @@ import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
-import { getApiServerUrl } from '../common/utils'
+import { getApiServerUrl, getImportApiCredential } from '../common/utils'
 import { getEventProperties } from './functions'
 import { eventProperties } from '../mixpanel-properties'
 import { MixpanelTrackApiResponseType, handleMixPanelApiResponse } from '../common/utils'
@@ -24,7 +24,7 @@ const processData = async (request: RequestClient, settings: Settings, payload: 
   })
   const throwHttpErrors = features && features['mixpanel-multistatus'] ? false : true
 
-  const response = await callMixpanelApi(request, settings, events, throwHttpErrors)
+  const response = await callMixpanelApi(request, settings, events, throwHttpErrors, features)
   if (features && features['mixpanel-multistatus']) {
     return handleMixPanelApiResponse(payload.length, response, events)
   }
@@ -35,15 +35,17 @@ const callMixpanelApi = async (
   request: RequestClient,
   settings: Settings,
   events: MixpanelEvent[],
-  throwHttpErrors: boolean
+  throwHttpErrors: boolean,
+  features?: Features
 ) => {
+  const credential = getImportApiCredential(settings, features)
   return await request<MixpanelTrackApiResponseType>(
     `${getApiServerUrl(settings.apiRegion)}/import?strict=${settings.strictMode ?? `1`}`,
     {
       method: 'post',
       json: events,
       headers: {
-        authorization: `Basic ${Buffer.from(`${settings.projectToken}:`).toString('base64')}`
+        authorization: `Basic ${Buffer.from(`${credential}:`).toString('base64')}`
       },
       throwHttpErrors: throwHttpErrors
     }

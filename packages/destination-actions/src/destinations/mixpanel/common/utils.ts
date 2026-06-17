@@ -1,9 +1,19 @@
 import { JSONLikeObject, ModifiedResponse, MultiStatusResponse } from '@segment/actions-core'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { Settings } from '../generated-types'
+
+export const FLAGS = {
+  PROJECT_TOKEN_AUTH: 'actions-mixpanel-project-token-auth'
+}
 
 export enum ApiRegions {
   US = 'US 🇺🇸',
   EU = 'EU 🇪🇺',
   IN = 'IN 🇮🇳'
+}
+
+export function getImportApiCredential(settings: Settings, features?: Features): string | undefined {
+  return features && features[FLAGS.PROJECT_TOKEN_AUTH] ? settings.projectToken : settings.apiSecret
 }
 
 export enum StrictMode {
