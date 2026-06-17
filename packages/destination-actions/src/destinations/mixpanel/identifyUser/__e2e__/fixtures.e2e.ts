@@ -26,7 +26,7 @@ const fixtures: E2EFixture[] = [
     }
   },
   {
-    description: 'Successfully identifies a user and aliases an anonymousId to a userId',
+    description: 'Successfully identifies a user and adds an anonymousId',
     subscribe: 'type = "identify"',
     mapping: defaultValues(identifyUser.fields),
     mode: 'single',
