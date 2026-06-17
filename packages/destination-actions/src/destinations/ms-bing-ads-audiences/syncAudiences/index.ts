@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, HTTPError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, HTTPError, Logger, ModifiedResponse } from '@segment/actions-core'
 import { MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -36,13 +36,59 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size,
     computation_class
   },
-  perform: async (request, { payload }) => {
-    return await syncUser(request, [payload], false)
+  perform: async (request, { payload, features, logger }) => {
+    return await syncUser(request, [payload], false, isDebugLoggingEnabled(features), logger)
   },
 
-  performBatch: async (request, { payload }) => {
-    return await syncUser(request, payload, true)
+  performBatch: async (request, { payload, features, logger }) => {
+    return await syncUser(request, payload, true, isDebugLoggingEnabled(features), logger)
   }
+}
+
+// TEMPORARY DEBUG LOGGING — gated behind the 'actions-ms-bing-ads-audiences-debug-logging'
+// feature flag. Enables logging of the raw request payloads and Bing Ads API responses
+// (including error bodies) so they can be inspected in the centralized logging pipeline.
+// Remove once debugging is complete.
+const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
+
+const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
+  Boolean(features && features[DEBUG_LOGGING_FLAG])
+
+// TEMPORARY: logs the request payload sent to Bing Ads and the raw response body.
+const logBingAdsResponse = (
+  logger: Logger | undefined,
+  debugLogging: boolean,
+  action: string,
+  audienceId: string,
+  sentPayload: SyncAudiencePayload,
+  response: ModifiedResponse
+): void => {
+  if (!debugLogging || !logger) {
+    return
+  }
+  logger.info(
+    `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+      `sent=${JSON.stringify(sentPayload)} response=${JSON.stringify(response.data)}`
+  )
+}
+
+// TEMPORARY: logs the error body returned by Bing Ads when an Apply call fails.
+const logBingAdsError = async (
+  logger: Logger | undefined,
+  debugLogging: boolean,
+  audienceId: string,
+  error: unknown
+): Promise<void> => {
+  if (!debugLogging || !logger) {
+    return
+  }
+  let body: string
+  try {
+    body = error instanceof HTTPError ? JSON.stringify(await error.response?.clone().json()) : String(error)
+  } catch {
+    body = error instanceof Error ? error.message : String(error)
+  }
+  logger.error(`[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} error=${body}`)
 }
 
 /**
@@ -58,7 +104,13 @@ const action: ActionDefinition<Settings, Payload> = {
  * @returns A promise that resolves to a `MultiStatusResponse` object summarizing the results.
  * @throws Will throw an error if a non-batch operation fails, or rethrows non-HTTP errors in batch mode.
  */
-const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boolean) => {
+const syncUser = async (
+  request: RequestClient,
+  payload: Payload[],
+  isBatch: boolean,
+  debugLogging = false,
+  logger?: Logger
+) => {
   const msResponse = new MultiStatusResponse()
 
   if (!Array.isArray(payload) || payload.length === 0) {
@@ -87,13 +139,16 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
     // Send data to Microsoft Bing Ads for both Add and Remove actions if they have entries
     if (addMap.size > 0) {
       const response = await sendDataToMicrosoftBingAds(request, addPayload)
+      logBingAdsResponse(logger, debugLogging, 'Add', audienceId, addPayload, response)
       handleMultistatusResponse(msResponse, response, addItems, addMap, payload, isBatch)
     }
     if (removeMap.size > 0) {
       const response = await sendDataToMicrosoftBingAds(request, removePayload)
+      logBingAdsResponse(logger, debugLogging, 'Remove', audienceId, removePayload, response)
       handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
     }
   } catch (error) {
+    await logBingAdsError(logger, debugLogging, audienceId, error)
     if (!isBatch) {
       throw error
     }
