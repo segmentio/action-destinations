@@ -87,6 +87,31 @@ const summarizeErrors = (errors: PartialError[] | undefined): string => {
   return JSON.stringify(errors.map((e) => ({ ErrorCode: e.ErrorCode, Code: e.Code, Index: e.Index, Type: e.Type })))
 }
 
+// Extract Microsoft's request/tracking identifier so it can be quoted to Bing Ads support.
+// It is normally returned as a response header (TrackingId / x-ms-trackingid / RequestId) and
+// is sometimes also echoed in the body as a top-level id field. It is a short opaque id, not
+// PII, so it is logged in full (control chars stripped, never truncated).
+const TRACKING_HEADER_NAMES = ['trackingid', 'x-ms-trackingid', 'requestid', 'x-ms-requestid']
+const TRACKING_BODY_KEYS = ['TrackingId', 'RequestId']
+
+const extractTrackingId = (headers: Headers | undefined, body: unknown): string => {
+  for (const name of TRACKING_HEADER_NAMES) {
+    const value = headers?.get(name)
+    if (value) {
+      return value
+    }
+  }
+  if (body && typeof body === 'object') {
+    for (const key of TRACKING_BODY_KEYS) {
+      const value = (body as Record<string, unknown>)[key]
+      if (typeof value === 'string' && value) {
+        return value
+      }
+    }
+  }
+  return 'none'
+}
+
 // Run a logging side effect, swallowing any error: temporary debug logging must never alter
 // the action's control flow (e.g. by masking the original error in the catch path).
 const safeLog = (fn: () => void): void => {
@@ -98,8 +123,9 @@ const safeLog = (fn: () => void): void => {
 }
 
 // TEMPORARY: logs a redacted summary of the Bing Ads response, plus non-sensitive metadata about
-// the request. We intentionally do NOT log CustomerListItems (hashed emails / CRM IDs) or the
-// PartialError free-text fields — only identifier type, item count, status and error codes.
+// the request and Microsoft's tracking id (for support tickets). We intentionally do NOT log
+// CustomerListItems (hashed emails / CRM IDs) or the PartialError free-text fields — only
+// identifier type, item count, status, tracking id and error codes.
 const logBingAdsResponse = (
   logger: Logger | undefined,
   debugLogging: boolean,
@@ -113,9 +139,11 @@ const logBingAdsResponse = (
   }
   const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
   const partialErrors = (response.data as { PartialErrors?: PartialError[] } | undefined)?.PartialErrors
+  const trackingId = extractTrackingId(response.headers, response.data)
   safeLog(() =>
     logger.info(
       `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+        `trackingId=${sanitizeForLog(trackingId)} ` +
         `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
         `partialErrors=${sanitizeForLog(summarizeErrors(partialErrors))}`
     )
@@ -143,13 +171,15 @@ const logBingAdsError = async (
   if (error instanceof HTTPError) {
     const status = error.response?.status
     let summary = '<unparseable>'
+    let parsed: { PartialErrors?: PartialError[] } | undefined
     try {
-      const parsed = (await error.response?.clone().json()) as { PartialErrors?: PartialError[] } | undefined
+      parsed = (await error.response?.clone().json()) as { PartialErrors?: PartialError[] } | undefined
       summary = summarizeErrors(parsed?.PartialErrors)
     } catch {
       // Non-JSON or already-consumed body — fall back to status only, never the raw body.
     }
-    detail = `status=${status ?? 'unknown'} partialErrors=${summary}`
+    const trackingId = extractTrackingId(error.response?.headers, parsed)
+    detail = `status=${status ?? 'unknown'} trackingId=${sanitizeForLog(trackingId)} partialErrors=${summary}`
   } else {
     detail = `error=${error instanceof Error ? error.message : String(error)}`
   }

@@ -327,6 +327,42 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(logged).not.toContain('5a95f052958dac8ed1d66d74eb481b3ccdbbc953b583c5ff0325be6b091d6281')
     })
 
+    it('logs the Microsoft tracking id from the response header', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, { PartialErrors: [] }, { TrackingId: 'abc-123-track' })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('trackingId=abc-123-track')
+    })
+
+    it('falls back to a body-level tracking id when no header is present', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { TrackingId: 'body-track-789', PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('trackingId=body-track-789')
+    })
+
     it('redacts PartialError free-text fields that can echo identifiers', async () => {
       // Bing can echo the offending identifier in Message/Details/FieldPath. Only codes/index
       // should be logged, never the free-text fields.
