@@ -10,7 +10,9 @@ import { FLAGS } from '../../common/utils'
 // behaviour (both credentials must be valid for the project).
 //
 // `mixpanel-multistatus` must be enabled for onBatch() to return a per-item MultiStatus array, so
-// the batch fixtures set it on both variants.
+// the batch fixtures set it on both variants. For batch fixtures we assert the full per-item
+// MultiStatus response: each item's `status`, `body`, and the transformed `sent` payload (the exact
+// Mixpanel event the action built). On success Mixpanel's import API returns body "OK".
 //
 // NOTE ON FAILURE TYPES (per request):
 //   - "Type 1" = a payload that fails Segment schema validation BEFORE performBatch is called
@@ -22,6 +24,10 @@ import { FLAGS } from '../../common/utils'
 //     strict mode (failed_records), surfaced with errorreporter DESTINATION. A FUTURE timestamp
 //     triggers it ("'properties.time' is invalid: must not be in the future"); note that a far-PAST
 //     timestamp is NOT rejected by Mixpanel, so the future timestamp is the reliable trigger.
+//
+// FIELD COVERAGE: the "all fields" fixture below populates every input field of the action so each
+// one is exercised in at least one successful single request. It asserts success only; per-field
+// `sent` assertions live in the batch/multistatus fixtures, which expose the transformed payload.
 
 const MULTISTATUS = 'mixpanel-multistatus'
 
@@ -40,6 +46,57 @@ function withAuthFlagVariants(fixture: E2EFixture): E2EFixture[] {
   return [off, on]
 }
 
+// A fully-populated event exercising every input field of the trackEvent action.
+const ALL_FIELDS_EVENT = {
+  type: 'track' as const,
+  event: 'E2E All Fields Event',
+  // messageId/timestamp are dynamic ($guid/$now) like a real event.
+  messageId: '$guid',
+  timestamp: '$now',
+  userId: 'e2e-user-allfields-001',
+  anonymousId: 'e2e-anon-allfields-001',
+  properties: {
+    customStringProp: 'customValue',
+    customNumberProp: 42
+  },
+  context: {
+    groupId: 'e2e-group-001',
+    ip: '203.0.113.5',
+    locale: 'en-US',
+    timezone: 'America/New_York',
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    app: { name: 'E2E App', namespace: 'com.e2e.app', build: '42', version: '1.2.3', platform: 'iOS' },
+    os: { name: 'iOS', version: '17.2' },
+    device: {
+      id: 'e2e-dev-001',
+      type: 'ios',
+      name: 'iPhone',
+      manufacturer: 'Apple',
+      model: 'iPhone15,2',
+      advertisingId: 'e2e-adid-001',
+      adTrackingEnabled: true,
+      idfa: 'e2e-idfa-001'
+    },
+    network: { bluetooth: false, carrier: 'Verizon', cellular: true, wifi: true },
+    location: { country: 'US', region: 'NY' },
+    library: { name: 'analytics.js', version: '2.0.0' },
+    page: { url: 'https://example.com/pricing', referrer: 'https://google.com' },
+    screen: { width: 1920, height: 1080, density: 2 },
+    campaign: { source: 'newsletter', medium: 'email', name: 'spring-sale', term: 'discount', content: 'top-banner' },
+    userAgentData: {
+      mobile: true,
+      platform: 'macOS',
+      architecture: 'arm',
+      bitness: '64',
+      model: 'MacBookPro',
+      platformVersion: '14.2',
+      uaFullVersion: '120.0.6099.109',
+      wow64: false
+    }
+  }
+}
+
 const baseFixtures: E2EFixture[] = [
   {
     description: 'Successfully tracks a single event',
@@ -53,6 +110,17 @@ const baseFixtures: E2EFixture[] = [
         page: '/pricing'
       }
     }),
+    expect: {
+      status: 'success'
+    }
+  },
+  {
+    // Field coverage: every input field is populated so each is exercised in a successful request.
+    description: 'Successfully tracks an event exercising all fields',
+    subscribe: 'type = "track"',
+    mapping: defaultValues(trackEvent.fields),
+    mode: 'single',
+    event: ALL_FIELDS_EVENT,
     expect: {
       status: 'success'
     }
@@ -75,7 +143,34 @@ const baseFixtures: E2EFixture[] = [
     ],
     expect: {
       status: 'success',
-      jsonContains: [{ status: 200 }, { status: 200 }]
+      jsonContains: [
+        {
+          status: 200,
+          body: 'OK',
+          sent: {
+            event: 'E2E Batch Event A',
+            properties: {
+              distinct_id: 'e2e-test-user-mixpanel-track-batch-001',
+              $user_id: 'e2e-test-user-mixpanel-track-batch-001',
+              $source: 'segment',
+              plan: 'pro'
+            }
+          }
+        },
+        {
+          status: 200,
+          body: 'OK',
+          sent: {
+            event: 'E2E Batch Event B',
+            properties: {
+              distinct_id: 'e2e-test-user-mixpanel-track-batch-002',
+              $user_id: 'e2e-test-user-mixpanel-track-batch-002',
+              $source: 'segment',
+              plan: 'free'
+            }
+          }
+        }
+      ]
     }
   },
   {
@@ -104,9 +199,29 @@ const baseFixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200 },
+        {
+          status: 200,
+          body: 'OK',
+          sent: {
+            event: 'E2E Valid Event 1',
+            properties: {
+              distinct_id: 'e2e-test-user-mixpanel-track-mix-001',
+              ok: true
+            }
+          }
+        },
         { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errorreporter: 'INTEGRATIONS' },
-        { status: 200 }
+        {
+          status: 200,
+          body: 'OK',
+          sent: {
+            event: 'E2E Valid Event 3',
+            properties: {
+              distinct_id: 'e2e-test-user-mixpanel-track-mix-003',
+              ok: true
+            }
+          }
+        }
       ]
     }
   },
@@ -129,8 +244,10 @@ const baseFixtures: E2EFixture[] = [
       createE2EEvent('track', undefined, {
         userId: 'e2e-test-user-mixpanel-track-srv-002'
       }),
-      // [2] valid schema but a FUTURE timestamp (year 2100) -> Mixpanel strict mode rejects it
-      //     server-side into failed_records, surfaced with errorreporter DESTINATION.
+      // [2] valid schema but a fixed FUTURE timestamp (year 2100) -> Mixpanel strict mode rejects
+      //     it server-side into failed_records, surfaced with errorreporter DESTINATION. This
+      //     timestamp is the deliberately-invalid value under test, so it is intentionally fixed
+      //     (not $now). messageId stays dynamic.
       {
         ...createE2EEvent('track', 'E2E Mixed Future', {
           userId: 'e2e-test-user-mixpanel-track-srv-003',
@@ -144,9 +261,38 @@ const baseFixtures: E2EFixture[] = [
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200 },
+        {
+          // When ANY record in the batch fails strict mode, Mixpanel returns a top-level
+          // code 400 / status "Bad Request", and the action stamps that status onto the
+          // surviving success items' body (so it is "Bad Request" here, not "OK").
+          status: 200,
+          body: 'Bad Request',
+          sent: {
+            event: 'E2E Mixed Valid',
+            properties: {
+              distinct_id: 'e2e-test-user-mixpanel-track-srv-001',
+              ok: true
+            }
+          }
+        },
         { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errorreporter: 'INTEGRATIONS' },
-        { status: 400, errorreporter: 'DESTINATION' }
+        {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errorreporter: 'DESTINATION',
+          errormessage: "'properties.time' is invalid: must not be in the future",
+          sent: {
+            event: 'E2E Mixed Future',
+            properties: {
+              time: 4102444800000,
+              distinct_id: 'e2e-test-user-mixpanel-track-srv-003'
+            }
+          },
+          body: {
+            field: 'properties.time',
+            message: "'properties.time' is invalid: must not be in the future"
+          }
+        }
       ]
     }
   }
