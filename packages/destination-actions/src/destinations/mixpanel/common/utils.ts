@@ -12,8 +12,15 @@ export enum ApiRegions {
   IN = 'IN 🇮🇳'
 }
 
-export function getImportApiCredential(settings: Settings, features?: Features): string | undefined {
-  return features && features[FLAGS.PROJECT_TOKEN_AUTH] ? settings.projectToken : settings.apiSecret
+export function getImportApiCredential(settings: Settings, features?: Features): string {
+  // When the project-token-auth flag is ON, authenticate the Import API with the Project Token.
+  // When OFF (default), use the API Secret if present. apiSecret is optional, so fall back to the
+  // Project Token when it is not set — otherwise new connections without a secret would send an
+  // "undefined:" Basic auth header and get 401s.
+  if (features && features[FLAGS.PROJECT_TOKEN_AUTH]) {
+    return settings.projectToken
+  }
+  return settings.apiSecret ?? settings.projectToken
 }
 
 export enum StrictMode {
