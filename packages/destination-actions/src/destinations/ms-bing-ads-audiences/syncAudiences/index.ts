@@ -20,7 +20,7 @@ import {
   handleHttpError,
   categorizePayloadByAction
 } from '../utils'
-import { Identifier, SyncAudiencePayload } from '../types'
+import { Identifier, SyncAudiencePayload, PartialError } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
@@ -46,9 +46,11 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 // TEMPORARY DEBUG LOGGING — gated behind the 'actions-ms-bing-ads-audiences-debug-logging'
-// feature flag. Logs non-sensitive request metadata (identifier type + item count) and the
-// Bing Ads API response/error bodies to the centralized logging pipeline. It intentionally
-// does NOT log CustomerListItems (hashed emails / CRM IDs). Remove once debugging is complete.
+// feature flag. Logs non-sensitive request metadata (identifier type + item count) plus a
+// redacted summary of the Bing Ads API response/errors to the centralized logging pipeline.
+// It intentionally does NOT log CustomerListItems (hashed emails / CRM IDs) and strips the
+// PartialError free-text fields (Message/Details/FieldPath) that can echo back identifiers —
+// CRM IDs in particular are unhashed. Remove once debugging is complete.
 const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
 
 const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
@@ -57,12 +59,47 @@ const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): b
 // Cap logged bodies so a large or malformed response can't produce oversized log entries.
 const MAX_LOGGED_BODY_LENGTH = 4096
 
-const truncate = (value: string): string =>
-  value.length > MAX_LOGGED_BODY_LENGTH ? `${value.slice(0, MAX_LOGGED_BODY_LENGTH)}…[truncated]` : value
+// Truncate without splitting a surrogate pair (which would emit a lone surrogate), and strip
+// control characters so logged content can't forge log lines or inject control sequences.
+const sanitizeForLog = (value: string): string => {
+  let out = value
+  if (out.length > MAX_LOGGED_BODY_LENGTH) {
+    let end = MAX_LOGGED_BODY_LENGTH
+    const code = out.charCodeAt(end - 1)
+    // If the cut lands on the high half of a surrogate pair, drop it.
+    if (code >= 0xd800 && code <= 0xdbff) {
+      end -= 1
+    }
+    out = `${out.slice(0, end)}…[truncated]`
+  }
+  // Stripping control chars is the intent here, so no-control-regex is expected.
+  // eslint-disable-next-line no-control-regex
+  return out.replace(/[\u0000-\u001f\u007f]/g, ' ')
+}
 
-// TEMPORARY: logs the Bing Ads response body, plus non-sensitive metadata about the request.
-// We intentionally do NOT log CustomerListItems (hashed emails / CRM IDs) — only the
-// identifier type and item count — to avoid leaking customer-match identifiers into logs.
+// Build a PII-safe summary of the Bing Ads response. PartialErrors are reduced to their codes
+// and index — the free-text Message/Details/FieldPath fields can echo back the offending
+// identifier value, so they are dropped.
+const summarizeErrors = (errors: PartialError[] | undefined): string => {
+  if (!errors || errors.length === 0) {
+    return '[]'
+  }
+  return JSON.stringify(errors.map((e) => ({ ErrorCode: e.ErrorCode, Code: e.Code, Index: e.Index, Type: e.Type })))
+}
+
+// Run a logging side effect, swallowing any error: temporary debug logging must never alter
+// the action's control flow (e.g. by masking the original error in the catch path).
+const safeLog = (fn: () => void): void => {
+  try {
+    fn()
+  } catch {
+    // Intentionally ignored — debug logging is best-effort.
+  }
+}
+
+// TEMPORARY: logs a redacted summary of the Bing Ads response, plus non-sensitive metadata about
+// the request. We intentionally do NOT log CustomerListItems (hashed emails / CRM IDs) or the
+// PartialError free-text fields — only identifier type, item count, status and error codes.
 const logBingAdsResponse = (
   logger: Logger | undefined,
   debugLogging: boolean,
@@ -75,21 +112,23 @@ const logBingAdsResponse = (
     return
   }
   const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
-  // Use `response.content` (always a string) rather than `response.data` (can be undefined
-  // for an empty/non-JSON body, which would make truncate() throw).
-  logger.info(
-    `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
-      `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
-      `response=${truncate(response.content ?? '')}`
+  const partialErrors = (response.data as { PartialErrors?: PartialError[] } | undefined)?.PartialErrors
+  safeLog(() =>
+    logger.info(
+      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+        `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
+        `partialErrors=${sanitizeForLog(summarizeErrors(partialErrors))}`
+    )
   )
 }
 
-// TEMPORARY: logs the error body returned by Bing Ads when an Apply call fails, plus the same
+// TEMPORARY: logs the error returned by Bing Ads when an Apply call fails, plus the same
 // non-sensitive metadata as the success log so the failure can be correlated with the attempted
 // operation. `attempted` is the payload of the in-flight Apply call (undefined if it failed
-// before a call was made). The body is read as text (not assumed to be JSON) and size-capped,
-// then the response is cloned so handleHttpError can still consume the original body. We never
-// log CustomerListItems.
+// before a call was made). When the body parses as JSON, PartialErrors are reduced to a
+// PII-safe summary; otherwise only the HTTP status is logged (the raw body can echo back
+// identifiers, so it is not logged verbatim). The response is cloned so handleHttpError can
+// still consume the original body.
 const logBingAdsError = async (
   logger: Logger | undefined,
   debugLogging: boolean,
@@ -100,17 +139,29 @@ const logBingAdsError = async (
   if (!debugLogging || !logger) {
     return
   }
-  let body: string
-  try {
-    body = error instanceof HTTPError ? (await error.response?.clone().text()) ?? '' : String(error)
-  } catch {
-    body = error instanceof Error ? error.message : String(error)
+  let detail: string
+  if (error instanceof HTTPError) {
+    const status = error.response?.status
+    let summary = '<unparseable>'
+    try {
+      const parsed = (await error.response?.clone().json()) as { PartialErrors?: PartialError[] } | undefined
+      summary = summarizeErrors(parsed?.PartialErrors)
+    } catch {
+      // Non-JSON or already-consumed body — fall back to status only, never the raw body.
+    }
+    detail = `status=${status ?? 'unknown'} partialErrors=${summary}`
+  } else {
+    detail = `error=${error instanceof Error ? error.message : String(error)}`
   }
   const data = attempted?.CustomerListUserData
   const context = data
     ? `action=${data.ActionType} identifierType=${data.CustomerListItemSubType} itemCount=${data.CustomerListItems.length} `
     : ''
-  logger.error(`[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} ${context}error=${truncate(body)}`)
+  safeLog(() =>
+    logger.error(
+      `[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} ${context}${sanitizeForLog(detail)}`
+    )
+  )
 }
 
 /**
