@@ -75,10 +75,12 @@ const logBingAdsResponse = (
     return
   }
   const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
+  // Use `response.content` (always a string) rather than `response.data` (can be undefined
+  // for an empty/non-JSON body, which would make truncate() throw).
   logger.info(
     `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
       `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
-      `response=${truncate(JSON.stringify(response.data))}`
+      `response=${truncate(response.content ?? '')}`
   )
 }
 

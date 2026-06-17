@@ -326,6 +326,24 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(logged).not.toContain('5a95f052958dac8ed1d66d74eb481b3ccdbbc953b583c5ff0325be6b091d6281')
     })
 
+    it('does not crash when the response body is empty', async () => {
+      // Empty body => response.data is undefined; logging must still succeed.
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200)
+      const logger = makeLogger()
+
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.info).toHaveBeenCalledTimes(1)
+      expect(response[0].status).toBe(200)
+    })
+
     it('logs the error body and still lets handleHttpError consume the response', async () => {
       nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
       const logger = makeLogger()
