@@ -56,21 +56,24 @@ const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
 const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
   Boolean(features && features[DEBUG_LOGGING_FLAG])
 
-// Cap logged bodies so a large or malformed response can't produce oversized log entries.
+// Cap logged values so a large or malformed response can't produce oversized log entries. The
+// cap is strict: the returned string (including the truncation suffix) never exceeds it.
 const MAX_LOGGED_BODY_LENGTH = 4096
+const TRUNCATION_SUFFIX = '…[truncated]'
 
 // Truncate without splitting a surrogate pair (which would emit a lone surrogate), and strip
 // control characters so logged content can't forge log lines or inject control sequences.
 const sanitizeForLog = (value: string): string => {
   let out = value
   if (out.length > MAX_LOGGED_BODY_LENGTH) {
-    let end = MAX_LOGGED_BODY_LENGTH
+    // Reserve room for the suffix so the total stays within the cap.
+    let end = MAX_LOGGED_BODY_LENGTH - TRUNCATION_SUFFIX.length
     const code = out.charCodeAt(end - 1)
     // If the cut lands on the high half of a surrogate pair, drop it.
     if (code >= 0xd800 && code <= 0xdbff) {
       end -= 1
     }
-    out = `${out.slice(0, end)}…[truncated]`
+    out = `${out.slice(0, end)}${TRUNCATION_SUFFIX}`
   }
   // Stripping control chars is the intent here, so no-control-regex is expected.
   // eslint-disable-next-line no-control-regex
@@ -142,7 +145,7 @@ const logBingAdsResponse = (
   const trackingId = extractTrackingId(response.headers, response.data)
   safeLog(() =>
     logger.info(
-      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${sanitizeForLog(audienceId)} status=${response.status} ` +
         `trackingId=${sanitizeForLog(trackingId)} ` +
         `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
         `partialErrors=${sanitizeForLog(summarizeErrors(partialErrors))}`
@@ -189,7 +192,9 @@ const logBingAdsError = async (
     : ''
   safeLog(() =>
     logger.error(
-      `[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} ${context}${sanitizeForLog(detail)}`
+      `[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${sanitizeForLog(audienceId)} ${context}${sanitizeForLog(
+        detail
+      )}`
     )
   )
 }

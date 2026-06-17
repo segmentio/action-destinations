@@ -425,6 +425,52 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(logged).not.toContain('\n')
     })
 
+    it('sanitizes a crafted audience id to prevent log injection', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: { ...baseMapping, audience_id: 'aud\n_injected' },
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).not.toContain('\n')
+    })
+
+    it('truncates oversized values without exceeding the cap', async () => {
+      // A long PartialError code forces truncation; the resulting log line's summary segment
+      // (including the suffix) must stay within the configured cap.
+      const longCode = 'C'.repeat(10000)
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, {
+          PartialErrors: [
+            { ErrorCode: longCode, Code: 1, Index: 0, Type: 'T', Message: null, Details: null, FieldPath: null }
+          ]
+        })
+      const logger = makeLogger()
+
+      await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      const partialErrors = logged.split('partialErrors=')[1]
+      expect(partialErrors).toContain('[truncated]')
+      // The truncated segment (suffix included) must not exceed the 4096 cap.
+      expect(partialErrors.length).toBeLessThanOrEqual(4096)
+    })
+
     it('does not let a throwing logger break the action', async () => {
       nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
       const logger = makeLogger()
