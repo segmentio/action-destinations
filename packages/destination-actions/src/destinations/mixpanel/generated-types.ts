@@ -6,6 +6,10 @@ export interface Settings {
    */
   projectToken: string
   /**
+   * Mixpanel project secret.
+   */
+  apiSecret?: string
+  /**
    * Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)
    */
   apiRegion?: string
