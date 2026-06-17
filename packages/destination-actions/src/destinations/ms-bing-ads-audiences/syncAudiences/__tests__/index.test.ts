@@ -361,6 +361,10 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       const logged = (logger.error as jest.Mock).mock.calls[0][0] as string
       expect(logged).toContain('[ms-bing-ads-audiences][DEBUG] Apply failed')
       expect(logged).toContain('boom')
+      // Error log carries the same non-sensitive request metadata as the success log.
+      expect(logged).toContain('action=Add')
+      expect(logged).toContain('identifierType=Email')
+      expect(logged).toContain('itemCount=1')
 
       // handleHttpError must still be able to read the (cloned) response body.
       expect(utils.handleHttpError).toHaveBeenCalled()

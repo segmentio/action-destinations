@@ -84,14 +84,18 @@ const logBingAdsResponse = (
   )
 }
 
-// TEMPORARY: logs the error body returned by Bing Ads when an Apply call fails.
-// The body is read as text (not assumed to be JSON) and size-capped, then the response is
-// cloned so handleHttpError can still consume the original body.
+// TEMPORARY: logs the error body returned by Bing Ads when an Apply call fails, plus the same
+// non-sensitive metadata as the success log so the failure can be correlated with the attempted
+// operation. `attempted` is the payload of the in-flight Apply call (undefined if it failed
+// before a call was made). The body is read as text (not assumed to be JSON) and size-capped,
+// then the response is cloned so handleHttpError can still consume the original body. We never
+// log CustomerListItems.
 const logBingAdsError = async (
   logger: Logger | undefined,
   debugLogging: boolean,
   audienceId: string,
-  error: unknown
+  error: unknown,
+  attempted?: SyncAudiencePayload
 ): Promise<void> => {
   if (!debugLogging || !logger) {
     return
@@ -102,7 +106,11 @@ const logBingAdsError = async (
   } catch {
     body = error instanceof Error ? error.message : String(error)
   }
-  logger.error(`[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} error=${truncate(body)}`)
+  const data = attempted?.CustomerListUserData
+  const context = data
+    ? `action=${data.ActionType} identifierType=${data.CustomerListItemSubType} itemCount=${data.CustomerListItems.length} `
+    : ''
+  logger.error(`[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${audienceId} ${context}error=${truncate(body)}`)
 }
 
 /**
@@ -149,20 +157,26 @@ const syncUser = async (
 
   const removePayload: SyncAudiencePayload = preparePayload(audienceId, 'Remove', identifierType, removeItems)
 
+  // Tracks the Apply payload currently in flight so an error can be correlated with the
+  // operation (Add vs Remove) that failed.
+  let attemptedPayload: SyncAudiencePayload | undefined
+
   try {
     // Send data to Microsoft Bing Ads for both Add and Remove actions if they have entries
     if (addMap.size > 0) {
+      attemptedPayload = addPayload
       const response = await sendDataToMicrosoftBingAds(request, addPayload)
       logBingAdsResponse(logger, debugLogging, 'Add', audienceId, addPayload, response)
       handleMultistatusResponse(msResponse, response, addItems, addMap, payload, isBatch)
     }
     if (removeMap.size > 0) {
+      attemptedPayload = removePayload
       const response = await sendDataToMicrosoftBingAds(request, removePayload)
       logBingAdsResponse(logger, debugLogging, 'Remove', audienceId, removePayload, response)
       handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
     }
   } catch (error) {
-    await logBingAdsError(logger, debugLogging, audienceId, error)
+    await logBingAdsError(logger, debugLogging, audienceId, error, attemptedPayload)
     if (!isBatch) {
       throw error
     }
