@@ -10,9 +10,7 @@ const destination: DestinationDefinition<Settings> = {
   mode: 'cloud',
 
   authentication: {
-    // Custom scheme: each customer supplies their own Marketo client id/secret, so we
-    // mint the token inline (see functions.ts) rather than using the platform OAuth flow.
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
       client_id: {
         label: 'Client ID',
@@ -35,8 +33,17 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      // Successfully minting a token validates the client id/secret and API domain.
       return getAccessToken(request, settings)
+    },
+    refreshAccessToken: async (request, { settings }) => {
+      return { accessToken: await getAccessToken(request, settings) }
+    }
+  },
+  extendRequest({ auth }) {
+    return {
+      headers: {
+        authorization: `Bearer ${auth?.accessToken}`
+      }
     }
   },
 

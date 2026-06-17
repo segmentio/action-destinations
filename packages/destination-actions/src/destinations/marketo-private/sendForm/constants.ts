@@ -6,7 +6,7 @@ export const SUBMIT_FORM_ENDPOINT = '/rest/v1/leads/submitForm.json'
 //   - Record-level:   `result[].reasons[]` with `success: true` (request ok, this record skipped)
 // See: https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/error-codes
 
-// Response-level auth errors. With per-request token minting these point at bad client credentials.
+// Response-level auth errors. These trigger an OAuth2 token refresh + retry on the platform.
 //   601 - Access token invalid
 //   602 - Access token expired
 export const AUTH_ERROR_CODES = new Set(['601', '602'])

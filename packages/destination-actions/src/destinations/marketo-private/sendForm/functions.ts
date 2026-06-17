@@ -14,12 +14,12 @@ import {
   ResponseLevelErrorRetryableCode,
   RecordLevelErrorRetryableCode
 } from './constants'
-import { getAccessToken } from '../functions'
 
 function removeEmpty(obj: Record<string, unknown>): Record<string, string | number | boolean> {
-  return Object.fromEntries(
-    Object.entries(obj).filter(([, v]) => v !== null && v !== undefined)
-  ) as Record<string, string | number | boolean>
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== null && v !== undefined)) as Record<
+    string,
+    string | number | boolean
+  >
 }
 
 // Response-level errors: top-level `errors[]`, present only when `success: false`.
@@ -57,7 +57,8 @@ function handleResponse(body: MarketoSubmitFormResponse) {
   const responseCodes = responseErrors.map((e) => e.code)
   const responseMessage = formatErrors(responseErrors)
 
-  // Token invalid/expired. We mint a fresh token per request
+  // Token invalid/expired. Throwing an auth error (status 401) signals the platform to
+  // refresh the OAuth2 token via refreshAccessToken and retry the request.
   if (responseCodes.some((code) => AUTH_ERROR_CODES.has(code))) {
     throw new InvalidAuthenticationError(responseMessage, ErrorCodes.INVALID_AUTHENTICATION)
   }
@@ -95,12 +96,9 @@ export async function send(request: RequestClient, settings: Settings, payload: 
 
   const url = `${settings.marketo_api_domain}${SUBMIT_FORM_ENDPOINT}`
 
-  const accessToken = await getAccessToken(request, settings)
-
   const response = await request<MarketoSubmitFormResponse>(url, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     },
     json
