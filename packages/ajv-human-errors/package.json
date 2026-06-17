@@ -7,6 +7,10 @@
     "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/ajv-human-errors"
   },
+  "homepage": "https://github.com/segmentio/action-destinations/tree/main/packages/ajv-human-errors#readme",
+  "bugs": {
+    "url": "https://github.com/segmentio/action-destinations/issues"
+  },
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/cjs/index.d.ts",
