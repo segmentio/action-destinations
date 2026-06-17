@@ -19,13 +19,14 @@ const fixtures: E2EFixture[] = [
     mapping: {
       ...defaultValues(sendForm.fields),
       formId: FORM_ID,
+      // submitForm matches leadFormFields keys against Marketo REST field names (camelCase),
+      // not the form's display field IDs. Verified live: these keys create a lead.
       leadFormFields: {
-        Email: 'e2e-marketo-private-001@segment.com',
-        FirstName: 'E2E',
-        LastName: 'Tester'
+        email: 'e2e-marketo-private-001@segment.com',
+        firstName: 'E2E',
+        lastName: 'Tester'
       },
       visitorData: {
-        email: 'e2e-marketo-private-001@segment.com',
         pageURL: 'https://example.com/segment-e2e'
       }
     },
