@@ -38,6 +38,7 @@ export type EventDataType =
   | PageEventData
   | CustomEventData
   | SearchEventData
+  | AppendValueEventData
 
 export type EventTypeKey = keyof typeof EventType
 
@@ -164,6 +165,29 @@ export interface ViewContentEventData extends BaseEventData {
   }
 }
 
+export interface AppendValueEventData extends BaseEventData {
+  event_name: 'AppendValue'
+  original_event_data: {
+    event_name: string
+    event_time: string
+    order_id?: string
+    event_id?: string
+  }
+  custom_data: {
+    net_revenue?: number
+    predicted_ltv?: number
+    [k: string]: unknown
+  }
+}
+
+export interface AppendEventDetails {
+  original_event_time: string
+  original_event_order_id?: string
+  original_event_id?: string
+  net_revenue_to_append?: number
+  predicted_ltv_to_append?: number
+}
+
 export type GeneratedAppData = {
   advertiser_tracking_enabled: 1 | 0
   application_tracking_enabled: 1 | 0
@@ -194,6 +218,7 @@ export interface UserData {
   fb_login_id?: number
   partner_id?: string
   partner_name?: string
+  ctwa_clid?: string
 }
 
 export type Content = {
