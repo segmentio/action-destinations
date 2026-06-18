@@ -363,6 +363,28 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(logged).toContain('trackingId=body-track-789')
     })
 
+    it('logs the tracking id in full, never truncated', async () => {
+      // Even an unexpectedly long tracking id must be quotable to Microsoft support verbatim.
+      const longTrackingId = `T-${'9'.repeat(6000)}`
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, { PartialErrors: [] }, { TrackingId: longTrackingId })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain(`trackingId=${longTrackingId}`)
+      expect(logged).not.toContain('[truncated]')
+    })
+
     it('redacts PartialError free-text fields that can echo identifiers', async () => {
       // Bing can echo the offending identifier in Message/Details/FieldPath. Only codes/index
       // should be logged, never the free-text fields.

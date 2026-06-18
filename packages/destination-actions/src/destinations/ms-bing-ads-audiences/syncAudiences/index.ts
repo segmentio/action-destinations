@@ -61,8 +61,16 @@ const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): b
 const MAX_LOGGED_BODY_LENGTH = 4096
 const TRUNCATION_SUFFIX = '…[truncated]'
 
-// Truncate without splitting a surrogate pair (which would emit a lone surrogate), and strip
-// control characters so logged content can't forge log lines or inject control sequences.
+// Strip control characters so logged content can't forge log lines or inject control
+// sequences. Applied to every interpolated value; does NOT cap length.
+const stripControlChars = (value: string): string =>
+  // Stripping control chars is the intent here, so no-control-regex is expected.
+  // eslint-disable-next-line no-control-regex
+  value.replace(/[\u0000-\u001f\u007f]/g, ' ')
+
+// Strip control chars AND cap length (truncating without splitting a surrogate pair). Use for
+// values that can be arbitrarily large (response/error bodies); prefer stripControlChars alone
+// for short identifiers that must be logged in full.
 const sanitizeForLog = (value: string): string => {
   let out = value
   if (out.length > MAX_LOGGED_BODY_LENGTH) {
@@ -75,9 +83,7 @@ const sanitizeForLog = (value: string): string => {
     }
     out = `${out.slice(0, end)}${TRUNCATION_SUFFIX}`
   }
-  // Stripping control chars is the intent here, so no-control-regex is expected.
-  // eslint-disable-next-line no-control-regex
-  return out.replace(/[\u0000-\u001f\u007f]/g, ' ')
+  return stripControlChars(out)
 }
 
 // Build a PII-safe summary of the Bing Ads response. PartialErrors are reduced to their codes
@@ -145,8 +151,11 @@ const logBingAdsResponse = (
   const trackingId = extractTrackingId(response.headers, response.data)
   safeLog(() =>
     logger.info(
-      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${sanitizeForLog(audienceId)} status=${response.status} ` +
-        `trackingId=${sanitizeForLog(trackingId)} ` +
+      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${stripControlChars(audienceId)} status=${
+        response.status
+      } ` +
+        // trackingId is only control-char stripped, never truncated, so it can be quoted in full.
+        `trackingId=${stripControlChars(trackingId)} ` +
         `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
         `partialErrors=${sanitizeForLog(summarizeErrors(partialErrors))}`
     )
@@ -182,9 +191,13 @@ const logBingAdsError = async (
       // Non-JSON or already-consumed body — fall back to status only, never the raw body.
     }
     const trackingId = extractTrackingId(error.response?.headers, parsed)
-    detail = `status=${status ?? 'unknown'} trackingId=${sanitizeForLog(trackingId)} partialErrors=${summary}`
+    // Only the (potentially large) PartialErrors summary is capped; trackingId is stripped but
+    // logged in full so it can be quoted to Microsoft support.
+    detail = `status=${status ?? 'unknown'} trackingId=${stripControlChars(trackingId)} partialErrors=${sanitizeForLog(
+      summary
+    )}`
   } else {
-    detail = `error=${error instanceof Error ? error.message : String(error)}`
+    detail = `error=${sanitizeForLog(error instanceof Error ? error.message : String(error))}`
   }
   const data = attempted?.CustomerListUserData
   const context = data
@@ -192,9 +205,7 @@ const logBingAdsError = async (
     : ''
   safeLog(() =>
     logger.error(
-      `[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${sanitizeForLog(audienceId)} ${context}${sanitizeForLog(
-        detail
-      )}`
+      `[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${stripControlChars(audienceId)} ${context}${detail}`
     )
   )
 }
