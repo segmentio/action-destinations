@@ -162,54 +162,6 @@ const logBingAdsResponse = (
   )
 }
 
-// TEMPORARY: logs the error returned by Bing Ads when an Apply call fails, plus the same
-// non-sensitive metadata as the success log so the failure can be correlated with the attempted
-// operation. `attempted` is the payload of the in-flight Apply call (undefined if it failed
-// before a call was made). When the body parses as JSON, PartialErrors are reduced to a
-// PII-safe summary; otherwise only the HTTP status is logged (the raw body can echo back
-// identifiers, so it is not logged verbatim). The response is cloned so handleHttpError can
-// still consume the original body.
-const logBingAdsError = async (
-  logger: Logger | undefined,
-  debugLogging: boolean,
-  audienceId: string,
-  error: unknown,
-  attempted?: SyncAudiencePayload
-): Promise<void> => {
-  if (!debugLogging || !logger) {
-    return
-  }
-  let detail: string
-  if (error instanceof HTTPError) {
-    const status = error.response?.status
-    let summary = '<unparseable>'
-    let parsed: { PartialErrors?: PartialError[] } | undefined
-    try {
-      parsed = (await error.response?.clone().json()) as { PartialErrors?: PartialError[] } | undefined
-      summary = summarizeErrors(parsed?.PartialErrors)
-    } catch {
-      // Non-JSON or already-consumed body — fall back to status only, never the raw body.
-    }
-    const trackingId = extractTrackingId(error.response?.headers, parsed)
-    // Only the (potentially large) PartialErrors summary is capped; trackingId is stripped but
-    // logged in full so it can be quoted to Microsoft support.
-    detail = `status=${status ?? 'unknown'} trackingId=${stripControlChars(trackingId)} partialErrors=${sanitizeForLog(
-      summary
-    )}`
-  } else {
-    detail = `error=${sanitizeForLog(error instanceof Error ? error.message : String(error))}`
-  }
-  const data = attempted?.CustomerListUserData
-  const context = data
-    ? `action=${data.ActionType} identifierType=${data.CustomerListItemSubType} itemCount=${data.CustomerListItems.length} `
-    : ''
-  safeLog(() =>
-    logger.error(
-      `[ms-bing-ads-audiences][DEBUG] Apply failed audienceId=${stripControlChars(audienceId)} ${context}${detail}`
-    )
-  )
-}
-
 /**
  * Synchronizes user audience data with Microsoft Bing Ads.
  *
@@ -254,26 +206,19 @@ const syncUser = async (
 
   const removePayload: SyncAudiencePayload = preparePayload(audienceId, 'Remove', identifierType, removeItems)
 
-  // Tracks the Apply payload currently in flight so an error can be correlated with the
-  // operation (Add vs Remove) that failed.
-  let attemptedPayload: SyncAudiencePayload | undefined
-
   try {
     // Send data to Microsoft Bing Ads for both Add and Remove actions if they have entries
     if (addMap.size > 0) {
-      attemptedPayload = addPayload
       const response = await sendDataToMicrosoftBingAds(request, addPayload)
       logBingAdsResponse(logger, debugLogging, 'Add', audienceId, addPayload, response)
       handleMultistatusResponse(msResponse, response, addItems, addMap, payload, isBatch)
     }
     if (removeMap.size > 0) {
-      attemptedPayload = removePayload
       const response = await sendDataToMicrosoftBingAds(request, removePayload)
       logBingAdsResponse(logger, debugLogging, 'Remove', audienceId, removePayload, response)
       handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
     }
   } catch (error) {
-    await logBingAdsError(logger, debugLogging, audienceId, error, attemptedPayload)
     if (!isBatch) {
       throw error
     }

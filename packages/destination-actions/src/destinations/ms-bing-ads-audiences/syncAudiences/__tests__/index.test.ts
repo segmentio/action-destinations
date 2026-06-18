@@ -494,15 +494,15 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     })
 
     it('does not let a throwing logger break the action', async () => {
-      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
       const logger = makeLogger()
-      ;(logger.error as jest.Mock).mockImplementation(() => {
+      ;(logger.info as jest.Mock).mockImplementation(() => {
         throw new Error('logger exploded')
       })
 
-      // The throwing logger must be swallowed so handleHttpError still runs.
-      const response = await testDestination.testBatchAction('syncAudiences', {
-        events: [addEvent()],
+      // A throwing logger must be swallowed so the action still succeeds.
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
         mapping: baseMapping,
         useDefaultMappings: true,
         settings,
@@ -510,8 +510,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      expect(utils.handleHttpError).toHaveBeenCalled()
-      expect(response[0].status).toBe(500)
+      expect(response[0].status).toBe(200)
     })
 
     it('does not crash when the response body is empty', async () => {
@@ -532,7 +531,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(response[0].status).toBe(200)
     })
 
-    it('logs error status/metadata and still lets handleHttpError consume the response', async () => {
+    it('does not log on the error path (only success responses are logged)', async () => {
       nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
       const logger = makeLogger()
 
@@ -545,18 +544,10 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      expect(logger.error).toHaveBeenCalledTimes(1)
-      const logged = (logger.error as jest.Mock).mock.calls[0][0] as string
-      expect(logged).toContain('[ms-bing-ads-audiences][DEBUG] Apply failed')
-      expect(logged).toContain('status=500')
-      // Error log carries the same non-sensitive request metadata as the success log.
-      expect(logged).toContain('action=Add')
-      expect(logged).toContain('identifierType=Email')
-      expect(logged).toContain('itemCount=1')
-      // The raw error body is not logged verbatim (it can echo identifiers).
-      expect(logged).not.toContain('boom')
-
-      // handleHttpError must still be able to read the (cloned) response body.
+      // We only log successful responses; the error path emits nothing.
+      expect(logger.info).not.toHaveBeenCalled()
+      expect(logger.error).not.toHaveBeenCalled()
+      // The HTTP error is still handled normally.
       expect(utils.handleHttpError).toHaveBeenCalled()
       expect(response[0].status).toBe(500)
     })
