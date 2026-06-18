@@ -1,0 +1,342 @@
+{
+  "slug": "actions-ms-bing-ads-audiences",
+  "name": "Ms Bing Ads Audiences",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "customerAccountId": {
+        "label": "Customer Account ID",
+        "description": "The account ID of the Microsoft Advertising account you want to manage. You can find it in the URL when viewing the account in the Microsoft Ads User Interface. Not to be confused with Account Number.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "customerId": {
+        "label": "Customer ID",
+        "description": "The customer (parent) ID associated with your Microsoft Advertising account. You can find this in the URL when viewing your account in the Microsoft Ads User Interface.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {},
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "syncAudiences": {
+      "title": "Sync Audiences",
+      "description": "Sync users to Microsoft Bing Ads Audiences",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "audience_id": {
+          "label": "Audience ID",
+          "description": "The ID of the audience to which you want to add or remove users.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits_or_props": {
+          "label": "[Hidden] Traits or Properties",
+          "description": "[Hidden] properties object from track() payloads. Note: identify calls are not handled and are disabled in the Partner Portal.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audience_key": {
+          "label": "[Hidden] Audience Key",
+          "description": "[Hidden]: The Engage Audience Key / Slug.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "identifier_type": {
+          "label": "Identifier Type",
+          "description": "The type of identifier you are using to sync users.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Email",
+          "choices": [
+            {
+              "label": "Email",
+              "value": "Email"
+            },
+            {
+              "label": "CRM ID",
+              "value": "CRM"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "The email address of the user to add or remove from the audience.",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "Email"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "Email"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "crm_id": {
+          "label": "CRM ID",
+          "description": "The CRM ID of the user to add or remove from the audience.",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "CRM"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "identifier_type",
+                "operator": "is",
+                "value": "CRM"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of user syncs to optimize performance. When enabled, user syncs will be sent in batches based on the specified batch size.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "[Hidden] Batch Size",
+          "description": "[Hidden] The number of user syncs to include in each batch when batching is enabled. Must be between 1 and 1000.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": 1,
+          "maximum": 1000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "computation_class": {
+          "label": "Computation Class",
+          "description": "Hidden field: The computation class for the audience.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}
