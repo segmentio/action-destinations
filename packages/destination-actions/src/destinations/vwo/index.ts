@@ -8,8 +8,8 @@ import identifyUser from './identifyUser'
 import syncAudience from './syncAudience'
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'VWO Cloud Mode (Actions)',
-  slug: 'actions-vwo-cloud',
+  name: 'Wingify Cloud Mode (Actions)',
+  slug: 'actions-wingify-cloud',
   mode: 'cloud',
   presets: [
     {
@@ -45,20 +45,20 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       vwoAccountId: {
-        label: 'Your VWO account ID',
-        description: 'Enter your VWO Account ID',
+        label: 'Your Wingify account ID',
+        description: 'Enter your Wingify Account ID',
         type: 'number',
         required: true
       },
       apikey: {
-        label: 'VWO SDK Key',
-        description: 'VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.',
+        label: 'Wingify SDK Key',
+        description: 'Wingify Fullstack SDK Key. It is mandatory when using the Wingify Fullstack suite.',
         type: 'password',
         required: false
       },
       region: {
         label: 'Region',
-        description: 'VWO Region to sync data to. Default is US',
+        description: 'Wingify Region to sync data to. Default is US',
         type: 'string',
         choices: [
           { label: 'US', value: 'US' },
@@ -69,7 +69,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (_request, { settings }) => {
-      if (settings.vwoAccountId < 1 || settings.vwoAccountId.toString().length > 7) {
+      if (settings.wingifyAccountId < 1 || settings.wingifyAccountId.toString().length > 7) {
         throw new Error('Invalid AccountID. Please check your AccountID')
       } else {
         return true

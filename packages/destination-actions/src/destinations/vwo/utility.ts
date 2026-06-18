@@ -1,12 +1,12 @@
-import type { commonPayload, vwoPayload } from './types'
+import type { commonPayload, wingifyPayload } from './types'
 import * as crypto from 'crypto'
 
-const VWO_NAMESPACE = '11e13cd7-6c48-53ec-8679-7e9c752273c5'
+const namespace = '11e13cd7-6c48-53ec-8679-7e9c752273c5'
 
 export const hosts: { [key: string]: string } = {
-  US: 'https://dev.visualwebsiteoptimizer.com',
-  EU: 'https://dev.visualwebsiteoptimizer.com/eu01',
-  AS: 'https://dev.visualwebsiteoptimizer.com/as01'
+  US: 'https://eadge.wingify.com',
+  EU: 'https://eadge.wingify.com/eu01',
+  AS: 'https://eadge.wingify.com/as01'
 }
 
 function uuidv5(name: string, namespace: string): string {
@@ -43,10 +43,10 @@ export function formatPayload(
   accountId = 0
 ) {
   let formattedProperties: { [k: string]: unknown } = {}
-  const vwoUuid = apiKey.trim().length ? generateUUIDFor(payload.vwoUuid, accountId) : payload.vwoUuid
+  const wingifyUuid = apiKey.trim().length ? generateUUIDFor(payload.wingifyUuid, accountId) : payload.wingifyUuid
   if (isTrack) {
     formattedProperties = { ...payload.properties }
-    delete formattedProperties['vwo_uuid']
+    delete formattedProperties['wingify_uuid']
   }
   const epochTime = new Date().valueOf()
   const time = Math.floor(epochTime)
@@ -57,16 +57,16 @@ export function formatPayload(
         referrerUrl: payload.page['referrer']
       }
     : {}
-  const structuredPayload: vwoPayload = {
+  const structuredPayload: wingifyPayload = {
     d: {
-      msgId: `${vwoUuid}-${sessionId}`,
-      visId: vwoUuid,
+      msgId: `${wingifyUuid}-${sessionId}`,
+      visId: wingifyUuid,
       event: {
         props: {
           ...formattedProperties,
           page,
           isCustomEvent,
-          vwoMeta: {
+          wingifyMeta: {
             source: 'segment.cloud',
             metric: {}
           }
@@ -86,7 +86,7 @@ export function formatPayload(
   if (apiKey.trim().length) {
     const visitorObj = {
       props: {
-        vwo_fs_environment: apiKey
+        wingify_fs_environment: apiKey
       }
     }
     structuredPayload.d.event.props.$visitor = visitorObj
@@ -114,7 +114,7 @@ export function formatAttributes(attributes: { [k: string]: unknown } | undefine
 export function generateUUIDFor(userId: string | number, accountId: number) {
   userId = `${userId}` // type-cast
   const hash = `${accountId}`
-  const userIdNamespace = generate(hash, VWO_NAMESPACE)
+  const userIdNamespace = generate(hash, namespace)
   const uuidForUserIdAccountId = generate(userId, userIdNamespace)
   const desiredUuid = uuidForUserIdAccountId.replace(/-/gi, '').toUpperCase()
   return desiredUuid

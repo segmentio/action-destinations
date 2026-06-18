@@ -5,32 +5,32 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
-const VWO_ACCOUNT_ID = 654331
-const VWO_UUID = 'ABC123'
+const accountId = 654331
+const wingifyUuid = 'ABC123'
 const SDK_KEY = 'sample-api-key'
 const SANITISED_USERID = '57CC1A3D57215E67824E461010E43F53'
 
-describe('VWO.identifyUser Web', () => {
+describe('Wingify.identifyUser Web', () => {
   describe('Only required parameters', () => {
-    it('should send segment traits as VWO attributes', async () => {
+    it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           textProperty: 'Hello'
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=vwo_syncVisitorProp&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=wingify_syncVisitorProp&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('identifyUser', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID
+          wingifyAccountId: accountId
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               $visitor: {
@@ -38,13 +38,13 @@ describe('VWO.identifyUser Web', () => {
                   'segment.textProperty': 'Hello'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud'
               },
               page,
               isCustomEvent: true
             },
-            name: 'vwo_syncVisitorProp'
+            name: 'wingify_syncVisitorProp'
           },
           visitor: {
             props: {
@@ -71,10 +71,10 @@ describe('VWO.identifyUser Web', () => {
   })
 
   describe('All parameters', () => {
-    it('should send segment traits as VWO attributes', async () => {
+    it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           textProperty: 'Hello'
         },
         context: {
@@ -86,18 +86,18 @@ describe('VWO.identifyUser Web', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=vwo_syncVisitorProp&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=wingify_syncVisitorProp&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('identifyUser', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID
+          wingifyAccountId: accountId
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               $visitor: {
@@ -105,13 +105,13 @@ describe('VWO.identifyUser Web', () => {
                   'segment.textProperty': 'Hello'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud'
               },
               page,
               isCustomEvent: true
             },
-            name: 'vwo_syncVisitorProp'
+            name: 'wingify_syncVisitorProp'
           },
           visitor: {
             props: {
@@ -138,21 +138,21 @@ describe('VWO.identifyUser Web', () => {
   })
 })
 
-describe('VWO.identifyUser Fullstack', () => {
+describe('Wingify.identifyUser Fullstack', () => {
   describe('Only required parameters', () => {
-    it('should send segment traits as VWO attributes', async () => {
+    it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           textProperty: 'Hello'
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=vwo_syncVisitorProp&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=wingify_syncVisitorProp&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('identifyUser', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -165,21 +165,21 @@ describe('VWO.identifyUser Fullstack', () => {
               $visitor: {
                 props: {
                   'segment.textProperty': 'Hello',
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud'
               },
               page,
               isCustomEvent: true
             },
-            name: 'vwo_syncVisitorProp'
+            name: 'wingify_syncVisitorProp'
           },
           visitor: {
             props: {
               'segment.textProperty': 'Hello',
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }
@@ -202,10 +202,10 @@ describe('VWO.identifyUser Fullstack', () => {
   })
 
   describe('All parameters', () => {
-    it('should send segment traits as VWO attributes', async () => {
+    it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           textProperty: 'Hello'
         },
         context: {
@@ -217,12 +217,12 @@ describe('VWO.identifyUser Fullstack', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=vwo_syncVisitorProp&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=wingify_syncVisitorProp&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('identifyUser', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -235,21 +235,21 @@ describe('VWO.identifyUser Fullstack', () => {
               $visitor: {
                 props: {
                   'segment.textProperty': 'Hello',
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud'
               },
               page,
               isCustomEvent: true
             },
-            name: 'vwo_syncVisitorProp'
+            name: 'wingify_syncVisitorProp'
           },
           visitor: {
             props: {
               'segment.textProperty': 'Hello',
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }

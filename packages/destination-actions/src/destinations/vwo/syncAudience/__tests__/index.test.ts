@@ -5,9 +5,9 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
-const VWO_ACCOUNT_ID = 654331
+const accountId = 654331
 
-describe('VWO.syncAudience', () => {
+describe('Wingify.syncAudience', () => {
   it('should send the add audience call', async () => {
     const event = createTestEvent({
       event: 'Audience Entered',
@@ -16,19 +16,19 @@ describe('VWO.syncAudience', () => {
         audience_key: 'test_audience'
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${accountId}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
       settings: {
-        vwoAccountId: VWO_ACCOUNT_ID,
+        wingifyAccountId: accountId,
         apikey: ''
       }
     })
     const expectedRequest = {
       d: {
         event: {
-          name: 'vwo_integration',
+          name: 'wingify_integration',
           props: {
             action: 'audience_entered',
             audienceName: 'test_audience',
@@ -53,19 +53,19 @@ describe('VWO.syncAudience', () => {
         audience_key: 'test_audience'
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${accountId}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
       settings: {
-        vwoAccountId: VWO_ACCOUNT_ID,
+        wingifyAccountId: accountId,
         apikey: ''
       }
     })
     const expectedRequest = {
       d: {
         event: {
-          name: 'vwo_integration',
+          name: 'wingify_integration',
           props: {
             action: 'audience_entered',
             audienceName: 'test_audience',
@@ -89,19 +89,19 @@ describe('VWO.syncAudience', () => {
         audience_key: 'test_audience'
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${accountId}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
       settings: {
-        vwoAccountId: VWO_ACCOUNT_ID,
+        wingifyAccountId: accountId,
         apikey: ''
       }
     })
     const expectedRequest = {
       d: {
         event: {
-          name: 'vwo_integration',
+          name: 'wingify_integration',
           props: {
             action: 'audience_exited',
             audienceName: 'test_audience',

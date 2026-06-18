@@ -5,11 +5,11 @@ import { generateUUIDFor } from '../utility'
 
 const testDestination = createTestIntegration(Destination)
 
-describe('VWO AccountID Validation', () => {
+describe('Wingify AccountID Validation', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
       const settings: Settings = {
-        vwoAccountId: 654331,
+        wingifyAccountId: 654331,
         region: 'US'
       }
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
@@ -17,7 +17,7 @@ describe('VWO AccountID Validation', () => {
 
     it('should throw error for invalid AccountId', async () => {
       const settings: Settings = {
-        vwoAccountId: 65431231,
+        wingifyAccountId: 65431231,
         region: 'US'
       }
       await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()

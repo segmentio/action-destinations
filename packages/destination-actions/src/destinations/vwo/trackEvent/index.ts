@@ -5,7 +5,7 @@ import { formatPayload, sanitiseEventName, hosts } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
-  description: `Sends Segment's track event to VWO`,
+  description: `Sends Segment's track event to Wingify`,
   defaultSubscription: 'type = "track"',
   fields: {
     name: {
@@ -26,13 +26,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
-    vwoUuid: {
-      description: 'VWO UUID',
-      label: 'VWO UUID',
+    wingifyUuid: {
+      description: 'Wingify UUID',
+      label: 'Wingify UUID',
       required: true,
       type: 'string',
       default: {
-        '@path': '$.properties.vwo_uuid'
+        '@path': '$.properties.wingify_uuid'
       }
     },
     page: {
@@ -80,12 +80,12 @@ const action: ActionDefinition<Settings, Payload> = {
       true,
       true,
       settings.apikey,
-      settings.vwoAccountId
+      settings.wingifyAccountId
     )
-    structuredPayload.d.event.props.vwoMeta['ogName'] = payload.name
+    structuredPayload.d.event.props.wingifyMeta['ogName'] = payload.name
     const region = settings.region || "US"
     const host = hosts[region]
-    const endpoint = `${host}/events/t?en=${sanitisedEventName}&a=${settings.vwoAccountId}`
+    const endpoint = `${host}/events/t?en=${sanitisedEventName}&a=${settings.wingifyAccountId}`
     return request(endpoint, {
       method: 'POST',
       headers,

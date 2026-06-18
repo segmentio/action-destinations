@@ -5,38 +5,38 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
-const VWO_ACCOUNT_ID = 654331
-const VWO_UUID = 'ABC123'
+const accountId = 654331
+const wingifyUuid = 'ABC123'
 const SDK_KEY = 'sample-api-key'
 const SANITISED_USERID = '57CC1A3D57215E67824E461010E43F53'
 
-describe('VWO.trackEvent Web', () => {
+describe('Wingify.trackEvent Web', () => {
   describe('Only required parameters', () => {
-    it('should send send event call to VWO', async () => {
+    it('should send send event call to Wingify', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: ''
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               page,
               isCustomEvent: true,
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -62,28 +62,28 @@ describe('VWO.trackEvent Web', () => {
       `)
     })
 
-    it('should send segment properties as VWO properties', async () => {
+    it('should send segment properties as Wingify properties', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID
+          wingifyAccountId: accountId
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               amount: 100,
@@ -91,7 +91,7 @@ describe('VWO.trackEvent Web', () => {
               outbound: true,
               page,
               isCustomEvent: true,
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -107,11 +107,11 @@ describe('VWO.trackEvent Web', () => {
   })
 
   describe('All parameters', () => {
-    it('should send send event call to VWO', async () => {
+    it('should send send event call to Wingify', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         },
         context: {
           page: {
@@ -122,24 +122,24 @@ describe('VWO.trackEvent Web', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: ''
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               page,
               isCustomEvent: true,
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -165,11 +165,11 @@ describe('VWO.trackEvent Web', () => {
       `)
     })
 
-    it('should send segment properties as VWO properties', async () => {
+    it('should send segment properties as Wingify properties', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
@@ -183,18 +183,18 @@ describe('VWO.trackEvent Web', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID
+          wingifyAccountId: accountId
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               amount: 100,
@@ -202,7 +202,7 @@ describe('VWO.trackEvent Web', () => {
               outbound: true,
               page,
               isCustomEvent: true,
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -218,21 +218,21 @@ describe('VWO.trackEvent Web', () => {
   })
 })
 
-describe('VWO.trackEvent Fullstack', () => {
+describe('Wingify.trackEvent Fullstack', () => {
   describe('Only required parameters', () => {
-    it('should send send event call to VWO', async () => {
+    it('should send send event call to Wingify', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -246,10 +246,10 @@ describe('VWO.trackEvent Fullstack', () => {
               isCustomEvent: true,
               $visitor: {
                 props: {
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -259,7 +259,7 @@ describe('VWO.trackEvent Fullstack', () => {
           },
           visitor: {
             props: {
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }
@@ -280,22 +280,22 @@ describe('VWO.trackEvent Fullstack', () => {
       `)
     })
 
-    it('should send segment properties as VWO properties', async () => {
+    it('should send segment properties as Wingify properties', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -312,10 +312,10 @@ describe('VWO.trackEvent Fullstack', () => {
               isCustomEvent: true,
               $visitor: {
                 props: {
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -325,7 +325,7 @@ describe('VWO.trackEvent Fullstack', () => {
           },
           visitor: {
             props: {
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }
@@ -336,11 +336,11 @@ describe('VWO.trackEvent Fullstack', () => {
   })
 
   describe('All Parameters', () => {
-    it('should send send event call to VWO', async () => {
+    it('should send send event call to Wingify', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         },
         context: {
           page: {
@@ -351,12 +351,12 @@ describe('VWO.trackEvent Fullstack', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -370,10 +370,10 @@ describe('VWO.trackEvent Fullstack', () => {
               isCustomEvent: true,
               $visitor: {
                 props: {
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -383,7 +383,7 @@ describe('VWO.trackEvent Fullstack', () => {
           },
           visitor: {
             props: {
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }
@@ -404,11 +404,11 @@ describe('VWO.trackEvent Fullstack', () => {
       `)
     })
 
-    it('should send segment properties as VWO properties', async () => {
+    it('should send segment properties as Wingify properties', async () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          vwo_uuid: VWO_UUID,
+          wingifyUuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
@@ -422,12 +422,12 @@ describe('VWO.trackEvent Fullstack', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('trackEvent', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -444,10 +444,10 @@ describe('VWO.trackEvent Fullstack', () => {
               isCustomEvent: true,
               $visitor: {
                 props: {
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 source: 'segment.cloud',
                 ogName: 'testEvent',
                 metric: {}
@@ -457,7 +457,7 @@ describe('VWO.trackEvent Fullstack', () => {
           },
           visitor: {
             props: {
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }

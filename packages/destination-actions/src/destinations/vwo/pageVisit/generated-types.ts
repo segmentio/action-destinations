@@ -6,9 +6,9 @@ export interface Payload {
    */
   url?: string
   /**
-   * VWO UUID
+   * Wingify UUID
    */
-  vwoUuid: string
+  wingifyUuid: string
   /**
    * Contains context information regarding a webpage
    */

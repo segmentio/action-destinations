@@ -5,7 +5,7 @@ import {hosts} from "../utility";
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Syncs Segment audiences to VWO',
+  description: 'Syncs Segment audiences to Wingify',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   fields: {
     name: {
@@ -52,17 +52,17 @@ const action: ActionDefinition<Settings, Payload> = {
     } else if (payload.name == 'Audience Exited') {
       action = 'audience_exited'
     }
-    const vwoPayload = {
+    const wingifyPayload = {
       d: {
         event: {
-          name: 'vwo_integration',
+          name: 'wingify_integration',
           time,
           props: {
             action,
             audienceName: payload.audienceId,
             audienceId: payload.audienceId,
             identifier: payload.userId || payload.anonymousId,
-            accountId: settings.vwoAccountId,
+            accountId: settings.wingifyAccountId,
             integration: 'segment'
           }
         }
@@ -70,11 +70,11 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const region = settings.region || "US"
     const host = hosts[region]
-    const endpoint = `${host}/events/t?en=vwo_integration&a=${settings.vwoAccountId}`
+    const endpoint = `${host}/events/t?en=wingify_integration&a=${settings.wingifyAccountId}`
 
     return request(endpoint, {
       method: 'POST',
-      json: vwoPayload
+      json: wingifyPayload
     })
   }
 }

@@ -5,7 +5,7 @@ import {formatPayload, formatAttributes, hosts} from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
-  description: "Maps Segment's visitor traits to the visitor attributes in VWO",
+  description: "Maps Segment's visitor traits to the visitor attributes in Wingify",
   defaultSubscription: 'type = "identify"',
   fields: {
     attributes: {
@@ -17,13 +17,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits'
       }
     },
-    vwoUuid: {
-      description: 'VWO UUID',
-      label: 'VWO UUID',
+    wingifyUuid: {
+      description: 'Wingify UUID',
+      label: 'Wingify UUID',
       required: true,
       type: 'string',
       default: {
-        '@path': '$.traits.vwo_uuid'
+        '@path': '$.traits.wingify_uuid'
       }
     },
     page: {
@@ -64,9 +64,9 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const eventName = 'vwo_syncVisitorProp'
+    const eventName = 'wingify_syncVisitorProp'
     const attributes = payload.attributes
-    delete attributes['vwo_uuid']
+    delete attributes['wingify_uuid']
     const formattedAttributes = formatAttributes(attributes)
     const visitor = { props: formattedAttributes }
     const { headers, structuredPayload } = formatPayload(
@@ -75,7 +75,7 @@ const action: ActionDefinition<Settings, Payload> = {
       true,
       false,
       settings.apikey,
-      settings.vwoAccountId
+      settings.wingifyAccountId
     )
     if (structuredPayload.d.visitor && structuredPayload.d.event.props.$visitor) {
       structuredPayload.d.visitor.props = {
@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     const region = settings.region || "US"
     const host = hosts[region]
-    const endpoint = `${host}/events/t?en=${eventName}&a=${settings.vwoAccountId}`
+    const endpoint = `${host}/events/t?en=${eventName}&a=${settings.wingifyAccountId}`
     return request(endpoint, {
       method: 'POST',
       json: structuredPayload,

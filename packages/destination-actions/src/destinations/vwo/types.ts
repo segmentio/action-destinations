@@ -1,10 +1,10 @@
-export type vwoPayload = {
+export type wingifyPayload = {
   d: {
     msgId: string
     visId: string
     event: {
       props: {
-        vwo_og_event?: string
+        wingify_og_event?: string
         $visitor?: {
           props: {
             [k: string]: unknown
@@ -15,7 +15,7 @@ export type vwoPayload = {
         }
         [k: string]: unknown
         isCustomEvent?: boolean
-        vwoMeta: {
+        wingifyMeta: {
           source: string
           ogName?: string
           [k: string]: unknown
@@ -40,7 +40,7 @@ export type commonPayload = {
   attributes?: {
     [k: string]: unknown
   }
-  vwoUuid: string
+  wingifyUuid: string
   page?: {
     [k: string]: unknown
   }

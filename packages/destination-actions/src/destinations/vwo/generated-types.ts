@@ -2,15 +2,15 @@
 
 export interface Settings {
   /**
-   * Enter your VWO Account ID
+   * Enter your Wingify Account ID
    */
-  vwoAccountId: number
+  wingifyAccountId: number
   /**
-   * VWO Fullstack SDK Key. It is mandatory when using the VWO Fullstack suite.
+   * Wingify Fullstack SDK Key. It is mandatory when using the Wingify Fullstack suite.
    */
   apikey?: string
   /**
-   * VWO Region to sync data to. Default is US
+   * Wingify Region to sync data to. Default is US
    */
   region?: string
 }

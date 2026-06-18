@@ -5,38 +5,38 @@ import Destination from '../../index'
 const testDestination = createTestIntegration(Destination)
 
 const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
-const VWO_ACCOUNT_ID = 654331
-const VWO_UUID = 'ABC123'
+const accountId = 654331
+const wingifyUuid = 'ABC123'
 const EVENT_NAME = 'segment.pageView'
 const SDK_KEY = 'sample-api-key'
 const SANITISED_USERID = '57CC1A3D57215E67824E461010E43F53'
 
-describe('VWO.pageVisit Web', () => {
+describe('Wingify.pageVisit Web', () => {
   describe('Only required parameters', () => {
-    it('should send Page Visit event to VWO', async () => {
+    it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('pageVisit', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID
+          wingifyAccountId: accountId
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               url: page?.url,
               page,
               isCustomEvent: false,
-              vwoMeta: {
+              wingifyMeta: {
                 metric: {}
               }
             },
@@ -62,10 +62,10 @@ describe('VWO.pageVisit Web', () => {
   })
 
   describe('All Parameters', () => {
-    it('should send Page Visit event to VWO', async () => {
+    it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         },
         context: {
           page: {
@@ -76,24 +76,24 @@ describe('VWO.pageVisit Web', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('pageVisit', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID
+          wingifyAccountId: accountId
         }
       })
       const page = event.context?.page
       const expectedRequest = {
         d: {
-          visId: VWO_UUID,
+          visId: wingifyUuid,
           event: {
             props: {
               url: 'www.abc.com',
               page,
               isCustomEvent: false,
-              vwoMeta: {
+              wingifyMeta: {
                 metric: {}
               }
             },
@@ -119,20 +119,20 @@ describe('VWO.pageVisit Web', () => {
   })
 })
 
-describe('VWO.pageVisit Fullstack', () => {
+describe('Wingify.pageVisit Fullstack', () => {
   describe('Only required parameters', () => {
-    it('should send Page Visit event to VWO', async () => {
+    it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         }
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('pageVisit', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -147,10 +147,10 @@ describe('VWO.pageVisit Fullstack', () => {
               isCustomEvent: false,
               $visitor: {
                 props: {
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 metric: {}
               }
             },
@@ -158,7 +158,7 @@ describe('VWO.pageVisit Fullstack', () => {
           },
           visitor: {
             props: {
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }
@@ -181,10 +181,10 @@ describe('VWO.pageVisit Fullstack', () => {
   })
 
   describe('All parameters', () => {
-    it('should send Page Visit event to VWO', async () => {
+    it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          vwo_uuid: VWO_UUID
+          wingifyUuid: wingifyUuid
         },
         context: {
           page: {
@@ -195,12 +195,12 @@ describe('VWO.pageVisit Fullstack', () => {
         },
         timestamp: '2023-05-09T13:12:44.924Z'
       })
-      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+      nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${accountId}`).reply(200, {})
       const responses = await testDestination.testAction('pageVisit', {
         event,
         useDefaultMappings: true,
         settings: {
-          vwoAccountId: VWO_ACCOUNT_ID,
+          wingifyAccountId: accountId,
           apikey: SDK_KEY
         }
       })
@@ -215,10 +215,10 @@ describe('VWO.pageVisit Fullstack', () => {
               isCustomEvent: false,
               $visitor: {
                 props: {
-                  vwo_fs_environment: 'sample-api-key'
+                  wingify_fs_environment: 'sample-api-key'
                 }
               },
-              vwoMeta: {
+              wingifyMeta: {
                 metric: {}
               }
             },
@@ -226,7 +226,7 @@ describe('VWO.pageVisit Fullstack', () => {
           },
           visitor: {
             props: {
-              vwo_fs_environment: 'sample-api-key'
+              wingify_fs_environment: 'sample-api-key'
             }
           }
         }

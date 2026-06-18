@@ -5,7 +5,7 @@ import { formatPayload, hosts, sanitiseEventName } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Visit',
-  description: `Sends Segment's page event to VWO`,
+  description: `Sends Segment's page event to Wingify`,
   fields: {
     url: {
       description: 'URL of the webpage',
@@ -16,13 +16,13 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.page.url'
       }
     },
-    vwoUuid: {
-      description: 'VWO UUID',
-      label: 'VWO UUID',
+    wingifyUuid: {
+      description: 'Wingify UUID',
+      label: 'Wingify UUID',
       required: true,
       type: 'string',
       default: {
-        '@path': '$.properties.vwo_uuid'
+        '@path': '$.properties.wingify_uuid'
       }
     },
     page: {
@@ -71,12 +71,12 @@ const action: ActionDefinition<Settings, Payload> = {
       false,
       false,
       settings.apikey,
-      settings.vwoAccountId
+      settings.wingifyAccountId
     )
     structuredPayload.d.event.props['url'] = payload.url
     const region = settings.region || 'US'
     const host = hosts[region]
-    const endpoint = `${host}/events/t?en=${eventName}&a=${settings.vwoAccountId}`
+    const endpoint = `${host}/events/t?en=${eventName}&a=${settings.wingifyAccountId}`
     return request(endpoint, {
       method: 'POST',
       json: structuredPayload,
