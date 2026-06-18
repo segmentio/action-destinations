@@ -246,6 +246,52 @@ For each destination the template has a `verionsing-info.ts` file where you can 
 version related information like API reference, change logs etc. This is done to automate and simplify identification
 of deprecated version through LLMs.
 
+## Generate metadata
+
+Every destination has a `metadata.json` file that contains its public schema — a machine-readable representation of its settings, actions, and field definitions. This file is used by downstream systems and must be kept in sync with your destination's source code.
+
+**Just like `yarn types`, you must regenerate metadata whenever you change a destination's settings or action field definitions and commit the result.**
+
+### When to regenerate
+
+Run the metadata generation command after any change to:
+
+- Authentication fields or settings
+- Action field definitions (adding, removing, or modifying fields)
+- Action-level configuration (title, description, defaultSubscription, batching)
+- Destination-level configuration (name, slug, presets)
+
+### Commands
+
+```bash
+# Generate metadata for all destinations (all modes)
+yarn generate:metadata-payload
+
+# Generate for a specific mode
+yarn generate:metadata-payload:cloud        # Cloud-mode destinations
+yarn generate:metadata-payload:browser      # Browser (device-mode) destinations
+yarn generate:metadata-payload:warehouse    # Warehouse destinations
+
+# Generate for a specific destination by slug
+./bin/run generate:metadata-payload --slug=actions-amplitude
+
+# Generate for a specific destination by path
+./bin/run generate:metadata-payload -p packages/destination-actions/src/destinations/amplitude/index.ts
+```
+
+### CI integration
+
+The metadata generation is integrated into lint-staged, so it runs automatically on commit for any changed destination files. However, you should still run it manually during development to verify the output before committing.
+
+### Workflow
+
+When making changes to a destination:
+
+1. Edit your destination's settings or action fields
+2. Run `./bin/run generate:types` to update TypeScript definitions
+3. Run `yarn generate:metadata-payload --slug=<your-destination-slug>` to regenerate the metadata
+4. Commit both the generated types and `metadata.json` alongside your source changes
+
 ## Write tests
 
 Testing ensures that your destination functions the way you expect. For information on testing, see [Build and Test Cloud Destinations](testing.md).
