@@ -1,5 +1,5 @@
 import { GenericPayload } from '../sf-types'
-import { buildCSVData } from '../sf-utils'
+import { buildCSVData, resolveLoginUrl } from '../sf-utils'
 import Salesforce from '../sf-operations'
 import createRequestClient from '../../../../../core/src/create-request-client'
 
@@ -372,7 +372,13 @@ describe('Salesforce Utils', () => {
     const validInstanceUrls = [
       'https://na1.salesforce.com/',
       'https://krusty-krab.my.salesforce.com/',
-      'https://sometesting-instanceurl-93244--staging.sandbox.my.salesforce.com/'
+      'https://sometesting-instanceurl-93244--staging.sandbox.my.salesforce.com/',
+      'https://mycompany.my.salesforce.com/',
+      'https://mycompany.sandbox.my.salesforce.com/',
+      'https://mycompany.develop.my.salesforce.com/',
+      'https://mycompany.scratch.my.salesforce.com/',
+      'https://mycompany.force.com/',
+      'https://mycompany.my.salesforce-sites.com/'
     ]
 
     it('should throw an error if the instance URL is not provided', async () => {
@@ -396,6 +402,44 @@ describe('Salesforce Utils', () => {
         const sf = new Salesforce(instanceUrl, requestClient)
         expect(sf.instanceUrl).toEqual(instanceUrl)
       })
+    })
+  })
+
+  describe('resolveLoginUrl', () => {
+    it('should return default production URL when no custom domain or sandbox', () => {
+      expect(resolveLoginUrl(undefined, false)).toEqual('https://login.salesforce.com')
+      expect(resolveLoginUrl(undefined, undefined)).toEqual('https://login.salesforce.com')
+    })
+
+    it('should return sandbox URL when isSandbox is true', () => {
+      expect(resolveLoginUrl(undefined, true)).toEqual('https://test.salesforce.com')
+    })
+
+    it('should return custom domain when provided', () => {
+      expect(resolveLoginUrl('https://mycompany.my.salesforce.com', false)).toEqual(
+        'https://mycompany.my.salesforce.com'
+      )
+    })
+
+    it('should strip trailing slashes from custom domain', () => {
+      expect(resolveLoginUrl('https://mycompany.my.salesforce.com/', true)).toEqual(
+        'https://mycompany.my.salesforce.com'
+      )
+      expect(resolveLoginUrl('https://mycompany.my.salesforce.com///', false)).toEqual(
+        'https://mycompany.my.salesforce.com'
+      )
+    })
+
+    it('should override isSandbox when custom domain is set', () => {
+      expect(resolveLoginUrl('https://mycompany.my.salesforce.com', true)).toEqual(
+        'https://mycompany.my.salesforce.com'
+      )
+    })
+
+    it('should reject invalid custom domains', () => {
+      expect(() => resolveLoginUrl('https://evil.com', false)).toThrow('Invalid custom domain')
+      expect(() => resolveLoginUrl('http://mycompany.salesforce.com', false)).toThrow('Invalid custom domain')
+      expect(() => resolveLoginUrl('https://attacker.com/salesforce.com', false)).toThrow('Invalid custom domain')
     })
   })
 })
