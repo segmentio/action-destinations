@@ -4,7 +4,6 @@ import Destination from '../../index'
 import { ApiRegions } from '../../common/utils'
 
 const testDestination = createTestIntegration(Destination)
-const MIXPANEL_API_SECRET = 'test-api-key'
 const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
 const timestamp = '2021-08-17T15:21:15.449Z'
 
@@ -32,7 +31,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -105,7 +103,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -130,7 +127,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -153,7 +149,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -182,7 +177,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.EU
       }
     })
@@ -226,7 +220,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.IN
       }
     })
@@ -272,7 +265,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       }
     })
     expect(responses.length).toBe(2)
@@ -317,7 +309,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         sourceName: 'example segment source name'
       }
     })
@@ -364,7 +355,6 @@ describe('Mixpanel.identifyUser', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         sourceName: 'example segment source name'
       }
     })
