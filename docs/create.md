@@ -248,7 +248,7 @@ of deprecated version through LLMs.
 
 ## Generate metadata
 
-Every destination has a `metadata.json` file that contains its public schema — a machine-readable representation of its settings, actions, and field definitions. This file is used by downstream systems and must be kept in sync with your destination's source code.
+Every destination has a `metadata.json` file that contains its public schema — a machine-readable representation of its settings, actions, and field definitions. This file is used by `action-destinations-bot` and must be kept in sync with your destination's source code.
 
 **Just like `yarn types`, you must regenerate metadata whenever you change a destination's settings or action field definitions and commit the result.**
 
@@ -279,9 +279,9 @@ yarn generate:metadata-payload:warehouse    # Warehouse destinations
 ./bin/run generate:metadata-payload -p packages/destination-actions/src/destinations/amplitude/index.ts
 ```
 
-### CI integration
+### Pre-commit hook
 
-The metadata generation is integrated into lint-staged, so it runs automatically on commit for any changed destination files. However, you should still run it manually during development to verify the output before committing.
+Metadata generation is integrated into the local pre-commit workflow via husky + lint-staged. When you commit changes to destination files, `scripts/update-metadata-payload.sh` runs automatically and regenerates metadata for the affected destinations. However, you should still run it manually during development to verify the output before committing.
 
 ### Workflow
 
