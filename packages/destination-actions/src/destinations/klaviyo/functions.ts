@@ -46,6 +46,19 @@ const EXTERNAL_ID_LENGTH_ERROR: ActionDestinationErrorResponseType = {
   errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
 }
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+const INVALID_EMAIL_ERROR: ActionDestinationErrorResponseType = {
+  status: 400,
+  errortype: 'PAYLOAD_VALIDATION_FAILED',
+  errormessage: 'Email must be a valid email address.'
+}
+
+export function validateEmail(email: string | undefined): boolean {
+  if (!email) return true
+  return EMAIL_REGEX.test(email)
+}
+
 export function validateExternalId(externalId: string | undefined): void {
   if (externalId && externalId.length > MAX_EXTERNAL_ID_LENGTH) {
     throw new PayloadValidationError(EXTERNAL_ID_LENGTH_ERROR.errormessage)
@@ -631,6 +644,11 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
     }
+    return response
+  }
+
+  if (!validateEmail(email)) {
+    response.error = INVALID_EMAIL_ERROR
     return response
   }
 
