@@ -1,0 +1,294 @@
+{
+  "slug": "actions-evolv-ai-web",
+  "name": "Evolv AI Web Mode (Actions)",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "environment": {
+        "label": "Evolv AI Environment Key",
+        "description": "To load the Evolv AI snippet via Segment, include your Environment API Key found in the Evolv AI Manager. This option should only be used if you are not already loading the Evolv AI snippet on your site.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": null
+      },
+      "useSegmentId": {
+        "label": "Use Segment's Anonymous ID as the Evolv user id",
+        "description": "When using this option, Evolv AI will levarage the Segment Anonymous ID instead of generating a new user id.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "environment",
+              "operator": "is_not",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "evolvTimeout": {
+        "label": "Evolv Timeout",
+        "description": "If you want to ignore users who take too long to apply the optimization changes, then you can use this configuration to limit how long Evolv AI should wait till the page renders.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": 10000,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "environment",
+              "operator": "is_not",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "useCookies": {
+        "label": "Cookie domain name to store Evolv AI user id",
+        "description": "By default, Evolv AI stores the user id in localStorage. Since localStorage cannot be read across subdomains (e.g. domain1.example.com to domain2.example.com), you will need to specify a cookie domain (for example .example.com) in order to track users across subdomains.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "environment",
+              "operator": "is_not",
+              "value": ""
+            },
+            {
+              "fieldKey": "useSegmentId",
+              "operator": "is",
+              "value": false
+            }
+          ]
+        }
+      },
+      "receiveConfirmations": {
+        "label": "Receive all Evolv AI project confirmations",
+        "description": "When set, all Evolv AI confirmations for each project will be sent to Segment.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "receiveUniqueConfirmations": {
+        "label": "Receive unique project confirmations only",
+        "description": "When set, only unique confirmations (once per project per session) will be sent to Segment.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "receiveConfirmations",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Send Segment track event to Evolv AI",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "eventName": {
+          "label": "Name",
+          "description": "Name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "JSON object containing additional properties associated with the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Send Segment user traits to Evolv AI",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "attributes": {
+          "label": "Attributes",
+          "description": "Object containing additional attributes associated with the user.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "Unique identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "Anonymous identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "attributes": {
+          "@path": "$.traits"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

@@ -1,0 +1,1608 @@
+{
+  "slug": "actions-intercom-web",
+  "name": "Intercom Web (Actions)",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "appId": {
+        "label": "App ID",
+        "description": "The app_id of your Intercom app which will indicate where to store any data.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "activator": {
+        "label": "Custom Inbox Button Selector",
+        "description": "By default, Intercom will inject their own inbox button onto the page, but you can choose to use your own custom button instead by providing a CSS selector, e.g. #my-button. You must have the \"Show the Intercom Inbox\" setting enabled for this to work. The default value is #IntercomDefaultWidget.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "#IntercomDefaultWidget",
+        "depends_on": null
+      },
+      "richLinkProperties": {
+        "label": "Rich Link Properties",
+        "description": "A list of rich link property keys.",
+        "type": "string",
+        "required": false,
+        "multiple": true,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "apiBase": {
+        "label": "Regional Data Hosting",
+        "description": "The regional API to use for processing the data",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US",
+            "value": "https://api-iam.intercom.io"
+          },
+          {
+            "label": "EU",
+            "value": "https://api-iam.eu.intercom.io"
+          },
+          {
+            "label": "Australia",
+            "value": "https://api-iam.au.intercom.io"
+          }
+        ],
+        "default": "https://api-iam.intercom.io",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Submit an event to Intercom.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "revenue": {
+          "label": "Revenue",
+          "description": "The amount associated with a purchase. Segment will multiply by 100 as Intercom requires the amount in cents.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.revenue"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "currency": {
+          "label": "Currency",
+          "description": "The currency of the purchase amount. Segment will default to USD if revenue is provided without a currency.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "event_metadata": {
+          "label": "Event Metadata",
+          "description": "Optional metadata describing the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Create or update a user in Intercom.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\" or type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "user_id": {
+          "label": "User ID",
+          "description": "A unique identifier for the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "custom_traits": {
+          "label": "Custom Attributes",
+          "description": "The user's custom attributes.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Name",
+          "description": "The user's name.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "phone": {
+          "label": "Phone Number",
+          "description": "The user's phone number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.phone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "unsubscribed_from_emails": {
+          "label": "Unsubscribed From Emails",
+          "description": "The user's email unsubscribe status.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "language_override": {
+          "label": "Language Override",
+          "description": "The user's messenger language (instead of relying on browser language settings).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email Address",
+          "description": "The user's email address.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "created_at": {
+          "label": "User Creation Time",
+          "description": "The time the user was created in your system.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.createdAt"
+              },
+              "then": {
+                "@path": "$.traits.createdAt"
+              },
+              "else": {
+                "@path": "$.traits.created_at"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "avatar_image_url": {
+          "label": "Avatar",
+          "description": "The URL for the user's avatar/profile image.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.avatar"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "user_hash": {
+          "label": "User Hash",
+          "description": "The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/collections/12295815-messenger-security) for more information on how to set this field.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Intercom.user_hash"
+              },
+              "then": {
+                "@path": "$.integrations.Intercom.user_hash"
+              },
+              "else": {
+                "@path": "$.integrations.Intercom.userHash"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "intercom_user_jwt": {
+          "label": "Intercom User JWT",
+          "description": "The intercom user JWT is used to secure your messenger for your users. See [Intercom docs](https://www.intercom.com/help/en/collections/12295815-messenger-security) for more information on how to set this field.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Intercom.intercom_user_jwt"
+              },
+              "then": {
+                "@path": "$.integrations.Intercom.intercom_user_jwt"
+              },
+              "else": {
+                "@path": "$.integrations.Intercom.intercomUserJwt"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "company": {
+          "label": "Company",
+          "description": "The user's company.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "company_id": {
+              "@path": "$.traits.company.id"
+            },
+            "name": {
+              "@path": "$.traits.company.name"
+            },
+            "created_at": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.company.createdAt"
+                },
+                "then": {
+                  "@path": "$.traits.company.createdAt"
+                },
+                "else": {
+                  "@path": "$.traits.company.created_at"
+                }
+              }
+            },
+            "plan": {
+              "@path": "$.traits.company.plan"
+            },
+            "size": {
+              "@path": "$.traits.company.size"
+            },
+            "website": {
+              "@path": "$.traits.company.website"
+            },
+            "industry": {
+              "@path": "$.traits.company.industry"
+            },
+            "monthly_spend": {
+              "@path": "$.traits.company.monthly_spend"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "company_id": {
+              "label": "Company ID",
+              "description": "The unique identifier of the company.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Company Name",
+              "description": "The name of the company.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "created_at": {
+              "label": "Company Creation Time",
+              "description": "The time the company was created in your system.",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "plan": {
+              "label": "Company Plan",
+              "description": "The name of the plan you have associated with the company.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "monthly_spend": {
+              "label": "Monthly Spend",
+              "description": "The monthly spend of the company, e.g. how much revenue the company generates for your business.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "size": {
+              "label": "Company Size",
+              "description": "The number of employees in the company.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "website": {
+              "label": "Company Website",
+              "description": "The URL for the company website.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "industry": {
+              "label": "Industry",
+              "description": "The industry that the company operates in.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "company_custom_traits": {
+              "label": "Company Custom Attributes",
+              "description": "The custom attributes for the company object.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "keyvalue",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "companies": {
+          "label": "Companies",
+          "description": "The array of companies the user is associated to.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.traits.companies",
+              {
+                "company_id": {
+                  "@path": "$.id"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "created_at": {
+                  "@if": {
+                    "exists": {
+                      "@path": "$.createdAt"
+                    },
+                    "then": {
+                      "@path": "$.createdAt"
+                    },
+                    "else": {
+                      "@path": "$.created_at"
+                    }
+                  }
+                },
+                "plan": {
+                  "@path": "$.plan"
+                },
+                "size": {
+                  "@path": "$.size"
+                },
+                "website": {
+                  "@path": "$.website"
+                },
+                "industry": {
+                  "@path": "$.industry"
+                },
+                "monthly_spend": {
+                  "@path": "$.monthly_spend"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "company_id": {
+              "label": "Company ID",
+              "description": "The unique identifier of the company.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Company Name",
+              "description": "The name of the company.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "created_at": {
+              "label": "Company Creation Time",
+              "description": "The time the company was created in your system.",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "plan": {
+              "label": "Company Plan",
+              "description": "The name of the plan you have associated with the company.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "monthly_spend": {
+              "label": "Monthly Spend",
+              "description": "The monthly spend of the company, e.g. how much revenue the company generates for your business.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "size": {
+              "label": "Company Size",
+              "description": "The number of employees in the company.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "website": {
+              "label": "Company Website",
+              "description": "The URL for the company website.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "industry": {
+              "label": "Industry",
+              "description": "The industry that the company operates in.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "company_custom_traits": {
+              "label": "Company Custom Attributes",
+              "description": "The custom attributes for the company object.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "keyvalue",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "hide_default_launcher": {
+          "label": "Hide Default Launcher",
+          "description": "Selectively show the chat widget. As per [Intercom docs](https://www.intercom.com/help/en/articles/189-turn-off-show-or-hide-the-intercom-messenger), you want to first hide the Messenger for all users inside the Intercom UI using Messenger settings. Then think about how you want to programmatically decide which users you would like to show the widget to.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.Intercom.hideDefaultLauncher"
+              },
+              "then": {
+                "@path": "$.context.Intercom.hideDefaultLauncher"
+              },
+              "else": {
+                "@path": "$.context.Intercom.hide_default_launcher"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identifyCompany": {
+      "title": "Identify Company",
+      "description": "Create or update a company in Intercom.",
+      "platform": "web",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "company": {
+          "label": "Company",
+          "description": "The user's company.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "company_id": {
+              "@path": "$.groupId"
+            },
+            "name": {
+              "@path": "$.traits.name"
+            },
+            "created_at": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.createdAt"
+                },
+                "then": {
+                  "@path": "$.traits.createdAt"
+                },
+                "else": {
+                  "@path": "$.traits.created_at"
+                }
+              }
+            },
+            "plan": {
+              "@path": "$.traits.plan"
+            },
+            "size": {
+              "@path": "$.traits.size"
+            },
+            "website": {
+              "@path": "$.traits.website"
+            },
+            "industry": {
+              "@path": "$.traits.industry"
+            },
+            "monthly_spend": {
+              "@path": "$.traits.monthly_spend"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "company_id": {
+              "label": "Company ID",
+              "description": "The unique identifier of the company.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Company Name",
+              "description": "The name of the company.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "created_at": {
+              "label": "Company Creation Time",
+              "description": "The time the company was created in your system.",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "plan": {
+              "label": "Company Plan",
+              "description": "The name of the plan you have associated with the company.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "monthly_spend": {
+              "label": "Monthly Spend",
+              "description": "The monthly spend of the company, e.g. how much revenue the company generates for your business.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "size": {
+              "label": "Company Size",
+              "description": "The number of employees in the company.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "website": {
+              "label": "Company Website",
+              "description": "The URL for the company website.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "industry": {
+              "label": "Industry",
+              "description": "The industry that the company operates in.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "company_custom_traits": {
+              "label": "Company Custom Attributes",
+              "description": "The custom attributes for the company object.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": "keyvalue",
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "hide_default_launcher": {
+          "label": "Hide Default Launcher",
+          "description": "Selectively show the chat widget. As per [Intercom docs](https://www.intercom.com/help/en/articles/189-turn-off-show-or-hide-the-intercom-messenger), you want to first hide the Messenger for all users inside the Intercom UI using Messenger settings. Then think about how you want to programmatically decide which users you would like to show the widget to.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.Intercom.hideDefaultLauncher"
+              },
+              "then": {
+                "@path": "$.context.Intercom.hideDefaultLauncher"
+              },
+              "else": {
+                "@path": "$.context.Intercom.hide_default_launcher"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "revenue": {
+          "@path": "$.properties.revenue"
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "event_metadata": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\" or type = \"page\"",
+      "mapping": {
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "name": {
+          "@path": "$.traits.name"
+        },
+        "phone": {
+          "@path": "$.traits.phone"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "created_at": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.createdAt"
+            },
+            "then": {
+              "@path": "$.traits.createdAt"
+            },
+            "else": {
+              "@path": "$.traits.created_at"
+            }
+          }
+        },
+        "avatar_image_url": {
+          "@path": "$.traits.avatar"
+        },
+        "user_hash": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Intercom.user_hash"
+            },
+            "then": {
+              "@path": "$.integrations.Intercom.user_hash"
+            },
+            "else": {
+              "@path": "$.integrations.Intercom.userHash"
+            }
+          }
+        },
+        "intercom_user_jwt": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Intercom.intercom_user_jwt"
+            },
+            "then": {
+              "@path": "$.integrations.Intercom.intercom_user_jwt"
+            },
+            "else": {
+              "@path": "$.integrations.Intercom.intercomUserJwt"
+            }
+          }
+        },
+        "company": {
+          "company_id": {
+            "@path": "$.traits.company.id"
+          },
+          "name": {
+            "@path": "$.traits.company.name"
+          },
+          "created_at": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.company.createdAt"
+              },
+              "then": {
+                "@path": "$.traits.company.createdAt"
+              },
+              "else": {
+                "@path": "$.traits.company.created_at"
+              }
+            }
+          },
+          "plan": {
+            "@path": "$.traits.company.plan"
+          },
+          "size": {
+            "@path": "$.traits.company.size"
+          },
+          "website": {
+            "@path": "$.traits.company.website"
+          },
+          "industry": {
+            "@path": "$.traits.company.industry"
+          },
+          "monthly_spend": {
+            "@path": "$.traits.company.monthly_spend"
+          }
+        },
+        "companies": {
+          "@arrayPath": [
+            "$.traits.companies",
+            {
+              "company_id": {
+                "@path": "$.id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "created_at": {
+                "@if": {
+                  "exists": {
+                    "@path": "$.createdAt"
+                  },
+                  "then": {
+                    "@path": "$.createdAt"
+                  },
+                  "else": {
+                    "@path": "$.created_at"
+                  }
+                }
+              },
+              "plan": {
+                "@path": "$.plan"
+              },
+              "size": {
+                "@path": "$.size"
+              },
+              "website": {
+                "@path": "$.website"
+              },
+              "industry": {
+                "@path": "$.industry"
+              },
+              "monthly_spend": {
+                "@path": "$.monthly_spend"
+              }
+            }
+          ]
+        },
+        "hide_default_launcher": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.Intercom.hideDefaultLauncher"
+            },
+            "then": {
+              "@path": "$.context.Intercom.hideDefaultLauncher"
+            },
+            "else": {
+              "@path": "$.context.Intercom.hide_default_launcher"
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Company",
+      "type": "automatic",
+      "partnerAction": "identifyCompany",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "company": {
+          "company_id": {
+            "@path": "$.groupId"
+          },
+          "name": {
+            "@path": "$.traits.name"
+          },
+          "created_at": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.createdAt"
+              },
+              "then": {
+                "@path": "$.traits.createdAt"
+              },
+              "else": {
+                "@path": "$.traits.created_at"
+              }
+            }
+          },
+          "plan": {
+            "@path": "$.traits.plan"
+          },
+          "size": {
+            "@path": "$.traits.size"
+          },
+          "website": {
+            "@path": "$.traits.website"
+          },
+          "industry": {
+            "@path": "$.traits.industry"
+          },
+          "monthly_spend": {
+            "@path": "$.traits.monthly_spend"
+          }
+        },
+        "hide_default_launcher": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.Intercom.hideDefaultLauncher"
+            },
+            "then": {
+              "@path": "$.context.Intercom.hideDefaultLauncher"
+            },
+            "else": {
+              "@path": "$.context.Intercom.hide_default_launcher"
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

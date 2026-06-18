@@ -1,0 +1,606 @@
+{
+  "slug": "actions-moengage-web",
+  "name": "Moengage Web",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "app_id": {
+        "label": "Workspace ID",
+        "description": "Your Moengage Workspace ID.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "env": {
+        "label": "Environment",
+        "description": "The environment for your Moengage account.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "LIVE",
+            "value": "LIVE"
+          },
+          {
+            "label": "TEST",
+            "value": "TEST"
+          }
+        ],
+        "default": "LIVE",
+        "depends_on": null
+      },
+      "moeDataCenter": {
+        "label": "Datacenter",
+        "description": "The datacenter for your Moengage account.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "DC-01",
+            "value": "dc_1"
+          },
+          {
+            "label": "DC-02",
+            "value": "dc_2"
+          },
+          {
+            "label": "DC-03",
+            "value": "dc_3"
+          },
+          {
+            "label": "DC-04",
+            "value": "dc_4"
+          },
+          {
+            "label": "DC-05",
+            "value": "dc_5"
+          },
+          {
+            "label": "DC-06",
+            "value": "dc_6"
+          }
+        ],
+        "default": "dc_1",
+        "depends_on": null
+      },
+      "project_id": {
+        "label": "Project ID",
+        "description": "Your Moengage Project ID.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "swPath": {
+        "label": "Service Worker Path",
+        "description": "The path to the service worker file for MoEngage web push notifications. if provided here, you need to host this file on your server.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "enableSPA": {
+        "label": "Enable Single Page Application (SPA) Support",
+        "description": "Enable Single Page Application (SPA) support in the Moengage SDK. Enable this if your website is a single page application to ensure proper tracking.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "disable_onsite": {
+        "label": "Disable Onsite Messaging",
+        "description": "Disable Moengage from showing Onsite Messaging on your website.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "customProxyDomain": {
+        "label": "Custom Proxy Domain",
+        "description": "A custom domain name where the MoEngage web SDK is hosted. Data will be sent to this domain.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "bots_list": {
+        "label": "Bots List",
+        "description": "A comma delimited list of bot user agents to ignore when tracking events.",
+        "type": "string",
+        "required": false,
+        "multiple": true,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "disableCookies": {
+        "label": "Disable Cookies",
+        "description": "Disable Moengage from setting cookies on your website when the page loads.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "disableSdk": {
+        "label": "Disable SDK",
+        "description": "Disable the Moengage SDK from initializing on your website when the page loads. You can use this to conditionally load the SDK based on user consent.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "cards_enabled": {
+        "label": "Enable Cards",
+        "description": "Enable MoEngage Cards on your website to engage users with personalized content.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "css_selector_inbox_icon": {
+        "label": "CSS Selector for Inbox Icon",
+        "description": "The CSS selector for the MoEngage Inbox icon on your website. The user will click this icon to open the inbox.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "cards_enabled",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
+      "floating_bell_icon_desktop": {
+        "label": "Enable Floating Bell Icon on Desktop",
+        "description": "Enable the floating bell icon for MoEngage notifications on desktop devices.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "cards_enabled",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
+      "floating_bell_icon_mobile": {
+        "label": "Enable Floating Bell Icon on Mobile",
+        "description": "Enable the floating bell icon for MoEngage notifications on mobile devices.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "cards_enabled",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Send Segment track events to Moengage.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the event to be tracked in Moengage.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "attributes": {
+          "label": "Attributes",
+          "description": "A dictionary of key-value pairs that will be sent as event attributes to Moengage.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Send Segment identify events to Moengage.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "identifiers": {
+          "label": "Identifiers",
+          "description": "Unique identifiers for the user to be identified in Moengage. This can be a user ID, email, or any other unique identifier.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "mobile": {
+              "@path": "$.traits.phone"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "user_id": {
+              "label": "User ID",
+              "description": "A unique identifier for the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "The email address of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "mobile": {
+              "label": "Mobile",
+              "description": "The mobile number of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "attributes": {
+          "label": "User Attributes",
+          "description": "A dictionary of key-value pairs that will be sent as user attributes to Moengage.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "first_name": {
+              "@path": "$.traits.first_name"
+            },
+            "last_name": {
+              "@path": "$.traits.last_name"
+            },
+            "email": {
+              "@path": "$.traits.email"
+            },
+            "mobile": {
+              "@path": "$.traits.phone"
+            },
+            "username": {
+              "@path": "$.traits.username"
+            },
+            "gender": {
+              "@path": "$.traits.gender"
+            },
+            "birthday": {
+              "@path": "$.traits.birthday"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "first_name": {
+              "label": "First Name",
+              "description": "The first name of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "last_name": {
+              "label": "Last Name",
+              "description": "The last name of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "The email address of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "mobile": {
+              "label": "Mobile",
+              "description": "The mobile number of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "username": {
+              "label": "Username",
+              "description": "The username of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "gender": {
+              "label": "Gender",
+              "description": "The gender of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "birthday": {
+              "label": "Birthday",
+              "description": "The birthday of the user in ISO 8601 format (YYYY-MM-DD).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "presets": []
+}

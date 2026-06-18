@@ -1,0 +1,3235 @@
+{
+  "slug": "actions-facebook-conversions-api-web",
+  "name": "Facebook Conversions Api Web",
+  "mode": "device",
+  "description": "Send events to Facebook Conversions API from the browser.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "pixelId": {
+        "label": "Pixel ID",
+        "description": "The Pixel ID associated with your Facebook Pixel.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "disablePushState": {
+        "label": "Disable Push State",
+        "description": "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "disableAutoConfig": {
+        "label": "Disable Auto Config",
+        "description": "Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "disableFirstPartyCookies": {
+        "label": "Disable First Party Cookies",
+        "description": "Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "agent": {
+        "label": "Agent",
+        "description": "Specifies the agent to use when sending events.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "segment",
+        "depends_on": null
+      },
+      "ldu": {
+        "label": "Limited Data User (LDU)",
+        "description": "Specify if and how Limited Data Use should apply.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "LDU disabled",
+            "value": "Disabled"
+          },
+          {
+            "label": "LDU enabled - Use Meta Geolocation Logic",
+            "value": "GeolocationLogic"
+          },
+          {
+            "label": "LDU enabled - California only",
+            "value": "California"
+          },
+          {
+            "label": "LDU enabled - Colorado only",
+            "value": "Colorado"
+          },
+          {
+            "label": "LDU enabled - Connecticut only",
+            "value": "Connecticut"
+          },
+          {
+            "label": "LDU enabled - Florida only",
+            "value": "Florida"
+          },
+          {
+            "label": "LDU enabled - Oregon only",
+            "value": "Oregon"
+          },
+          {
+            "label": "LDU enabled - Texas only",
+            "value": "Texas"
+          },
+          {
+            "label": "LDU enabled - Montana only",
+            "value": "Montana"
+          },
+          {
+            "label": "LDU enabled - Delaware only",
+            "value": "Delaware"
+          },
+          {
+            "label": "LDU enabled - Nebraska only",
+            "value": "Nebraska"
+          },
+          {
+            "label": "LDU enabled - New Hampshire only",
+            "value": "NewHampshire"
+          },
+          {
+            "label": "LDU enabled - New Jersey only",
+            "value": "NewJersey"
+          },
+          {
+            "label": "LDU enabled - Minnesota only",
+            "value": "Minnesota"
+          }
+        ],
+        "default": "Disabled",
+        "depends_on": null
+      },
+      "formatUserDataWithParamBuilder": {
+        "label": "Format User Data with Parameter Builder",
+        "description": "If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send Event",
+      "description": "Send a Standard or Custom Event to Facebook Conversions API.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "fields": {
+        "event_config": {
+          "label": "Event Configuration",
+          "description": "Specify the type of Facebook Conversions API event to send.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "event_name": "CustomEvent",
+            "custom_event_name": {
+              "@path": "$.event"
+            },
+            "show_fields": false
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "event_name": {
+              "label": "Event Name",
+              "description": "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Custom Event",
+                  "value": "CustomEvent"
+                },
+                {
+                  "label": "Page View",
+                  "value": "PageView"
+                },
+                {
+                  "label": "Add Payment Info",
+                  "value": "AddPaymentInfo"
+                },
+                {
+                  "label": "Add To Cart",
+                  "value": "AddToCart"
+                },
+                {
+                  "label": "Add To Wishlist",
+                  "value": "AddToWishlist"
+                },
+                {
+                  "label": "Complete Registration",
+                  "value": "CompleteRegistration"
+                },
+                {
+                  "label": "Contact",
+                  "value": "Contact"
+                },
+                {
+                  "label": "Customize Product",
+                  "value": "CustomizeProduct"
+                },
+                {
+                  "label": "Donate",
+                  "value": "Donate"
+                },
+                {
+                  "label": "Find Location",
+                  "value": "FindLocation"
+                },
+                {
+                  "label": "Initiate Checkout",
+                  "value": "InitiateCheckout"
+                },
+                {
+                  "label": "Lead",
+                  "value": "Lead"
+                },
+                {
+                  "label": "Purchase",
+                  "value": "Purchase"
+                },
+                {
+                  "label": "Schedule",
+                  "value": "Schedule"
+                },
+                {
+                  "label": "Search",
+                  "value": "Search"
+                },
+                {
+                  "label": "Start Trial",
+                  "value": "StartTrial"
+                },
+                {
+                  "label": "Submit Application",
+                  "value": "SubmitApplication"
+                },
+                {
+                  "label": "Subscribe",
+                  "value": "Subscribe"
+                },
+                {
+                  "label": "View Content",
+                  "value": "ViewContent"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "custom_event_name": {
+              "label": "Custom Event Name",
+              "description": "Custom event name to send to Facebook",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "any",
+                "conditions": [
+                  {
+                    "fieldKey": "event_config.show_fields",
+                    "operator": "is",
+                    "value": "true"
+                  }
+                ]
+              },
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "show_fields": {
+              "label": "Show all fields",
+              "description": "Show all fields, even those which are not relevant to the selected Event Name.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "content_category": {
+          "label": "Content Category",
+          "description": "The category of the content associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.category"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "PageView"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "content_ids": {
+          "label": "Content IDs",
+          "description": "Product IDs associated with the event, such as SKUs (e.g. ['ABC123', 'XYZ789']). Accepts a single string value or array of strings.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@liquid": "{{ properties.products | map: 'product_id' }}"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddPaymentInfo"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "InitiateCheckout"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "content_name": {
+          "label": "Content Name",
+          "description": "The name of the page or product associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "PageView"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "content_type": {
+          "label": "Content Type",
+          "description": "If the IDs being passed in content_ids or contents parameter are IDs of products, then the value should be product. If product group IDs are being passed, then the value should be product_group. If no content_type is provided, Meta will match the event to every item that has the same ID, independent of its type.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "product",
+          "choices": [
+            {
+              "value": "product",
+              "label": "Product"
+            },
+            {
+              "value": "product_group",
+              "label": "Product Group"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "contents": {
+          "label": "Contents",
+          "description": "A list of JSON objects that contain the product IDs associated with the event plus information about the products. ID and quantity are required fields.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_price": {
+                  "@path": "$.price"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "ID",
+              "description": "The product ID of the purchased item.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The number of items purchased.",
+              "type": "integer",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "item_price": {
+              "label": "Item Price",
+              "description": "The price of the item.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddPaymentInfo"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "InitiateCheckout"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "currency": {
+          "label": "Currency",
+          "description": "The currency for the value specified. Currency must be a valid ISO 4217 three-digit currency code.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
+          "choices": [
+            {
+              "value": "AED",
+              "label": "AED"
+            },
+            {
+              "value": "AFN",
+              "label": "AFN"
+            },
+            {
+              "value": "ALL",
+              "label": "ALL"
+            },
+            {
+              "value": "AMD",
+              "label": "AMD"
+            },
+            {
+              "value": "ANG",
+              "label": "ANG"
+            },
+            {
+              "value": "AOA",
+              "label": "AOA"
+            },
+            {
+              "value": "ARS",
+              "label": "ARS"
+            },
+            {
+              "value": "AUD",
+              "label": "AUD"
+            },
+            {
+              "value": "AWG",
+              "label": "AWG"
+            },
+            {
+              "value": "AZN",
+              "label": "AZN"
+            },
+            {
+              "value": "BAM",
+              "label": "BAM"
+            },
+            {
+              "value": "BBD",
+              "label": "BBD"
+            },
+            {
+              "value": "BDT",
+              "label": "BDT"
+            },
+            {
+              "value": "BGN",
+              "label": "BGN"
+            },
+            {
+              "value": "BHD",
+              "label": "BHD"
+            },
+            {
+              "value": "BIF",
+              "label": "BIF"
+            },
+            {
+              "value": "BMD",
+              "label": "BMD"
+            },
+            {
+              "value": "BND",
+              "label": "BND"
+            },
+            {
+              "value": "BOB",
+              "label": "BOB"
+            },
+            {
+              "value": "BOV",
+              "label": "BOV"
+            },
+            {
+              "value": "BRL",
+              "label": "BRL"
+            },
+            {
+              "value": "BSD",
+              "label": "BSD"
+            },
+            {
+              "value": "BTN",
+              "label": "BTN"
+            },
+            {
+              "value": "BWP",
+              "label": "BWP"
+            },
+            {
+              "value": "BYN",
+              "label": "BYN"
+            },
+            {
+              "value": "BZD",
+              "label": "BZD"
+            },
+            {
+              "value": "CAD",
+              "label": "CAD"
+            },
+            {
+              "value": "CDF",
+              "label": "CDF"
+            },
+            {
+              "value": "CHE",
+              "label": "CHE"
+            },
+            {
+              "value": "CHF",
+              "label": "CHF"
+            },
+            {
+              "value": "CHW",
+              "label": "CHW"
+            },
+            {
+              "value": "CLF",
+              "label": "CLF"
+            },
+            {
+              "value": "CLP",
+              "label": "CLP"
+            },
+            {
+              "value": "CNY",
+              "label": "CNY"
+            },
+            {
+              "value": "COP",
+              "label": "COP"
+            },
+            {
+              "value": "COU",
+              "label": "COU"
+            },
+            {
+              "value": "CRC",
+              "label": "CRC"
+            },
+            {
+              "value": "CUC",
+              "label": "CUC"
+            },
+            {
+              "value": "CUP",
+              "label": "CUP"
+            },
+            {
+              "value": "CVE",
+              "label": "CVE"
+            },
+            {
+              "value": "CZK",
+              "label": "CZK"
+            },
+            {
+              "value": "DJF",
+              "label": "DJF"
+            },
+            {
+              "value": "DKK",
+              "label": "DKK"
+            },
+            {
+              "value": "DOP",
+              "label": "DOP"
+            },
+            {
+              "value": "DZD",
+              "label": "DZD"
+            },
+            {
+              "value": "EGP",
+              "label": "EGP"
+            },
+            {
+              "value": "ERN",
+              "label": "ERN"
+            },
+            {
+              "value": "ETB",
+              "label": "ETB"
+            },
+            {
+              "value": "EUR",
+              "label": "EUR"
+            },
+            {
+              "value": "FJD",
+              "label": "FJD"
+            },
+            {
+              "value": "FKP",
+              "label": "FKP"
+            },
+            {
+              "value": "GBP",
+              "label": "GBP"
+            },
+            {
+              "value": "GEL",
+              "label": "GEL"
+            },
+            {
+              "value": "GHS",
+              "label": "GHS"
+            },
+            {
+              "value": "GIP",
+              "label": "GIP"
+            },
+            {
+              "value": "GMD",
+              "label": "GMD"
+            },
+            {
+              "value": "GNF",
+              "label": "GNF"
+            },
+            {
+              "value": "GTQ",
+              "label": "GTQ"
+            },
+            {
+              "value": "GYD",
+              "label": "GYD"
+            },
+            {
+              "value": "HKD",
+              "label": "HKD"
+            },
+            {
+              "value": "HNL",
+              "label": "HNL"
+            },
+            {
+              "value": "HRK",
+              "label": "HRK"
+            },
+            {
+              "value": "HTG",
+              "label": "HTG"
+            },
+            {
+              "value": "HUF",
+              "label": "HUF"
+            },
+            {
+              "value": "IDR",
+              "label": "IDR"
+            },
+            {
+              "value": "ILS",
+              "label": "ILS"
+            },
+            {
+              "value": "INR",
+              "label": "INR"
+            },
+            {
+              "value": "IQD",
+              "label": "IQD"
+            },
+            {
+              "value": "IRR",
+              "label": "IRR"
+            },
+            {
+              "value": "ISK",
+              "label": "ISK"
+            },
+            {
+              "value": "JMD",
+              "label": "JMD"
+            },
+            {
+              "value": "JOD",
+              "label": "JOD"
+            },
+            {
+              "value": "JPY",
+              "label": "JPY"
+            },
+            {
+              "value": "KES",
+              "label": "KES"
+            },
+            {
+              "value": "KGS",
+              "label": "KGS"
+            },
+            {
+              "value": "KHR",
+              "label": "KHR"
+            },
+            {
+              "value": "KMF",
+              "label": "KMF"
+            },
+            {
+              "value": "KPW",
+              "label": "KPW"
+            },
+            {
+              "value": "KRW",
+              "label": "KRW"
+            },
+            {
+              "value": "KWD",
+              "label": "KWD"
+            },
+            {
+              "value": "KYD",
+              "label": "KYD"
+            },
+            {
+              "value": "KZT",
+              "label": "KZT"
+            },
+            {
+              "value": "LAK",
+              "label": "LAK"
+            },
+            {
+              "value": "LBP",
+              "label": "LBP"
+            },
+            {
+              "value": "LKR",
+              "label": "LKR"
+            },
+            {
+              "value": "LRD",
+              "label": "LRD"
+            },
+            {
+              "value": "LSL",
+              "label": "LSL"
+            },
+            {
+              "value": "LYD",
+              "label": "LYD"
+            },
+            {
+              "value": "MAD",
+              "label": "MAD"
+            },
+            {
+              "value": "MDL",
+              "label": "MDL"
+            },
+            {
+              "value": "MGA",
+              "label": "MGA"
+            },
+            {
+              "value": "MKD",
+              "label": "MKD"
+            },
+            {
+              "value": "MMK",
+              "label": "MMK"
+            },
+            {
+              "value": "MNT",
+              "label": "MNT"
+            },
+            {
+              "value": "MOP",
+              "label": "MOP"
+            },
+            {
+              "value": "MRU",
+              "label": "MRU"
+            },
+            {
+              "value": "MUR",
+              "label": "MUR"
+            },
+            {
+              "value": "MVR",
+              "label": "MVR"
+            },
+            {
+              "value": "MWK",
+              "label": "MWK"
+            },
+            {
+              "value": "MXN",
+              "label": "MXN"
+            },
+            {
+              "value": "MXV",
+              "label": "MXV"
+            },
+            {
+              "value": "MYR",
+              "label": "MYR"
+            },
+            {
+              "value": "MZN",
+              "label": "MZN"
+            },
+            {
+              "value": "NAD",
+              "label": "NAD"
+            },
+            {
+              "value": "NGN",
+              "label": "NGN"
+            },
+            {
+              "value": "NIO",
+              "label": "NIO"
+            },
+            {
+              "value": "NOK",
+              "label": "NOK"
+            },
+            {
+              "value": "NPR",
+              "label": "NPR"
+            },
+            {
+              "value": "NZD",
+              "label": "NZD"
+            },
+            {
+              "value": "OMR",
+              "label": "OMR"
+            },
+            {
+              "value": "PAB",
+              "label": "PAB"
+            },
+            {
+              "value": "PEN",
+              "label": "PEN"
+            },
+            {
+              "value": "PGK",
+              "label": "PGK"
+            },
+            {
+              "value": "PHP",
+              "label": "PHP"
+            },
+            {
+              "value": "PKR",
+              "label": "PKR"
+            },
+            {
+              "value": "PLN",
+              "label": "PLN"
+            },
+            {
+              "value": "PYG",
+              "label": "PYG"
+            },
+            {
+              "value": "QAR",
+              "label": "QAR"
+            },
+            {
+              "value": "RON",
+              "label": "RON"
+            },
+            {
+              "value": "RSD",
+              "label": "RSD"
+            },
+            {
+              "value": "RUB",
+              "label": "RUB"
+            },
+            {
+              "value": "RWF",
+              "label": "RWF"
+            },
+            {
+              "value": "SAR",
+              "label": "SAR"
+            },
+            {
+              "value": "SBD",
+              "label": "SBD"
+            },
+            {
+              "value": "SCR",
+              "label": "SCR"
+            },
+            {
+              "value": "SDG",
+              "label": "SDG"
+            },
+            {
+              "value": "SEK",
+              "label": "SEK"
+            },
+            {
+              "value": "SGD",
+              "label": "SGD"
+            },
+            {
+              "value": "SHP",
+              "label": "SHP"
+            },
+            {
+              "value": "SLL",
+              "label": "SLL"
+            },
+            {
+              "value": "SOS",
+              "label": "SOS"
+            },
+            {
+              "value": "SRD",
+              "label": "SRD"
+            },
+            {
+              "value": "SSP",
+              "label": "SSP"
+            },
+            {
+              "value": "STN",
+              "label": "STN"
+            },
+            {
+              "value": "SVC",
+              "label": "SVC"
+            },
+            {
+              "value": "SYP",
+              "label": "SYP"
+            },
+            {
+              "value": "SZL",
+              "label": "SZL"
+            },
+            {
+              "value": "THB",
+              "label": "THB"
+            },
+            {
+              "value": "TJS",
+              "label": "TJS"
+            },
+            {
+              "value": "TMT",
+              "label": "TMT"
+            },
+            {
+              "value": "TND",
+              "label": "TND"
+            },
+            {
+              "value": "TOP",
+              "label": "TOP"
+            },
+            {
+              "value": "TRY",
+              "label": "TRY"
+            },
+            {
+              "value": "TTD",
+              "label": "TTD"
+            },
+            {
+              "value": "TWD",
+              "label": "TWD"
+            },
+            {
+              "value": "TZS",
+              "label": "TZS"
+            },
+            {
+              "value": "UAH",
+              "label": "UAH"
+            },
+            {
+              "value": "UGX",
+              "label": "UGX"
+            },
+            {
+              "value": "USD",
+              "label": "USD"
+            },
+            {
+              "value": "USN",
+              "label": "USN"
+            },
+            {
+              "value": "UYI",
+              "label": "UYI"
+            },
+            {
+              "value": "UYU",
+              "label": "UYU"
+            },
+            {
+              "value": "UYW",
+              "label": "UYW"
+            },
+            {
+              "value": "UZS",
+              "label": "UZS"
+            },
+            {
+              "value": "VES",
+              "label": "VES"
+            },
+            {
+              "value": "VND",
+              "label": "VND"
+            },
+            {
+              "value": "VUV",
+              "label": "VUV"
+            },
+            {
+              "value": "WST",
+              "label": "WST"
+            },
+            {
+              "value": "XAF",
+              "label": "XAF"
+            },
+            {
+              "value": "XAG",
+              "label": "XAG"
+            },
+            {
+              "value": "XAU",
+              "label": "XAU"
+            },
+            {
+              "value": "XBA",
+              "label": "XBA"
+            },
+            {
+              "value": "XBB",
+              "label": "XBB"
+            },
+            {
+              "value": "XBC",
+              "label": "XBC"
+            },
+            {
+              "value": "XBD",
+              "label": "XBD"
+            },
+            {
+              "value": "XCD",
+              "label": "XCD"
+            },
+            {
+              "value": "XDR",
+              "label": "XDR"
+            },
+            {
+              "value": "XOF",
+              "label": "XOF"
+            },
+            {
+              "value": "XPD",
+              "label": "XPD"
+            },
+            {
+              "value": "XPF",
+              "label": "XPF"
+            },
+            {
+              "value": "XPT",
+              "label": "XPT"
+            },
+            {
+              "value": "XSU",
+              "label": "XSU"
+            },
+            {
+              "value": "XTS",
+              "label": "XTS"
+            },
+            {
+              "value": "XUA",
+              "label": "XUA"
+            },
+            {
+              "value": "XXX",
+              "label": "XXX"
+            },
+            {
+              "value": "YER",
+              "label": "YER"
+            },
+            {
+              "value": "ZAR",
+              "label": "ZAR"
+            },
+            {
+              "value": "ZMW",
+              "label": "ZMW"
+            },
+            {
+              "value": "ZWC",
+              "label": "ZWC"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddPaymentInfo"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "CompleteRegistration"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "InitiateCheckout"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Lead"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "StartTrial"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Subscribe"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "delivery_category": {
+          "label": "Delivery Category",
+          "description": "Category of the delivery",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "in_store",
+              "label": "In Store"
+            },
+            {
+              "value": "curbside",
+              "label": "Curbside"
+            },
+            {
+              "value": "home_delivery",
+              "label": "Home Delivery"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "InitiateCheckout"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "num_items": {
+          "label": "Number of Items",
+          "description": "The number of items when checkout was initiated.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.num_items"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "predicted_ltv": {
+          "label": "Predicted LTV",
+          "description": "Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Subscribe"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "StartTrial"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "CompleteRegistration"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddPaymentInfo"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "CustomEvent"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "net_revenue": {
+          "label": "Net Revenue",
+          "description": "The net revenue associated with the purchase.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.net_revenue"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "search_string": {
+          "label": "Search String",
+          "description": "The string entered by the user for the search.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.query"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "status": {
+          "label": "Registration Status",
+          "description": "The status of the registration. true for completed registrations, false otherwise.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "value": {
+          "label": "Value",
+          "description": "A numeric value associated with this event. This could be a monetary value or a value in some other metric.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.value"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "event_config.show_fields",
+                "operator": "is",
+                "value": "true"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddPaymentInfo"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToCart"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "AddToWishlist"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "CompleteRegistration"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "InitiateCheckout"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Lead"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Purchase"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Search"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "StartTrial"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "Subscribe"
+              },
+              {
+                "fieldKey": "event_config.event_name",
+                "operator": "is",
+                "value": "ViewContent"
+              }
+            ]
+          },
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "custom_data": {
+          "label": "Custom Data",
+          "description": "The custom data object can be used to pass custom properties.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": true
+        },
+        "eventID": {
+          "label": "Event ID",
+          "description": "This ID can be any unique string. Event ID is used to deduplicate events sent both the server side Conversions API and the browser Pixel.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "eventSourceUrl": {
+          "label": "Event Source URL",
+          "description": "The URL of the page where the event occurred. Can be used to override the default URL taken from the current page.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        },
+        "userData": {
+          "label": "User Data",
+          "description": "User data to be sent with the event. This can include hashed identifiers like email, phone number, etc.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "external_id": {
+              "@path": "$.userId"
+            },
+            "em": {
+              "@path": "$.context.traits.email"
+            },
+            "ph": {
+              "@path": "$.context.traits.phone"
+            },
+            "fn": {
+              "@path": "$.context.traits.first_name"
+            },
+            "ln": {
+              "@path": "$.context.traits.last_name"
+            },
+            "ge": {
+              "@path": "$.context.traits.gender"
+            },
+            "db": {
+              "@path": "$.context.traits.birthday"
+            },
+            "ct": {
+              "@path": "$.context.traits.address.city"
+            },
+            "st": {
+              "@path": "$.context.traits.address.state"
+            },
+            "zp": {
+              "@path": "$.context.traits.address.postal_code"
+            },
+            "country": {
+              "@path": "$.context.traits.address.country"
+            },
+            "fbp": {
+              "@path": "$.context.traits.fbp"
+            },
+            "fbc": {
+              "@path": "$.context.traits.fbc"
+            },
+            "client_ip_address": {
+              "@path": "$.context.traits.client_ip_address"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "external_id": {
+              "label": "External ID",
+              "description": "A unique identifier for the user from your system",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "em": {
+              "label": "Email",
+              "description": "Email address of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ph": {
+              "label": "Phone Number",
+              "description": "Phone number of the user. Make sure to include the country code. For example, \"15551234567\" for a US number.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fn": {
+              "label": "First Name",
+              "description": "First name of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ln": {
+              "label": "Last Name",
+              "description": "Last name of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ge": {
+              "label": "Gender",
+              "description": "Gender of the user. If unknown leave blank.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Male",
+                  "value": "m"
+                },
+                {
+                  "label": "Female",
+                  "value": "f"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "db": {
+              "label": "Date of Birth",
+              "description": "Date of birth of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "ct": {
+              "label": "City",
+              "description": "City of the user",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "st": {
+              "label": "State",
+              "description": "State of the user. Facebook expects the 2-letter abbreviation for US states. For example, \"CA\" for California, or \"NY\" for New York.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "zp": {
+              "label": "ZIP/Postal Code",
+              "description": "ZIP or postal code of the user. For example, U.S zip code: 94035, Australia zip code: 1987, France zip code: 75018, UK zip code: m11ae.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "country": {
+              "label": "Country",
+              "description": "The country of the user. Facebook expects the 2-letter ISO 3166-1 alpha-2 country code. For example, \"US\" for the United States, or \"GB\" for the United Kingdom.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fbp": {
+              "label": "FBP",
+              "description": "Use this field to pass the Facebook browser cookie value (_fbp) associated with the user. If the \"Format User Data with Parameter Builder\" setting is enabled, Segment will automatically capture this value from the _fbp cookie.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            },
+            "fbc": {
+              "label": "FBC",
+              "description": "Use this field to pass The Facebook browser cookie value (_fbc) associated with the user. If the \"Format User Data with Parameter Builder\" setting is enabled, Segment will automatically capture this value from the _fbc cookie.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": false,
+              "hidden": false,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "AddPaymentInfo",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Payment Info Entered\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "AddPaymentInfo",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@liquid": "{{ properties.products | map: 'product_id' }}"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "AddToCart",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Product Added\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "AddToCart",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "id": {
+            "@path": "$.properties.product_id"
+          },
+          "quantity": {
+            "@path": "$.properties.quantity"
+          },
+          "item_price": {
+            "@path": "$.properties.price"
+          }
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.price"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "AddToWishlist",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Product Added To Wishlist\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "AddToWishlist",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "id": {
+            "@path": "$.properties.product_id"
+          },
+          "quantity": {
+            "@path": "$.properties.quantity"
+          },
+          "item_price": {
+            "@path": "$.properties.price"
+          }
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.price"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "CompleteRegistration",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Signed Up\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "CompleteRegistration",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@liquid": "{{ properties.products | map: 'product_id' }}"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "InitiateCheckout",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Checkout Started\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "InitiateCheckout",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@liquid": "{{ properties.products | map: 'product_id' }}"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "PageView",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "PageView",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.category"
+        },
+        "content_ids": {
+          "@liquid": "{{ properties.products | map: 'product_id' }}"
+        },
+        "content_name": {
+          "@path": "$.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Purchase",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "Purchase",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@liquid": "{{ properties.products | map: 'product_id' }}"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.revenue"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        },
+        "custom_data": {
+          "order_id": {
+            "@path": "$.properties.order_id"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Search",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Products Searched\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "Search",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "id": {
+            "@path": "$.properties.product_id"
+          },
+          "quantity": {
+            "@path": "$.properties.quantity"
+          },
+          "item_price": {
+            "@path": "$.properties.price"
+          }
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "ViewContent",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "event = \"Product Viewed\"",
+      "mapping": {
+        "event_config": {
+          "event_name": "ViewContent",
+          "show_fields": false
+        },
+        "content_category": {
+          "@path": "$.properties.category"
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
+        },
+        "content_name": {
+          "@path": "$.properties.name"
+        },
+        "content_type": "product",
+        "contents": {
+          "id": {
+            "@path": "$.properties.product_id"
+          },
+          "quantity": {
+            "@path": "$.properties.quantity"
+          },
+          "item_price": {
+            "@path": "$.properties.price"
+          }
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "num_items": {
+          "@path": "$.properties.num_items"
+        },
+        "net_revenue": {
+          "@path": "$.properties.net_revenue"
+        },
+        "search_string": {
+          "@path": "$.properties.query"
+        },
+        "value": {
+          "@path": "$.properties.price"
+        },
+        "eventID": {
+          "@path": "$.messageId"
+        },
+        "eventSourceUrl": {
+          "@path": "$.context.page.url"
+        },
+        "userData": {
+          "external_id": {
+            "@path": "$.userId"
+          },
+          "em": {
+            "@path": "$.context.traits.email"
+          },
+          "ph": {
+            "@path": "$.context.traits.phone"
+          },
+          "fn": {
+            "@path": "$.context.traits.first_name"
+          },
+          "ln": {
+            "@path": "$.context.traits.last_name"
+          },
+          "ge": {
+            "@path": "$.context.traits.gender"
+          },
+          "db": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ct": {
+            "@path": "$.context.traits.address.city"
+          },
+          "st": {
+            "@path": "$.context.traits.address.state"
+          },
+          "zp": {
+            "@path": "$.context.traits.address.postal_code"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "fbp": {
+            "@path": "$.context.traits.fbp"
+          },
+          "fbc": {
+            "@path": "$.context.traits.fbc"
+          },
+          "client_ip_address": {
+            "@path": "$.context.traits.client_ip_address"
+          }
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}
