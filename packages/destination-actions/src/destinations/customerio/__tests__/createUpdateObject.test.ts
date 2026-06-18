@@ -1,10 +1,197 @@
 import { createTestEvent } from '@segment/actions-core'
+import { MultiStatusResponse } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
 import { getDefaultMappings, testRunner } from '../test-helper'
+import createUpdateObject from '../createUpdateObject'
 
 describe('CustomerIO', () => {
   describe('createUpdateObject', () => {
+    describe('performBatch', () => {
+      it('should return a merged MultiStatusResponse with items at original indices', async () => {
+        const request = jest.fn()
+          .mockResolvedValueOnce({ status: 200, data: { errors: [] } })
+          .mockResolvedValueOnce({ status: 200, data: { errors: [] } })
+
+        const payloads = [
+          { id: 'grp-1', user_id: 'user-1', object_type_id: '1', convert_timestamp: false },
+          { id: 'grp-2', anonymous_id: 'anon-1', object_type_id: '1', convert_timestamp: false },
+          { id: 'grp-3', user_id: 'user-2', object_type_id: '1', convert_timestamp: false }
+        ]
+
+        const settings = { siteId: '12345', apiKey: 'abcde', accountRegion: 'US 🇺🇸' }
+        const response = await createUpdateObject.performBatch!(request as any, {
+          payload: payloads,
+          settings,
+          rawData: [],
+          rawMapping: {},
+          audienceSettings: {},
+          features: {},
+          statsContext: {} as any,
+          logger: {} as any,
+          engageDestinationCache: {} as any,
+          transactionContext: {} as any,
+          stateContext: {} as any,
+          subscriptionMetadata: {} as any,
+          hookOutputs: {}
+        } as any)
+
+        expect(response).toBeInstanceOf(MultiStatusResponse)
+        const multistatus = response as MultiStatusResponse
+        expect(multistatus.length()).toBe(3)
+        expect(multistatus.getAllResponses().map((r) => r.value())).toEqual([
+          {
+            status: 200,
+            body: {
+              anonymous_id: undefined,
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-1' } }],
+              object_id: 'grp-1',
+              object_type_id: '1',
+              person_id: 'user-1'
+            },
+            sent: {
+              type: 'object',
+              action: 'identify',
+              identifiers: { object_id: 'grp-1', object_type_id: '1' },
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-1' } }]
+            }
+          },
+          {
+            status: 200,
+            body: {
+              anonymous_id: 'anon-1',
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { anonymous_id: 'anon-1' } }],
+              object_id: 'grp-2',
+              object_type_id: '1',
+              person_id: undefined
+            },
+            sent: {
+              type: 'object',
+              action: 'identify_anonymous',
+              identifiers: { object_id: 'grp-2', object_type_id: '1' },
+              attributes: { anonymous_id: 'anon-1' },
+              cio_relationships: [{ identifiers: { anonymous_id: 'anon-1' } }]
+            }
+          },
+          {
+            status: 200,
+            body: {
+              anonymous_id: undefined,
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-2' } }],
+              object_id: 'grp-3',
+              object_type_id: '1',
+              person_id: 'user-2'
+            },
+            sent: {
+              type: 'object',
+              action: 'identify',
+              identifiers: { object_id: 'grp-3', object_type_id: '1' },
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-2' } }]
+            }
+          }
+        ])
+      })
+
+      it('should report per-item errors at the correct original indices', async () => {
+        const request = jest.fn()
+          .mockResolvedValueOnce({
+            status: 200,
+            data: { errors: [{ batch_index: 0, reason: 'invalid', message: 'Object ID invalid' }] }
+          })
+          .mockResolvedValueOnce({ status: 200, data: { errors: [] } })
+
+        const payloads = [
+          { id: 'grp-1', user_id: 'user-1', object_type_id: '1', convert_timestamp: false },
+          { id: 'grp-2', anonymous_id: 'anon-1', object_type_id: '1', convert_timestamp: false },
+          { id: 'grp-3', user_id: 'user-2', object_type_id: '1', convert_timestamp: false }
+        ]
+
+        const settings = { siteId: '12345', apiKey: 'abcde', accountRegion: 'US 🇺🇸' }
+        const response = await createUpdateObject.performBatch!(request as any, {
+          payload: payloads,
+          settings,
+          rawData: [],
+          rawMapping: {},
+          audienceSettings: {},
+          features: {},
+          statsContext: {} as any,
+          logger: {} as any,
+          engageDestinationCache: {} as any,
+          transactionContext: {} as any,
+          stateContext: {} as any,
+          subscriptionMetadata: {} as any,
+          hookOutputs: {}
+        } as any)
+
+        expect(response).toBeInstanceOf(MultiStatusResponse)
+        const multistatus = response as MultiStatusResponse
+        expect(multistatus.length()).toBe(3)
+        expect(multistatus.getAllResponses().map((r) => r.value())).toEqual([
+          {
+            status: 400,
+            errormessage: 'Object ID invalid',
+            errortype: 'BAD_REQUEST',
+            body: {
+              anonymous_id: undefined,
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-1' } }],
+              object_id: 'grp-1',
+              object_type_id: '1',
+              person_id: 'user-1'
+            },
+            sent: {
+              type: 'object',
+              action: 'identify',
+              identifiers: { object_id: 'grp-1', object_type_id: '1' },
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-1' } }]
+            }
+          },
+          {
+            status: 200,
+            body: {
+              anonymous_id: 'anon-1',
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { anonymous_id: 'anon-1' } }],
+              object_id: 'grp-2',
+              object_type_id: '1',
+              person_id: undefined
+            },
+            sent: {
+              type: 'object',
+              action: 'identify_anonymous',
+              identifiers: { object_id: 'grp-2', object_type_id: '1' },
+              attributes: { anonymous_id: 'anon-1' },
+              cio_relationships: [{ identifiers: { anonymous_id: 'anon-1' } }]
+            }
+          },
+          {
+            status: 200,
+            body: {
+              anonymous_id: undefined,
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-2' } }],
+              object_id: 'grp-3',
+              object_type_id: '1',
+              person_id: 'user-2'
+            },
+            sent: {
+              type: 'object',
+              action: 'identify',
+              identifiers: { object_id: 'grp-3', object_type_id: '1' },
+              attributes: undefined,
+              cio_relationships: [{ identifiers: { id: 'user-2' } }]
+            }
+          }
+        ])
+      })
+    })
+
     testRunner((settings: Settings, action: Function) => {
       it('should work with default mappings when userId is supplied', async () => {
         const userId = 'abc123'
