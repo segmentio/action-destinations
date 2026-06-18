@@ -16,6 +16,8 @@ ignore:
   - packages/cli/src/templates/**/*
 
 coverage:
+  ignore:
+    - 'packages/cli/**/*' # Exclude packages/cli directory from coverage
   status:
     project:
       default:

@@ -104,6 +104,9 @@ In order to run the CLI (`./bin/run`), your current working directory needs to b
 # generates TypeScript definitions for an integration
 ./bin/run generate:types
 
+# generate test payloads for a destination's actions
+./bin/run generate-test-payload
+
 # start local development server
 ./bin/run serve
 ```
