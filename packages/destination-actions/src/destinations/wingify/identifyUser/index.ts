@@ -1,0 +1,100 @@
+import { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import {formatPayload, formatAttributes, hosts} from '../utility'
+
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Identify User',
+  description: "Maps Segment's visitor traits to the visitor attributes in Wingify",
+  defaultSubscription: 'type = "identify"',
+  fields: {
+    attributes: {
+      description: `Visitor's attributes to be mapped`,
+      label: 'attributes',
+      required: true,
+      type: 'object',
+      default: {
+        '@path': '$.traits'
+      }
+    },
+    wingifyUuid: {
+      description: 'Wingify UUID',
+      label: 'Wingify UUID',
+      required: true,
+      type: 'string',
+      default: {
+        '@path': '$.traits.wingify_uuid'
+      }
+    },
+    page: {
+      description: 'Contains context information regarding a webpage',
+      label: 'Page',
+      required: false,
+      type: 'object',
+      default: {
+        '@path': '$.context.page'
+      }
+    },
+    ip: {
+      description: 'IP address of the user',
+      label: 'IP Address',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
+    userAgent: {
+      description: 'User-Agent of the user',
+      label: 'User Agent',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.context.userAgent'
+      }
+    },
+    timestamp: {
+      description: 'Timestamp on the event',
+      label: 'Timestamp',
+      required: false,
+      type: 'string',
+      default: {
+        '@path': '$.timestamp'
+      }
+    }
+  },
+  perform: (request, { settings, payload }) => {
+    const eventName = 'wingify_syncVisitorProp'
+    const attributes = payload.attributes
+    delete attributes['wingify_uuid']
+    const formattedAttributes = formatAttributes(attributes)
+    const visitor = { props: formattedAttributes }
+    const { headers, structuredPayload } = formatPayload(
+      eventName,
+      payload,
+      true,
+      false,
+      settings.apikey,
+      settings.wingifyAccountId
+    )
+    if (structuredPayload.d.visitor && structuredPayload.d.event.props.$visitor) {
+      structuredPayload.d.visitor.props = {
+        ...structuredPayload.d.visitor.props,
+        ...formattedAttributes
+      }
+    } else {
+      structuredPayload.d.visitor = visitor
+      structuredPayload.d.event.props.$visitor = visitor
+    }
+    const region = settings.region || "US"
+    const host = hosts[region]
+    const endpoint = `${host}/events/t?en=${eventName}&a=${settings.wingifyAccountId}`
+    return request(endpoint, {
+      method: 'POST',
+      json: structuredPayload,
+      headers
+    })
+  }
+}
+
+export default action
