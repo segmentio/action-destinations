@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The name of the Segment event. Used to route the submission to the correct Marketo form. Only "Form Submitted" and "Registration Succeeded" events are processed.
+   * The name of the Segment event. Only "Form Submitted" and "Registration Succeeded" events are processed.
    */
   event_name: string
   /**
@@ -10,11 +10,11 @@ export interface Payload {
    */
   email: string
   /**
-   * The ID of the Marketo form to submit to. This can be set on the event properties or determined by the destination based on other event properties.
+   * The ID of the Marketo form to submit to.
    */
   formId: string
   /**
-   * The full set of lead form fields. Used to determine the destination Marketo form, campaign, and any route-specific fields.
+   * The full set of lead form fields to submit to the Marketo form.
    */
   leadFormFields: {
     [k: string]: unknown

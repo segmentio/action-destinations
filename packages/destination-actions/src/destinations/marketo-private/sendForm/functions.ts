@@ -15,11 +15,14 @@ import {
   RecordLevelErrorRetryableCode
 } from './constants'
 
+// Marketo's Forms API only accepts flat primitive values, so drop nullish entries as well
+// as any nested objects/arrays. This keeps the declared return type honest.
 function removeEmpty(obj: Record<string, unknown>): Record<string, string | number | boolean> {
-  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== null && v !== undefined)) as Record<
-    string,
-    string | number | boolean
-  >
+  return Object.fromEntries(
+    Object.entries(obj).filter(
+      ([, v]) => v !== null && v !== undefined && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
+    )
+  ) as Record<string, string | number | boolean>
 }
 
 // Response-level errors: top-level `errors[]`, present only when `success: false`.
@@ -81,13 +84,15 @@ function handleResponse(body: MarketoSubmitFormResponse) {
 }
 
 export async function send(request: RequestClient, settings: Settings, payload: Payload) {
-  const { formId, leadFormFields, visitorData, cookie } = payload
+  const { formId, email, leadFormFields, visitorData, cookie } = payload
 
   const json: MarketoJSON = {
     input: [
       {
         leadFormFields: removeEmpty(leadFormFields),
-        visitorData: removeEmpty(visitorData) as MarketoJSON['input'][0]['visitorData'],
+        // The action requires `email`, so always inject it into visitorData rather than
+        // relying on the user to duplicate it inside the visitorData mapping.
+        visitorData: { ...removeEmpty(visitorData), email },
         cookie
       }
     ],

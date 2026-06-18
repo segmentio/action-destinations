@@ -1,4 +1,4 @@
-// Type which desribes JSON to send to Marketo
+// Type which describes JSON to send to Marketo
 export type MarketoJSON = {
     input: [
         {

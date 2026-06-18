@@ -5,14 +5,13 @@ import { send } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Form',
-  description:
-    'Submit a lead to a Marketo form using the Forms 2.0 submitForm API. The destination routes the event to the appropriate Marketo form based on the form/campaign properties on the event.',
+  description: 'Submit a lead to a Marketo form using the Forms 2.0 submitForm API.',
   defaultSubscription: 'event = "Form Submitted" or event = "Registration Succeeded"',
   fields: {
     event_name: {
       label: 'Event Name',
       description:
-        'The name of the Segment event. Used to route the submission to the correct Marketo form. Only "Form Submitted" and "Registration Succeeded" events are processed.',
+        'The name of the Segment event. Only "Form Submitted" and "Registration Succeeded" events are processed.',
       type: 'string',
       required: true,
       choices: [
@@ -31,19 +30,17 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     formId: {
       label: 'Form ID',
-      description:
-        'The ID of the Marketo form to submit to. This can be set on the event properties or determined by the destination based on other event properties.',
+      description: 'The ID of the Marketo form to submit to.',
       type: 'string',
       required: true
     },
     leadFormFields: {
-      label: 'Lead Form FieldS',
-      description:
-        'The full set of lead form fields. Used to determine the destination Marketo form, campaign, and any route-specific fields.',
+      label: 'Lead Form Fields',
+      description: 'The full set of lead form fields to submit to the Marketo form.',
       type: 'object',
       required: true
     },
-   visitorData: {
+    visitorData: {
       label: 'Visitor Data',
       description:
         'The visitor data to send to Marketo. This is used to associate the lead with the correct visitor in Marketo.',
