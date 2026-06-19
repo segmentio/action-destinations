@@ -7,6 +7,7 @@ import {
   JSONLikeObject,
   PayloadValidationError,
   InvalidAudienceMembershipError,
+  RetryableError,
   AudienceMembership
 } from '@segment/actions-core'
 import type { Payload } from './generated-types'
@@ -138,6 +139,14 @@ export async function send(
   } catch (error) {
     const status = (error?.response?.status as number) || 500
     const message = (error?.message as string) || 'An error occurred while syncing visitors to Pendo Segment.'
+
+    // Pendo returns 409 ("Operation in progress") when a write to the segment is already underway.
+    // This is transient, so throw a RetryableError to let Segment retry the whole request later.
+    // Throwing (rather than setting per-item responses) retries the entire batch, which is correct
+    // since the single PATCH for all visitors is what Pendo rejected.
+    if (status === 409) {
+      throw new RetryableError('Pendo returned a 409. Segment is returning a 429 to trigger a retry.', 429)
+    }
 
     const allIndices = [...adds.keys(), ...removes.keys()]
     allIndices.forEach((index) => {

@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
 import { REGIONS, SEGMENT_ENDPOINT } from '../../constants'
 
@@ -133,5 +133,19 @@ describe('Pendo Audiences - syncAudience perform', () => {
         mapping: baseMapping
       })
     ).rejects.toThrow('Internal Server Error')
+  })
+
+  it('should throw a RetryableError (429) when the API returns 409', async () => {
+    nock(REGIONS.DEFAULT.domain).patch(`${segmentBase}/visitor`).reply(409, { message: 'Conflict' })
+
+    const promise = testDestination.testAction('syncAudience', {
+      event: makeEvent('user1', true),
+      settings,
+      mapping: baseMapping
+    })
+
+    await expect(promise).rejects.toThrow(RetryableError)
+    await expect(promise).rejects.toThrow('Pendo returned a 409. Segment is returning a 429 to trigger a retry.')
+    await expect(promise).rejects.toMatchObject({ status: 429, code: 'RETRYABLE_ERROR' })
   })
 })

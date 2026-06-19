@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import type { SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 import { REGIONS, SEGMENT_ENDPOINT } from '../../constants'
@@ -465,6 +465,22 @@ describe('Pendo Audiences - syncAudience', () => {
         sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
+    })
+
+    it('should throw a RetryableError (429) for the whole batch when the API returns 409', async () => {
+      // 409 is transient ("operation in progress"); the entire PATCH failed, so we retry the whole
+      // batch by throwing rather than marking individual items as failed.
+      nock(REGIONS.DEFAULT.domain).patch(`${segmentBase}/visitor`).reply(409, { message: 'Conflict' })
+
+      const promise = testDestination.executeBatch('syncAudience', {
+        events: [makeEvent('user1', true), makeEvent('user2', false)],
+        settings,
+        mapping: batchMapping
+      })
+
+      await expect(promise).rejects.toThrow(RetryableError)
+      await expect(promise).rejects.toThrow('Pendo returned a 409. Segment is returning a 429 to trigger a retry.')
+      await expect(promise).rejects.toMatchObject({ status: 429, code: 'RETRYABLE_ERROR' })
     })
   })
 })
