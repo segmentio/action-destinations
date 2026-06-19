@@ -5,7 +5,9 @@ import {
   RequestClient,
   MultiStatusResponse,
   JSONLikeObject,
-  PayloadValidationError
+  PayloadValidationError,
+  InvalidAudienceMembershipError,
+  AudienceMembership
 } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { AddMap, RemoveMap, PatchBodyJSON, BatchPatchResponse, BatchMultistatusItem } from './types'
@@ -16,7 +18,8 @@ export async function send(
   request: RequestClient,
   region: string,
   payload: Payload[],
-  isBatch: boolean
+  isBatch: boolean,
+  audienceMemberships: AudienceMembership[]
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const segmentId = payload[0]?.segmentAudienceId
@@ -40,7 +43,7 @@ export async function send(
   const removes: RemoveMap = new Map()
 
   payload.forEach((p, index) => {
-    const { visitorId, traitsOrProperties, segmentAudienceKey } = p
+    const { visitorId } = p
     if (!visitorId) {
       handleError(
         'PayloadValidationError',
@@ -53,8 +56,20 @@ export async function send(
       )
       return
     }
-    const isAdding = Boolean(traitsOrProperties[segmentAudienceKey])
-    if (isAdding) {
+    const membership = Array.isArray(audienceMemberships) ? audienceMemberships[index] : undefined
+    if (typeof membership !== 'boolean') {
+      handleError(
+        'InvalidAudienceMembershipError',
+        'Unable to determine audience membership for this event',
+        isBatch,
+        msResponse,
+        index,
+        400,
+        p as unknown as JSONLikeObject
+      )
+      return
+    }
+    if (membership) {
       adds.set(index, visitorId)
     } else {
       removes.set(index, visitorId)
@@ -152,7 +167,7 @@ function buildPendoRequest(op: 'add' | 'remove', visitorIds: string[]): JSONLike
 }
 
 function handleError(
-  errType: 'PayloadValidationError' | 'IntegrationError',
+  errType: 'PayloadValidationError' | 'IntegrationError' | 'InvalidAudienceMembershipError',
   message: string,
   isBatch: boolean,
   msResponse: MultiStatusResponse,
@@ -164,6 +179,8 @@ function handleError(
   if (!isBatch) {
     if (errType === 'PayloadValidationError') {
       throw new PayloadValidationError(message)
+    } else if (errType === 'InvalidAudienceMembershipError' ) {
+      throw new InvalidAudienceMembershipError(message)
     } else {
       throw new IntegrationError(message, getErrorCodeFromHttpStatus(status) || ErrorCodes.UNKNOWN_ERROR, status)
     }

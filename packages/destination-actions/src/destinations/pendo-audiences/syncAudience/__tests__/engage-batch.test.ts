@@ -32,8 +32,6 @@ function makeEvent(userId: string, audienceValue: boolean, type: 'identify' | 't
 
 const baseMapping = {
   visitorId: { '@path': '$.userId' },
-  traitsOrProperties: { '@path': '$.traits' },
-  segmentAudienceKey: 'test_audience',
   segmentAudienceId: SEGMENT_ID,
   enable_batching: false
 }
@@ -64,32 +62,17 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(3)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] }
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user3',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user3', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] }
       })
     })
@@ -114,22 +97,12 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
     })
@@ -154,12 +127,7 @@ describe('Pendo Audiences - syncAudience', () => {
         })
 
       const responses = await testDestination.executeBatch('syncAudience', {
-        events: [
-          makeEvent('user1', true),
-          makeEvent('user2', false),
-          makeEvent('user3', true),
-          makeEvent('user4', false)
-        ],
+        events: [makeEvent('user1', true), makeEvent('user2', false), makeEvent('user3', true), makeEvent('user4', false)],
         settings,
         mapping: batchMapping
       })
@@ -167,44 +135,104 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(4)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user3',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user3', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] }
       })
       expect(responses[3]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user4',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user4', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user4'] }] }
       })
+    })
+  })
+
+  describe('executeBatch - track events', () => {
+    it('should resolve membership from track event properties and PATCH add/remove accordingly', async () => {
+      const expectedPatchJSON = {
+        patch: [
+          { op: 'add', path: '/visitors', value: ['user1'] },
+          { op: 'remove', path: '/visitors', value: ['user2'] }
+        ]
+      }
+
+      nock(REGIONS.DEFAULT.domain)
+        .patch(`${segmentBase}/visitor`, expectedPatchJSON)
+        .reply(200, {
+          multistatus: [
+            { status: 200, message: 'success', operation: 'add' },
+            { status: 200, message: 'success', operation: 'remove' }
+          ]
+        })
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events: [makeEvent('user1', true, 'track'), makeEvent('user2', false, 'track')],
+        settings,
+        mapping: batchMapping
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+      })
+      expect(responses[1]).toMatchObject({
+        status: 200,
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
+      })
+    })
+
+    it('should return a 400 error for a track event with no membership in properties', async () => {
+      const expectedPatchJSON = {
+        patch: [{ op: 'add', path: '/visitors', value: ['user1'] }]
+      }
+
+      nock(REGIONS.DEFAULT.domain)
+        .patch(`${segmentBase}/visitor`, expectedPatchJSON)
+        .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
+
+      const events: SegmentEvent[] = [
+        makeEvent('user1', true, 'track'),
+        createTestEvent({
+          type: 'track',
+          event: 'Audience Entered',
+          userId: 'user2',
+          properties: {}, // computation_key missing from properties → membership undeterminable
+          context: {
+            personas: { computation_class: 'audience', computation_key: 'test_audience', external_audience_id: SEGMENT_ID }
+          }
+        })
+      ]
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events,
+        settings,
+        mapping: batchMapping
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+      })
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errormessage: 'Unable to determine audience membership for this event',
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true }
+      })
+      expect(responses[1]).not.toHaveProperty('body')
     })
   })
 
@@ -220,14 +248,20 @@ describe('Pendo Audiences - syncAudience', () => {
 
       const events: SegmentEvent[] = [
         createTestEvent({
+          type: 'identify',
           userId: 'user1',
           traits: { test_audience: true, customId: 'user1' },
-          context: { personas: { computation_key: 'test_audience', external_audience_id: SEGMENT_ID } }
+          context: {
+            personas: { computation_class: 'audience', computation_key: 'test_audience', external_audience_id: SEGMENT_ID }
+          }
         }),
         createTestEvent({
+          type: 'identify',
           userId: 'user2',
           traits: { test_audience: true }, // no customId → visitorId resolves to undefined
-          context: { personas: { computation_key: 'test_audience', external_audience_id: SEGMENT_ID } }
+          context: {
+            personas: { computation_class: 'audience', computation_key: 'test_audience', external_audience_id: SEGMENT_ID }
+          }
         })
       ]
 
@@ -240,12 +274,7 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true, customId: 'user1' },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
@@ -257,7 +286,7 @@ describe('Pendo Audiences - syncAudience', () => {
 
     it('should return a 400 error for all payloads when visitorId is empty string', async () => {
       // Empty strings survive schema validation (required only rejects undefined/null) and
-      // reach our custom if(!visitorId) guard in sendBatch
+      // reach our custom if(!visitorId) guard in send
       const responses = await testDestination.executeBatch('syncAudience', {
         events: [makeEvent('user1', true)],
         settings,
@@ -268,12 +297,7 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Visitor ID is required',
-        sent: {
-          visitorId: '',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        }
+        sent: { visitorId: '', segmentAudienceId: SEGMENT_ID, enable_batching: true }
       })
       // Validation error never reached Pendo, so no request body was sent to the destination
       expect(responses[0]).not.toHaveProperty('body')
@@ -290,33 +314,25 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Missing Pendo Segment ID',
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: ''
-        }
+        sent: { visitorId: 'user1', segmentAudienceId: '', enable_batching: true }
       })
       expect(responses[0]).not.toHaveProperty('body')
       expect(responses[1]).toMatchObject({
         status: 400,
         errormessage: 'Missing Pendo Segment ID',
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: ''
-        }
+        sent: { visitorId: 'user2', segmentAudienceId: '', enable_batching: true }
       })
       expect(responses[1]).not.toHaveProperty('body')
     })
 
     it('should return a schema error for all payloads when segmentAudienceId is missing', async () => {
       // No nock mock needed — performBatch is never called when all payloads fail schema validation
+      // Omit segmentAudienceId entirely so the field is absent and fails schema validation
+      const { segmentAudienceId, ...mappingWithoutSegmentId } = batchMapping
       const responses = await testDestination.executeBatch('syncAudience', {
         events: [makeEvent('user1', true), makeEvent('user2', false)],
         settings,
-        mapping: { ...batchMapping, segmentAudienceId: undefined }
+        mapping: mappingWithoutSegmentId
       })
 
       expect(responses.length).toBe(2)
@@ -330,6 +346,45 @@ describe('Pendo Audiences - syncAudience', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: "The root value is missing the required field 'segmentAudienceId'."
       })
+    })
+
+    it('should return a 400 error when audience membership cannot be determined', async () => {
+      const expectedPatchJSON = {
+        patch: [{ op: 'add', path: '/visitors', value: ['user1'] }]
+      }
+
+      nock(REGIONS.DEFAULT.domain)
+        .patch(`${segmentBase}/visitor`, expectedPatchJSON)
+        .reply(200, { multistatus: [{ status: 200, message: 'success', operation: 'add' }] })
+
+      const events: SegmentEvent[] = [
+        makeEvent('user1', true),
+        createTestEvent({
+          type: 'identify',
+          userId: 'user2',
+          // computation_class is not "audience", so core cannot resolve membership for this event
+          context: { personas: { computation_key: 'test_audience', external_audience_id: SEGMENT_ID } }
+        })
+      ]
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events,
+        settings,
+        mapping: batchMapping
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+      })
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errormessage: 'Unable to determine audience membership for this event',
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true }
+      })
+      expect(responses[1]).not.toHaveProperty('body')
     })
   })
 
@@ -347,23 +402,13 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 500,
         errormessage: 'Internal Server Error',
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 500,
         errormessage: 'Internal Server Error',
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] }
       })
     })
@@ -381,23 +426,13 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 403,
         errormessage: 'Forbidden',
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 403,
         errormessage: 'Forbidden',
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
     })
@@ -422,22 +457,12 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Error adding visitor to segment',
-        sent: {
-          visitorId: 'user1',
-          traitsOrProperties: { test_audience: true },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: {
-          visitorId: 'user2',
-          traitsOrProperties: { test_audience: false },
-          segmentAudienceKey: 'test_audience',
-          segmentAudienceId: SEGMENT_ID
-        },
+        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
         body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
     })
