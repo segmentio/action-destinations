@@ -65,6 +65,12 @@ export interface E2EBaseFixture {
   verboseFailureHint?: string
   /** Feature flags passed to the action, to exercise flag-gated code branches end-to-end. */
   features?: Record<string, boolean>
+  /**
+   * Max times the runner re-runs this fixture if it fails, with exponential backoff between attempts.
+   * Overrides the run-level retry default. Useful for destinations with eventual consistency
+   * (e.g. writes to a freshly-created audience that briefly return a transient error).
+   */
+  retries?: number
 }
 
 export interface E2ESingleFixture extends E2EBaseFixture {
