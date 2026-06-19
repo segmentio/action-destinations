@@ -64,18 +64,33 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(3)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] },
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] }
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] },
-        body: { visitorId: 'user3', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user3',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] }
       })
     })
   })
@@ -99,13 +114,23 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
     })
   })
@@ -129,7 +154,12 @@ describe('Pendo Audiences - syncAudience', () => {
         })
 
       const responses = await testDestination.executeBatch('syncAudience', {
-        events: [makeEvent('user1', true), makeEvent('user2', false), makeEvent('user3', true), makeEvent('user4', false)],
+        events: [
+          makeEvent('user1', true),
+          makeEvent('user2', false),
+          makeEvent('user3', true),
+          makeEvent('user4', false)
+        ],
         settings,
         mapping: batchMapping
       })
@@ -137,23 +167,43 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(4)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] },
-        body: { visitorId: 'user3', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user3',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] }
       })
       expect(responses[3]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user4'] }] },
-        body: { visitorId: 'user4', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user4',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user4'] }] }
       })
     })
   })
@@ -190,8 +240,13 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true, customId: 'user1' }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true, customId: 'user1' },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 400,
@@ -213,8 +268,15 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Visitor ID is required',
-        body: { visitorId: '', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: '',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        }
       })
+      // Validation error never reached Pendo, so no request body was sent to the destination
+      expect(responses[0]).not.toHaveProperty('body')
     })
 
     it('should return a 400 error for all payloads when segmentAudienceId is empty string', async () => {
@@ -228,13 +290,25 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Missing Pendo Segment ID',
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: '' }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: ''
+        }
       })
+      expect(responses[0]).not.toHaveProperty('body')
       expect(responses[1]).toMatchObject({
         status: 400,
         errormessage: 'Missing Pendo Segment ID',
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: '' }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: ''
+        }
       })
+      expect(responses[1]).not.toHaveProperty('body')
     })
 
     it('should return a schema error for all payloads when segmentAudienceId is missing', async () => {
@@ -246,8 +320,16 @@ describe('Pendo Audiences - syncAudience', () => {
       })
 
       expect(responses.length).toBe(2)
-      expect(responses[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errormessage: "The root value is missing the required field 'segmentAudienceId'." })
-      expect(responses[1]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errormessage: "The root value is missing the required field 'segmentAudienceId'." })
+      expect(responses[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "The root value is missing the required field 'segmentAudienceId'."
+      })
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "The root value is missing the required field 'segmentAudienceId'."
+      })
     })
   })
 
@@ -265,14 +347,24 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 500,
         errormessage: 'Internal Server Error',
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 500,
         errormessage: 'Internal Server Error',
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] },
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] }
       })
     })
 
@@ -289,14 +381,24 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 403,
         errormessage: 'Forbidden',
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 403,
         errormessage: 'Forbidden',
-        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
     })
 
@@ -320,13 +422,23 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Error adding visitor to segment',
-        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
-        body: { visitorId: 'user1', traitsOrProperties: { test_audience: true }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user1',
+          traitsOrProperties: { test_audience: true },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
-        body: { visitorId: 'user2', traitsOrProperties: { test_audience: false }, segmentAudienceKey: 'test_audience', segmentAudienceId: SEGMENT_ID }
+        sent: {
+          visitorId: 'user2',
+          traitsOrProperties: { test_audience: false },
+          segmentAudienceKey: 'test_audience',
+          segmentAudienceId: SEGMENT_ID
+        },
+        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
       })
     })
   })
