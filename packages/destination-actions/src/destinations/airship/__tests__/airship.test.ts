@@ -6,6 +6,30 @@ import { DecoratedResponse } from '@segment/actions-core'
 const testDestination = createTestIntegration(Airship)
 
 describe('Airship', () => {
+  describe('extendRequest headers', () => {
+    it('should set the Segment attribution User-Agent header with the app key', async () => {
+      const now = new Date().toISOString()
+      const event = createTestEvent({
+        userId: 'test-user-rzoj4u7gqw',
+        timestamp: now,
+        traits: { trait1: 1 }
+      })
+
+      nock('https://go.urbanairship.com').post('/api/channels/attributes').reply(200, {})
+
+      const responses = await testDestination.testAction('setAttributes', {
+        event,
+        useDefaultMappings: true,
+        settings: {
+          access_token: 'foo',
+          app_key: 'bar',
+          endpoint: 'US'
+        }
+      })
+      expect(responses[0].options.headers?.get('user-agent')).toBe('PartnerIntegrations/Segment (bar)')
+    })
+  })
+
   describe('setAttribute', () => {
     it('should work for US', async () => {
       const now = new Date().toISOString()
@@ -97,6 +121,46 @@ describe('Airship', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
+    })
+
+    it('should batch events, building each user object independently', async () => {
+      const now = new Date().toISOString()
+
+      nock('https://go.urbanairship.com').post('/api/custom-events').reply(200, {})
+
+      const responses = await testDestination.testBatchAction('customEvents', {
+        settings: {
+          access_token: 'foo',
+          app_key: 'bar',
+          endpoint: 'US'
+        },
+        events: [
+          createTestEvent({ type: 'track', timestamp: now, event: 'Event A', userId: 'named-user-1' }),
+          createTestEvent({
+            type: 'track',
+            timestamp: now,
+            event: 'Event B',
+            userId: undefined,
+            properties: { channel_id: 'chan-xyz' },
+            context: { device: { type: 'ios' } }
+          })
+        ],
+        mapping: {
+          named_user_id: { '@path': '$.userId' },
+          channel_id: { '@path': '$.properties.channel_id' },
+          channel_type: { '@path': '$.context.device.type' },
+          name: { '@path': '$.event' },
+          occurred: { '@path': '$.timestamp' },
+          enable_batching: true
+        }
+      })
+
+      expect(responses[0].status).toBe(200)
+      const sent = JSON.parse(responses[0].options.body as string)
+      expect(sent).toHaveLength(2)
+      // Each event resolves its own audience: first a named user, second an iOS channel
+      expect(sent[0].user).toEqual({ named_user_id: 'named-user-1' })
+      expect(sent[1].user).toEqual({ ios_channel: 'chan-xyz' })
     })
   })
 

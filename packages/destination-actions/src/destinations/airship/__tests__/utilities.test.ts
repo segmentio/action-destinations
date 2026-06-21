@@ -270,30 +270,40 @@ describe('Testing _parse_and_format_date', () => {
   })
 })
 
+describe('Testing _channel_type_to_key', () => {
+  it('should map known platform types to platform-specific keys', () => {
+    expect(_private._channel_type_to_key('ios')).toBe('ios_channel')
+    expect(_private._channel_type_to_key('android')).toBe('android_channel')
+    expect(_private._channel_type_to_key('amazon')).toBe('amazon_channel')
+    expect(_private._channel_type_to_key('web')).toBe('web_channel')
+  })
+
+  it('should fall back to the generic channel key for unknown types', () => {
+    expect(_private._channel_type_to_key('email')).toBe('channel')
+    expect(_private._channel_type_to_key('sms')).toBe('channel')
+  })
+})
+
 describe('Testing _build_audience', () => {
   it('should return named_user_id audience when only named_user_id is provided', () => {
     expect(_private._build_audience({ named_user_id: 'user-123' })).toEqual({ named_user_id: 'user-123' })
   })
 
-  it('should return channel audience when channel_id and channel_type are provided', () => {
-    expect(_private._build_audience({ channel_id: 'chan-abc', channel_type: 'email' })).toEqual({
-      email: 'chan-abc'
-    })
+  it('should use the platform-specific key when channel_type maps to one', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc', channel_type: 'ios' })).toEqual({ ios_channel: 'chan-abc' })
   })
 
-  it('should use channel selector when all three fields are provided (channel_id takes precedence)', () => {
-    expect(_private._build_audience({ named_user_id: 'user-123', channel_id: 'chan-abc', channel_type: 'email' })).toEqual({
-      email: 'chan-abc'
-    })
+  it('should use the generic channel key when channel_type is not a known platform', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc', channel_type: 'email' })).toEqual({ channel: 'chan-abc' })
   })
 
-  it('should use generic channel audience when channel_id provided without channel_type', () => {
+  it('should use the generic channel key when channel_type is omitted', () => {
     expect(_private._build_audience({ channel_id: 'chan-abc' })).toEqual({ channel: 'chan-abc' })
   })
 
-  it('should use generic channel audience when channel_id provided without channel_type even if named_user_id is present', () => {
-    expect(_private._build_audience({ named_user_id: 'user-123', channel_id: 'chan-abc' })).toEqual({
-      channel: 'chan-abc'
+  it('should prefer channel_id over named_user_id when both provided', () => {
+    expect(_private._build_audience({ named_user_id: 'user-123', channel_id: 'chan-abc', channel_type: 'ios' })).toEqual({
+      ios_channel: 'chan-abc'
     })
   })
 
@@ -303,28 +313,49 @@ describe('Testing _build_audience', () => {
 })
 
 describe('Testing _build_custom_event_object with channel_id', () => {
-  it('should use channel audience when channel_id is provided', () => {
+  it('should use the platform-specific key for a known channel type', () => {
     const payload: CustomEventsPayload = {
-      channel_id: 'chan-abc',
-      channel_type: 'email',
+      channel_id: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302',
+      channel_type: 'ios',
       name: 'Test Event',
       occurred: occurred.toISOString(),
       enable_batching: false
     }
     const result = _private._build_custom_event_object(payload) as any
-    expect(result.user).toEqual({ email: 'chan-abc' })
+    expect(result.user).toEqual({ ios_channel: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302' })
+  })
+
+  it('should use the generic channel key when channel_type is omitted', () => {
+    const payload: CustomEventsPayload = {
+      channel_id: 'chan-abc',
+      name: 'Test Event',
+      occurred: occurred.toISOString(),
+      enable_batching: false
+    }
+    const result = _private._build_custom_event_object(payload) as any
+    expect(result.user).toEqual({ channel: 'chan-abc' })
   })
 })
 
 describe('Testing _build_tags_object with channel_id', () => {
-  it('should use channel audience when channel_id is provided', () => {
+  it('should use the platform-specific key for a known channel type', () => {
     const payload: ManageTagsPayload = {
-      channel_id: 'chan-abc',
-      channel_type: 'sms',
+      channel_id: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302',
+      channel_type: 'ios',
       tag_group: 'segment-integration',
       tags: { trait3: true }
     }
     const result = _private._build_tags_object(payload) as any
-    expect(result.audience).toEqual({ sms: 'chan-abc' })
+    expect(result.audience).toEqual({ ios_channel: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302' })
+  })
+
+  it('should use the generic channel key when channel_type is omitted', () => {
+    const payload: ManageTagsPayload = {
+      channel_id: 'chan-abc',
+      tag_group: 'segment-integration',
+      tags: { trait3: true }
+    }
+    const result = _private._build_tags_object(payload) as any
+    expect(result.audience).toEqual({ channel: 'chan-abc' })
   })
 })

@@ -13,7 +13,7 @@ Array [
     },
     "occurred": false,
     "user": Object {
-      "Z8PnKI8*YgWA": "Z8PnKI8*YgWA",
+      "channel": "Z8PnKI8*YgWA",
     },
   },
 ]
@@ -40,7 +40,7 @@ Array [
 exports[`Testing snapshot for actions-airship destination: manageTags action - all fields 1`] = `
 Object {
   "audience": Object {
-    "XvmIpuaw": "XvmIpuaw",
+    "channel": "XvmIpuaw",
   },
 }
 `;
@@ -207,7 +207,7 @@ Object {
     },
   ],
   "audience": Object {
-    "*N75*": "*N75*",
+    "channel": "*N75*",
   },
 }
 `;
