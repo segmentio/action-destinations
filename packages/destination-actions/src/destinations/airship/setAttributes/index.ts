@@ -26,9 +26,13 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     channel_type: {
       label: 'Channel Type',
-      description: 'The Airship audience key for the channel type (e.g. android_channel, ios_channel, amazon_channel, web_channel). If omitted, the generic channel key is used and Airship will resolve the type, which may introduce a slight delay.',
+      description:
+        'The device type for the Channel ID (e.g. ios, android, amazon, web). Defaults to the device type from the event. If omitted or unrecognized, the generic channel key is used and Airship resolves the type, which may introduce a slight delay.',
       type: 'string',
-      required: false
+      required: false,
+      default: {
+        '@path': '$.context.device.type'
+      }
     },
     occurred: {
       label: 'Occurred',

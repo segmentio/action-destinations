@@ -232,9 +232,26 @@ export function map_endpoint(region: string) {
   }
 }
 
+function _channel_type_to_key(channel_type: string): string {
+  const map: Record<string, string> = {
+    ios: 'ios_channel',
+    android: 'android_channel',
+    amazon: 'amazon_channel',
+    web: 'web_channel'
+  }
+  return map[channel_type.toLowerCase()] ?? 'channel'
+}
+
+// Builds the audience identifier object used to target a user, shared across all actions.
+// - named_user_id -> { named_user_id }
+// - channel_id with channel_type -> platform-specific key, e.g. { ios_channel } (Airship resolves
+//   the channel directly)
+// - channel_id without channel_type -> generic { channel } (Airship resolves the type server-side)
+// Used as the `user` object for custom events and the `audience` object for attributes and tags.
 function _build_audience(payload: { named_user_id?: string; channel_id?: string; channel_type?: string }): object {
   if (payload.channel_id) {
-    return { [payload.channel_type ?? 'channel']: payload.channel_id }
+    const key = payload.channel_type ? _channel_type_to_key(payload.channel_type) : 'channel'
+    return { [key]: payload.channel_id }
   }
   if (payload.named_user_id) {
     return { named_user_id: payload.named_user_id }
@@ -433,6 +450,7 @@ function _extract_country_language(locale: string): string[] {
 
 export const _private = {
   _build_audience,
+  _channel_type_to_key,
   _build_custom_event_object,
   _build_attributes_object,
   _build_attribute,
