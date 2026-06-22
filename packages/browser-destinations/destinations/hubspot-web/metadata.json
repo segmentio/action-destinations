@@ -1,0 +1,493 @@
+{
+  "slug": "actions-hubspot-web",
+  "name": "Hubspot Web (Actions)",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "portalId": {
+        "label": "Hub ID",
+        "description": "The Hub ID of your HubSpot account.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "enableEuropeanDataCenter": {
+        "label": "Enable the European Data Center SDK.",
+        "description": "Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "flushIdentifyImmediately": {
+        "label": "Flush Identify Calls Immediately",
+        "description": "Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "formatCustomBehavioralEventNames": {
+        "label": "Format Custom Behavioral Event Names",
+        "description": "Format the event names for custom behavioral event automatically to standard HubSpot format (`pe<HubID>_event_name`).",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "loadFormsSDK": {
+        "label": "Load Forms SDK",
+        "description": "Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackCustomBehavioralEvent": {
+      "title": "Track Custom Behavioral Event",
+      "description": "Send a custom behavioral event to HubSpot.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "name": {
+          "label": "Event Name",
+          "description": "The internal event name assigned by HubSpot. This can be found in your HubSpot account. If the \"Format Custom Behavioral Event Names\" setting is enabled, Segment will automatically convert your Segment event name into the expected HubSpot internal event name format.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Event Properties",
+          "description": "A list of key-value pairs that describe the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "trackPageView": {
+      "title": "Track Page View",
+      "description": "Track the page view for the current page in HubSpot.",
+      "platform": "web",
+      "defaultSubscription": "type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "path": {
+          "label": "Path String",
+          "description": "The path of the current page. The set path will be treated as relative to the current domain being viewed.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "upsertContact": {
+      "title": "Upsert Contact",
+      "description": "Create or update a contact in HubSpot.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "email": {
+          "label": "Email Address",
+          "description": "The contact’s email. Email is used to uniquely identify contact records in HubSpot and create or update the contact accordingly.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "id": {
+          "label": "External ID",
+          "description": "A custom external ID that identifies the visitor.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_properties": {
+          "label": "Custom Properties",
+          "description": "A list of key-value pairs that describe the contact. Please see [HubSpot`s documentation](https://knowledge.hubspot.com/account/prevent-contact-properties-update-through-tracking-code-api) for limitations in updating contact properties.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "company": {
+          "label": "Company Name",
+          "description": "The name of the company the contact is associated with.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.company.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "country": {
+          "label": "Country",
+          "description": "The name of the country the contact is associated with.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.address.country"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "state": {
+          "label": "State",
+          "description": "The name of the state the contact is associated with.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.address.state"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "city": {
+          "label": "City",
+          "description": "The name of the city the contact is associated with.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.address.city"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "address": {
+          "label": "Street Address",
+          "description": "The street address of the contact.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.address.street"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "zip": {
+          "label": "Postal Code",
+          "description": "The postal code of the contact.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.traits.address.postal_code"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Custom Behavioral Event",
+      "type": "automatic",
+      "partnerAction": "trackCustomBehavioralEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Upsert Contact",
+      "type": "automatic",
+      "partnerAction": "upsertContact",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "id": {
+          "@path": "$.userId"
+        },
+        "custom_properties": {
+          "@path": "$.traits"
+        },
+        "company": {
+          "@path": "$.traits.company.name"
+        },
+        "country": {
+          "@path": "$.traits.address.country"
+        },
+        "state": {
+          "@path": "$.traits.address.state"
+        },
+        "city": {
+          "@path": "$.traits.address.city"
+        },
+        "address": {
+          "@path": "$.traits.address.street"
+        },
+        "zip": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "then": {
+              "@path": "$.traits.address.postalCode"
+            },
+            "else": {
+              "@path": "$.traits.address.postal_code"
+            }
+          }
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Track Page View",
+      "type": "automatic",
+      "partnerAction": "trackPageView",
+      "subscribe": "type = \"page\"",
+      "mapping": {},
+      "eventSlug": null
+    }
+  ]
+}
