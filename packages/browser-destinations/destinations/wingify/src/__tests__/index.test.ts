@@ -38,7 +38,8 @@ describe('Wingify Web (Actions)', () => {
     const script = window.document.querySelector(
       'script[src~="https://edge.wingify.net/tag/654331.js"]'
     ) as HTMLScriptElement
-    expect(script).toBeDefined()
+    expect(script).not.toBeNull()
+    expect(script.src).toContain('https://edge.wingify.net/tag/654331.js')
   })
 
   test('Loads Wingify Object without initScript', async () => {

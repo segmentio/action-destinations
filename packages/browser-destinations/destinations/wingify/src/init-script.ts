@@ -26,12 +26,19 @@ export function initScript({ wingifyAccountId, settingsTolerance = 2000 }) {
         e = Object.assign(JSON.parse(localStorage.getItem('_wingify_' + account_id + '_config')), e)
       } catch (e) {}
       var code = {
-        nonce: o.nonce,
+        nonce: o && o.nonce,
         settings_tolerance: function () {
           return e.sT
         },
         hide_element: function () {
-          return performance.getEntriesByName('first-contentful-paint')[0] ? '' : e.hE
+          if (
+            typeof performance !== 'undefined' &&
+            typeof performance.getEntriesByName === 'function' &&
+            performance.getEntriesByName('first-contentful-paint')[0]
+          ) {
+            return ''
+          }
+          return e.hE
         },
         hide_element_style: function () {
           return '{' + e.hES + '}'
@@ -49,17 +56,17 @@ export function initScript({ wingifyAccountId, settingsTolerance = 2000 }) {
         addScript: function (e) {
           var t = n.createElement('script')
           t.src = e
-          o.nonce && t.setAttribute('nonce', o.nonce)
+          o && o.nonce && t.setAttribute('nonce', o.nonce)
           t.fetchPriority = 'high'
           n.head.appendChild(t)
         },
         init: function () {
-          t._settings_timer = setTimeout(function () {
+          t._wingify_settings_timer = setTimeout(function () {
             code.finish()
           }, this.settings_tolerance())
           var e = n.createElement('style')
           e.id = '_vis_opt_path_hides'
-          o.nonce && e.setAttribute('nonce', o.nonce)
+          o && o.nonce && e.setAttribute('nonce', o.nonce)
           e.textContent = this.hide_element() + this.hide_element_style()
           n.head.appendChild(e)
           this.addScript('https://edge.wingify.net/tag/' + account_id + '.js')
