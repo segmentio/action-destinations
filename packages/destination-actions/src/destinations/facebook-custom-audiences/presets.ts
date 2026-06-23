@@ -32,10 +32,10 @@ export const presets: Preset[] = [
     eventSlug: 'journeys_step_entered_track'
   },
   {
-    name: 'Journeys Step All Triggers',
+    name: 'Journey Step All Events',
     partnerAction: 'sync',
     mapping: defaultValues(sync.fields),
     type: 'specificEvent',
-    eventSlug: 'journeys_step_all_triggers_track'
+    eventSlug: 'journey_step_all_events_track'
   }
 ]

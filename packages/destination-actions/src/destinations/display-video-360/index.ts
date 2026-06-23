@@ -204,16 +204,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(addToAudience.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
-    //TODO: uncomment this once the sync action is deployed
-    // https://github.com/segmentio/action-destinations/pull/3696/changes#diff-08e8fc99bc5b1d623022a7d1126485c0d0caf09a086c22e69a408cf8e9a4339e
-    // {
-    //   name: 'Journeys Step All Triggers',
-    //   partnerAction: 'syncAudience',
-    //   mapping: defaultValues(syncAudience.fields),
-    //   type: 'specificEvent',
-    //   eventSlug: 'journeys_step_all_triggers_track'
-    // }
   ]
 }
 
