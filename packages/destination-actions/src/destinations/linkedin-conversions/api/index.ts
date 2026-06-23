@@ -3,7 +3,10 @@ import {
   ModifiedResponse,
   DynamicFieldResponse,
   ActionHookResponse,
-  PayloadValidationError
+  PayloadValidationError,
+  JSONLikeObject,
+  MultiStatusResponse,
+  HTTPError
 } from '@segment/actions-core'
 import { BASE_URL, DEFAULT_POST_CLICK_LOOKBACK_WINDOW, DEFAULT_VIEW_THROUGH_LOOKBACK_WINDOW } from '../constants'
 import type {
@@ -35,6 +38,10 @@ interface UserID {
 }
 
 function validate(payload: Payload, conversionTime: number) {
+  if (!Number.isFinite(conversionTime)) {
+    throw new PayloadValidationError('Timestamp is not a valid date.')
+  }
+
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
   if (conversionTime < ninetyDaysAgo) {
@@ -42,7 +49,7 @@ function validate(payload: Payload, conversionTime: number) {
   }
 
   if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+    throw new PayloadValidationError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
   }
 }
 
@@ -471,39 +478,90 @@ export class LinkedInConversions {
     })
   }
 
-  async batchConversionAdd(payloads: Payload[]): Promise<ModifiedResponse> {
-    return this.request(`${BASE_URL}/conversionEvents`, {
-      method: 'post',
-      headers: {
-        'X-RestLi-Method': 'BATCH_CREATE'
-      },
-      json: {
-        elements: [
-          ...payloads.map((payload) => {
-            const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
-              ? convertToEpochMillis(payload.conversionHappenedAt)
-              : Number(payload.conversionHappenedAt)
-            validate(payload, conversionTime)
+  async batchConversionAdd(payloads: Payload[]): Promise<MultiStatusResponse> {
+    const multiStatusResponse = new MultiStatusResponse()
+    const validElements: ReturnType<LinkedInConversions['buildConversionElement']>[] = []
+    const validResponseIndices: number[] = []
 
-            const userIds = this.buildUserIdsArray(payload)
-            return {
-              conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
-              conversionHappenedAt: conversionTime,
-              conversionValue: payload.conversionValue,
-              eventId: payload.eventId,
-              user: {
-                userIds,
-                userInfo: payload.userInfo,
-                // only 1 externalId value allowed currently in the externalIds array by LinkedIn currently Oct 2025
-                ...(Array.isArray(payload?.externalIds) && payload.externalIds.length > 0
-                  ? { externalIds: [payload.externalIds[0]] }
-                  : {})
-              }
-            }
-          })
-        ]
+    payloads.forEach((payload, i) => {
+      const conversionTime = isNotEpochTimestampInMilliseconds(payload.conversionHappenedAt)
+        ? convertToEpochMillis(payload.conversionHappenedAt)
+        : Number(payload.conversionHappenedAt)
+
+      try {
+        validate(payload, conversionTime)
+        validElements.push(this.buildConversionElement(payload, conversionTime))
+        validResponseIndices.push(i)
+      } catch (e) {
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: (e as Error).message
+        })
       }
     })
+
+    if (validElements.length === 0) {
+      return multiStatusResponse
+    }
+
+    try {
+      const response = await this.request(`${BASE_URL}/conversionEvents`, {
+        method: 'post',
+        headers: {
+          'X-RestLi-Method': 'BATCH_CREATE'
+        },
+        json: {
+          elements: validElements
+        }
+      })
+
+      validResponseIndices.forEach((originalIndex, filteredIndex) => {
+        multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+          status: response.status,
+          sent: validElements[filteredIndex] as unknown as JSONLikeObject,
+          body: response.content
+        })
+      })
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        const status = error.response.status
+        const errormessage = (error.response as ModifiedResponse).content || error.message
+
+        // Mark every valid event with the API error status.
+        // For 401, the framework's shouldRetry detects status===401 in the MultiStatusResponse
+        // and triggers token refresh + retry automatically (destination-kit/index.ts:980).
+        validResponseIndices.forEach((originalIndex, filteredIndex) => {
+          multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+            status,
+            errormessage,
+            sent: validElements[filteredIndex] as unknown as JSONLikeObject
+          })
+        })
+      } else {
+        throw error
+      }
+    }
+
+    return multiStatusResponse
+  }
+
+  private buildConversionElement(payload: Payload, conversionTime: number) {
+    const userIds = this.buildUserIdsArray(payload)
+    return {
+      conversion: `urn:lla:llaPartnerConversion:${this.conversionRuleId}`,
+      conversionHappenedAt: conversionTime,
+      conversionValue: payload.conversionValue,
+      eventId: payload.eventId,
+      user: {
+        userIds,
+        userInfo: payload.userInfo,
+        // only 1 externalId value allowed currently in the externalIds array by LinkedIn currently Oct 2025
+        ...(Array.isArray(payload?.externalIds) && payload.externalIds.length > 0
+          ? { externalIds: [payload.externalIds[0]] }
+          : {})
+      }
+    }
   }
 
   async bulkAssociateCampaignToConversion(campaignIds?: string[]): Promise<ModifiedResponse | void> {
