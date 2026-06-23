@@ -20,7 +20,9 @@ describe('Wingify AccountID Validation', () => {
         wingifyAccountId: 65431231,
         region: 'US'
       }
-      await expect(testDestination.testAuthentication(settings)).rejects.toThrowError()
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrow(
+        'Invalid AccountID. Please check your AccountID'
+      )
     })
   })
 })

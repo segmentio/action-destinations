@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
+const BASE_ENDPOINT = 'https://collect.wingify.net'
 const accountId = 654331
 const wingifyUuid = 'ABC123'
 const SDK_KEY = 'sample-api-key'
@@ -16,7 +16,7 @@ describe('Wingify.trackEvent Web', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         }
       })
       nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
@@ -66,7 +66,7 @@ describe('Wingify.trackEvent Web', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
@@ -111,7 +111,7 @@ describe('Wingify.trackEvent Web', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         },
         context: {
           page: {
@@ -169,7 +169,7 @@ describe('Wingify.trackEvent Web', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
@@ -224,7 +224,7 @@ describe('Wingify.trackEvent Fullstack', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         }
       })
       nock(BASE_ENDPOINT).post(`/events/t?en=segment.testEvent&a=${accountId}`).reply(200, {})
@@ -284,7 +284,7 @@ describe('Wingify.trackEvent Fullstack', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true
@@ -340,7 +340,7 @@ describe('Wingify.trackEvent Fullstack', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         },
         context: {
           page: {
@@ -408,7 +408,7 @@ describe('Wingify.trackEvent Fullstack', () => {
       const event = createTestEvent({
         event: 'testEvent',
         properties: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           amount: 100,
           currency: 'INR',
           outbound: true

@@ -4,24 +4,33 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
-const accountId = 654331
+const BASE_ENDPOINT = 'https://collect.wingify.net'
+const WINGIFY_ACCOUNT_ID = 654331
+const AUDIENCE_KEY = 'test_audience'
 
 describe('Wingify.syncAudience', () => {
   it('should send the add audience call', async () => {
     const event = createTestEvent({
-      event: 'Audience Entered',
+      type: 'track',
       userId: 'test_user',
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: AUDIENCE_KEY
+        }
+      },
       properties: {
-        audience_key: 'test_audience'
+        audience_key: AUDIENCE_KEY,
+        [AUDIENCE_KEY]: true
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${accountId}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${WINGIFY_ACCOUNT_ID}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
+      audienceMembership: true,
       settings: {
-        wingifyAccountId: accountId,
+        wingifyAccountId: WINGIFY_ACCOUNT_ID,
         apikey: ''
       }
     })
@@ -31,8 +40,8 @@ describe('Wingify.syncAudience', () => {
           name: 'wingify_integration',
           props: {
             action: 'audience_entered',
-            audienceName: 'test_audience',
-            audienceId: 'test_audience',
+            audienceName: AUDIENCE_KEY,
+            audienceId: AUDIENCE_KEY,
             identifier: 'test_user',
             accountId: 654331,
             integration: 'segment'
@@ -46,19 +55,27 @@ describe('Wingify.syncAudience', () => {
 
   it('should handle anonymous users', async () => {
     const event = createTestEvent({
-      event: 'Audience Entered',
+      type: 'track',
       userId: null,
       anonymousId: 'anonymous-id',
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: AUDIENCE_KEY
+        }
+      },
       properties: {
-        audience_key: 'test_audience'
+        audience_key: AUDIENCE_KEY,
+        [AUDIENCE_KEY]: true
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${accountId}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${WINGIFY_ACCOUNT_ID}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
+      audienceMembership: true,
       settings: {
-        wingifyAccountId: accountId,
+        wingifyAccountId: WINGIFY_ACCOUNT_ID,
         apikey: ''
       }
     })
@@ -68,8 +85,8 @@ describe('Wingify.syncAudience', () => {
           name: 'wingify_integration',
           props: {
             action: 'audience_entered',
-            audienceName: 'test_audience',
-            audienceId: 'test_audience',
+            audienceName: AUDIENCE_KEY,
+            audienceId: AUDIENCE_KEY,
             identifier: 'anonymous-id',
             accountId: 654331,
             integration: 'segment'
@@ -83,18 +100,26 @@ describe('Wingify.syncAudience', () => {
 
   it('should send the remove audience call', async () => {
     const event = createTestEvent({
-      event: 'Audience Exited',
+      type: 'track',
       userId: 'test_user',
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: AUDIENCE_KEY
+        }
+      },
       properties: {
-        audience_key: 'test_audience'
+        audience_key: AUDIENCE_KEY,
+        [AUDIENCE_KEY]: false
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${accountId}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${WINGIFY_ACCOUNT_ID}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
+      audienceMembership: false,
       settings: {
-        wingifyAccountId: accountId,
+        wingifyAccountId: WINGIFY_ACCOUNT_ID,
         apikey: ''
       }
     })
@@ -104,8 +129,8 @@ describe('Wingify.syncAudience', () => {
           name: 'wingify_integration',
           props: {
             action: 'audience_exited',
-            audienceName: 'test_audience',
-            audienceId: 'test_audience',
+            audienceName: AUDIENCE_KEY,
+            audienceId: AUDIENCE_KEY,
             identifier: 'test_user',
             accountId: 654331,
             integration: 'segment'

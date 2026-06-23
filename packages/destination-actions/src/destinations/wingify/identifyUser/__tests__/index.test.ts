@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
+const BASE_ENDPOINT = 'https://collect.wingify.net'
 const accountId = 654331
 const wingifyUuid = 'ABC123'
 const SDK_KEY = 'sample-api-key'
@@ -15,7 +15,7 @@ describe('Wingify.identifyUser Web', () => {
     it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           textProperty: 'Hello'
         }
       })
@@ -74,7 +74,7 @@ describe('Wingify.identifyUser Web', () => {
     it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           textProperty: 'Hello'
         },
         context: {
@@ -143,7 +143,7 @@ describe('Wingify.identifyUser Fullstack', () => {
     it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           textProperty: 'Hello'
         }
       })
@@ -205,7 +205,7 @@ describe('Wingify.identifyUser Fullstack', () => {
     it('should send segment traits as Wingify attributes', async () => {
       const event = createTestEvent({
         traits: {
-          wingifyUuid: wingifyUuid,
+          wingify_uuid: wingifyUuid,
           textProperty: 'Hello'
         },
         context: {

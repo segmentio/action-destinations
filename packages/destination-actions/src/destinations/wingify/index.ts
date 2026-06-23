@@ -1,6 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { defaultValues } from '@segment/actions-core'
+import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 
 import pageVisit from './pageVisit'
 import trackEvent from './trackEvent'
@@ -35,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Sync Audience',
-      subscribe: 'event = "Audience Entered" or event = "Audience Exited"',
+      subscribe: 'type = "track" or type = "identify"',
       partnerAction: 'syncAudience',
       mapping: defaultValues(syncAudience.fields),
       type: 'automatic'
@@ -44,7 +44,7 @@ const destination: DestinationDefinition<Settings> = {
   authentication: {
     scheme: 'custom',
     fields: {
-      vwoAccountId: {
+      wingifyAccountId: {
         label: 'Your Wingify account ID',
         description: 'Enter your Wingify Account ID',
         type: 'number',
@@ -70,7 +70,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (_request, { settings }) => {
       if (settings.wingifyAccountId < 1 || settings.wingifyAccountId.toString().length > 7) {
-        throw new Error('Invalid AccountID. Please check your AccountID')
+        throw new InvalidAuthenticationError('Invalid AccountID. Please check your AccountID')
       } else {
         return true
       }

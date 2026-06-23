@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {formatPayload, formatAttributes, hosts} from '../utility'
+import { formatPayload, formatAttributes, hosts } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
@@ -36,7 +36,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ip: {
-      description: 'IP address of the user',
+      description:
+        'IP address of the user. Only useful when events originate from Segment client libraries (web/mobile); server-side events will contain Segment server IPs.',
       label: 'IP Address',
       required: false,
       type: 'string',
@@ -86,7 +87,7 @@ const action: ActionDefinition<Settings, Payload> = {
       structuredPayload.d.visitor = visitor
       structuredPayload.d.event.props.$visitor = visitor
     }
-    const region = settings.region || "US"
+    const region = settings.region || 'US'
     const host = hosts[region]
     const endpoint = `${host}/events/t?en=${eventName}&a=${settings.wingifyAccountId}`
     return request(endpoint, {

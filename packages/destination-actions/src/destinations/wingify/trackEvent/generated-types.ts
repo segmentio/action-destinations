@@ -22,7 +22,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * IP address of the user
+   * IP address of the user. Only useful when events originate from Segment client libraries (web/mobile); server-side events will contain Segment server IPs.
    */
   ip?: string
   /**

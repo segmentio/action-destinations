@@ -4,9 +4,9 @@ import * as crypto from 'crypto'
 const namespace = '11e13cd7-6c48-53ec-8679-7e9c752273c5'
 
 export const hosts: { [key: string]: string } = {
-  US: 'https://eadge.wingify.com',
-  EU: 'https://eadge.wingify.com/eu01',
-  AS: 'https://eadge.wingify.com/as01'
+  US: 'https://collect.wingify.net',
+  EU: 'https://collect.wingify.net/eu01',
+  AS: 'https://collect.wingify.net/as01'
 }
 
 function uuidv5(name: string, namespace: string): string {
@@ -105,6 +105,9 @@ export function sanitiseEventName(name: string) {
 
 export function formatAttributes(attributes: { [k: string]: unknown } | undefined) {
   const formattedAttributes: { [k: string]: unknown } = {}
+  if (!attributes) {
+    return formattedAttributes
+  }
   for (const key in attributes) {
     formattedAttributes[`segment.${key}`] = attributes[key]
   }

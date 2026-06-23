@@ -35,7 +35,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ip: {
-      description: 'IP address of the user',
+      description:
+        'IP address of the user. Only useful when events originate from Segment client libraries (web/mobile); server-side events will contain Segment server IPs.',
       label: 'IP Address',
       required: false,
       type: 'string',

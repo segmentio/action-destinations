@@ -4,7 +4,7 @@ import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
 
-const BASE_ENDPOINT = 'https://dev.visualwebsiteoptimizer.com'
+const BASE_ENDPOINT = 'https://collect.wingify.net'
 const accountId = 654331
 const wingifyUuid = 'ABC123'
 const EVENT_NAME = 'segment.pageView'
@@ -16,7 +16,7 @@ describe('Wingify.pageVisit Web', () => {
     it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         }
       })
       nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${accountId}`).reply(200, {})
@@ -65,7 +65,7 @@ describe('Wingify.pageVisit Web', () => {
     it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         },
         context: {
           page: {
@@ -124,7 +124,7 @@ describe('Wingify.pageVisit Fullstack', () => {
     it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         }
       })
       nock(BASE_ENDPOINT).post(`/events/t?en=${EVENT_NAME}&a=${accountId}`).reply(200, {})
@@ -184,7 +184,7 @@ describe('Wingify.pageVisit Fullstack', () => {
     it('should send Page Visit event to Wingify', async () => {
       const event = createTestEvent({
         properties: {
-          wingifyUuid: wingifyUuid
+          wingify_uuid: wingifyUuid
         },
         context: {
           page: {
