@@ -1,0 +1,389 @@
+{
+  "slug": "actions-acoustic-campaign",
+  "name": "Acoustic Campaign (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "pod": {
+        "label": "Pod",
+        "description": "Pod Number for API Endpoint",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "2",
+        "depends_on": null
+      },
+      "region": {
+        "label": "Region",
+        "description": "Region for API Endpoint, either US, EU, AP, or CA",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US",
+            "value": "US"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          },
+          {
+            "label": "AP",
+            "value": "AP"
+          },
+          {
+            "label": "CA",
+            "value": "CA"
+          }
+        ],
+        "default": "US",
+        "depends_on": null
+      },
+      "tableName": {
+        "label": "Acoustic Segment Table Name",
+        "description": "The Segment Table Name in Acoustic Campaign Data dialog.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "Segment Events Table Name",
+        "depends_on": null
+      },
+      "tableListId": {
+        "label": "Acoustic Segment Table List Id",
+        "description": "The Segment Table List Id from the Database-Relational Table dialog in Acoustic Campaign",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": null
+      },
+      "a_clientId": {
+        "label": "Acoustic App Definition ClientId",
+        "description": "The Client Id from the App definition dialog in Acoustic Campaign",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": null
+      },
+      "a_clientSecret": {
+        "label": "Acoustic App Definition ClientSecret",
+        "description": "The Client Secret from the App definition dialog in Acoustic Campaign",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": null
+      },
+      "a_refreshToken": {
+        "label": "Acoustic App Access Definition RefreshToken",
+        "description": "The RefreshToken provided when defining access for the App in Acoustic Campaign",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": null
+      },
+      "attributesMax": {
+        "label": "Properties Max",
+        "description": "A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": 15,
+        "depends_on": null
+      },
+      "version": {
+        "label": "Version:",
+        "description": "\nLast-Modified: 06.28.2023 16.15.37\n",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "Version 3.1   (nodeJS: v22.13.1)",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "receiveEvents": {
+      "title": "Receive Track and Identify Events",
+      "description": "Provide Segment Track and Identify Event Data to Acoustic Campaign",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "email": {
+          "label": "Email",
+          "description": "At a minimum Email is required, see mapping presets for more info.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Type",
+          "description": "The Event Type, will be either Track or Identify",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The Timestamp of the Event",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "key_value_pairs": {
+          "label": "Key-Value pairs",
+          "description": "Map simple Key-Value pairs of Event data here.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "array_data": {
+          "label": "Arrays",
+          "description": "Map Arrays of data into flattened data attributes here.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "context": {
+          "label": "Context",
+          "description": "All properties provided via a Context Section ",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "All properties provided via a Properties Section",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "All properties provided via a Traits Section",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "receiveEvents",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Calls",
+      "type": "automatic",
+      "partnerAction": "receiveEvents",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}
