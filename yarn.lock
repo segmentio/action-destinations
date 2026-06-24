@@ -4154,10 +4154,10 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-emitters@1.3.12":
-  version "1.3.12"
-  resolved "https://registry.yarnpkg.com/@segment/action-emitters/-/action-emitters-1.3.12.tgz#3d191aa1d84fc3f83cc93c896a52df89303b2f3f"
-  integrity sha512-Hf6JhkVtP2htp+hF6vzWnfPYS4gyVOIzbL8PRTmLF1saQ+S04IFNxlAHI4F5yQa2MQuuO0tHj/NpAelCg1bcGQ==
+"@segment/action-emitters@1.3.14", "@segment/action-emitters@^1.3.6":
+  version "1.3.14"
+  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/action-emitters/-/@segment/action-emitters-1.3.14.tgz#eaf512df142809c8bf7c9f31c962327ad071eff5"
+  integrity sha512-N+zDScU8ZT6Yn9S8dNXhZnEuN2CqPEp9VQGEwT8B6eYqvc3HyZFsO9hBjG7s0L6kTe5A1xURt1hb1Lz4k7xgwg==
   dependencies:
     "@types/node" "^18.11.15"
 
