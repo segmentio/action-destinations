@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, FLAGS } from '@segment/actions-core'
 import GoogleEnhancedConversions from '../index'
 import { API_VERSION } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
@@ -27,8 +27,19 @@ const mapping = {
     }
   }
 }
+
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]: true } }
+]
+
 describe('GoogleEnhancedConversions', () => {
-  describe('userList', () => {
+  describe.each(testCases)('userList ($name)', ({ features }) => {
+    beforeEach(() => {
+      nock.cleanAll()
+      testDestination.responses = []
+    })
+    afterEach(() => nock.cleanAll())
     it('sends an event with default mappings - event = Audience Entered', async () => {
       const event = createTestEvent({
         timestamp,
@@ -80,7 +91,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -143,7 +155,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -207,7 +220,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -271,7 +285,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -335,7 +350,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -399,7 +415,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -460,7 +477,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -523,7 +541,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -588,7 +607,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -658,7 +678,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -726,7 +747,8 @@ describe('GoogleEnhancedConversions', () => {
         useDefaultMappings: true,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses.length).toEqual(3)
@@ -783,7 +805,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -864,7 +887,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -969,7 +993,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
       expect(responses[0]).toMatchObject({
         status: 429,
@@ -1091,7 +1116,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
       expect(responses[0]).toMatchObject({
         status: 429,
@@ -1375,7 +1401,8 @@ describe('GoogleEnhancedConversions', () => {
           customerId
         },
         features: {
-          'google-enhanced-phone-validation-check': true
+          'google-enhanced-phone-validation-check': true,
+          ...features
         }
       })
 
@@ -1427,10 +1454,17 @@ describe('GoogleEnhancedConversions', () => {
         errormessage: "Email provided doesn't seem to be in a valid format.",
         errorreporter: 'INTEGRATIONS'
       })
-      //success
+      //success - `sent` now carries the actual add operation sent to Google for this payload
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: '/customers/1234/userLists/1234:run',
+        sent: {
+          create: {
+            userIdentifiers: [
+              { hashedEmail: '369274ed2ac3d833f5e09ec23e7dc8cd3f962521c37c38bfe8e0b690aeda9217' },
+              { hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0' }
+            ]
+          }
+        },
         body: { done: true }
       })
 
@@ -1566,7 +1600,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1578,7 +1613,14 @@ describe('GoogleEnhancedConversions', () => {
 
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: '/customers/1234/userLists/1234:run',
+        sent: {
+          create: {
+            userIdentifiers: [
+              { hashedEmail: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674' },
+              { hashedPhoneNumber: '0506a1f3f4c515fd310fce54d253b731f71e33e7e7d2b10848528ca4411120b0' }
+            ]
+          }
+        },
         body: {
           done: true
         }
@@ -1629,7 +1671,8 @@ describe('GoogleEnhancedConversions', () => {
         },
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1687,7 +1730,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1787,7 +1831,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
@@ -1889,7 +1934,8 @@ describe('GoogleEnhancedConversions', () => {
         mapping,
         settings: {
           customerId
-        }
+        },
+        ...(features && { features })
       })
 
       expect(responses[0]).toMatchObject({
