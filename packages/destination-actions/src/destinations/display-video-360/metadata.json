@@ -575,6 +575,27 @@
         }
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "google_gid": {
+          "@path": "$.context.DV360.google_gid"
+        },
+        "partner_provided_id": {
+          "@path": "$.anonymousId"
+        }
+      },
+      "eventSlug": "journey_step_all_events_track"
     }
   ]
 }

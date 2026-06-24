@@ -6198,6 +6198,77 @@
         "batch_size": 1500
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "userList",
+      "mapping": {
+        "first_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.firstName"
+            },
+            "then": {
+              "@path": "$.context.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
+        },
+        "last_name": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.lastName"
+            },
+            "then": {
+              "@path": "$.context.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "mobile_advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 10000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "journey_step_all_events_track"
     }
   ]
 }
