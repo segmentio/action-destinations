@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration, IntegrationError } from '@segment/actions-core'
+import { createTestIntegration, IntegrationError, RetryableError } from '@segment/actions-core'
 import Destination from '../index'
 import { BASE_URL, TOKEN_URL } from '../constants'
 
@@ -101,6 +101,49 @@ describe('Bing Ads Audiences', () => {
       })
 
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(IntegrationError)
+    })
+
+    it('should surface an unrecognized PartialError with Bing ErrorCode and Message', async () => {
+      const partialErrorResponse = {
+        AudienceIds: [],
+        PartialErrors: [
+          {
+            ErrorCode: 'CampaignServiceDuplicateAudienceName',
+            Message: 'An audience with this name already exists.',
+            Code: 4848,
+            Index: 0
+          }
+        ]
+      }
+      nock(BASE_URL).post('/Audiences').reply(200, partialErrorResponse)
+
+      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
+        new IntegrationError(
+          'Failed to create audience: CampaignServiceDuplicateAudienceName: An audience with this name already exists.',
+          'CampaignServiceDuplicateAudienceName',
+          400
+        )
+      )
+    })
+
+    it('should throw an IntegrationError surfacing Bing status and body on a non-2xx error', async () => {
+      nock(BASE_URL).post('/Audiences').reply(400, 'Bad Request')
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error).not.toBeInstanceOf(RetryableError)
+      expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 400: Bad Request')
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(400)
+    })
+
+    it('should throw a RetryableError with a 5xx status so Segment retries', async () => {
+      nock(BASE_URL).post('/Audiences').reply(500, '')
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(RetryableError)
+      expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 500: no response body')
+      expect(error.status).toBe(500)
     })
   })
 
