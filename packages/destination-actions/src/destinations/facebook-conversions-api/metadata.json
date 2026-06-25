@@ -40,6 +40,7 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+<<<<<<< HEAD
         "is_append_event": {
           "label": "[Beta] Append Data to Existing Conversion",
           "description": "This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net revenue values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net revenue values.",
@@ -227,6 +228,8 @@
           "format": null,
           "additionalProperties": false
         },
+=======
+>>>>>>> braze-web-api-6.5.0
         "action_source": {
           "label": "Action Source",
           "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
@@ -925,6 +928,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -949,6 +953,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -1540,6 +1546,7 @@
           "format": null,
           "additionalProperties": false
         },
+<<<<<<< HEAD
         "order_id": {
           "label": "Order ID",
           "description": "A unique identifier for the purchase event, typically the order ID or transaction ID from your ecommerce system.",
@@ -1608,6 +1615,8 @@
           "format": null,
           "additionalProperties": false
         },
+=======
+>>>>>>> braze-web-api-6.5.0
         "net_revenue": {
           "label": "Net Revenue",
           "description": "The numeric net revenue value associated with the purchase event.",
@@ -1621,6 +1630,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
+<<<<<<< HEAD
           "depends_on": {
             "match": "any",
             "conditions": [
@@ -1631,6 +1641,9 @@
               }
             ]
           },
+=======
+          "depends_on": null,
+>>>>>>> braze-web-api-6.5.0
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -2788,6 +2801,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -2812,6 +2826,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -4552,6 +4568,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -4576,6 +4593,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -6316,6 +6335,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -6340,6 +6360,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -8106,6 +8128,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -8130,6 +8153,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -9870,6 +9895,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -9894,6 +9920,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -10702,6 +10730,7 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+<<<<<<< HEAD
         "is_append_event": {
           "label": "[Beta] Append Data to Existing Conversion",
           "description": "This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net revenue values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net revenue values.",
@@ -10889,6 +10918,8 @@
           "format": null,
           "additionalProperties": false
         },
+=======
+>>>>>>> braze-web-api-6.5.0
         "action_source": {
           "label": "Action Source",
           "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
@@ -11587,6 +11618,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -11611,6 +11643,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -13101,6 +13135,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -13125,6 +13160,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -14875,6 +14912,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -14899,6 +14937,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -16675,6 +16715,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -16699,6 +16740,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -18449,6 +18492,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -18473,6 +18517,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -20223,6 +20269,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -20247,6 +20294,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -21065,6 +21114,7 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+<<<<<<< HEAD
         "is_append_event": {
           "label": "[Beta] Append Data to Existing Conversion",
           "description": "This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net revenue values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net revenue values.",
@@ -21252,6 +21302,8 @@
           "format": null,
           "additionalProperties": false
         },
+=======
+>>>>>>> braze-web-api-6.5.0
         "action_source": {
           "label": "Action Source",
           "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
@@ -21950,6 +22002,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -21974,6 +22027,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,
@@ -22565,6 +22620,7 @@
           "format": null,
           "additionalProperties": false
         },
+<<<<<<< HEAD
         "order_id": {
           "label": "Order ID",
           "description": "A unique identifier for the purchase event, typically the order ID or transaction ID from your ecommerce system.",
@@ -22633,6 +22689,8 @@
           "format": null,
           "additionalProperties": false
         },
+=======
+>>>>>>> braze-web-api-6.5.0
         "net_revenue": {
           "label": "Net Revenue",
           "description": "The numeric net revenue value associated with the purchase event.",
@@ -22646,6 +22704,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
+<<<<<<< HEAD
           "depends_on": {
             "match": "any",
             "conditions": [
@@ -22656,6 +22715,9 @@
               }
             ]
           },
+=======
+          "depends_on": null,
+>>>>>>> braze-web-api-6.5.0
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -23151,6 +23213,7 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+<<<<<<< HEAD
         "is_append_event": {
           "label": "[Beta] Append Data to Existing Conversion",
           "description": "This feature is in beta. Turn this on to add new information to a previously sent event. Currently supports late-calculated values for predicted lifetime value (pLTV) or net revenue values. Make sure to resubmit all the original data from your conversion event as well as the pLTV or net revenue values.",
@@ -23338,6 +23401,8 @@
           "format": null,
           "additionalProperties": false
         },
+=======
+>>>>>>> braze-web-api-6.5.0
         "action_source": {
           "label": "Action Source",
           "description": "This field allows you to specify where your conversions occurred. See [Facebook documentation](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event) for supported values.",
@@ -24036,6 +24101,7 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+<<<<<<< HEAD
             },
             "ctwa_clid": {
               "label": "Click to WhatsApp Click ID (ctwa_clid)",
@@ -24060,6 +24126,8 @@
               "displayMode": null,
               "format": null,
               "additionalProperties": false
+=======
+>>>>>>> braze-web-api-6.5.0
             }
           },
           "category": null,

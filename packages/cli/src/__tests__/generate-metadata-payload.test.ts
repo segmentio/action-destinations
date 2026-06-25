@@ -288,7 +288,7 @@ describe('generatePublicMetadata() — action fields', () => {
               label: 'Traits',
               description: 'User traits.',
               type: 'object',
-              displayMode: 'key-value',
+              displayMode: 'expanded',
               additionalProperties: true
             }
           },
@@ -297,7 +297,7 @@ describe('generatePublicMetadata() — action fields', () => {
       }
     } as unknown as DestinationDefinition
     const field = generatePublicMetadata('slug', def).actions.testAction.fields.traits
-    expect(field.displayMode).toBe('key-value')
+    expect(field.displayMode).toBe('expanded')
     expect(field.additionalProperties).toBe(true)
   })
 })

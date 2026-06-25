@@ -490,6 +490,13 @@ export default class GenerateMetadataPayload extends Command {
       throw err
     }
 
+    // Register ts-node so loadDestination() can require .ts source files
+    try {
+      require('ts-node/register/transpile-only')
+    } catch {
+      // ts-node not available — filesystem discovery of .ts sources will be skipped
+    }
+
     // Discover unregistered cloud destinations from the filesystem
     const cloudDestDir = path.join(process.cwd(), 'packages', 'destination-actions', 'src', 'destinations')
     const registeredDirs = new Set(
