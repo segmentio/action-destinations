@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 import { PayloadValidationError } from '@segment/actions-core'
 import { API_URL } from '../config'
 import { batch_size, enable_batching, country_code } from '../properties'
-import { processPhoneNumber, sendBatchedTrackEvent } from '../functions'
+import { processPhoneNumber, sendBatchedTrackEvent, validateExternalId } from '../functions'
 import dayjs from '../../../lib/dayjs'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -106,6 +106,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !phone_number && !external_id && !anonymous_id) {
       throw new PayloadValidationError('One of External ID, Anonymous ID, Phone Number or Email is required.')
     }
+    validateExternalId(external_id)
     const eventData = {
       data: {
         type: 'event',

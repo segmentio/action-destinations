@@ -35,7 +35,11 @@
     "test-partners": "lerna run test --stream --ignore @segment/actions-core --ignore @segment/actions-cli --ignore @segment/ajv-human-errors",
     "typecheck": "lerna run typecheck --stream",
     "types": "./bin/run generate:types",
-    "validate": "./bin/run validate"
+    "validate": "./bin/run validate",
+    "generate:metadata-payload": "./bin/run generate:metadata-payload",
+    "generate:metadata-payload:cloud": "./bin/run generate:metadata-payload --mode=cloud",
+    "generate:metadata-payload:browser": "./bin/run generate:metadata-payload --mode=device",
+    "generate:metadata-payload:warehouse": "./bin/run generate:metadata-payload --mode=warehouse"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",
@@ -97,7 +101,9 @@
   "lint-staged": {
     "**/{browser-destinations,destinations}/**/*.ts": [
       "./bin/run generate:types -p",
-      "git add **/generated-types.ts"
+      "git add **/generated-types.ts",
+      "bash scripts/update-metadata-payload.sh",
+      "git add **/metadata.json"
     ],
     "!(**/templates/**)/*.ts": [
       "eslint --fix --cache",

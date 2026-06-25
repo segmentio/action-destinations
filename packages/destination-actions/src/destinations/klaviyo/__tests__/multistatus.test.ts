@@ -257,6 +257,48 @@ describe('MultiStatus', () => {
         errorreporter: 'INTEGRATIONS'
       })
     })
+
+    it('should reject events where external_id exceeds 255 characters', async () => {
+      nock(API_URL).post('/event-bulk-create-jobs/').reply(202, {})
+
+      const longExternalId = 'a'.repeat(256)
+      const events: SegmentEvent[] = [
+        // Event with external_id exceeding 255 characters
+        createTestEvent({
+          type: 'track',
+          timestamp,
+          properties: {
+            external_id: longExternalId
+          }
+        }),
+        // Valid Event
+        createTestEvent({
+          type: 'track',
+          timestamp,
+          properties: {
+            email: 'valid@gmail.com'
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('trackEvent', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Length of external_id must be no more than 255 characters.',
+        errorreporter: 'INTEGRATIONS'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 200,
+        body: '{}'
+      })
+    })
   })
   describe('addProfileToList', () => {
     beforeEach(() => {
