@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration, IntegrationError, RetryableError } from '@segment/actions-core'
+import { createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../index'
 import { BASE_URL, TOKEN_URL } from '../constants'
 
@@ -131,18 +131,18 @@ describe('Bing Ads Audiences', () => {
 
       const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
       expect(error).toBeInstanceOf(IntegrationError)
-      expect(error).not.toBeInstanceOf(RetryableError)
       expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 400: Bad Request')
       expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
       expect(error.status).toBe(400)
     })
 
-    it('should throw a RetryableError with a 5xx status so Segment retries', async () => {
+    it('should surface Bing status when the API returns a 5xx with an empty body', async () => {
       nock(BASE_URL).post('/Audiences').reply(500, '')
 
       const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
-      expect(error).toBeInstanceOf(RetryableError)
+      expect(error).toBeInstanceOf(IntegrationError)
       expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 500: no response body')
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
       expect(error.status).toBe(500)
     })
   })

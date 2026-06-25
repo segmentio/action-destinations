@@ -6,10 +6,18 @@ import {
   RequestClient,
   HTTPError,
   ModifiedResponse,
-  IntegrationError
+  IntegrationError,
+  PayloadValidationError
 } from '@segment/actions-core'
 import { BASE_URL } from './constants'
-import { SyncAudiencePayload, PartialError, Action, Identifier } from './types'
+import {
+  SyncAudiencePayload,
+  PartialError,
+  Action,
+  Identifier,
+  CreateAudienceRequest,
+  CreateAudienceResponse
+} from './types'
 
 /**
  * Hashes an email address using the SHA-256 algorithm and returns the result as a hexadecimal string.
@@ -184,4 +192,104 @@ export const handleHttpError = async (
       })
     })
   })
+}
+
+/**
+ * Safely reads the body of an error response from the Bing Ads API for logging.
+ *
+ * Bing can return an empty or non-JSON body on failures, so this never throws: it returns the
+ * raw text (which may be empty) and falls back to an empty string if the body can't be read.
+ */
+const readResponseBody = async (response?: Response): Promise<string> => {
+  if (!response) {
+    return ''
+  }
+  try {
+    return (await response.text()) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Creates a CustomerList audience in Microsoft Bing Ads and returns its AudienceId.
+ *
+ * Bing reports create failures in two different ways, both of which are surfaced here with the
+ * real cause rather than an opaque error:
+ *  - A non-2xx HTTP response (often with an empty or non-JSON body), thrown as an HTTPError.
+ *  - A 200 response carrying a PartialErrors array (e.g. duplicate name, terms not accepted).
+ *
+ * @param request - The HTTP request client used to communicate with Microsoft Bing Ads.
+ * @param audienceName - The name of the audience to create.
+ * @returns The created AudienceId.
+ */
+export const createBingAudience = async (request: RequestClient, audienceName: string): Promise<string> => {
+  if (!audienceName) {
+    throw new PayloadValidationError('Missing audience name value')
+  }
+
+  const json: CreateAudienceRequest = {
+    Audiences: [
+      {
+        Name: audienceName,
+        Type: 'CustomerList'
+      }
+    ]
+  }
+
+  let response: CreateAudienceResponse
+  try {
+    response = await request(`${BASE_URL}/Audiences`, {
+      method: 'POST',
+      json
+    })
+  } catch (error) {
+    // The request client throws an HTTPError on a non-2xx response. Without this, the raw error
+    // escapes untyped and the platform surfaces an opaque "500 / Bad Request" with no detail.
+    // Capture Bing's actual status and response body so the real cause is visible in logs.
+    if (error instanceof HTTPError) {
+      const status = error.response?.status
+      const body = await readResponseBody(error.response)
+      throw new IntegrationError(
+        `Failed to create audience. Microsoft Bing Ads returned HTTP ${status ?? 'unknown'}: ${
+          body || 'no response body'
+        }`,
+        'CREATE_AUDIENCE_FAILED',
+        status ?? 400
+      )
+    }
+    throw error
+  }
+
+  // Bing returns a 200 with a PartialErrors array (rather than an HTTP error) for most create
+  // failures, so any error code here must be surfaced explicitly — otherwise it is silently
+  // swallowed and collapses into the opaque "No AudienceId returned" error below.
+  if (response?.data?.PartialErrors?.length) {
+    const errorObj: PartialError = response.data.PartialErrors[0]
+
+    if (errorObj?.ErrorCode === 'CustomerListTermsAndConditionsNotAccepted') {
+      throw new IntegrationError(
+        "The Customer Match 'Terms And Conditions' are not yet Accepted in the Microsoft Advertising web UI. Please create a Customer List in the Microsoft Advertising UI to accept the terms.",
+        'TERMS_NOT_ACCEPTED',
+        400
+      )
+    }
+
+    // Surface every other PartialError with Bing's own ErrorCode and Message so the real cause
+    // (e.g. a duplicate audience name) is visible instead of NO_AUDIENCE_ID.
+    throw new IntegrationError(
+      `Failed to create audience: ${errorObj?.ErrorCode ?? 'UnknownError'}: ${
+        errorObj?.Message ?? 'No error message provided'
+      }`,
+      errorObj?.ErrorCode ?? 'CREATE_AUDIENCE_FAILED',
+      400
+    )
+  }
+
+  const audienceId = response?.data?.AudienceIds?.[0]
+  if (!audienceId) {
+    throw new IntegrationError('Failed to create audience: No AudienceId returned', 'NO_AUDIENCE_ID', 400)
+  }
+
+  return audienceId
 }
