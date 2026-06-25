@@ -280,6 +280,32 @@ export async function getListIds(
   }
 
   try {
+    if (
+      !auth?.refreshToken ||
+      !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+      !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+    ) {
+      return {
+        choices: [],
+        error: {
+          message: 'OAuth credentials missing. Please re-authenticate the destination.',
+          code: '401'
+        }
+      }
+    }
+
+    const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+      method: 'POST',
+      body: new URLSearchParams({
+        refresh_token: auth.refreshToken,
+        client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+        client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+        grant_type: 'refresh_token'
+      })
+    })
+
+    const accessToken = tokenRes.data.access_token
+
     const response: ModifiedResponse<UserListResponse> = await request(
       `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
         settings.customerId
@@ -288,7 +314,7 @@ export async function getListIds(
         method: 'post',
         headers: {
           'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-          authorization: `Bearer ${auth?.accessToken}`
+          authorization: `Bearer ${accessToken}`
         },
         json
       }
