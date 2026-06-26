@@ -3219,7 +3219,7 @@
     },
     "asyncDataExtension": {
       "title": "Send Event asynchronously to Data Extension",
-      "description": "Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.\n  \n    Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future",
+      "description": "Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.\n\n    Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
@@ -4568,6 +4568,39 @@
           "hidden": true,
           "minimum": 1000,
           "maximum": 30000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "subscription_type": {
+          "label": "Subscription Type",
+          "description": "The type of subscription. Flag for enabling Async Pipeline.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "async",
+          "choices": [
+            {
+              "label": "Sync",
+              "value": "sync"
+            },
+            {
+              "label": "Async",
+              "value": "async"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,

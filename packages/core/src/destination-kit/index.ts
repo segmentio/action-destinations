@@ -769,7 +769,6 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       mapping,
       subscriptionMetadata,
       settings,
-      auth,
       features,
       statsContext,
       logger,
@@ -790,12 +789,14 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
+    const authData = getAuthData(settings as unknown as JSONObject)
+
     return await asyncAction.executeBatch({
       mapping,
       data: events as unknown as InputData[],
       settings,
       audienceSettings,
-      auth,
+      auth: authData,
       features,
       statsContext,
       logger,

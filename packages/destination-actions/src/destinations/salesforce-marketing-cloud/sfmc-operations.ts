@@ -59,11 +59,22 @@ function isRetryableError(errData: ErrorData, status: number): boolean {
   )
 }
 
+type AsyncUpsertRowsV2Response = {
+  requestId: string
+  resultMessages: {
+    resultType: string
+    resultClass: string
+    resultCode: string
+    message: string
+  }[]
+}
+
 export async function asyncUpsertRowsV2(
   request: RequestClient,
   subdomain: String,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
-  dataExtensionId?: string
+  dataExtensionId?: string,
+  throwHttpErrors = true
 ) {
   if (!dataExtensionId) {
     throw new IntegrationError(
@@ -74,11 +85,12 @@ export async function asyncUpsertRowsV2(
   }
   // Use flattened rows for async API
   const rows = generateFlattenedRows(payloads)
-  const response = await request(
+  const response = await request<AsyncUpsertRowsV2Response>(
     `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/dataextensions/${dataExtensionId}/rows`,
     {
       method: 'PUT',
-      json: { items: rows }
+      json: { items: rows },
+      throwHttpErrors
     }
   )
 
