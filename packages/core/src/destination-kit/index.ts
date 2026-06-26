@@ -4,13 +4,18 @@ import type { JSONSchema4 } from 'json-schema'
 import {
   Action,
   ActionDefinition,
+  AsyncAction,
+  AsyncActionDefinition,
   ActionHookDefinition,
   ActionHookType,
   hookTypeStrings,
   ActionHookResponse,
   BaseActionDefinition,
   RequestFn,
-  ExecuteDynamicFieldInput
+  ExecuteDynamicFieldInput,
+  AsyncBatchResponse,
+  PollPayload,
+  PollResponse
 } from './action'
 import { time, duration } from '../time'
 import { JSONLikeObject, JSONObject, JSONValue } from '../json-object'
@@ -39,12 +44,15 @@ import { HTTPError } from '..'
 export type {
   BaseActionDefinition,
   ActionDefinition,
+  AsyncActionDefinition,
   ActionHookDefinition,
   ActionHookResponse,
   ActionHookType,
   ExecuteInput,
   RequestFn,
-  Result
+  Result,
+  PollPayload,
+  PollResponse
 }
 export { hookTypeStrings }
 export type { MinimalInputField }
@@ -61,6 +69,10 @@ export interface SubscriptionStats {
 
 interface PartnerActions<Settings, Payload extends JSONLikeObject, AudienceSettings = any> {
   [key: string]: Action<Settings, Payload, AudienceSettings>
+}
+
+interface PartnerAsyncActions<Settings, Payload extends JSONLikeObject, AudienceSettings = any> {
+  [key: string]: AsyncAction<Settings, Payload, AudienceSettings>
 }
 
 export interface BaseDefinition {
@@ -163,6 +175,7 @@ export interface AudienceDestinationDefinition<Settings = unknown, AudienceSetti
   audienceFields: Record<string, GlobalSetting>
 
   actions: Record<string, ActionDefinition<Settings, any, AudienceSettings>>
+  asyncActions?: Record<string, AsyncActionDefinition<Settings, any, AudienceSettings>>
 }
 
 export interface DestinationDefinition<Settings = unknown> extends BaseDefinition {
@@ -170,6 +183,9 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Actions */
   actions: Record<string, ActionDefinition<Settings>>
+
+  // Optional Async Actions
+  asyncActions?: Record<string, AsyncActionDefinition<Settings>>
 
   /**
    * An optional function to extend requests sent from the destination
@@ -343,6 +359,19 @@ interface BatchEventInput<Settings> {
   readonly signal?: AbortSignal
 }
 
+interface PollInput<Settings> {
+  readonly pollPayload: PollPayload
+  readonly settings: Settings
+  /** `features` and `stats` are for internal Segment/Twilio use only. */
+  readonly features?: Features
+  readonly statsContext?: StatsContext
+  readonly logger?: Logger
+  readonly transactionContext?: TransactionContext
+  readonly stateContext?: StateContext
+  readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
+}
+
 export interface DecoratedResponse extends ModifiedResponse {
   request: Request
   options: AllRequestOptions
@@ -428,6 +457,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   readonly extendRequest?: RequestExtension<Settings, any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly actions: PartnerActions<Settings, any, AudienceSettings>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly asyncActions: PartnerAsyncActions<Settings, any, AudienceSettings>
   readonly responses: DecoratedResponse[]
   readonly settingsSchema?: JSONSchema4
   onDelete?: (event: SegmentEvent, settings: JSONObject, options?: OnEventOptions) => Promise<Result>
@@ -437,6 +468,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     this.name = destination.name
     this.extendRequest = destination.extendRequest
     this.actions = {}
+    this.asyncActions = {}
     this.authentication = destination.authentication
     this.responses = []
 
@@ -449,8 +481,16 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       this.settingsSchema = fieldsToJsonSchema(this.authentication.fields)
     }
 
+    // Initialize sync actions
     for (const action of Object.keys(destination.actions)) {
       this.partnerAction(action, destination.actions[action])
+    }
+
+    // Initialize async actions if they are defined
+    if (destination.asyncActions) {
+      for (const asyncAction of Object.keys(destination.asyncActions)) {
+        this.partnerAsyncAction(asyncAction, destination.asyncActions[asyncAction])
+      }
     }
   }
 
@@ -610,6 +650,23 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     return this
   }
 
+  private partnerAsyncAction(
+    slug: string,
+    definition: AsyncActionDefinition<Settings, any, AudienceSettings>
+  ): Destination<Settings, AudienceSettings> {
+    const asyncAction = new AsyncAction<Settings, {}, AudienceSettings>(this.name, definition, this.extendRequest)
+
+    asyncAction.on('response', (response) => {
+      if (response) {
+        this.responses.push(response)
+      }
+    })
+
+    this.asyncActions[slug] = asyncAction
+
+    return this
+  }
+
   protected async executeAction(
     actionSlug: string,
     {
@@ -671,7 +728,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       stateContext,
       signal
     }: BatchEventInput<Settings>
-  ) {
+  ): Promise<ResultMultiStatusNode[]> {
     const action = this.actions[actionSlug]
     if (!action) {
       return []
@@ -702,6 +759,90 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     })
   }
 
+  public async executeAsyncBatch(
+    actionSlug: string,
+    {
+      events,
+      mapping,
+      subscriptionMetadata,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      signal
+    }: BatchEventInput<Settings>
+  ): Promise<AsyncBatchResponse> {
+    const asyncAction = this.asyncActions[actionSlug]
+    if (!asyncAction) {
+      throw new IntegrationError(`Async action ${actionSlug} not found.`, 'NotImplemented', 501)
+    }
+
+    let audienceSettings = {} as AudienceSettings
+    // All events should be batched on the same audience
+    if (events[0].context?.personas) {
+      audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
+    }
+
+    return await asyncAction.executeBatch({
+      mapping,
+      data: events as unknown as InputData[],
+      settings,
+      audienceSettings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata,
+      signal
+    })
+  }
+
+  public async executeAsyncPoll(
+    actionSlug: string,
+    {
+      pollPayload,
+      settings,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata,
+      signal
+    }: PollInput<Settings>
+  ): Promise<PollResponse> {
+    const asyncAction = this.asyncActions[actionSlug]
+    if (!asyncAction) {
+      throw new IntegrationError(
+        `Async action ${actionSlug} not found or does not support polling.`,
+        'NotImplemented',
+        501
+      )
+    }
+
+    const authData = getAuthData(settings as unknown as JSONObject)
+
+    return asyncAction.executePoll({
+      data: pollPayload,
+      settings,
+      auth: authData,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata,
+      signal
+    })
+  }
+
   public async executeDynamicField(
     actionSlug: string,
     fieldKey: string,
@@ -710,10 +851,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
      * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
      */
     dynamicFn?: RequestFn<Settings, any, DynamicFieldResponse, AudienceSettings>
-  ) {
-    const action = this.actions[actionSlug]
+  ): Promise<DynamicFieldResponse> {
+    const action = this.actions[actionSlug] ?? this.asyncActions[actionSlug]
     if (!action) {
-      return []
+      return { choices: [] }
     }
 
     return action.executeDynamicField(fieldKey, data, dynamicFn)
