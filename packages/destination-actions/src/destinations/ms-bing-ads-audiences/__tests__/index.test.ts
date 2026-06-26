@@ -117,13 +117,13 @@ describe('Bing Ads Audiences', () => {
       }
       nock(BASE_URL).post('/Audiences').reply(200, partialErrorResponse)
 
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(
-        new IntegrationError(
-          'Failed to create audience: CampaignServiceDuplicateAudienceName: An audience with this name already exists.',
-          'CampaignServiceDuplicateAudienceName',
-          400
-        )
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe(
+        'Failed to create audience: CampaignServiceDuplicateAudienceName: An audience with this name already exists.'
       )
+      expect(error.code).toBe('CampaignServiceDuplicateAudienceName')
+      expect(error.status).toBe(400)
     })
 
     it('should throw an IntegrationError surfacing Bing status and body on a non-2xx error', async () => {

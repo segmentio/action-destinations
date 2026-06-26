@@ -194,18 +194,24 @@ export const handleHttpError = async (
   })
 }
 
+// Cap the response body we fold into the error message. Bing (or an intermediary proxy) can
+// return large HTML error pages, and the message ends up in logs / downstream payloads.
+const MAX_ERROR_BODY_LENGTH = 2048
+
 /**
  * Safely reads the body of an error response from the Bing Ads API for logging.
  *
  * Bing can return an empty or non-JSON body on failures, so this never throws: it returns the
- * raw text (which may be empty) and falls back to an empty string if the body can't be read.
+ * raw text (which may be empty, and is truncated to a sane length) and falls back to an empty
+ * string if the body can't be read.
  */
 const readResponseBody = async (response?: Response): Promise<string> => {
   if (!response) {
     return ''
   }
   try {
-    return (await response.text()) ?? ''
+    const text = (await response.text()) ?? ''
+    return text.length > MAX_ERROR_BODY_LENGTH ? `${text.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : text
   } catch {
     return ''
   }
@@ -223,7 +229,7 @@ const readResponseBody = async (response?: Response): Promise<string> => {
  * @param audienceName - The name of the audience to create.
  * @returns The created AudienceId.
  */
-export const createBingAudience = async (request: RequestClient, audienceName: string): Promise<string> => {
+export const createBingAudience = async (request: RequestClient, audienceName?: string): Promise<string> => {
   if (!audienceName) {
     throw new PayloadValidationError('Missing audience name value')
   }
