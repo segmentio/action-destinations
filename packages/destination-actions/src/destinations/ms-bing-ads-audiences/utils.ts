@@ -201,17 +201,25 @@ const MAX_ERROR_BODY_LENGTH = 2048
 /**
  * Safely reads the body of an error response from the Bing Ads API for logging.
  *
- * Bing can return an empty or non-JSON body on failures, so this never throws: it returns the
- * raw text (which may be empty, and is truncated to a sane length) and falls back to an empty
- * string if the body can't be read.
+ * Bing can return an empty or non-JSON body on failures, so this never throws. It prefers the
+ * already-parsed `content` that the request client populates (which is robust whether or not the
+ * response stream was cloned) and only falls back to re-reading the stream via `text()`. The
+ * result is truncated to a sane length, and falls back to an empty string if the body can't be read.
  */
-const readResponseBody = async (response?: Response): Promise<string> => {
+const readResponseBody = async (response?: ModifiedResponse): Promise<string> => {
   if (!response) {
     return ''
   }
+  const truncate = (text: string): string =>
+    text.length > MAX_ERROR_BODY_LENGTH ? `${text.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : text
+
+  // `content` is the raw body string the request client already read. Reading it avoids
+  // re-consuming the response stream (which throws if it was not cloned — see skipResponseCloning).
+  if (typeof response.content === 'string') {
+    return truncate(response.content)
+  }
   try {
-    const text = (await response.text()) ?? ''
-    return text.length > MAX_ERROR_BODY_LENGTH ? `${text.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : text
+    return truncate((await response.text()) ?? '')
   } catch {
     return ''
   }
@@ -255,7 +263,7 @@ export const createBingAudience = async (request: RequestClient, audienceName?: 
     // Capture Bing's actual status and response body so the real cause is visible in logs.
     if (error instanceof HTTPError) {
       const status = error.response?.status
-      const body = await readResponseBody(error.response)
+      const body = await readResponseBody(error.response as ModifiedResponse)
       throw new IntegrationError(
         `Failed to create audience. Microsoft Bing Ads returned HTTP ${status ?? 'unknown'}: ${
           body || 'no response body'
