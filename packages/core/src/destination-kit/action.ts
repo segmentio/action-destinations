@@ -24,7 +24,14 @@ import { HTTPError, NormalizedOptions } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
-import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
+import {
+  ErrorCodes,
+  getErrorCodeFromHttpStatus,
+  IntegrationError,
+  InvalidAuthenticationError,
+  MultiStatusErrorReporter,
+  RetryableError
+} from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
 import { resolveAudienceMembership } from '../audience-membership'
 import {
@@ -103,6 +110,49 @@ type IsArray<T> = T extends (infer U)[] ? U : never
 // Multi-status response from a batch request
 type PerformBatchResponse = MaybePromise<MultiStatusResponse> | MaybePromise<unknown>
 
+// Enum representing a Poll Job Status:
+// Possible values: IN_PROGRESS, SUCCEEDED, FAILED, RETRYABLE_ERROR
+// - IN_PROGRESS: API responded with 2xx but Job is still in progress
+// - SUCCEEDED: Terminal state where Job Completed successfully
+// - FAILED: Terminal state where Job Failed with a permanent error
+// - RETRYABLE_ERROR: The API is reporting transient errors like 429, 500, etc
+type PollJobStatus = 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED' | 'RETRYABLE_ERROR'
+
+// Response from a performBatch of an AsyncActionDefinition
+export type AsyncBatchResponse = {
+  // Job ID returned by partner API used to poll result
+  // It could be undefined if the performBatch method failed
+  jobId?: string
+
+  // HTTP status code returned by the partner API during performBatch
+  status: number
+
+  // performBatch must always return a multi-status response
+  multiStatusResponse: MultiStatusResponse
+}
+
+// The payload passed into a poll operation of an AsyncActionDefinition.
+export type PollPayload = {
+  // Job ID returned from the performBatch response that identifies the batch request being polled
+  jobId: string
+}
+
+// The response from a poll operation of an AsyncActionDefinition.
+export type PollResponse = {
+  // Echo back the job ID being polled
+  jobId: string
+
+  // HTTP status code returned by the partner API during the poll operation
+  status: number
+
+  // The status of the poll operation
+  jobStatus: PollJobStatus
+
+  // Return a multi-status response
+  // If not available, the status code will be used to determine the outcome
+  multiStatusResponse?: MultiStatusResponse
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
@@ -148,6 +198,70 @@ export interface ActionDefinition<
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
+
+  /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
+   * destination using the provided inputs and return a response. The response may then optionally be stored
+   * in the mapping for later use in the action.
+   */
+  hooks?: {
+    [K in ActionHookType]?: ActionHookDefinition<
+      Settings,
+      Payload,
+      AudienceSettings,
+      NonNullable<GeneratedActionHookInputs>,
+      NonNullable<GeneratedActionHookOutputs>
+    >
+  }
+
+  /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
+  syncMode?: SyncModeDefinition
+}
+
+export interface AsyncActionDefinition<
+  Settings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Payload = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  AudienceSettings = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookInputs = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookOutputs = any
+> extends BaseActionDefinition {
+  /**
+   * A way to "register" dynamic fields.
+   * This is likely going to change as we productionalize the data model and definition object
+   */
+  dynamicFields?: {
+    [K in keyof Payload]?: IsArray<Payload[K]> extends never
+      ? Payload[K] extends object | undefined
+        ? {
+            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
+              Settings,
+              Payload,
+              DynamicFieldResponse,
+              AudienceSettings
+            >
+          }
+        : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+      : IsArray<Payload[K]> extends object
+      ? {
+          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
+            Settings,
+            Payload,
+            DynamicFieldResponse,
+            AudienceSettings
+          >
+        }
+      : never
+  }
+
+  /** Async Actions don't support the perform operation, even in case of single payload it should always be handled as a batch */
+
+  /** The operation to perform when this action is triggered for a batch of events */
+  performBatch: RequestFn<Settings, Payload[], AsyncBatchResponse, AudienceSettings, any, AudienceMembership[]>
+
+  performPoll: RequestFn<Settings, PollPayload, PollResponse, AudienceSettings>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -247,6 +361,20 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   signal?: AbortSignal
 }
 
+interface PollBundle<T = unknown> {
+  data: PollPayload
+  settings: T
+  auth: AuthTokens | undefined
+  /** For internal Segment/Twilio use only. */
+  features?: Features | undefined
+  statsContext?: StatsContext | undefined
+  logger?: Logger | undefined
+  transactionContext?: TransactionContext
+  stateContext?: StateContext
+  subscriptionMetadata?: SubscriptionMetadata
+  signal?: AbortSignal
+}
+
 type FillMultiStatusResponseInput = {
   multiStatusResponse: ResultMultiStatusNode[]
   invalidPayloadIndices: Set<number>
@@ -265,7 +393,7 @@ const isSyncMode = (value: unknown): value is SyncMode => {
  * MapAndValidateInput step.
  */
 export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
-  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings>
+  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hookSchemas?: Record<string, JSONSchema4>
@@ -277,7 +405,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
   constructor(
     destinationName: string,
-    definition: ActionDefinition<Settings, Payload, AudienceSettings>,
+    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
     // Payloads may be any type so we use `any` explicitly here.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
@@ -740,6 +868,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
      * Try to use the parsed response `.data` or `.content` string
      * @see {@link ../middleware/after-response/prepare-response.ts}
      */
+
     if (response instanceof Response) {
       return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
     }
@@ -789,6 +918,411 @@ export class ActionDestinationErrorResponse {
   }
   public value(): ActionDestinationErrorResponseType {
     return this.data
+  }
+}
+
+/**
+ * AsyncAction is similar to Action but designed for asynchronous batch processing.
+ * It does not support single-event perform operations - all events must be processed as batches.
+ * It includes support for polling to check the status of async batch operations.
+ */
+export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
+  readonly definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+  readonly destinationName: string
+  readonly schema?: JSONSchema4
+  readonly hookSchemas?: Record<string, JSONSchema4>
+  readonly hasHookSupport: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extendRequest: RequestExtension<Settings, any> | undefined
+
+  constructor(
+    destinationName: string,
+    definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extendRequest?: RequestExtension<Settings, any>
+  ) {
+    super()
+    this.definition = definition
+    this.destinationName = destinationName
+    this.extendRequest = extendRequest
+    this.hasHookSupport = definition.hooks !== undefined
+    // Generate json schema based on the field definitions
+    if (Object.keys(definition.fields ?? {}).length) {
+      this.schema = fieldsToJsonSchema(definition.fields)
+    }
+    // Generate a json schema for each defined hook based on the field definitions
+    if (definition.hooks) {
+      for (const hookName in definition.hooks) {
+        const hook = definition.hooks[hookName as ActionHookType]
+        if (hook?.inputFields) {
+          if (!this.hookSchemas) {
+            this.hookSchemas = {}
+          }
+
+          const castedInputFields: Record<string, InputField> = {}
+          for (const key in hook.inputFields) {
+            const field = hook.inputFields[key]
+
+            if (field.dynamic) {
+              castedInputFields[key] = {
+                ...field,
+                dynamic: true
+              }
+            } else {
+              castedInputFields[key] = {
+                ...field,
+                dynamic: false
+              }
+            }
+          }
+
+          this.hookSchemas[hookName] = fieldsToJsonSchema(castedInputFields)
+        }
+      }
+    }
+  }
+
+  async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<AsyncBatchResponse> {
+    const mapping: JSONObject = bundle.mapping
+
+    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
+    const batchPayloadLength = payloads.length
+
+    const multiStatusResponse = new MultiStatusResponse()
+    const invalidPayloadIndices = new Set<number>()
+
+    // Validate the resolved payloads against the schema
+    if (this.schema) {
+      const schema = this.schema
+      const validationOptions = {
+        schemaKey: `${this.destinationName}:${this.definition.title}`,
+        throwIfInvalid: true,
+        statsContext: bundle.statsContext,
+        exempt: ['dynamicAuthSettings']
+      }
+
+      // Filter out invalid payloads before sending them to the action
+      {
+        const filteredPayload: Payload[] = []
+
+        for (let i = 0; i < payloads.length; i++) {
+          // Validate payload schema
+          const payload = removeEmptyValues(payloads[i], schema) as Payload
+          try {
+            validateSchema(payload, schema, validationOptions)
+          } catch (e) {
+            // Validation failed with an exception, record the filtered out event
+            multiStatusResponse.setErrorResponseAtIndex(i, {
+              status: 400,
+              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+              errormessage: (e as Error).message
+            })
+
+            invalidPayloadIndices.add(i)
+
+            // Add datadog stats for events that are discarded by Actions
+            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
+            continue
+          }
+
+          // Event is validated, pass it to the action
+          filteredPayload.push(payload)
+        }
+
+        // Update the payloads with the filtered out events
+        payloads = filteredPayload
+      }
+    }
+
+    let hookOutputs = {}
+    if (this.definition.hooks) {
+      for (const hookType in this.definition.hooks) {
+        const hookOutputValues = bundle.mapping?.[hookType]
+
+        if (hookOutputValues) {
+          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
+        }
+      }
+    }
+
+    if (payloads.length === 0) {
+      return { jobId: undefined, status: 200, multiStatusResponse }
+    }
+
+    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
+    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+    const audienceMembership = bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
+
+    const data = {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
+      settings: bundle.settings,
+      audienceSettings: bundle.audienceSettings,
+      payload: payloads,
+      audienceMembership,
+      auth: bundle.auth,
+      features: bundle.features,
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      engageDestinationCache: bundle.engageDestinationCache,
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext,
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      hookOutputs,
+      syncMode,
+      matchingKey: matchingKey ? String(matchingKey) : undefined,
+      signal: bundle?.signal
+    }
+
+    const requestClient = this.createRequestClient(data)
+
+    // Call performBatch and catch any errors thrown from Integrations
+    let performBatchResponse: AsyncBatchResponse
+    try {
+      performBatchResponse = await this.definition.performBatch(requestClient, data)
+    } catch (error) {
+      // Handle action errors and convert them into a multi-status response for the entire batch
+      // If an unhandled error is thrown, it gets propagated to the caller
+      this.parseBatchError(error, {
+        multiStatusResponse,
+        invalidPayloadIndices,
+        batchPayloadLength,
+        filteredPayloads: payloads
+      })
+
+      const errorStatus = (error as HTTPError)?.response?.status ?? (error as IntegrationError)?.status ?? 500
+      return { jobId: undefined, status: errorStatus, multiStatusResponse }
+    }
+
+    const { jobId, status, multiStatusResponse: batchMultiStatus } = performBatchResponse
+
+    // Process the multi-status response from performBatch
+    let resultsReadIndex = 0
+
+    for (let i = 0; i < batchPayloadLength; i++) {
+      // Skip the index if we already have a response set
+      if (invalidPayloadIndices.has(i)) {
+        continue
+      }
+
+      const response = batchMultiStatus.getResponseAtIndex(resultsReadIndex++)
+      // We assume the response to be a failed response if it is undefined
+      if (!response) {
+        multiStatusResponse.setErrorResponseAtIndex(i, {
+          status: 500,
+          errormessage: 'MultiStatusResponse is missing a response at the specified index',
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED
+        })
+
+        bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
+        continue
+      }
+
+      // Check if response is a failed response
+      if (response instanceof ActionDestinationErrorResponse) {
+        multiStatusResponse.setErrorResponseAtIndex(i, response.value())
+
+        bundle.statsContext?.statsClient?.incr('destination.multistatus_discard', 1, bundle.statsContext?.tags)
+        continue
+      }
+
+      // We assume the response is a success response
+      multiStatusResponse.setSuccessResponseAtIndex(i, response.value())
+    }
+
+    return { jobId, status, multiStatusResponse }
+  }
+
+  async executePoll(bundle: PollBundle<Settings>): Promise<PollResponse> {
+    const dataBundle = {
+      rawData: bundle.data,
+      settings: bundle.settings,
+      payload: bundle.data,
+      auth: bundle.auth,
+      features: bundle.features,
+      statsContext: bundle.statsContext,
+      logger: bundle.logger,
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext,
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      signal: bundle?.signal
+    }
+
+    const requestClient = this.createRequestClient(dataBundle)
+    return this.definition.performPoll(requestClient, dataBundle)
+  }
+
+  private extractFieldContextAndHandler(field: string): {
+    dynamicHandlerPath: string
+    dynamicFieldContext?: DynamicFieldContext
+  } {
+    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
+    const objectRegex = /(.*)\.(.*)/
+    let dynamicHandlerPath = field
+    let dynamicFieldContext: DynamicFieldContext | undefined
+
+    const match = arrayRegex.exec(field) || objectRegex.exec(field)
+    if (match) {
+      const [, parent, indexOrChild, child] = match
+      if (child) {
+        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
+        dynamicHandlerPath = `${parent}.${child}`
+      } else {
+        const parentFetcher = this.definition.dynamicFields?.[parent]
+        if (parentFetcher && !(indexOrChild in parentFetcher)) {
+          dynamicHandlerPath = `${parent}.__values__`
+          dynamicFieldContext = { selectedKey: indexOrChild }
+        }
+      }
+    }
+
+    return { dynamicHandlerPath, dynamicFieldContext }
+  }
+
+  async executeDynamicField(
+    field: string,
+    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
+    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+  ): Promise<DynamicFieldResponse> {
+    if (dynamicFn && typeof dynamicFn === 'function') {
+      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
+    }
+
+    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
+
+    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+      this.definition.dynamicFields,
+      dynamicHandlerPath
+    )
+
+    if (typeof fn !== 'function') {
+      return Promise.resolve({
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
+      })
+    }
+
+    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
+  }
+
+  async executeHook(
+    hookType: ActionHookType,
+    data: ExecuteInput<Settings, Payload, AudienceSettings>
+  ): Promise<ActionHookResponse<any>> {
+    if (!this.hasHookSupport) {
+      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
+    }
+    const hookFn = this.definition.hooks?.[hookType]?.performHook
+
+    if (!hookFn) {
+      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
+    }
+
+    if (this.hookSchemas?.[hookType]) {
+      const schema = this.hookSchemas[hookType]
+      validateSchema(data.hookInputs, schema, {
+        exempt: ['dynamicAuthSettings']
+      })
+    }
+
+    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
+  }
+
+  private async performRequest<
+    T extends Payload | Payload[] | PollPayload,
+    M extends AudienceMembership | AudienceMembership[]
+  >(
+    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
+    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
+  ): Promise<unknown> {
+    const requestClient = this.createRequestClient(data)
+    const response = await requestFn(requestClient, data)
+    return this.parseResponse(response)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
+    const options = this.extendRequest?.(data) ?? {}
+    return createRequestClient(options, {
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext,
+      signal: data?.signal
+    })
+  }
+
+  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const modifiedResponse: any = response
+    modifiedResponse.request = request
+    modifiedResponse.options = options
+
+    this.emit('response', modifiedResponse)
+    return modifiedResponse
+  }
+
+  private parseResponse(response: unknown): unknown {
+    if (response instanceof Response) {
+      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
+    }
+
+    return response
+  }
+
+  private parseBatchError(
+    error: unknown,
+    input: {
+      multiStatusResponse: MultiStatusResponse
+      invalidPayloadIndices: Set<number>
+      batchPayloadLength: number
+      filteredPayloads?: JSONLikeObject[]
+    }
+  ): void {
+    if (error instanceof HTTPError) {
+      this.fillMultiStatusWithErrorResponse({ ...input, status: error.response.status, errormessage: error.message })
+      return
+    }
+
+    if (error instanceof IntegrationError) {
+      this.fillMultiStatusWithErrorResponse({ ...input, status: error.status ?? 400, errormessage: error.message })
+      return
+    }
+
+    if (error instanceof RetryableError || error instanceof InvalidAuthenticationError) {
+      this.fillMultiStatusWithErrorResponse({ ...input, status: error.status, errormessage: error.message })
+      return
+    }
+
+    // Throw unhandled errors to be caught by the caller
+    throw error
+  }
+
+  private fillMultiStatusWithErrorResponse(input: {
+    multiStatusResponse: MultiStatusResponse
+    invalidPayloadIndices: Set<number>
+    batchPayloadLength: number
+    status: number
+    errormessage: string
+    filteredPayloads?: JSONLikeObject[]
+  }) {
+    const { multiStatusResponse, batchPayloadLength, status, errormessage, filteredPayloads } = input
+
+    let payloadReadIndex = 0
+    for (let i = 0; i < batchPayloadLength; i++) {
+      if (input.invalidPayloadIndices.has(i)) {
+        continue
+      }
+
+      multiStatusResponse.setErrorResponseAtIndex(i, {
+        status,
+        errormessage,
+        sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
+      })
+    }
   }
 }
 
@@ -874,5 +1408,13 @@ export class MultiStatusResponse {
 
   public getAllResponses(): (ActionDestinationSuccessResponse | ActionDestinationErrorResponse)[] {
     return this.responses
+  }
+
+  public get successCount(): number {
+    return this.responses.filter((r) => r instanceof ActionDestinationSuccessResponse).length
+  }
+
+  public get errorCount(): number {
+    return this.responses.filter((r) => r instanceof ActionDestinationErrorResponse).length
   }
 }
