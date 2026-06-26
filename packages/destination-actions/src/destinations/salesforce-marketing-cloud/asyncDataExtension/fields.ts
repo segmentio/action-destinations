@@ -31,6 +31,18 @@ export const fields = {
     default: 28000,
     maximum: 30000,
     unsafe_hidden: true
+  },
+  subscription_type: {
+    label: 'Subscription Type',
+    description: 'The type of subscription. Flag for enabling Async Pipeline.',
+    type: 'string' as const,
+    choices: [
+      { label: 'Sync', value: 'sync' },
+      { label: 'Async', value: 'async' }
+    ],
+    default: 'async',
+    required: false,
+    unsafe_hidden: false
   }
 }
 
