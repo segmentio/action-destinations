@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-cli",
   "description": "CLI to interact with Segment integrations",
-  "version": "3.146.1-staging.3",
+  "version": "3.146.1-staging.4",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -56,9 +56,9 @@
     "@oclif/config": "^1.18.8",
     "@oclif/errors": "^1.3.6",
     "@oclif/plugin-help": "^3.3",
-    "@segment/action-destinations": "3.494.1-staging.4",
-    "@segment/actions-core": "3.168.1-staging.4",
-    "@segment/destinations-manifest": "1.159.1-staging.3",
+    "@segment/action-destinations": "3.494.1-staging.5",
+    "@segment/actions-core": "3.168.1-staging.5",
+    "@segment/destinations-manifest": "1.159.1-staging.4",
     "chalk": "^4.1.1",
     "chokidar": "^3.5.1",
     "dotenv": "^10.0.0",
