@@ -25,7 +25,7 @@
   "engineStrict": true,
   "license": "MIT",
   "dependencies": {
-    "@segment/actions-core": "3.168.1-staging.5",
+    "@segment/actions-core": "3.168.1-staging.6",
     "globby": "^14.1.0"
   }
 }

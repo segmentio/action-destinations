@@ -16,7 +16,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@fullstory/browser": "^2.0.3",
-    "@segment/actions-core": "3.168.1-staging.5",
+    "@segment/actions-core": "3.168.1-staging.6",
     "@segment/browser-destination-runtime": "1.97.1-staging.4"
   },
   "peerDependencies": {
