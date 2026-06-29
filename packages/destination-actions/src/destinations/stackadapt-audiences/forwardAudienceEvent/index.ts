@@ -3,6 +3,7 @@ import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { send } from './functions'
 import { audience_only_fields, profile_fields } from './fields'
+import type { RawMapping } from './types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -23,14 +24,18 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      } 
+      }
     }
   },
-  perform: async (request, { payload, settings }) => {
-    return await send(request, [payload], settings)
+  perform: async (request, data) => {
+    const { payload, settings } = data
+    const rawMapping = (data as unknown as { rawMapping: RawMapping }).rawMapping
+    return await send(request, [payload], settings, rawMapping)
   },
-  performBatch: async (request, { payload, settings }) => {
-    return await send(request, payload, settings)
+  performBatch: async (request, data) => {
+    const { payload, settings } = data
+    const rawMapping = (data as unknown as { rawMapping: RawMapping }).rawMapping
+    return await send(request, payload, settings, rawMapping)
   }
 }
 

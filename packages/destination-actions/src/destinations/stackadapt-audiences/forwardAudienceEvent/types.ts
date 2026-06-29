@@ -40,3 +40,8 @@ export interface Mapping {
 }
 
 export type MarketingStatus = typeof MarketingStatus[keyof typeof MarketingStatus]
+
+export interface RawMapping {
+  custom_traits?: Record<string, unknown>
+  [key: string]: unknown
+}

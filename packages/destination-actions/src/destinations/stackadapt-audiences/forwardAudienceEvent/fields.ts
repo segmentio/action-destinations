@@ -187,7 +187,7 @@ export const profile_fields: Record<string, InputField> = {
       label: 'Custom User Properties',
       type: 'object',
       description: 'Custom properties for the user.',
-      defaultObjectUI: 'keyvalue',
+      defaultObjectUI: 'keyvalue:only',
       required: false
     },
     user_id: {

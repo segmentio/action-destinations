@@ -2,31 +2,27 @@ import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import {PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA, MarketingStatus as MarketingStatuses } from './constants'
 import {GQL_ENDPOINT, EXTERNAL_PROVIDER } from '../common-constants'
-import {  Mapping, MarketingStatus, ProfileFieldConfig } from './types'
+import { Mapping, MarketingStatus, ProfileFieldConfig, RawMapping } from './types'
 import type { Payload } from './generated-types'
 import { sha256hash } from '../common-functions'
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings) {
+export async function send(request: RequestClient, payloads: Payload[], settings: Settings, rawMapping: RawMapping) {
+  const reservedKeys = [payloads[0]?.segment_computation_key, payloads[0]?.segment_computation_id].filter(
+    (key): key is string => Boolean(key)
+  )
 
-  const fieldTypes = getDefaultFieldTypes()
-  const fieldsToMap = getDefaultFieldsToMap()
+  const fieldsToMap = getConfiguredFieldsToMap(rawMapping, reservedKeys)
+  const fieldTypes = getConfiguredFieldTypes(fieldsToMap)
   const advertiserId = settings.advertiser_id
   const marketingStatus = payloads[0].marketing_status as MarketingStatus
-  
-  const profileUpdates = payloads.map((p) => {  
-    const {
-      user_id,
-      standard_traits,
-      custom_traits,
-      email
-    } = p
 
+  const profileUpdates = payloads.map((p) => {
+    const { user_id, standard_traits, custom_traits, email } = p
     const { segment_computation_key, segment_computation_id, traits_or_props } = p
 
-    if(custom_traits) {
-        // Remove reserved keys from custom traits just incase the customer accidentally maps them
-        delete custom_traits[segment_computation_key] 
-        delete custom_traits[segment_computation_id] 
+    if (custom_traits) {
+      delete custom_traits[segment_computation_key]
+      delete custom_traits[segment_computation_id]
     }
 
     const profile: Record<string, string | number | undefined> = {
@@ -40,8 +36,6 @@ export async function send(request: RequestClient, payloads: Payload[], settings
     profile.audienceName = segment_computation_key
     profile.action = traits_or_props[segment_computation_key] ? 'enter' : 'exit'
 
-    updateFieldsToMapAndFieldTypes(fieldsToMap, fieldTypes, custom_traits)
-
     return profile
   })
 
@@ -49,18 +43,6 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
 
   const mutation = `mutation {
-      upsertProfiles(
-        input: {
-          advertiserId: ${advertiserId},
-          externalProvider: "${EXTERNAL_PROVIDER}",
-          syncId: "${sha256hash(profiles)}",
-          profiles: "${profiles}"
-        }
-      ) {
-        userErrors {
-          message
-        }
-      }
       upsertProfileMapping(
         input: {
           advertiserId: ${advertiserId},
@@ -73,7 +55,19 @@ export async function send(request: RequestClient, payloads: Payload[], settings
           message
         }
       }
-      ${ audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA))}
+      upsertProfiles(
+        input: {
+          advertiserId: ${advertiserId},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${sha256hash(profiles)}",
+          profiles: "${profiles}"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
+      ${audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA))}
   }`
 
   return await request(GQL_ENDPOINT, {
@@ -93,37 +87,6 @@ function audienceMutation(advertiserId: string, audienceMapping: string): string
             message
           }
         }`;
-}
-
-
-function updateFieldsToMapAndFieldTypes(fieldsToMap: Set<string>, fieldTypes: Record<string, string>, customTraits: Payload['custom_traits'] = {}) {
-   // Process trait keys (already in snake_case) and capture any non-standard fields as mappings 
-  return Object.keys(customTraits).reduce((acc: Record<string, unknown>, key) => {
-    const value = customTraits[key]
-    
-    // Skip if key is empty string or value is empty string
-    if (key === '' || value === '') {
-      return acc
-    }
-    
-    acc[key] = value
-    
-    const standardFields = getDefaultFieldsToMap()
-
-    if (!standardFields.has(key)) {
-      fieldsToMap.add(key)
-      // Field type should be the most specific type of the values we've seen so far, use string if there is a conflict of types
-      if (value || value === 0) {
-        const type = getType(value)
-        if (fieldTypes[key] && fieldTypes[key] !== type) {
-          fieldTypes[key] = 'STRING'
-        } else {
-          fieldTypes[key] = type
-        }
-      }
-    }
-    return acc
-  }, {})
 }
 
 function getProfileMappings(customFields: string[], fieldTypes: Record<string, string>) {
@@ -180,28 +143,6 @@ function generateLabel(field: string) {
   return label
 }
 
-function getType(value: unknown) {
-  if (isDateStr(value)) return 'DATE'
-  return (typeof value).toUpperCase()
-}
-
-function isDateStr(value: unknown) {
-  if (typeof value !== 'string') return false
-  
-  const datePatterns = [
-    /^\d{4}-\d{2}-\d{2}/, // YYYY-MM-DD
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, // ISO datetime
-    /^\d{1,2}\/\d{1,2}\/\d{4}/, // MM/DD/YYYY
-    /^\d{1,2}-\d{1,2}-\d{4}/ // MM-DD-YYYY
-  ]
-  
-  const hasDatePattern = datePatterns.some(pattern => pattern.test(value))
-  if (!hasDatePattern) return false
-  
-  const parsed = Date.parse(value)
-  return !isNaN(parsed)
-}
-
 // transform an array of mapping objects into a string which can be sent as parameter in a GQL request
 export function stringifyJsonWithEscapedQuotes(value: unknown) {
   const jsonString = JSON.stringify(value);
@@ -224,13 +165,34 @@ export function stringifyMappingSchemaForGraphQL(value: unknown) {
   return jsonString
 }
 
-const getDefaultFieldsToMap = (): Set<string> => {
-  return new Set(PROFILE_DEFAULT_FIELDS.map(field => field.key))
+function getConfiguredFieldsToMap(rawMapping: RawMapping, reservedKeys: string[] = []): Set<string> {
+  const fieldsToMap = new Set(PROFILE_DEFAULT_FIELDS.map((field) => field.key))
+  const customTraitsMapping = rawMapping.custom_traits
+
+  if (customTraitsMapping && typeof customTraitsMapping === 'object') {
+    for (const rawKey of Object.keys(customTraitsMapping)) {
+      const key = rawKey.trim()
+      if (!key || key.startsWith('@') || reservedKeys.includes(key) || fieldsToMap.has(key)) {
+        continue
+      }
+      fieldsToMap.add(key)
+    }
+  }
+
+  return fieldsToMap
 }
 
-const getDefaultFieldTypes = (): Record<string, string> => {
-  return PROFILE_DEFAULT_FIELDS.reduce((acc, field) => {
+function getConfiguredFieldTypes(fieldsToMap: Set<string>): Record<string, string> {
+  const fieldTypes = PROFILE_DEFAULT_FIELDS.reduce((acc, field) => {
     acc[field.key] = field.type.toUpperCase()
     return acc
   }, {} as Record<string, string>)
+
+  for (const key of fieldsToMap) {
+    if (!fieldTypes[key]) {
+      fieldTypes[key] = 'STRING'
+    }
+  }
+
+  return fieldTypes
 }
