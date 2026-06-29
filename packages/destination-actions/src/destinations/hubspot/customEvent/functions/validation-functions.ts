@@ -49,17 +49,15 @@ export function cleanEventName(str: string): string {
 
 function cleanPropObj(
   obj: { [k: string]: unknown } | undefined,
-  statsContext?: StatsContext,
-  logger?: Logger,
-  subscriptionMetadata?: SubscriptionMetadata
+  _statsContext?: StatsContext,
+  _logger?: Logger,
+  _subscriptionMetadata?: SubscriptionMetadata
 ): { [k: string]: string | number | boolean } | undefined {
   const cleanObj: { [k: string]: string | number | boolean } = {}
 
   if (obj === undefined) {
     return undefined
   }
-
-  let hasEmptyStringToNumber = false
 
   Object.keys(obj).forEach((key) => {
     const value = obj[key]
@@ -75,10 +73,14 @@ function cleanPropObj(
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
     } else if (!isNaN(Number(value))) {
       if (typeof value === 'string' && value.trim() === '') {
-        hasEmptyStringToNumber = true
+        // Empty strings stay as strings here. If compareSchemas determines
+        // that HubSpot already has this field typed as a number,
+        // convertStringToNumbers will later coerce '' back to 0 at runtime.
+        cleanObj[cleanKey] = ''
+      } else {
+        // If the value can be cast to a number
+        cleanObj[cleanKey] = Number(value)
       }
-      // If the value can be cast to a number
-      cleanObj[cleanKey] = Number(value)
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
       cleanObj[cleanKey] = JSON.stringify(value).trim()
@@ -87,13 +89,6 @@ function cleanPropObj(
       cleanObj[cleanKey] = String(value).trim()
     }
   })
-
-  if (hasEmptyStringToNumber) {
-    statsContext?.statsClient?.incr('hubspot.custom_event.empty_string_to_number', 1, statsContext?.tags)
-    logger?.warn?.(
-      `hubspot.custom_event.empty_string_to_number destinationConfigId: ${subscriptionMetadata?.destinationConfigId} sourceId: ${subscriptionMetadata?.sourceId}`
-    )
-  }
 
   return cleanObj
 }
