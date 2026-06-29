@@ -27,9 +27,9 @@ export interface Payload {
     profit?: number
   }[]
   /**
-   * The UTC timestamp of when the purchase occurred.
+   * The UTC timestamp of when the purchase occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The ID of the clicked recommendation (if the purchase is based on a recommendation request).
    */
