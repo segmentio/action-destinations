@@ -22,18 +22,6 @@ export interface Settings {
    */
   password?: string
   /**
-   * The Access Key ID for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.
-   */
-  accessKeyId?: string
-  /**
-   * The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.
-   */
-  secretAccessKey?: string
-  /**
-   * AWS IAM role ARN used for authorization. This field is optional, and should only be populated if using the AWS IAM Authentication Mechanism.
-   */
-  authorizationIdentity?: string
-  /**
    * Indicates if SSL should be enabled.
    */
   ssl_enabled?: boolean
