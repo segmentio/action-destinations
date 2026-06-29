@@ -1,0 +1,752 @@
+{
+  "slug": "actions-stackadapt-audiences",
+  "name": "StackAdapt Audiences",
+  "mode": "cloud",
+  "description": "Sync Segment Engage Audiences as well as user profile details to StackAdapt",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "GraphQL Token",
+        "description": "Your StackAdapt GQL API Token",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "advertiser_id": {
+        "label": "Advertiser ID",
+        "description": "The StackAdapt advertiser ID to add the profile to.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "forwardAudienceEvent": {
+      "title": "Sync Audience",
+      "description": "Sync Segment Engage audience and user profile details to StackAdapt",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "standard_traits": {
+          "label": "Standard User Properties",
+          "description": "Standard properties for the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "first_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "address": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.street"
+                },
+                "then": {
+                  "@path": "$.traits.street"
+                },
+                "else": {
+                  "@path": "$.properties.street"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.city"
+                },
+                "then": {
+                  "@path": "$.traits.city"
+                },
+                "else": {
+                  "@path": "$.properties.city"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.country"
+                },
+                "then": {
+                  "@path": "$.traits.country"
+                },
+                "else": {
+                  "@path": "$.properties.country"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.state"
+                },
+                "then": {
+                  "@path": "$.traits.state"
+                },
+                "else": {
+                  "@path": "$.properties.state"
+                }
+              }
+            },
+            "postal_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.postal_code"
+                },
+                "else": {
+                  "@path": "$.properties.postal_code"
+                }
+              }
+            },
+            "timezone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.timezone"
+                },
+                "then": {
+                  "@path": "$.traits.timezone"
+                },
+                "else": {
+                  "@path": "$.properties.timezone"
+                }
+              }
+            },
+            "birth_date": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.birthday"
+                },
+                "then": {
+                  "@path": "$.traits.birthday"
+                },
+                "else": {
+                  "@path": "$.properties.birthday"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "first_name": {
+              "label": "First Name",
+              "description": "The user's first name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "last_name": {
+              "label": "Last Name",
+              "description": "The user's last name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phone": {
+              "label": "Phone",
+              "description": "The phone number of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "address": {
+              "label": "Address",
+              "description": "The address of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "description": "The city of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "country": {
+              "label": "Country",
+              "description": "The country of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "state": {
+              "label": "State",
+              "description": "The state of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "timezone": {
+              "label": "Time Zone",
+              "description": "The timezone of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "postal_code": {
+              "label": "Postal Code",
+              "description": "The postal code of the user.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "birth_date": {
+              "label": "Birth Date",
+              "description": "The birthday of the user in YYYY-MM-DD format.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": "date",
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_traits": {
+          "label": "Custom User Properties",
+          "description": "Custom properties for the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "Segment User ID",
+          "description": "The ID of the user in Segment",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_type": {
+          "label": "Event Type",
+          "description": "The Segment event type - track or identify",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "marketing_status": {
+          "label": "Marketing Status",
+          "description": "In certain jurisdictions, explicit consent may be required to send email marketing communications to imported profiles. Consult independent counsel for further guidance.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Opted-in (Profiles can receive email marketing)",
+              "value": "Opted-in"
+            },
+            {
+              "label": "Indeterminate (Profiles that have not opted-out, but are excluded from email marketing)",
+              "value": "Indeterminate"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Profiles",
+          "description": "When enabled, Segment will batch profiles together and send them to StackAdapt in a single request.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits_or_props": {
+          "label": "Event Properties",
+          "description": "The properties of the user or event.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "segment_computation_class": {
+          "label": "Segment Computation Class",
+          "description": "Segment computation class used to determine if input event is from an Engage Audience'.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_class"
+          },
+          "choices": [
+            {
+              "label": "audience",
+              "value": "audience"
+            },
+            {
+              "label": "journey_step",
+              "value": "journey_step"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "segment_computation_id": {
+          "label": "Segment Computation ID",
+          "description": "For audience enter/exit events, this will be the audience ID.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "segment_computation_key": {
+          "label": "Segment Computation Key",
+          "description": "For audience enter/exit events, this will be the audience key.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "The email address of the user.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

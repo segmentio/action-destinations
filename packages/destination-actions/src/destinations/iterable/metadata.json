@@ -1,0 +1,2143 @@
+{
+  "slug": "actions-iterable",
+  "name": "Iterable (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "dataCenterLocation": {
+        "label": "Data Center Location",
+        "description": "The location where your Iterable data is hosted.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "United States",
+            "value": "united_states"
+          },
+          {
+            "label": "Europe",
+            "value": "europe"
+          }
+        ],
+        "default": "united_states",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "updateUser": {
+      "title": "Upsert User",
+      "description": "Creates or updates a user",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "email": {
+          "label": "Email Address",
+          "description": "An email address that identifies a user profile in Iterable.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "A user ID that identifies a user profile in Iterable.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dataFields": {
+          "label": "User Data Fields",
+          "description": "Data to store on the user profile.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "phoneNumber": {
+          "label": "User Phone Number",
+          "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.phone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "mergeNestedObjects": {
+          "label": "Merge Nested Objects",
+          "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "When enabled, Segment will send data to Iterable in batches of up to 1001",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "updateOnly": {
+          "label": "Update Only",
+          "description": "When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "enable_batching",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1001,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "trackEvent": {
+      "title": "Custom Event",
+      "description": "Track a custom event to a user profile",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event != \"Order Completed\" and event != \"Cart Updated\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "email": {
+          "label": "Email Address",
+          "description": "An email address that identifies a user profile in Iterable.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "A user ID that identifies a user profile in Iterable.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event name",
+          "description": "Name of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dataFields": {
+          "label": "Event Data Fields",
+          "description": "Additional event properties.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "id": {
+          "label": "Event ID",
+          "description": "A unique ID. If an event exists with that id, the event will be updated",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "createdAt": {
+          "label": "Timestamp",
+          "description": "Time the event took place.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "campaignId": {
+          "label": "Campaign ID",
+          "description": "Iterable campaign the event can be attributed to.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.campaignId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "templateId": {
+          "label": "Template ID",
+          "description": "Iterable template the event can be attributed to.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.templateId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "When enabled, Segment will send data to Iterable in batches of up to 1001",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1001,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "updateCart": {
+      "title": "Cart Updates",
+      "description": "Updates the shoppingCartItems field on the user profile.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event == \"Cart Updated\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "user": {
+          "label": "User Data",
+          "description": "Updates user data or adds a user if none exists",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "dataFields": {
+              "@path": "$.context.traits"
+            },
+            "phoneNumber": {
+              "@path": "$.context.traits.phone"
+            },
+            "mergeNestedObjects": false
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email Address",
+              "description": "An email address that identifies a user profile in Iterable.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@if": {
+                  "exists": {
+                    "@path": "$.properties.email"
+                  },
+                  "then": {
+                    "@path": "$.properties.email"
+                  },
+                  "else": {
+                    "@path": "$.context.traits.email"
+                  }
+                }
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": "email",
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "User ID",
+              "description": "A user ID that identifies a user profile in Iterable.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@path": "$.userId"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "mergeNestedObjects": {
+              "label": "Merge Nested Objects",
+              "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "dataFields": {
+              "label": "User Data Fields",
+              "description": "Data to store on the user profile.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@path": "$.traits"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phoneNumber": {
+              "label": "User Phone Number",
+              "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": {
+                "@path": "$.traits.phone"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "items": {
+          "label": "Cart items",
+          "description": "Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "product_id"
+                },
+                "sku": {
+                  "@path": "sku"
+                },
+                "categories": {
+                  "@path": "category"
+                },
+                "name": {
+                  "@path": "name"
+                },
+                "price": {
+                  "@path": "price"
+                },
+                "quantity": {
+                  "@path": "quantity"
+                },
+                "url": {
+                  "@path": "url"
+                },
+                "imageUrl": {
+                  "@path": "image_url"
+                },
+                "description": {
+                  "@path": "description"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "Product Id",
+              "description": "The unique identifier of the commerce item in the cart.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Product Name",
+              "description": "The name or title of the product in the cart.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "sku": {
+              "label": "Product SKU",
+              "description": "The Stock Keeping Unit (SKU) code that identifies the specific product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The quantity of the product in the cart.",
+              "type": "integer",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "price": {
+              "label": "Price",
+              "description": "The unit price of the product in the cart.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Product Description",
+              "description": "A brief description of the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "categories": {
+              "label": "Product Category",
+              "description": "A category name or label associated with the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "url": {
+              "label": "Product URL",
+              "description": "The URL to view or purchase the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "imageUrl": {
+              "label": "Product Image URL",
+              "description": "The URL of an image representing the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        }
+      }
+    },
+    "trackPurchase": {
+      "title": "Track Purchase",
+      "description": "Tracks a purchase to Iterable",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event == \"Order Completed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "id": {
+          "label": "Order ID",
+          "description": "Similar to `Event ID` in custom events. Iterable recommends mapping `order_id` or `messageId`. If a purchase exists with that id, the purchase will be updated. If none is specified, a new id will automatically be generated by Iterable",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.order_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user": {
+          "label": "User Data",
+          "description": "Updates user data or adds a user if none exists",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "userId": {
+              "@path": "$.userId"
+            },
+            "dataFields": {
+              "@path": "$.context.traits"
+            },
+            "phoneNumber": {
+              "@path": "$.context.traits.phone"
+            },
+            "mergeNestedObjects": false
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email Address",
+              "description": "An email address that identifies a user profile in Iterable.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@if": {
+                  "exists": {
+                    "@path": "$.properties.email"
+                  },
+                  "then": {
+                    "@path": "$.properties.email"
+                  },
+                  "else": {
+                    "@path": "$.context.traits.email"
+                  }
+                }
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": "email",
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "User ID",
+              "description": "A user ID that identifies a user profile in Iterable.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@path": "$.userId"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "dataFields": {
+              "label": "User Data Fields",
+              "description": "Data to store on the user profile.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": {
+                "@path": "$.traits"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "mergeNestedObjects": {
+              "label": "Merge Nested Objects",
+              "description": "If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set mergeNestedObjects to true.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": false,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phoneNumber": {
+              "label": "User Phone Number",
+              "description": "User phone number. Must be a valid phone number including country code. e.g. +14158675309",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": {
+                "@path": "$.traits.phone"
+              },
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dataFields": {
+          "label": "Event Data Fields",
+          "description": "Additional event properties.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "items": {
+          "label": "Cart items",
+          "description": "Individual items in the cart. Each item must contain `id`, `name`, `price`, and `quantity`. Extra values are added to dataFields.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "product_id"
+                },
+                "sku": {
+                  "@path": "sku"
+                },
+                "categories": {
+                  "@path": "category"
+                },
+                "name": {
+                  "@path": "name"
+                },
+                "price": {
+                  "@path": "price"
+                },
+                "quantity": {
+                  "@path": "quantity"
+                },
+                "url": {
+                  "@path": "url"
+                },
+                "imageUrl": {
+                  "@path": "image_url"
+                },
+                "description": {
+                  "@path": "description"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "Product Id",
+              "description": "The unique identifier of the commerce item in the cart.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Product Name",
+              "description": "The name or title of the product in the cart.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "sku": {
+              "label": "Product SKU",
+              "description": "The Stock Keeping Unit (SKU) code that identifies the specific product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The quantity of the product in the cart.",
+              "type": "integer",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "price": {
+              "label": "Price",
+              "description": "The unit price of the product in the cart.",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Product Description",
+              "description": "A brief description of the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "categories": {
+              "label": "Product Category",
+              "description": "A category name or label associated with the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "url": {
+              "label": "Product URL",
+              "description": "The URL to view or purchase the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "imageUrl": {
+              "label": "Product Image URL",
+              "description": "The URL of an image representing the product in the cart.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "total": {
+          "label": "Total",
+          "description": "Total order amount.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.total"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "createdAt": {
+          "label": "Timestamp",
+          "description": "Time the event took place.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "campaignId": {
+          "label": "Campaign ID",
+          "description": "Iterable campaign the event can be attributed to.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.campaignId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "templateId": {
+          "label": "Template ID",
+          "description": "Iterable template the event can be attributed to.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.templateId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\" and event != \"Order Completed\" and event != \"Cart Updated\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Calls",
+      "type": "automatic",
+      "partnerAction": "updateUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "dataFields": {
+          "@path": "$.traits"
+        },
+        "phoneNumber": {
+          "@path": "$.traits.phone"
+        },
+        "mergeNestedObjects": false,
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Update Cart Calls",
+      "type": "automatic",
+      "partnerAction": "updateCart",
+      "subscribe": "type = \"track\" and event = \"Cart Updated\"",
+      "mapping": {
+        "user": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "dataFields": {
+            "@path": "$.context.traits"
+          },
+          "phoneNumber": {
+            "@path": "$.context.traits.phone"
+          },
+          "mergeNestedObjects": false
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "product_id"
+              },
+              "sku": {
+                "@path": "sku"
+              },
+              "categories": {
+                "@path": "category"
+              },
+              "name": {
+                "@path": "name"
+              },
+              "price": {
+                "@path": "price"
+              },
+              "quantity": {
+                "@path": "quantity"
+              },
+              "url": {
+                "@path": "url"
+              },
+              "imageUrl": {
+                "@path": "image_url"
+              },
+              "description": {
+                "@path": "description"
+              }
+            }
+          ]
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Order Completed Calls",
+      "type": "automatic",
+      "partnerAction": "trackPurchase",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "id": {
+          "@path": "$.properties.order_id"
+        },
+        "user": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "userId": {
+            "@path": "$.userId"
+          },
+          "dataFields": {
+            "@path": "$.context.traits"
+          },
+          "phoneNumber": {
+            "@path": "$.context.traits.phone"
+          },
+          "mergeNestedObjects": false
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "product_id"
+              },
+              "sku": {
+                "@path": "sku"
+              },
+              "categories": {
+                "@path": "category"
+              },
+              "name": {
+                "@path": "name"
+              },
+              "price": {
+                "@path": "price"
+              },
+              "quantity": {
+                "@path": "quantity"
+              },
+              "url": {
+                "@path": "url"
+              },
+              "imageUrl": {
+                "@path": "image_url"
+              },
+              "description": {
+                "@path": "description"
+              }
+            }
+          ]
+        },
+        "total": {
+          "@path": "$.properties.total"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "trackEvent",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "trackEvent",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Entities Audience Entered",
+      "type": "specificEvent",
+      "partnerAction": "trackEvent",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "name": "Entities Exited",
+      "type": "specificEvent",
+      "partnerAction": "trackEvent",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "updateUser",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "dataFields": {
+          "@path": "$.traits"
+        },
+        "phoneNumber": {
+          "@path": "$.traits.phone"
+        },
+        "mergeNestedObjects": false,
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Journeys Step Transition Track",
+      "type": "specificEvent",
+      "partnerAction": "trackEvent",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "eventName": {
+          "@path": "$.event"
+        },
+        "dataFields": {
+          "@path": "$.properties"
+        },
+        "id": {
+          "@path": "$.messageId"
+        },
+        "createdAt": {
+          "@path": "$.timestamp"
+        },
+        "campaignId": {
+          "@path": "$.properties.campaignId"
+        },
+        "templateId": {
+          "@path": "$.properties.templateId"
+        },
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "updateUser",
+      "mapping": {
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "dataFields": {
+          "@path": "$.traits"
+        },
+        "phoneNumber": {
+          "@path": "$.traits.phone"
+        },
+        "mergeNestedObjects": false,
+        "enable_batching": true,
+        "batch_size": 1001
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}
