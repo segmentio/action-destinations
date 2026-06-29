@@ -172,8 +172,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: engageMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -310,8 +309,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: engageMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -350,7 +348,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedDeleteError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
+        errormessage:
+          'error_user_title: "Update Restricted Fields and Rule". error_user_msg: "This custom audience has integrity restrictions.". fbmessage: "Invalid parameter". message: "Bad Request". code: "100"'
       }
 
       expect(responses[2]).toMatchObject({
@@ -444,8 +443,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: engageMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: engageMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -455,7 +453,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedAddError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: "fbmessage: \"Failed to update the custom audience\". message: \"Bad Request\". code: \"2650\"",
+        errormessage: 'fbmessage: "Failed to update the custom audience". message: "Bad Request". code: "2650"',
         errorreporter: 'DESTINATION'
       }
 
@@ -578,8 +576,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: retlMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -692,8 +689,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: retlMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -716,7 +712,8 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedDeleteError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
+        errormessage:
+          'error_user_title: "Update Restricted Fields and Rule". error_user_msg: "This custom audience has integrity restrictions.". fbmessage: "Invalid parameter". message: "Bad Request". code: "100"'
       }
 
       expect(responses[2]).toMatchObject({
@@ -794,8 +791,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping: retlMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: retlMapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -805,7 +801,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedAddError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: "fbmessage: \"Failed to update the custom audience\". message: \"Bad Request\". code: \"2650\"",
+        errormessage: 'fbmessage: "Failed to update the custom audience". message: "Bad Request". code: "2650"',
         errorreporter: 'DESTINATION'
       }
 
@@ -861,8 +857,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -870,13 +865,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Audience membership details missing'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Audience membership details missing'
       })
     })
@@ -938,8 +933,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -947,13 +941,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.'
       })
     })

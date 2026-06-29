@@ -1,0 +1,1131 @@
+{
+  "slug": "actions-sftp",
+  "name": "SFTP",
+  "mode": "cloud",
+  "description": "Sync Segment events to SFTP",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "auth_type": {
+        "label": "Authentication Type",
+        "description": "The type of authentication to use for the SFTP connection",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Username and Password",
+            "value": "password"
+          },
+          {
+            "label": "Username and SSH Key",
+            "value": "ssh_key"
+          }
+        ],
+        "default": "password",
+        "depends_on": null
+      },
+      "sftp_host": {
+        "label": "SFTP Host",
+        "description": "The hostname or IP address of the SFTP server",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "sftp_port": {
+        "label": "SFTP Port",
+        "description": "The port number for the SFTP connection",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": 22,
+        "depends_on": null
+      },
+      "sftp_username": {
+        "label": "Username",
+        "description": "Username for establishing an SFTP connection",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "sftp_password": {
+        "label": "Password",
+        "description": "Password for establishing an SFTP connection",
+        "type": "password",
+        "required": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "password"
+            }
+          ]
+        },
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "password"
+            }
+          ]
+        }
+      },
+      "sftp_ssh_key": {
+        "label": "SSH Key",
+        "description": "SSH Key for establishing an SFTP connection",
+        "type": "password",
+        "required": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "ssh_key"
+            }
+          ]
+        },
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "ssh_key"
+            }
+          ]
+        }
+      },
+      "uploadStrategy": {
+        "label": "Upload Strategy",
+        "description": "Select the upload strategy to use when uploading files to the SFTP server.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Standard [Supported by all SFTP servers]",
+            "value": "standard"
+          },
+          {
+            "label": "Concurrent [Improves upload time but may not be supported by all SFTP servers. Test and enable if supported.]",
+            "value": "concurrent"
+          }
+        ],
+        "default": "standard",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "syncEvents": {
+      "title": "Sync Events",
+      "description": "Sync Segment events to SFTP. Includes predefined mappings for common Segment event fields. Additional column mappings may be added.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "columns": {
+          "label": "Columns",
+          "description": "Column headers to write to files sent to SFTP.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "event_name": {
+              "@path": "$.event"
+            },
+            "event_type": {
+              "@path": "$.type"
+            },
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "anonymous_id": {
+              "@path": "$.anonymousId"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "properties": {
+              "@path": "$.properties"
+            },
+            "traits": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits"
+                },
+                "then": {
+                  "@path": "$.traits"
+                },
+                "else": {
+                  "@path": "$.context.traits"
+                }
+              }
+            },
+            "context": {
+              "@path": "$.context"
+            },
+            "timestamp": {
+              "@path": "$.timestamp"
+            },
+            "message_id": {
+              "@path": "$.messageId"
+            },
+            "integrations": {
+              "@path": "$.integrations"
+            },
+            "audience_name": {
+              "@path": "$.context.personas.computation_key"
+            },
+            "audience_id": {
+              "@path": "$.context.personas.computation_id"
+            },
+            "audience_space_id": {
+              "@path": "$.context.personas.space_id"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "event_name": {
+              "label": "Event Name",
+              "description": "Name of the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "event_type": {
+              "label": "Event Type",
+              "description": "The type of event",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "user_id": {
+              "label": "User ID",
+              "description": "User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "anonymous_id": {
+              "label": "Anonymous ID",
+              "description": "Anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "Email address",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "properties": {
+              "label": "Properties",
+              "description": "Properties of the event",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "traits": {
+              "label": "Traits",
+              "description": "User traits",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "context": {
+              "label": "Context",
+              "description": "Context of the event",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "timestamp": {
+              "label": "Timestamp",
+              "description": "Timestamp of the event",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "message_id": {
+              "label": "Message ID",
+              "description": "Name of column for the unique identifier for the message.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "integrations": {
+              "label": "Integrations Object",
+              "description": "Name of column for the Integration Object. This contains JSON details of which destinations the event was synced to by Segment",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audience_name": {
+              "label": "Audience Name",
+              "description": "Name of the audience",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audience_id": {
+              "label": "Audience ID",
+              "description": "ID of the audience",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audience_space_id": {
+              "label": "Audience Space ID",
+              "description": "ID of the Engage Space where the Audience was generated",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "filename_prefix": {
+          "label": "Filename prefix",
+          "description": "Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "file_extension": {
+          "label": "File Extension",
+          "description": "File extension for the uploaded file.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "csv",
+          "choices": [
+            {
+              "label": "csv",
+              "value": "csv"
+            },
+            {
+              "label": "txt",
+              "value": "txt"
+            },
+            {
+              "label": "tsv",
+              "value": "tsv"
+            },
+            {
+              "label": "psv",
+              "value": "psv"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "delimiter": {
+          "label": "Delimiter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": ",",
+          "choices": [
+            {
+              "label": "comma",
+              "value": ","
+            },
+            {
+              "label": "pipe",
+              "value": "|"
+            },
+            {
+              "label": "tab",
+              "value": "tab"
+            },
+            {
+              "label": "semicolon",
+              "value": ";"
+            },
+            {
+              "label": "colon",
+              "value": ":"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "sftp_folder_path": {
+          "label": "Folder Path",
+          "description": "Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@template": "/"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable Batching Hidden Field",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": 1,
+          "maximum": 100000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size_column_name": {
+          "label": "Batch Size Column Name",
+          "description": "Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "batch_size",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audience_action_column_name": {
+          "label": "Audience Action Column Name",
+          "description": "Name of the column to contain the action for the audience. true if the user is in the audience, false if not.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "audience_action",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits_or_props": {
+          "label": "Traits or Props - Hidden Field",
+          "description": "Hidden field used to retrieve Audience action value",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "computation_key": {
+          "label": "Audience_Key - Hidden Field",
+          "description": "Hidden field used to retrieve Audience Key",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "syncModelToSFTP": {
+      "title": "Sync RETL Model",
+      "description": "Sync Reverse ETL model data to SFTP. Can also be used to sync Segment events with no predefined mappings.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"track\" or type = \"page\" or type = \"screen\" or type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "columns": {
+          "label": "Columns",
+          "description": "Column headers to write to files sent to SFTP.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "filename_prefix": {
+          "label": "Filename prefix",
+          "description": "Prefix to prepend to the name of the uploaded file. Timestamp will be appended to the filename.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "file_extension": {
+          "label": "File Extension",
+          "description": "File extension for the uploaded file.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "csv",
+          "choices": [
+            {
+              "label": "csv",
+              "value": "csv"
+            },
+            {
+              "label": "txt",
+              "value": "txt"
+            },
+            {
+              "label": "tsv",
+              "value": "tsv"
+            },
+            {
+              "label": "psv",
+              "value": "psv"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "delimiter": {
+          "label": "Delimiter",
+          "description": "Character used to separate tokens in the resulting file.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": ",",
+          "choices": [
+            {
+              "label": "comma",
+              "value": ","
+            },
+            {
+              "label": "pipe",
+              "value": "|"
+            },
+            {
+              "label": "tab",
+              "value": "tab"
+            },
+            {
+              "label": "semicolon",
+              "value": ";"
+            },
+            {
+              "label": "colon",
+              "value": ":"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "enrichment",
+            "function",
+            "variable"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "sftp_folder_path": {
+          "label": "Folder Path",
+          "description": "Path within the SFTP server to upload the files to. This path must exist and all subfolders must be pre-created.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@template": "/"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable Batching Hidden Field",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": 1,
+          "maximum": 100000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size_column_name": {
+          "label": "Batch Size Column Name",
+          "description": "Specify the column name to store the batch size when the event is sent to SFTP. Leave blank if no column is required",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "batch_size",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

@@ -58,8 +58,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       const responses = await testDestination.testAction('syncAudience', {
         event,
         settings,
-        useDefaultMappings: true,
-        features: { 'actions-core-audience-membership': true }
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(1)
@@ -110,8 +109,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       const responses = await testDestination.testAction('syncAudience', {
         event,
         settings,
-        useDefaultMappings: true,
-        features: { 'actions-core-audience-membership': true }
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(1)
@@ -164,8 +162,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         useDefaultMappings: true,
         mapping: {
           amplitude_id: 'amp789'
-        },
-        features: { 'actions-core-audience-membership': true }
+        }
       })
 
       expect(responses.length).toBe(1)
@@ -193,8 +190,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         testDestination.testAction('syncAudience', {
           event,
           settings,
-          useDefaultMappings: true,
-          features: { 'actions-core-audience-membership': true }
+          useDefaultMappings: true
         })
       ).rejects.toThrowError('ID Type must be specified in Audience Settings')
     })
@@ -225,10 +221,11 @@ describe('Amplitude Cohorts - syncAudience', () => {
           useDefaultMappings: true,
           mapping: {
             user_id: undefined
-          },
-          features: { 'actions-core-audience-membership': true }
+          }
         })
-      ).rejects.toThrowError("No User Identifier of type User ID found in payload. Each payload must have a unique ID for the specified ID Type.")
+      ).rejects.toThrowError(
+        'No User Identifier of type User ID found in payload. Each payload must have a unique ID for the specified ID Type.'
+      )
     })
   })
 
@@ -337,8 +334,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       const responses = await testDestination.testBatchAction('syncAudience', {
         events,
         settings,
-        useDefaultMappings: true,
-        features: { 'actions-core-audience-membership': true }
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(2)
@@ -409,8 +405,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       const responses = await testDestination.testBatchAction('syncAudience', {
         events,
         settings,
-        useDefaultMappings: true,
-        features: { 'actions-core-audience-membership': true }
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(1)
@@ -464,8 +459,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
           ...settings,
           endpoint: 'europe'
         },
-        useDefaultMappings: true,
-        features: { 'actions-core-audience-membership': true }
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(1)
@@ -507,8 +501,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       const responses = await testDestination.testAction('syncAudience', {
         event,
         settings,
-        useDefaultMappings: true,
-        features: { 'actions-core-audience-membership': true }
+        useDefaultMappings: true
       })
 
       expect(responses.length).toBe(1)
@@ -570,7 +563,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
           memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
         })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
@@ -636,7 +629,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
           memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
         })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
@@ -714,17 +707,21 @@ describe('Amplitude Cohorts - syncAudience', () => {
         memberships: [{ ids: ['remove_user1'], id_type: 'BY_USER_ID', operation: 'REMOVE' }]
       }
 
-      nock('https://amplitude.com').post('/api/3/cohorts/membership', expectedAddJson).reply(200, {
-        cohort_id: 'cohort_123',
-        memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
-      })
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/membership', expectedAddJson)
+        .reply(200, {
+          cohort_id: 'cohort_123',
+          memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
+        })
 
-      nock('https://amplitude.com').post('/api/3/cohorts/membership', expectedRemoveJson).reply(200, {
-        cohort_id: 'cohort_123',
-        memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
-      })
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/membership', expectedRemoveJson)
+        .reply(200, {
+          cohort_id: 'cohort_123',
+          memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
+        })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(3)
       expect(responses[0]).toMatchObject({
@@ -747,7 +744,10 @@ describe('Amplitude Cohorts - syncAudience', () => {
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: { ...expectedRemoveJson, memberships: [{ ids: ['remove_user1'], id_type: 'BY_USER_ID', operation: 'REMOVE' }] },
+        sent: {
+          ...expectedRemoveJson,
+          memberships: [{ ids: ['remove_user1'], id_type: 'BY_USER_ID', operation: 'REMOVE' }]
+        },
         body: {
           user_id: 'remove_user1',
           segment_external_audience_id: 'cohort_123',
@@ -804,7 +804,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
           memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
         })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping: ampMapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping: ampMapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
@@ -871,7 +871,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         })
 
       const euSettings = { ...settings, endpoint: 'europe' }
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings: euSettings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings: euSettings, mapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
@@ -937,12 +937,15 @@ describe('Amplitude Cohorts - syncAudience', () => {
           memberships_result: [{ skipped_ids: ['skipped_user'], operation: 'ADD' }]
         })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { ...expectedRequestJson, memberships: [{ ids: ['valid_user'], id_type: 'BY_USER_ID', operation: 'ADD' }] },
+        sent: {
+          ...expectedRequestJson,
+          memberships: [{ ids: ['valid_user'], id_type: 'BY_USER_ID', operation: 'ADD' }]
+        },
         body: {
           user_id: 'valid_user',
           segment_external_audience_id: 'cohort_123',
@@ -1018,7 +1021,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
           memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
         })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(3)
       expect(responses[0]).toMatchObject({
@@ -1095,8 +1098,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
         settings,
-        mapping: traitsMappedMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: traitsMappedMapping
       })
 
       expect(responses.length).toBe(2)
@@ -1148,7 +1150,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
         })
       ]
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
@@ -1218,7 +1220,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
           }
         })
 
-      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping, features: { 'actions-core-audience-membership': true } })
+      const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
