@@ -56,12 +56,7 @@ describe('FacebookCustomAudiences.sync', () => {
               [
                 event.properties?.id, // external_id
                 '816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343', // email
-                processHashing(
-                  (event.properties?.phone as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizePhone
-                ),
+                processHashing((event.properties?.phone as string) || '', 'sha256', 'hex', normalizePhone),
                 EMPTY, // day
                 EMPTY, // month
                 EMPTY, // year
@@ -69,26 +64,11 @@ describe('FacebookCustomAudiences.sync', () => {
                 EMPTY, // first_name
                 EMPTY, // first_initial
                 EMPTY, // gender
-                processHashing(
-                  (event.properties?.city as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizeCity
-                ),
-                processHashing(
-                  (event.properties?.state as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizeState
-                ),
-                processHashing(
-                  (event.properties?.zip_code as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizeZip
-                ),
+                processHashing((event.properties?.city as string) || '', 'sha256', 'hex', normalizeCity),
+                processHashing((event.properties?.state as string) || '', 'sha256', 'hex', normalizeState),
+                processHashing((event.properties?.zip_code as string) || '', 'sha256', 'hex', normalizeZip),
                 processHashing('US', 'sha256', 'hex', normalizeCountry), // country
-                '2024', // mobile_advertiser_id
+                '2024' // mobile_advertiser_id
               ]
             ],
             app_ids: ['2024']
@@ -174,8 +154,8 @@ describe('FacebookCustomAudiences.sync', () => {
           email: 'testing@testing.com'
         },
         personas: {
-          computation_class: "audience",
-          computation_key: "test_audience_1",
+          computation_class: 'audience',
+          computation_key: 'test_audience_1',
           external_audience_id: 1234
         }
       }
@@ -190,12 +170,7 @@ describe('FacebookCustomAudiences.sync', () => {
               [
                 event.properties?.id, // external_id
                 '816341caf0c06dbc4c156d3465323f52b3cb62533241d5f9247c008f657e8343', // email
-                processHashing(
-                  (event.properties?.phone as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizePhone
-                ),
+                processHashing((event.properties?.phone as string) || '', 'sha256', 'hex', normalizePhone),
                 EMPTY, // day
                 EMPTY, // month
                 EMPTY, // year
@@ -203,24 +178,9 @@ describe('FacebookCustomAudiences.sync', () => {
                 EMPTY, // first_name
                 EMPTY, // first_initial
                 EMPTY, // gender
-                processHashing(
-                  (event.properties?.city as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizeCity
-                ),
-                processHashing(
-                  (event.properties?.state as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizeState
-                ),
-                processHashing(
-                  (event.properties?.zip_code as string) || '',
-                  'sha256',
-                  'hex',
-                  normalizeZip
-                ),
+                processHashing((event.properties?.city as string) || '', 'sha256', 'hex', normalizeCity),
+                processHashing((event.properties?.state as string) || '', 'sha256', 'hex', normalizeState),
+                processHashing((event.properties?.zip_code as string) || '', 'sha256', 'hex', normalizeZip),
                 processHashing('US', 'sha256', 'hex', normalizeCountry), // country
                 '2024' // mobile_advertiser_id,
               ]
