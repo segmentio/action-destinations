@@ -264,6 +264,295 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     expect(payloadArg[0].email).toBe('add1@segment.com')
   })
 
+  describe('debug logging (actions-ms-bing-ads-audiences-debug-logging flag)', () => {
+    const DEBUG_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
+
+    const makeLogger = () =>
+      ({
+        info: jest.fn(),
+        error: jest.fn(),
+        warn: jest.fn(),
+        debug: jest.fn(),
+        crit: jest.fn(),
+        log: jest.fn(),
+        withTags: jest.fn(),
+        level: 'info',
+        name: 'test'
+      } as any)
+
+    const addEvent = () =>
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'demo@segment.com' } }
+      })
+
+    it('does not log when the flag is off', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, {})
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: false }
+      })
+
+      expect(logger.info).not.toHaveBeenCalled()
+      expect(logger.error).not.toHaveBeenCalled()
+    })
+
+    it('logs response metadata when the flag is on, without leaking CustomerListItems', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.info).toHaveBeenCalledTimes(1)
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('[ms-bing-ads-audiences][DEBUG]')
+      expect(logged).toContain('identifierType=Email')
+      expect(logged).toContain('itemCount=1')
+      expect(logged).toContain('partialErrors=[]')
+      // The hashed identifier must never be logged.
+      expect(logged).not.toContain('5a95f052958dac8ed1d66d74eb481b3ccdbbc953b583c5ff0325be6b091d6281')
+    })
+
+    it('logs the Microsoft tracking id from the response header', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, { PartialErrors: [] }, { TrackingId: 'abc-123-track' })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('trackingId=abc-123-track')
+    })
+
+    it('falls back to a body-level tracking id when no header is present', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { TrackingId: 'body-track-789', PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('trackingId=body-track-789')
+    })
+
+    it('logs the tracking id in full, never truncated', async () => {
+      // Even an unexpectedly long tracking id must be quotable to Microsoft support verbatim.
+      const longTrackingId = `T-${'9'.repeat(6000)}`
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, { PartialErrors: [] }, { TrackingId: longTrackingId })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain(`trackingId=${longTrackingId}`)
+      expect(logged).not.toContain('[truncated]')
+    })
+
+    it('redacts PartialError free-text fields that can echo identifiers', async () => {
+      // Bing can echo the offending identifier in Message/Details/FieldPath. Only codes/index
+      // should be logged, never the free-text fields.
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, {
+          PartialErrors: [
+            {
+              ErrorCode: 'InvalidCustomerListItem',
+              Code: 4001,
+              Index: 0,
+              Type: 'BatchError',
+              Message: 'Invalid value crm_secret_12345',
+              Details: 'crm_secret_12345',
+              FieldPath: 'CustomerListItems[0]=crm_secret_12345'
+            }
+          ]
+        })
+      const logger = makeLogger()
+
+      await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('ErrorCode')
+      expect(logged).toContain('InvalidCustomerListItem')
+      // The free-text fields (and any identifier they echo) must not be logged.
+      expect(logged).not.toContain('crm_secret_12345')
+      expect(logged).not.toContain('Message')
+      expect(logged).not.toContain('FieldPath')
+    })
+
+    it('strips control characters from logged content to prevent log injection', async () => {
+      // A crafted response body with newlines must not be able to forge log lines.
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, {
+          PartialErrors: [
+            { ErrorCode: 'X\nInjected', Code: 1, Index: 0, Type: 'T', Message: null, Details: null, FieldPath: null }
+          ]
+        })
+      const logger = makeLogger()
+
+      await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).not.toContain('\n')
+    })
+
+    it('sanitizes a crafted audience id to prevent log injection', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: { ...baseMapping, audience_id: 'aud\n_injected' },
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logged).not.toContain('\n')
+    })
+
+    it('truncates oversized values without exceeding the cap', async () => {
+      // A long PartialError code forces truncation; the resulting log line's summary segment
+      // (including the suffix) must stay within the configured cap.
+      const longCode = 'C'.repeat(10000)
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, {
+          PartialErrors: [
+            { ErrorCode: longCode, Code: 1, Index: 0, Type: 'T', Message: null, Details: null, FieldPath: null }
+          ]
+        })
+      const logger = makeLogger()
+
+      await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      const partialErrors = logged.split('partialErrors=')[1]
+      expect(partialErrors).toContain('[truncated]')
+      // The truncated segment (suffix included) must not exceed the 4096 cap.
+      expect(partialErrors.length).toBeLessThanOrEqual(4096)
+    })
+
+    it('does not let a throwing logger break the action', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+      ;(logger.info as jest.Mock).mockImplementation(() => {
+        throw new Error('logger exploded')
+      })
+
+      // A throwing logger must be swallowed so the action still succeeds.
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(response[0].status).toBe(200)
+    })
+
+    it('does not crash when the response body is empty', async () => {
+      // Empty body => response.data is undefined; logging must still succeed.
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200)
+      const logger = makeLogger()
+
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.info).toHaveBeenCalledTimes(1)
+      expect(response[0].status).toBe(200)
+    })
+
+    it('does not log on the error path (only success responses are logged)', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
+      const logger = makeLogger()
+
+      const response = await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      // We only log successful responses; the error path emits nothing.
+      expect(logger.info).not.toHaveBeenCalled()
+      expect(logger.error).not.toHaveBeenCalled()
+      // The HTTP error is still handled normally.
+      expect(utils.handleHttpError).toHaveBeenCalled()
+      expect(response[0].status).toBe(500)
+    })
+  })
+
   it('should throw non-HTTP errors in batch mode', async () => {
     // Create a custom error that is NOT an HTTPError
     const customError = new Error('Custom non-HTTP error')
