@@ -6,7 +6,7 @@ on:
 
 jobs:
   required-field-check:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-large
 
     timeout-minutes: 5
     strategy:
