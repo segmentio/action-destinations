@@ -14,12 +14,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
       - name: Compute Labels
         id: compute-labels
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           # Required for the script to access team membership information.
           # Scope: members:read and contentes:read permission on the organization.
@@ -29,7 +29,7 @@ jobs:
             await script({github, context, core})
       # Separating apply labels to separate step to avoid using PAT token auth.
       - name: Apply Labels
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
           labelsToRemove: '${{ steps.compute-labels.outputs.remove }}'
@@ -62,7 +62,7 @@ jobs:
             }
 
       - name: Comment for mapping-kit changes
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
           labelsToRemove: '${{ steps.compute-labels.outputs.remove }}'
@@ -107,7 +107,7 @@ jobs:
       - name: Get Reviewers
         if: github.event.action == 'ready_for_review' || (github.event.action == 'opened' && !github.event.pull_request.draft)
         id: get-reviewers
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           labelsToAdd: '${{ steps.compute-labels.outputs.add }}'
         with:
@@ -118,7 +118,7 @@ jobs:
 
       - name: Assign Reviewers
         if: (github.event.action == 'ready_for_review' || (github.event.action == 'opened' && !github.event.pull_request.draft)) && steps.get-reviewers.outputs.skip != 'true'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b  # v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           REVIEWERS: '${{ steps.get-reviewers.outputs.reviewers }}'
           TEAM: '${{ steps.get-reviewers.outputs.team }}'
