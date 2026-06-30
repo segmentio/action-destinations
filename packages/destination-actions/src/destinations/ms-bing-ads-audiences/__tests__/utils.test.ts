@@ -5,7 +5,8 @@ import {
   sendDataToMicrosoftBingAds,
   handleHttpError,
   handleMultistatusResponse,
-  categorizePayloadByAction
+  categorizePayloadByAction,
+  readResponseBody
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
@@ -617,5 +618,47 @@ describe('handleMultistatusResponse', () => {
         errormessage: 'InvalidInput: The input is invalid'
       })
     )
+  })
+})
+
+describe('readResponseBody', () => {
+  const asResponse = (obj: any): ModifiedResponse => obj as ModifiedResponse
+
+  it('returns an empty string when there is no response', async () => {
+    expect(await readResponseBody(undefined)).toBe('')
+  })
+
+  it('returns string content directly', async () => {
+    const res = asResponse({ content: 'An internal error has occurred.' })
+    expect(await readResponseBody(res)).toBe('An internal error has occurred.')
+  })
+
+  it('stringifies object content', async () => {
+    const res = asResponse({ content: { Errors: [{ ErrorCode: 'InternalError' }] } })
+    expect(await readResponseBody(res)).toBe('{"Errors":[{"ErrorCode":"InternalError"}]}')
+  })
+
+  it('decodes Buffer content as utf8', async () => {
+    const res = asResponse({ content: Buffer.from('buffered body') })
+    expect(await readResponseBody(res)).toBe('buffered body')
+  })
+
+  it('falls back to text() when content is absent', async () => {
+    const res = asResponse({ text: () => Promise.resolve('from stream') })
+    expect(await readResponseBody(res)).toBe('from stream')
+  })
+
+  it('returns an empty string when text() throws (never throws itself)', async () => {
+    const res = asResponse({
+      text: () => Promise.reject(new Error('body already used'))
+    })
+    expect(await readResponseBody(res)).toBe('')
+  })
+
+  it('truncates content longer than the cap and appends a marker', async () => {
+    const longBody = 'x'.repeat(3000)
+    const result = await readResponseBody(asResponse({ content: longBody }))
+    expect(result.endsWith('...(truncated)')).toBe(true)
+    expect(result.length).toBe(2048 + '...(truncated)'.length)
   })
 })
