@@ -5,7 +5,7 @@ import { MoengageSDK } from '../../types'
 
 describe('Moengage.identifyUser', () => {
   const settings = {
-    app_id: 'test_app_id',
+    appId: 'test_app_id',
     env: 'TEST',
     moeDataCenter: 'dc_1'
   }
@@ -18,17 +18,17 @@ describe('Moengage.identifyUser', () => {
 
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
       mockMoengage = {
-        track_event: jest.fn(),
-        add_user_attribute: jest.fn(),
-        add_first_name: jest.fn(),
-        add_last_name: jest.fn(),
-        add_email: jest.fn(),
-        add_mobile: jest.fn(),
-        add_user_name: jest.fn(),
-        add_gender: jest.fn(),
-        add_birthday: jest.fn(),
-        destroy_session: jest.fn(),
-        call_web_push: jest.fn(),
+        trackEvent: jest.fn(),
+        setUserAttribute: jest.fn(),
+        setFirstName: jest.fn(),
+        setLastName: jest.fn(),
+        setEmailId: jest.fn(),
+        setMobileNumber: jest.fn(),
+        setUserName: jest.fn(),
+        setGender: jest.fn(),
+        setBirthDate: jest.fn(),
+        logoutUser: jest.fn(),
+        callWebPush: jest.fn(),
         identifyUser: jest.fn(),
         getUserIdentities: jest.fn(),
         onsite: jest.fn()
@@ -78,9 +78,9 @@ describe('Moengage.identifyUser', () => {
     await identifyUserAction.identify?.(context)
 
     expect(mockMoengage.identifyUser).toHaveBeenCalledWith('user-123')
-    expect(mockMoengage.add_first_name).toHaveBeenCalledWith('John')
-    expect(mockMoengage.add_last_name).toHaveBeenCalledWith('Doe')
-    expect(mockMoengage.add_email).toHaveBeenCalledWith('john.doe@example.com')
+    expect(mockMoengage.setFirstName).toHaveBeenCalledWith('John')
+    expect(mockMoengage.setLastName).toHaveBeenCalledWith('Doe')
+    expect(mockMoengage.setEmailId).toHaveBeenCalledWith('john.doe@example.com')
   })
 
   test('identifyUser() with multiple identifiers', async () => {
@@ -128,7 +128,7 @@ describe('Moengage.identifyUser', () => {
       email: 'jane@example.com',
       mobile: '+1234567890'
     })
-    expect(mockMoengage.add_first_name).toHaveBeenCalledWith('Jane')
+    expect(mockMoengage.setFirstName).toHaveBeenCalledWith('Jane')
   })
 
   test('identifyUser() filters out non-string identifiers', async () => {
@@ -220,13 +220,13 @@ describe('Moengage.identifyUser', () => {
     await identifyUserAction.identify?.(context)
 
     expect(mockMoengage.identifyUser).toHaveBeenCalledWith('user-complete')
-    expect(mockMoengage.add_first_name).toHaveBeenCalledWith('Alice')
-    expect(mockMoengage.add_last_name).toHaveBeenCalledWith('Smith')
-    expect(mockMoengage.add_email).toHaveBeenCalledWith('alice@example.com')
-    expect(mockMoengage.add_mobile).toHaveBeenCalledWith('+1234567890')
-    expect(mockMoengage.add_user_name).toHaveBeenCalledWith('alice_smith')
-    expect(mockMoengage.add_gender).toHaveBeenCalledWith('female')
-    expect(mockMoengage.add_birthday).toHaveBeenCalledWith(expect.any(Date))
+    expect(mockMoengage.setFirstName).toHaveBeenCalledWith('Alice')
+    expect(mockMoengage.setLastName).toHaveBeenCalledWith('Smith')
+    expect(mockMoengage.setEmailId).toHaveBeenCalledWith('alice@example.com')
+    expect(mockMoengage.setMobileNumber).toHaveBeenCalledWith('+1234567890')
+    expect(mockMoengage.setUserName).toHaveBeenCalledWith('alice_smith')
+    expect(mockMoengage.setGender).toHaveBeenCalledWith('female')
+    expect(mockMoengage.setBirthDate).toHaveBeenCalledWith(expect.any(Date))
   })
 
   test('identifyUser() with custom attributes', async () => {
@@ -270,9 +270,9 @@ describe('Moengage.identifyUser', () => {
     await identifyUserAction.identify?.(context)
 
     expect(mockMoengage.identifyUser).toHaveBeenCalledWith('user-custom')
-    expect(mockMoengage.add_first_name).toHaveBeenCalledWith('Bob')
-    expect(mockMoengage.add_user_attribute).toHaveBeenCalledWith('custom_field_1', 'value1')
-    expect(mockMoengage.add_user_attribute).toHaveBeenCalledWith('custom_field_2', 123)
+    expect(mockMoengage.setFirstName).toHaveBeenCalledWith('Bob')
+    expect(mockMoengage.setUserAttribute).toHaveBeenCalledWith('custom_field_1', 'value1')
+    expect(mockMoengage.setUserAttribute).toHaveBeenCalledWith('custom_field_2', 123)
   })
 
   test('identifyUser() handles invalid birthday gracefully', async () => {
@@ -312,7 +312,7 @@ describe('Moengage.identifyUser', () => {
     await identifyUserAction.identify?.(context)
 
     expect(mockMoengage.identifyUser).toHaveBeenCalledWith('user-invalid-bday')
-    expect(mockMoengage.add_birthday).not.toHaveBeenCalled()
+    expect(mockMoengage.setBirthDate).not.toHaveBeenCalled()
   })
 
   test('identifyUser() does not call identifyUser when no identifiers provided', async () => {
@@ -348,6 +348,6 @@ describe('Moengage.identifyUser', () => {
     await identifyUserAction.identify?.(context)
 
     expect(mockMoengage.identifyUser).not.toHaveBeenCalled()
-    expect(mockMoengage.add_first_name).toHaveBeenCalledWith('Charlie')
+    expect(mockMoengage.setFirstName).toHaveBeenCalledWith('Charlie')
   })
 })
