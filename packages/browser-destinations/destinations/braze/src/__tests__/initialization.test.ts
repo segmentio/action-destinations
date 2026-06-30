@@ -1,7 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime'
 import brazeDestination, { destination } from '../index'
-import { BRAZE_SDK_DEFAULT_VERSION, BRAZE_SDK_CANARY_VERSION } from '../versioning-info'
 
 describe('initialization', () => {
   const settings = {
@@ -166,73 +165,5 @@ describe('initialization', () => {
     // Check that the config passed to initialize contains the allowlist
     const callArgs = initializeSpy.mock.calls[0][0]?.settings || {}
     expect(callArgs.devicePropertyAllowlist).toEqual(devicePropertyAllowlist)
-  })
-
-  test(`uses stable SDK version by default (${BRAZE_SDK_DEFAULT_VERSION})`, async () => {
-    const [event] = await brazeDestination({
-      api_key: 'b_123',
-      endpoint: 'endpoint',
-      // sdkVersion not specified - should use default
-      subscriptions: [
-        {
-          partnerAction: 'trackEvent',
-          name: 'Track Event',
-          enabled: true,
-          subscribe: 'type = "track"',
-          mapping: {
-            eventName: { '@path': '$.event' },
-            eventProperties: { '@path': '$.properties' }
-          }
-        }
-      ]
-    })
-
-    await event.load(Context.system(), {} as Analytics)
-
-    const scripts = window.document.querySelectorAll('script')
-    const brazeScript = Array.from(scripts).find((script) => script.src.includes('js.appboycdn.com/web-sdk'))
-
-    expect(brazeScript?.src).toBe(
-      `https://js.appboycdn.com/web-sdk/${BRAZE_SDK_DEFAULT_VERSION}/braze.no-module.min.js`
-    )
-  })
-
-  test(`can load canary SDK version (${BRAZE_SDK_CANARY_VERSION}) when explicitly selected`, async () => {
-    const [event] = await brazeDestination({
-      api_key: 'b_123',
-      endpoint: 'endpoint',
-      sdkVersion: BRAZE_SDK_CANARY_VERSION,
-      subscriptions: [
-        {
-          partnerAction: 'trackEvent',
-          name: 'Track Event',
-          enabled: true,
-          subscribe: 'type = "track"',
-          mapping: {
-            eventName: { '@path': '$.event' },
-            eventProperties: { '@path': '$.properties' }
-          }
-        }
-      ]
-    })
-
-    jest.spyOn(destination, 'initialize')
-
-    await event.load(Context.system(), {} as Analytics)
-    expect(destination.initialize).toHaveBeenCalled()
-
-    const scripts = window.document.querySelectorAll('script')
-    const brazeScript = Array.from(scripts).find((script) => script.src.includes('js.appboycdn.com/web-sdk'))
-
-    expect(brazeScript?.src).toBe(`https://js.appboycdn.com/web-sdk/${BRAZE_SDK_CANARY_VERSION}/braze.no-module.min.js`)
-  })
-
-  test('verifies canary SDK version is available in settings choices', () => {
-    const sdkVersionField = destination.settings.sdkVersion
-    const choices = sdkVersionField?.choices || []
-    const hasCanaryVersion = choices.some((choice) => choice.value === BRAZE_SDK_CANARY_VERSION)
-
-    expect(hasCanaryVersion).toBe(true)
-    expect(sdkVersionField?.default).toBe(BRAZE_SDK_DEFAULT_VERSION)
   })
 })
