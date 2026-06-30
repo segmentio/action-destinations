@@ -4154,7 +4154,7 @@
   resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
-"@segment/action-emitters@1.3.14", "@segment/action-emitters@^1.3.6":
+"@segment/action-emitters@^1.3.6":
   version "1.3.14"
   resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/action-emitters/-/@segment/action-emitters-1.3.14.tgz#eaf512df142809c8bf7c9f31c962327ad071eff5"
   integrity sha512-N+zDScU8ZT6Yn9S8dNXhZnEuN2CqPEp9VQGEwT8B6eYqvc3HyZFsO9hBjG7s0L6kTe5A1xURt1hb1Lz4k7xgwg==
@@ -4163,7 +4163,7 @@
 
 "@segment/actions-core@^3.168.0":
   version "3.168.0"
-  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-thirdparty/@segment/actions-core/-/actions-core-3.168.0.tgz#d68295f06be8920227191097554e7cea47fa6b7e"
+  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/actions-core/-/actions-core-3.168.0.tgz#d68295f06be8920227191097554e7cea47fa6b7e"
   integrity sha512-bUsN4S9WWMyPFLI2zGngyVaUszKVrCpJgAhICj5wSCf6G+ZZHOSiTwcdlVV+IhO3IElOt8MmCsciAemzPDPCgQ==
   dependencies:
     "@lukeed/uuid" "^2.0.0"
@@ -6352,7 +6352,7 @@
 
 "@types/node@^18.11.15":
   version "18.11.15"
-  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@types/node/-/node-18.11.15.tgz#de0e1fbd2b22b962d45971431e2ae696643d3f5d"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.15.tgz#de0e1fbd2b22b962d45971431e2ae696643d3f5d"
   integrity sha512-VkhBbVo2+2oozlkdHXLrb3zjsRkpdnaU2bXmX8Wgle3PUi569eLRaHGlgETQHR7lLL1w7GiG3h9SnePhxNDecw==
 
 "@types/node@^18.11.18":
@@ -14818,9 +14818,9 @@ lint-staged@^10.5.3:
     stringify-object "^3.3.0"
 
 liquidjs@^10.27.0:
-  version "10.27.0"
-  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/liquidjs/-/liquidjs-10.27.0.tgz#e31dc4c539e1a26aee46c847b4e60a6ede32564a"
-  integrity sha512-tw/OA59K7aIBlMKIrKlumr37fiZUheShVHXY8cVctWisgY1p9mc5hreOvlreoS0wTiwlWk14Ya7305c2a/Cg5w==
+  version "10.27.1"
+  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/liquidjs/-/liquidjs-10.27.1.tgz#4cd3ac2a8590bae0d415572161978b26f72e944b"
+  integrity sha512-ylE+1q2kSef1UxAyxqbyuWM3FRWS1v48JK1Y3CoW3bD6TSNXZh0+GsVnihujEpKyR+Jejx2aRAFfC3AHm9rElg==
   dependencies:
     commander "^10.0.0"
 

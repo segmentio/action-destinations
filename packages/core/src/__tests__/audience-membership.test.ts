@@ -256,9 +256,9 @@ function makeBatchDestination(captureRef: BatchCaptureRef): DestinationDefinitio
   }
 }
 
-function makeDestination(
-  captureRef: { data?: ExecuteInput<JSONObject, JSONObject> }
-): DestinationDefinition<JSONObject> {
+function makeDestination(captureRef: {
+  data?: ExecuteInput<JSONObject, JSONObject>
+}): DestinationDefinition<JSONObject> {
   return {
     name: 'Test Destination',
     mode: 'cloud',
@@ -302,45 +302,56 @@ async function runAction(
 }
 
 describe('audienceMembership on ExecuteInput in perform()', () => {
-
   describe('Engage payloads', () => {
     it('is true for identify event with membership in traits', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: true }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'identify',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          traits: { my_audience: true }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(true)
     })
 
     it('is false for identify event with membership in traits', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: false }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'identify',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          traits: { my_audience: false }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(false)
     })
 
     it('is true for track event with membership in properties', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        properties: { my_audience: true }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: { my_audience: true }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(true)
     })
 
     it('is false for track event with membership in properties', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        properties: { my_audience: false }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: { my_audience: false }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(false)
     })
   })
@@ -365,11 +376,14 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
 
   describe('non-audience events', () => {
     it('is undefined for a non-audience event', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        properties: { foo: 'bar' }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          properties: { foo: 'bar' }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBeUndefined()
     })
   })
