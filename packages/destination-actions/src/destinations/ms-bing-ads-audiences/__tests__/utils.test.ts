@@ -10,9 +10,9 @@ import {
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import { Payload } from '../syncAudiences/generated-types'
 import { SyncAudiencePayload } from '../types'
-import { ModifiedResponse } from '@segment/actions-core/*'
 
 const createMockMsResponse = (): MultiStatusResponse & { getResponses: () => any[] } => {
   const responses: any[] = []

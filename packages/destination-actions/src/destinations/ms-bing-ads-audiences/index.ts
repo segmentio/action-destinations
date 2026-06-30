@@ -4,9 +4,9 @@ import {
   ErrorCodes,
   IntegrationError,
   PayloadValidationError,
-  HTTPError,
-  ModifiedResponse
+  HTTPError
 } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import syncAudiences from './syncAudiences'
 import { CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse, RefreshTokenResponse } from './types'
@@ -118,7 +118,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
               body || 'no response body'
             }`,
             'CREATE_AUDIENCE_FAILED',
-            status ?? 500
+            status || 500
           )
         }
         // Non-HTTP failures (timeouts, socket/connection errors) carry no response. Surface them
