@@ -961,6 +961,37 @@ describe('Reddit Conversions Api', () => {
         expect(responses[0].status).toBe(200)
         expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
       })
+
+      it('performBatch should use the stable API version by default', async () => {
+        nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
+
+        const responses = await testDestination.testBatchAction('standardEvent', {
+          events: [flagEvent],
+          settings,
+          useDefaultMappings: true,
+          mapping: { tracking_type: 'Purchase' }
+        })
+
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${API_VERSION}/`)
+      })
+
+      it('performBatch should use the canary API version when the feature flag is enabled', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .reply(200, {})
+
+        const responses = await testDestination.testBatchAction('standardEvent', {
+          events: [flagEvent],
+          settings,
+          useDefaultMappings: true,
+          mapping: { tracking_type: 'Purchase' },
+          features: { [FLAGON_NAME]: true }
+        })
+
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
+      })
     })
 
     describe('customEvent', () => {
@@ -993,6 +1024,37 @@ describe('Reddit Conversions Api', () => {
         })
 
         expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
+      })
+
+      it('performBatch should use the stable API version by default', async () => {
+        nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
+
+        const responses = await testDestination.testBatchAction('customEvent', {
+          events: [flagEvent],
+          settings,
+          useDefaultMappings: true,
+          mapping: { custom_event_name: 'Some Custom Event Name' }
+        })
+
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${API_VERSION}/`)
+      })
+
+      it('performBatch should use the canary API version when the feature flag is enabled', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .reply(200, {})
+
+        const responses = await testDestination.testBatchAction('customEvent', {
+          events: [flagEvent],
+          settings,
+          useDefaultMappings: true,
+          mapping: { custom_event_name: 'Some Custom Event Name' },
+          features: { [FLAGON_NAME]: true }
+        })
+
         expect(responses[0].status).toBe(200)
         expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
       })
