@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
@@ -42,7 +43,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('customEvent', {
         event,
         settings,
@@ -125,7 +126,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('customEvent', {
         event,
         settings,
@@ -211,7 +212,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -294,7 +295,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -373,7 +374,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -450,7 +451,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -529,7 +530,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -609,7 +610,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -691,7 +692,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -773,7 +774,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -855,7 +856,7 @@ describe('Reddit Conversions Api', () => {
         }
       })
 
-      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
@@ -904,6 +905,96 @@ describe('Reddit Conversions Api', () => {
         ],
         partner: 'SEGMENT',
         test_mode: false
+      })
+    })
+  })
+
+  describe('API Version Feature Flag', () => {
+    const flagEvent = createTestEvent({
+      timestamp: timestamp,
+      event: 'Order Completed',
+      messageId: 'test-message-id-flag',
+      type: 'track',
+      userId: 'user_id_1',
+      properties: {
+        click_id: 'click_id_1',
+        currency: 'USD',
+        revenue: 100,
+        email: 'test@test.com'
+      },
+      context: {
+        userAgent: 'test-user-agent',
+        ip: '111.111.111.111'
+      }
+    })
+
+    describe('standardEvent', () => {
+      it('should use the stable API version by default', async () => {
+        nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
+
+        const responses = await testDestination.testAction('standardEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { tracking_type: 'Purchase' }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${API_VERSION}/`)
+      })
+
+      it('should use the canary API version when the feature flag is enabled', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('standardEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { tracking_type: 'Purchase' },
+          features: { [FLAGON_NAME]: true }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
+      })
+    })
+
+    describe('customEvent', () => {
+      it('should use the stable API version by default', async () => {
+        nock('https://ads-api.reddit.com').post(`/api/${API_VERSION}/conversions/events/ad_account_id_1`).reply(200, {})
+
+        const responses = await testDestination.testAction('customEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { custom_event_name: 'Some Custom Event Name' }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${API_VERSION}/`)
+      })
+
+      it('should use the canary API version when the feature flag is enabled', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('customEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { custom_event_name: 'Some Custom Event Name' },
+          features: { [FLAGON_NAME]: true }
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
       })
     })
   })

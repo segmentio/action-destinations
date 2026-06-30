@@ -1,4 +1,4 @@
-import type { RequestClient } from '@segment/actions-core'
+import type { Features, RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload as StandardEvent } from './standardEvent/generated-types'
 import type { Payload as CustomEvent } from './customEvent/generated-types'
@@ -11,7 +11,15 @@ import {
   DatapProcessingOptions
 } from './types'
 import { processHashing } from '../../lib/hashing-utils'
-import { REDDIT_CONVERSIONS_API_VERSION } from './versioning-info'
+import { REDDIT_CONVERSIONS_API_VERSION, REDDIT_CONVERSIONS_CANARY_API_VERSION } from './versioning-info'
+
+export const API_VERSION = REDDIT_CONVERSIONS_API_VERSION
+export const CANARY_API_VERSION = REDDIT_CONVERSIONS_CANARY_API_VERSION
+export const FLAGON_NAME = 'reddit-conversions-api-canary-version'
+
+export function getApiVersion(features?: Features): string {
+  return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+}
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
@@ -20,16 +28,19 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
+export async function send(
+  request: RequestClient,
+  settings: Settings,
+  payload: StandardEvent[] | CustomEvent[],
+  features?: Features
+) {
   const data = createRedditPayload(payload, settings)
-  return request(
-    `https://ads-api.reddit.com/api/${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`,
-    {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${settings.conversion_token}` },
-      json: JSON.parse(JSON.stringify(data))
-    }
-  )
+  const version = getApiVersion(features)
+  return request(`https://ads-api.reddit.com/api/${version}/conversions/events/${settings.ad_account_id}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${settings.conversion_token}` },
+    json: JSON.parse(JSON.stringify(data))
+  })
 }
 
 function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
