@@ -47,6 +47,7 @@ register('634ef204885be3def430af66', '@segment/analytics-browser-actions-playerz
 register('635ada35ce269dbe305203ff', '@segment/analytics-browser-actions-logrocket')
 register('6372e1e36d9c2181f3900834', '@segment/analytics-browser-actions-wiseops')
 register('637c192eba61b944e08ee158', '@segment/analytics-browser-actions-vwo')
+register('69a2f1c8e4b7d63901ab5678', '@segment/analytics-browser-actions-wingify')
 register('638f843c4520d424f63c9e51', '@segment/analytics-browser-actions-commandbar')
 register('63ed446fe60a1b56c5e6f130', '@segment/analytics-browser-actions-google-analytics-4')
 register('6480b4eeab29eca5415089d4', '@segment/analytics-browser-actions-userpilot')
@@ -80,4 +81,3 @@ register('6911ea13d72d3a16aa306482', '@segment/analytics-browser-mixpanel-web-ac
 register('697088b36245ed59c958d615', '@segment/analytics-browser-actions-rokt-plugins')
 register('69805c55324ed9e25f234a1a', '@segment/analytics-browser-actions-moengage-web')
 register('698aff47f133996889ade37e', '@segment/analytics-browser-appcues-web-actions')
-
