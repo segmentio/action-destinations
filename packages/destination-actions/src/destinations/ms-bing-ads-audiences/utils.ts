@@ -6,18 +6,10 @@ import {
   RequestClient,
   HTTPError,
   ModifiedResponse,
-  IntegrationError,
-  PayloadValidationError
+  IntegrationError
 } from '@segment/actions-core'
 import { BASE_URL } from './constants'
-import {
-  SyncAudiencePayload,
-  PartialError,
-  Action,
-  Identifier,
-  CreateAudienceRequest,
-  CreateAudienceResponse
-} from './types'
+import { SyncAudiencePayload, PartialError, Action, Identifier } from './types'
 
 /**
  * Hashes an email address using the SHA-256 algorithm and returns the result as a hexadecimal string.
@@ -206,104 +198,30 @@ const MAX_ERROR_BODY_LENGTH = 2048
  * response stream was cloned) and only falls back to re-reading the stream via `text()`. The
  * result is truncated to a sane length, and falls back to an empty string if the body can't be read.
  */
-const readResponseBody = async (response?: ModifiedResponse): Promise<string> => {
+export const readResponseBody = async (response?: ModifiedResponse): Promise<string> => {
   if (!response) {
     return ''
   }
   const truncate = (text: string): string =>
     text.length > MAX_ERROR_BODY_LENGTH ? `${text.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : text
 
-  // `content` is the raw body string the request client already read. Reading it avoids
-  // re-consuming the response stream (which throws if it was not cloned — see skipResponseCloning).
-  if (typeof response.content === 'string') {
-    return truncate(response.content)
+  // `content` is the body the request client already read. Reading it avoids re-consuming the
+  // response stream (which throws if it was not cloned — see skipResponseCloning). It is usually a
+  // string, but handle Buffer / parsed-object shapes too so we don't silently lose Bing's payload.
+  const content = response.content as unknown
+  if (typeof content === 'string') {
+    return truncate(content)
+  }
+  if (content != null) {
+    try {
+      return truncate(Buffer.isBuffer(content) ? content.toString('utf8') : JSON.stringify(content))
+    } catch {
+      // fall through to reading the stream
+    }
   }
   try {
     return truncate((await response.text()) ?? '')
   } catch {
     return ''
   }
-}
-
-/**
- * Creates a CustomerList audience in Microsoft Bing Ads and returns its AudienceId.
- *
- * Bing reports create failures in two different ways, both of which are surfaced here with the
- * real cause rather than an opaque error:
- *  - A non-2xx HTTP response (often with an empty or non-JSON body), thrown as an HTTPError.
- *  - A 200 response carrying a PartialErrors array (e.g. duplicate name, terms not accepted).
- *
- * @param request - The HTTP request client used to communicate with Microsoft Bing Ads.
- * @param audienceName - The name of the audience to create.
- * @returns The created AudienceId.
- */
-export const createBingAudience = async (request: RequestClient, audienceName?: string): Promise<string> => {
-  if (!audienceName) {
-    throw new PayloadValidationError('Missing audience name value')
-  }
-
-  const json: CreateAudienceRequest = {
-    Audiences: [
-      {
-        Name: audienceName,
-        Type: 'CustomerList'
-      }
-    ]
-  }
-
-  let response: CreateAudienceResponse
-  try {
-    response = await request(`${BASE_URL}/Audiences`, {
-      method: 'POST',
-      json
-    })
-  } catch (error) {
-    // The request client throws an HTTPError on a non-2xx response. Without this, the raw error
-    // escapes untyped and the platform surfaces an opaque "500 / Bad Request" with no detail.
-    // Capture Bing's actual status and response body so the real cause is visible in logs.
-    if (error instanceof HTTPError) {
-      const status = error.response?.status
-      const body = await readResponseBody(error.response as ModifiedResponse)
-      throw new IntegrationError(
-        `Failed to create audience. Microsoft Bing Ads returned HTTP ${status ?? 'unknown'}: ${
-          body || 'no response body'
-        }`,
-        'CREATE_AUDIENCE_FAILED',
-        status ?? 400
-      )
-    }
-    throw error
-  }
-
-  // Bing returns a 200 with a PartialErrors array (rather than an HTTP error) for most create
-  // failures, so any error code here must be surfaced explicitly — otherwise it is silently
-  // swallowed and collapses into the opaque "No AudienceId returned" error below.
-  if (response?.data?.PartialErrors?.length) {
-    const errorObj: PartialError = response.data.PartialErrors[0]
-
-    if (errorObj?.ErrorCode === 'CustomerListTermsAndConditionsNotAccepted') {
-      throw new IntegrationError(
-        "The Customer Match 'Terms And Conditions' are not yet Accepted in the Microsoft Advertising web UI. Please create a Customer List in the Microsoft Advertising UI to accept the terms.",
-        'TERMS_NOT_ACCEPTED',
-        400
-      )
-    }
-
-    // Surface every other PartialError with Bing's own ErrorCode and Message so the real cause
-    // (e.g. a duplicate audience name) is visible instead of NO_AUDIENCE_ID.
-    throw new IntegrationError(
-      `Failed to create audience: ${errorObj?.ErrorCode ?? 'UnknownError'}: ${
-        errorObj?.Message ?? 'No error message provided'
-      }`,
-      errorObj?.ErrorCode ?? 'CREATE_AUDIENCE_FAILED',
-      400
-    )
-  }
-
-  const audienceId = response?.data?.AudienceIds?.[0]
-  if (!audienceId) {
-    throw new IntegrationError('Failed to create audience: No AudienceId returned', 'NO_AUDIENCE_ID', 400)
-  }
-
-  return audienceId
 }
