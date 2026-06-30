@@ -77,6 +77,8 @@ register('63936c37dbc54a052e34e30e', './google-sheets-dev')
 register('63872c01c0c112b9b4d75412', './braze-cohorts')
 register('639c2dbb1309fdcad13951b6', './segment-profiles')
 register('63bedc136a8484a53739e013', './vwo')
+// TODO: Replace placeholder metadata ID with the production ID from Segment (create in prod, sync via sprout).
+register('67daf8c4e2b1a403f9c8d52e', './wingify')
 register('63d17a1e6ab3e62212278cd0', './saleswings')
 register('63e42aa0ed203bc54eaabbee', './launchpad')
 register('63e42b47479274407b671071', './livelike-cloud')
