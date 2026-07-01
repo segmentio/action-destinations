@@ -1,4 +1,5 @@
 name: Build Browser Destinations
+run-name: Build Browser Destinations ${{ github.event.inputs.run_id }}
 
 on:
   workflow_dispatch:
@@ -22,7 +23,7 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-large
     timeout-minutes: 20
     concurrency:
       group: build-browser-destinations-${{ github.event.inputs.environment }}
@@ -40,7 +41,7 @@ jobs:
         run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Use Node.js 22.x
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22.x
           registry-url: 'https://registry.npmjs.org'
