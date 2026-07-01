@@ -6,11 +6,20 @@ on:
       - main
   pull_request:
 
+# Curated Artifactory dependency resolution via OIDC.
+# The artifactory-oidc composite action reads this to build the registry URL.
+env:
+  ARTIFACTORY_URL: ${{ vars.ARTIFACTORY_URL }}
+
 jobs:
   test:
     name: Unit tests
     runs-on: ubuntu-latest-large
     timeout-minutes: 30
+    # id-token: write is required so the artifactory-oidc action can mint a token.
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         node-version: [22.x]
@@ -28,6 +37,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
+
+      # Must run AFTER setup-node: setup-node writes its own ~/.npmrc
+      # (registry-url above), which would otherwise clobber the Artifactory
+      # registry this step configures. Skips automatically until ARTIFACTORY_URL
+      # is set as a repo variable.
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - name: Use Github Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
@@ -56,6 +73,9 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest-large
     timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         node-version: [22.x]
@@ -72,6 +92,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
+
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
 
@@ -90,6 +114,9 @@ jobs:
     name: Validate
     runs-on: ubuntu-latest-large
     timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         node-version: [22.x]
@@ -106,6 +133,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
+
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
 
@@ -140,6 +171,9 @@ jobs:
     #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
     runs-on: ubuntu-latest-large
     timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         node-version: [22.x]
@@ -155,6 +189,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
+
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -178,6 +216,10 @@ jobs:
 
     timeout-minutes: 10
 
+    permissions:
+      contents: read
+      id-token: write
+
     strategy:
       matrix:
         node-version: [22.x]
@@ -190,6 +232,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -221,6 +267,10 @@ jobs:
 
     timeout-minutes: 5
 
+    permissions:
+      contents: read
+      id-token: write
+
     strategy:
       matrix:
         node-version: [22.x]
@@ -235,6 +285,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
+
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
