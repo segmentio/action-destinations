@@ -123,10 +123,28 @@ describe('Bing Ads Audiences', () => {
         'Failed to create audience: CampaignServiceDuplicateAudienceName: An audience with this name already exists.'
       )
       expect(error.code).toBe('CampaignServiceDuplicateAudienceName')
-      expect(error.status).toBe(400)
+      // Ambiguous (not known-terminal) → classified as retryable 500.
+      expect(error.status).toBe(500)
     })
 
-    it('should throw an IntegrationError surfacing Bing status and body on a non-2xx error', async () => {
+    it('should surface only ErrorCode/Message/TrackingId from Bing fault body on a non-2xx error', async () => {
+      const faultBody = {
+        Errors: [{ Code: 0, Message: 'An internal error has occurred.', Detail: null, ErrorCode: 'InternalError' }],
+        TrackingId: '370760fd-1f08-4c27-86af-b4343672c621',
+        Type: 'AdApiFaultDetail'
+      }
+      nock(BASE_URL).post('/Audiences').reply(500, faultBody)
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe(
+        'Failed to create audience. Microsoft Bing Ads returned HTTP 500: InternalError: An internal error has occurred.; TrackingId: 370760fd-1f08-4c27-86af-b4343672c621'
+      )
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(500)
+    })
+
+    it('should fall back to raw body when a non-2xx response is not the known JSON shape', async () => {
       nock(BASE_URL).post('/Audiences').reply(400, 'Bad Request')
 
       const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
@@ -142,6 +160,15 @@ describe('Bing Ads Audiences', () => {
       const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
       expect(error).toBeInstanceOf(IntegrationError)
       expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 500: no response body')
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(500)
+    })
+
+    it('should default to a retryable 500 status when the connection fails with no HTTP response', async () => {
+      nock(BASE_URL).post('/Audiences').replyWithError('socket hang up')
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
       expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
       expect(error.status).toBe(500)
     })
