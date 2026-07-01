@@ -1,14 +1,17 @@
 import {
-  IntegrationError,
-  PayloadValidationError,
   AudienceDestinationDefinition,
   InvalidAuthenticationError,
-  ErrorCodes
+  ErrorCodes,
+  IntegrationError,
+  PayloadValidationError,
+  HTTPError
 } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import syncAudiences from './syncAudiences'
-import { CreateAudienceResponse, CreateAudienceRequest, GetAudienceResponse, RefreshTokenResponse } from './types'
+import { CreateAudienceRequest, CreateAudienceResponse, GetAudienceResponse, RefreshTokenResponse } from './types'
 import { BASE_URL, TOKEN_URL } from './constants'
+import { readResponseBody, formatBingErrorBody } from './utils'
 
 const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Ms Bing Ads Audiences',
@@ -95,14 +98,46 @@ const destination: AudienceDestinationDefinition<Settings> = {
         ]
       }
 
-      const response: CreateAudienceResponse = await request(`${BASE_URL}/Audiences`, {
-        method: 'POST',
-        json
-      })
+      let response: CreateAudienceResponse
+      try {
+        response = await request(`${BASE_URL}/Audiences`, {
+          method: 'POST',
+          json
+        })
+      } catch (error) {
+        // The request client throws an HTTPError on a non-2xx response. Without this, the raw error
+        // escapes untyped and the platform surfaces an opaque "500 / Bad Request" with no detail.
+        // Capture Bing's actual status and response body so the real cause is visible in logs.
+        if (error instanceof HTTPError) {
+          const status = error.response?.status
+          const rawBody = await readResponseBody(error.response as ModifiedResponse)
+          // Surface only the debug-relevant, non-sensitive fields (ErrorCode/Message/TrackingId).
+          const body = formatBingErrorBody(rawBody)
+          // Default a missing upstream status to 500 (retryable) rather than 400 — an unknown
+          // status is an ambiguous failure, not a client error.
+          throw new IntegrationError(
+            `Failed to create audience. Microsoft Bing Ads returned HTTP ${status ?? 'unknown'}: ${body}`,
+            'CREATE_AUDIENCE_FAILED',
+            status || 500
+          )
+        }
+        // Non-HTTP failures (timeouts, socket/connection errors) carry no response. Surface them
+        // as a retryable 500 rather than letting a raw, opaque error escape.
+        throw new IntegrationError(
+          `Failed to create audience. Microsoft Bing Ads request failed: ${
+            (error as Error)?.message || 'unknown error'
+          }`,
+          'CREATE_AUDIENCE_FAILED',
+          500
+        )
+      }
 
-      // Handle Terms and Conditions error from Bing Ads API
+      // Bing returns a 200 with a PartialErrors array (rather than an HTTP error) for most create
+      // failures, so any error code here must be surfaced explicitly — otherwise it is silently
+      // swallowed and collapses into the opaque "No AudienceId returned" error below.
       if (response?.data?.PartialErrors?.length) {
         const errorObj = response.data.PartialErrors[0]
+
         if (errorObj?.ErrorCode === 'CustomerListTermsAndConditionsNotAccepted') {
           throw new IntegrationError(
             "The Customer Match 'Terms And Conditions' are not yet Accepted in the Microsoft Advertising web UI. Please create a Customer List in the Microsoft Advertising UI to accept the terms.",
@@ -110,12 +145,25 @@ const destination: AudienceDestinationDefinition<Settings> = {
             400
           )
         }
+
+        // Surface every other PartialError with Bing's own ErrorCode and Message so the real cause
+        // (e.g. a duplicate audience name) is visible instead of NO_AUDIENCE_ID. We can't reliably
+        // tell whether these are transient, so classify as 500 (retryable) rather than a
+        // non-retryable 400 — the T&C case above is the only one we know to be terminal.
+        throw new IntegrationError(
+          `Failed to create audience: ${errorObj?.ErrorCode ?? 'UnknownError'}: ${
+            errorObj?.Message ?? 'No error message provided'
+          }`,
+          errorObj?.ErrorCode ?? 'CREATE_AUDIENCE_FAILED',
+          500
+        )
       }
 
-      // Extract the created audience ID
+      // A 200 with no AudienceId and no PartialError is an ambiguous failure — classify as 500
+      // (retryable) since we have no signal that it's caller-actionable.
       const audienceId = response?.data?.AudienceIds?.[0]
       if (!audienceId) {
-        throw new IntegrationError('Failed to create audience: No AudienceId returned', 'NO_AUDIENCE_ID', 400)
+        throw new IntegrationError('Failed to create audience: No AudienceId returned', 'NO_AUDIENCE_ID', 500)
       }
 
       return { externalId: audienceId }

@@ -102,6 +102,76 @@ describe('Bing Ads Audiences', () => {
 
       await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrow(IntegrationError)
     })
+
+    it('should surface an unrecognized PartialError with Bing ErrorCode and Message', async () => {
+      const partialErrorResponse = {
+        AudienceIds: [],
+        PartialErrors: [
+          {
+            ErrorCode: 'CampaignServiceDuplicateAudienceName',
+            Message: 'An audience with this name already exists.',
+            Code: 4848,
+            Index: 0
+          }
+        ]
+      }
+      nock(BASE_URL).post('/Audiences').reply(200, partialErrorResponse)
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe(
+        'Failed to create audience: CampaignServiceDuplicateAudienceName: An audience with this name already exists.'
+      )
+      expect(error.code).toBe('CampaignServiceDuplicateAudienceName')
+      // Ambiguous (not known-terminal) → classified as retryable 500.
+      expect(error.status).toBe(500)
+    })
+
+    it('should surface only ErrorCode/Message/TrackingId from Bing fault body on a non-2xx error', async () => {
+      const faultBody = {
+        Errors: [{ Code: 0, Message: 'An internal error has occurred.', Detail: null, ErrorCode: 'InternalError' }],
+        TrackingId: '370760fd-1f08-4c27-86af-b4343672c621',
+        Type: 'AdApiFaultDetail'
+      }
+      nock(BASE_URL).post('/Audiences').reply(500, faultBody)
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe(
+        'Failed to create audience. Microsoft Bing Ads returned HTTP 500: InternalError: An internal error has occurred.; TrackingId: 370760fd-1f08-4c27-86af-b4343672c621'
+      )
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(500)
+    })
+
+    it('should fall back to raw body when a non-2xx response is not the known JSON shape', async () => {
+      nock(BASE_URL).post('/Audiences').reply(400, 'Bad Request')
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 400: Bad Request')
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(400)
+    })
+
+    it('should surface Bing status when the API returns a 5xx with an empty body', async () => {
+      nock(BASE_URL).post('/Audiences').reply(500, '')
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 500: no response body')
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(500)
+    })
+
+    it('should default to a retryable 500 status when the connection fails with no HTTP response', async () => {
+      nock(BASE_URL).post('/Audiences').replyWithError('socket hang up')
+
+      const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
+      expect(error).toBeInstanceOf(IntegrationError)
+      expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
+      expect(error.status).toBe(500)
+    })
   })
 
   describe('getAudience', () => {
