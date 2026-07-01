@@ -225,3 +225,35 @@ export const readResponseBody = async (response?: ModifiedResponse): Promise<str
     return ''
   }
 }
+
+/**
+ * Extracts the debugging-relevant, non-sensitive fields from a Bing Ads error body.
+ *
+ * Bing failures use the AdApiFaultDetail shape:
+ *   { Errors: [{ ErrorCode, Message, Code }], TrackingId, Type }
+ * We surface only ErrorCode, Message and TrackingId. The TrackingId is the reference Microsoft
+ * support needs to investigate a failure, and none of these fields carry request credentials or
+ * PII. If the body isn't the known JSON shape (e.g. an HTML proxy page or empty body), fall back
+ * to the raw (already-truncated) text so we still surface *something* rather than nothing.
+ */
+export const formatBingErrorBody = (rawBody: string): string => {
+  if (!rawBody) {
+    return 'no response body'
+  }
+  try {
+    const parsed = JSON.parse(rawBody) as {
+      Errors?: Array<{ ErrorCode?: string; Message?: string }>
+      TrackingId?: string
+    }
+    const parts = (parsed?.Errors ?? []).map(
+      (e) => `${e?.ErrorCode ?? 'UnknownError'}: ${e?.Message ?? 'No error message provided'}`
+    )
+    if (parsed?.TrackingId) {
+      parts.push(`TrackingId: ${parsed.TrackingId}`)
+    }
+    return parts.length ? parts.join('; ') : rawBody
+  } catch {
+    // Not the known JSON shape (HTML page, truncated body, etc.) — surface the raw text.
+    return rawBody
+  }
+}

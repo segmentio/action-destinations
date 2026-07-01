@@ -6,7 +6,8 @@ import {
   handleHttpError,
   handleMultistatusResponse,
   categorizePayloadByAction,
-  readResponseBody
+  readResponseBody,
+  formatBingErrorBody
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
@@ -660,5 +661,41 @@ describe('readResponseBody', () => {
     const result = await readResponseBody(asResponse({ content: longBody }))
     expect(result.endsWith('...(truncated)')).toBe(true)
     expect(result.length).toBe(2048 + '...(truncated)'.length)
+  })
+})
+
+describe('formatBingErrorBody', () => {
+  it('returns a placeholder for an empty body', () => {
+    expect(formatBingErrorBody('')).toBe('no response body')
+  })
+
+  it('extracts ErrorCode, Message and TrackingId from the AdApiFaultDetail shape', () => {
+    const body = JSON.stringify({
+      Errors: [{ Code: 0, Message: 'An internal error has occurred.', ErrorCode: 'InternalError' }],
+      TrackingId: 'abc-123',
+      Type: 'AdApiFaultDetail'
+    })
+    expect(formatBingErrorBody(body)).toBe('InternalError: An internal error has occurred.; TrackingId: abc-123')
+  })
+
+  it('joins multiple errors and still includes the TrackingId', () => {
+    const body = JSON.stringify({
+      Errors: [
+        { ErrorCode: 'InvalidAccount', Message: 'Account not found.' },
+        { ErrorCode: 'InvalidCustomer', Message: 'Customer not found.' }
+      ],
+      TrackingId: 'xyz-789'
+    })
+    expect(formatBingErrorBody(body)).toBe(
+      'InvalidAccount: Account not found.; InvalidCustomer: Customer not found.; TrackingId: xyz-789'
+    )
+  })
+
+  it('falls back to the raw body when it is not the known JSON shape', () => {
+    expect(formatBingErrorBody('<html>502 Bad Gateway</html>')).toBe('<html>502 Bad Gateway</html>')
+  })
+
+  it('returns the raw body when JSON has no Errors and no TrackingId', () => {
+    expect(formatBingErrorBody('{"foo":"bar"}')).toBe('{"foo":"bar"}')
   })
 })
