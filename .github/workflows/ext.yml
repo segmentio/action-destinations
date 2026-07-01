@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+env:
+  ARTIFACTORY_URL: ${{ vars.ARTIFACTORY_URL }}
+
 jobs:
   install-and-test:
     env:
@@ -14,6 +17,10 @@ jobs:
     runs-on: ubuntu-latest-large
 
     timeout-minutes: 20
+
+    permissions:
+      contents: read
+      id-token: write
 
     strategy:
       matrix:
@@ -25,6 +32,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
+
+      - name: Artifactory OIDC Auth
+        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
 
       - name: Install
         run: yarn install --frozen-lockfile
