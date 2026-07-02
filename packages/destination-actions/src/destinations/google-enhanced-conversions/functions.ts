@@ -280,32 +280,6 @@ export async function getListIds(
   }
 
   try {
-    if (
-      !auth?.refreshToken ||
-      !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
-      !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
-    ) {
-      return {
-        choices: [],
-        error: {
-          message: 'OAuth credentials missing. Please re-authenticate the destination.',
-          code: '401'
-        }
-      }
-    }
-
-    const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
-      method: 'POST',
-      body: new URLSearchParams({
-        refresh_token: auth.refreshToken,
-        client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
-        client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
-        grant_type: 'refresh_token'
-      })
-    })
-
-    const accessToken = tokenRes.data.access_token
-
     const response: ModifiedResponse<UserListResponse> = await request(
       `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
         settings.customerId
@@ -314,7 +288,7 @@ export async function getListIds(
         method: 'post',
         headers: {
           'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${auth?.accessToken}`
         },
         json
       }
@@ -614,8 +588,7 @@ const extractUserIdentifiers = (
         audienceMembership === false
       ) {
         removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
-      }
-      else if (computation_class === 'journey_step') {
+      } else if (computation_class === 'journey_step') {
         // For legacy Journeys preset journeys_step_entered_track which omits properties[<computation_key>]
         // Should always adds the user, never delete
         addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
@@ -1008,7 +981,13 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index], personasContext)
+    const operationType = determineOperationType(
+      payload,
+      syncMode,
+      features,
+      audienceMemberships?.[index],
+      personasContext
+    )
     if (operationType === undefined) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -1030,7 +1009,13 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, features?: Features, audienceMembership?: AudienceMembership, personasContext?: Personas): boolean | undefined => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  features?: Features,
+  audienceMembership?: AudienceMembership,
+  personasContext?: Personas
+): boolean | undefined => {
   const { computation_class } = personasContext || {}
   if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
     if (
@@ -1052,8 +1037,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, fea
       // Should always adds the user, never delete
       return true
     }
-  }
-  else {
+  } else {
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
