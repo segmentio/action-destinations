@@ -7,7 +7,13 @@ import { Client } from './client'
 import { RawMapping, ColumnHeader, HashAlgorithm } from './types'
 import { S3_HASHING_FEATURE_FLAG } from '../constants'
 
-export async function send(payloads: Payload[], settings: Settings, rawMapping: RawMapping, features?: Features, signal?: AbortSignal) {
+export async function send(
+  payloads: Payload[],
+  settings: Settings,
+  rawMapping: RawMapping,
+  features?: Features,
+  signal?: AbortSignal
+) {
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
@@ -26,10 +32,18 @@ export async function send(payloads: Payload[], settings: Settings, rawMapping: 
     headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
   }
 
-  const columnsToHash =
-    features && features[S3_HASHING_FEATURE_FLAG]
-      ? validateColumnsToHash(payloads[0]?.columns_to_hash ?? [], new Set(headers.map((h) => h.originalName)))
-      : new Map<string, HashAlgorithm>()
+  const configuredColumnsToHash = payloads[0]?.columns_to_hash ?? []
+  const flagEnabled = Boolean(features && features[S3_HASHING_FEATURE_FLAG])
+
+  if (!flagEnabled && configuredColumnsToHash.length > 0) {
+    throw new PayloadValidationError(
+      'Column hashing is currently not enabled for your Segment workspace. Remove the columns to hash or contact Segment by emailing friends@segment.com to enable the feature.'
+    )
+  }
+
+  const columnsToHash = flagEnabled
+    ? validateColumnsToHash(configuredColumnsToHash, new Set(headers.map((h) => h.originalName)))
+    : new Map<string, HashAlgorithm>()
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
 
@@ -129,7 +143,9 @@ export function validateColumnsToHash(
     const algorithm = SUPPORTED_HASH_ALGORITHMS.find((a) => a === hashAlgorithm)
     if (!algorithm) {
       throw new PayloadValidationError(
-        `columns_to_hash: unsupported hash_algorithm "${hashAlgorithm}". Supported: ${SUPPORTED_HASH_ALGORITHMS.join(', ')}`
+        `columns_to_hash: unsupported hash_algorithm "${hashAlgorithm}". Supported: ${SUPPORTED_HASH_ALGORITHMS.join(
+          ', '
+        )}`
       )
     }
     if (columnsToHash.has(columnName)) {
@@ -140,9 +156,7 @@ export function validateColumnsToHash(
 
   const invalidColumns = [...columnsToHash.keys()].filter((col) => !validColumnNames.has(col))
   if (invalidColumns.length > 0) {
-    throw new PayloadValidationError(
-      `columns_to_hash contains columns that do not exist: ${invalidColumns.join(', ')}`
-    )
+    throw new PayloadValidationError(`columns_to_hash contains columns that do not exist: ${invalidColumns.join(', ')}`)
   }
 
   return columnsToHash

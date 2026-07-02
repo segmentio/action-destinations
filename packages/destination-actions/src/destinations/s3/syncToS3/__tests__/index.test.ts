@@ -1,7 +1,9 @@
-import { generateFile, validateColumnsToHash, clean, encodeString, getAudienceAction } from '../functions'
+import { generateFile, validateColumnsToHash, clean, encodeString, getAudienceAction, send } from '../functions'
 import { Payload } from '../generated-types'
-import { ColumnHeader, HashAlgorithm } from '../types'
+import { Settings } from '../../generated-types'
+import { ColumnHeader, HashAlgorithm, RawMapping } from '../types'
 import { PayloadValidationError } from '@segment/actions-core'
+import { S3_HASHING_FEATURE_FLAG } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
 // Mock AWS SDK before any imports to avoid initialization issues
@@ -15,6 +17,14 @@ jest.mock('@aws-sdk/client-s3', () => ({
 jest.mock('@aws-sdk/client-sts', () => ({
   STSClient: jest.fn(),
   AssumeRoleCommand: jest.fn()
+}))
+
+// Mock the S3 Client so send() can complete without hitting AWS. The flag guard under test
+// throws before the Client is ever constructed, so this only matters for the non-throwing cases.
+jest.mock('../client', () => ({
+  Client: jest.fn().mockImplementation(() => ({
+    uploadS3: jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
+  }))
 }))
 
 describe('clean', () => {
@@ -292,5 +302,46 @@ describe('validateColumnsToHash', () => {
   it('should return an empty map when entries is empty', () => {
     const result = validateColumnsToHash([], validColumnNames)
     expect(result.size).toBe(0)
+  })
+})
+
+describe('send with hashing feature flag', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const rawMapping: RawMapping = { columns: { email: 'email', user_id: 'user_id' } }
+
+  const payloadWithHashing: Payload = {
+    columns: { email: 'test@test.com', user_id: 'user_1' },
+    delimiter: ',',
+    enable_batching: true,
+    file_extension: 'csv',
+    columns_to_hash: [{ column_name: 'email', hash_algorithm: 'sha256' }]
+  }
+
+  it('should throw when columns_to_hash is configured but the feature flag is off', async () => {
+    await expect(send([payloadWithHashing], settings, rawMapping, {})).rejects.toThrow(PayloadValidationError)
+    await expect(send([payloadWithHashing], settings, rawMapping, undefined)).rejects.toThrow(
+      'Column hashing is currently not enabled for your Segment workspace. Remove the columns to hash or contact Segment by emailing friends@segment.com to enable the feature.'
+    )
+  })
+
+  it('should not throw when the feature flag is off and no columns are configured', async () => {
+    const payloadNoHashing: Payload = {
+      columns: { email: 'test@test.com', user_id: 'user_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+    await expect(send([payloadNoHashing], settings, rawMapping, {})).resolves.not.toThrow()
+  })
+
+  it('should not throw when columns_to_hash is configured and the feature flag is on', async () => {
+    await expect(
+      send([payloadWithHashing], settings, rawMapping, { [S3_HASHING_FEATURE_FLAG]: true })
+    ).resolves.not.toThrow()
   })
 })
