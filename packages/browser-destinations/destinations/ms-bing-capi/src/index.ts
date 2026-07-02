@@ -1,10 +1,13 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import { storageClickIdKey, clickIdQuerystringName, storageFallback } from './utils'
+import {
+  storageClickIdKey,
+  clickIdQuerystringName,
+  storageFallback
+} from './utils'
 import { UniversalStorage } from '@segment/analytics-next'
 import msclkidPlugin from './msclkidPlugin'
-import msclkidPluginStage from './msclkidPluginStage'
 
 // Switch from unknown to the partner SDK client types
 export const destination: BrowserDestinationDefinition<Settings, {}> = {
@@ -23,8 +26,7 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
   },
   settings: {},
   actions: {
-    msclkidPlugin,
-    msclkidPluginStage
+    msclkidPlugin
   }
 }
 
