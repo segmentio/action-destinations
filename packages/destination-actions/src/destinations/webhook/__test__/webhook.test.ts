@@ -103,16 +103,12 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         expect(responses[0].status).toBe(200)
       })
 
-      it('supports request signing with batched events', async () => {
+      it('signs the full batch body when the X-Segment-Signature toggle is enabled', async () => {
         const url = 'https://example.com'
 
         const events: SegmentEvent[] = [
-          createTestEvent({
-            properties: { cool: false }
-          }),
-          createTestEvent({
-            properties: { cool: true }
-          })
+          createTestEvent({ properties: { cool: false } }),
+          createTestEvent({ properties: { cool: true } })
         ]
 
         const payload = JSON.stringify(events.map(({ properties }) => properties))
@@ -120,21 +116,18 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
         nock(url)
           .post('/', payload)
           .reply(async function (_uri, body: any) {
-            // Normally you should use the raw body but nock automatically
-            // deserializes it (and doesn't allow us to access the raw request
-            // body) so we re-serialize the body here so that we can demonstrate
-            // signture validation
+            // The legacy X-Signature header should not be present when the toggle is on
+            expect(this.req.headers['x-signature']).toBeUndefined()
 
-            // Validate the signature
-            const expectSignature = this.req.headers['x-signature'][0]
-            const actualSignature = createHmac('sha1', sharedSecret).update(JSON.stringify(body[0])).digest('hex')
+            // The new header must sign the ENTIRE batch body (all events), not just body[0]
+            const expectSignature = this.req.headers['x-segment-signature'][0]
+            const actualSignature = createHmac('sha1', sharedSecret).update(JSON.stringify(body)).digest('hex')
 
-            // Use constant-time comparison to avoid timing attacks
             if (
               expectSignature.length !== actualSignature.length ||
               !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
             ) {
-              return [400, 'Invalid signature123']
+              return [400, 'Invalid signature']
             }
 
             return [200, 'OK']
@@ -146,9 +139,51 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
             url,
             data: { '@path': '$.properties' }
           },
-          settings: { sharedSecret },
+          settings: { sharedSecret, useSegmentSignatureHeader: true },
           useDefaultMappings: true
         })
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+      })
+
+      it('sends the signature in the X-Segment-Signature header when the toggle is enabled', async () => {
+        const url = 'https://example.com'
+        const event = createTestEvent({ properties: { cool: true } })
+        const payload = JSON.stringify(event.properties)
+        const sharedSecret = 'abc123'
+
+        nock(url)
+          .post('/', payload)
+          .reply(async function (_uri, body) {
+            const bodyString = JSON.stringify(body)
+
+            // The default X-Signature header should not be present when the toggle is on
+            expect(this.req.headers['x-signature']).toBeUndefined()
+
+            // Validate the signature is delivered under the X-Segment-Signature header
+            const expectSignature = this.req.headers['x-segment-signature'][0]
+            const actualSignature = createHmac('sha1', sharedSecret).update(bodyString).digest('hex')
+
+            if (
+              expectSignature.length !== actualSignature.length ||
+              !timingSafeEqual(Buffer.from(actualSignature, 'hex'), Buffer.from(expectSignature, 'hex'))
+            ) {
+              return [400, 'Invalid signature']
+            }
+
+            return [200, 'OK']
+          })
+
+        const responses = await testDestination.testAction('send', {
+          event,
+          mapping: {
+            url,
+            data: { '@path': '$.properties' }
+          },
+          settings: { sharedSecret, useSegmentSignatureHeader: true },
+          useDefaultMappings: true
+        })
+
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(200)
       })
