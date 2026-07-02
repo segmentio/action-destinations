@@ -28,6 +28,7 @@ const fixtures: E2EFixture[] = [
     mode: 'single',
     mapping: {
       ...baseMapping,
+      filename_prefix: 'nonbatch-single',
       enable_batching: false
     },
     event: createE2EEvent('track', 'E2E Single Non-Batch', {
@@ -43,6 +44,7 @@ const fixtures: E2EFixture[] = [
     mode: 'batch',
     mapping: {
       ...baseMapping,
+      filename_prefix: 'batch-multi',
       enable_batching: true
     },
     events: [
@@ -68,6 +70,7 @@ const fixtures: E2EFixture[] = [
     mode: 'batch',
     mapping: {
       ...baseMapping,
+      filename_prefix: 'batch-one',
       enable_batching: true
     },
     events: [

@@ -1,5 +1,5 @@
 /**
- * E2E fixtures for audience events across the source types that feed S3.
+ * E2E fixtures for audience events.
  *
  * The audience columns are populated from context.personas:
  *  - audience_name  <- computation_key
@@ -8,17 +8,13 @@
  *
  * (audience_space_id is left empty — the e2e audience helpers don't set personas.space_id.)
  *
- * Covers Engage (track + identify), RETL (new/deleted), and Journeys V2 (add/remove), in single and
- * batch modes. Success = the upload did not throw; inspect the bucket to confirm the audience columns
- * and audience_action values.
+ * All audience source types (Engage/RETL/Journeys) resolve to the same S3 payload via the mapping
+ * directives, so from the destination's perspective they are equivalent. These fixtures use Engage
+ * events only and focus on what actually varies for S3: audience_action true vs false, single vs
+ * batch. Success = the upload did not throw; inspect the bucket to confirm the audience columns.
  */
 import type { E2EFixture } from '@segment/actions-core'
-import {
-  defaultValues,
-  createE2EEngageAudienceEvent,
-  createE2ERetlAudienceEvent,
-  createE2EJourneysV2AudienceEvent
-} from '@segment/actions-core'
+import { defaultValues, createE2EEngageAudienceEvent } from '@segment/actions-core'
 import syncToS3 from '../index'
 
 const COMPUTATION_KEY = 'e2e_s3_audience'
@@ -36,10 +32,10 @@ const baseMapping = {
 
 const fixtures: E2EFixture[] = [
   {
-    description: 'Audience (Engage track): add a user (audience_action = enter)',
+    description: 'Audience (track): add a user (audience_action = enter)',
     subscribe: 'type = "track"',
     mode: 'single',
-    mapping: baseMapping,
+    mapping: { ...baseMapping, filename_prefix: 'aud-add' },
     event: createE2EEngageAudienceEvent({
       type: 'track',
       action: 'add',
@@ -52,10 +48,10 @@ const fixtures: E2EFixture[] = [
     verboseFailureHint: FAILURE_HINT
   },
   {
-    description: 'Audience (Engage identify): remove a user (audience_action = exit)',
+    description: 'Audience (identify): remove a user (audience_action = exit)',
     subscribe: 'type = "identify"',
     mode: 'single',
-    mapping: baseMapping,
+    mapping: { ...baseMapping, filename_prefix: 'aud-remove' },
     event: createE2EEngageAudienceEvent({
       type: 'identify',
       action: 'remove',
@@ -68,57 +64,26 @@ const fixtures: E2EFixture[] = [
     verboseFailureHint: FAILURE_HINT
   },
   {
-    description: 'Audience (RETL): new row enters the audience',
-    subscribe: 'type = "track"',
-    mode: 'single',
-    mapping: baseMapping,
-    event: createE2ERetlAudienceEvent({
-      eventName: 'new',
-      computationKey: COMPUTATION_KEY,
-      computationId: COMPUTATION_ID,
-      userId: 'e2e-s3-aud-user-003',
-      email: 'e2e-s3-aud-003@segment.com'
-    }),
-    expect: { status: 'success' },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    description: 'Audience (Journeys V2): add via journey_step event',
-    subscribe: 'type = "track"',
-    mode: 'single',
-    mapping: baseMapping,
-    event: createE2EJourneysV2AudienceEvent({
-      action: 'add',
-      computationKey: COMPUTATION_KEY,
-      computationId: COMPUTATION_ID,
-      journeyName: 'e2e s3 journey',
-      userId: 'e2e-s3-aud-user-004',
-      email: 'e2e-s3-aud-004@segment.com'
-    }),
-    expect: { status: 'success' },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    description: 'Audience (Engage track): batch of enter + exit events',
+    description: 'Audience (track): batch of enter + exit events',
     subscribe: 'type = "track"',
     mode: 'batch',
-    mapping: baseMapping,
+    mapping: { ...baseMapping, filename_prefix: 'aud-batch' },
     events: [
       createE2EEngageAudienceEvent({
         type: 'track',
         action: 'add',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
-        userId: 'e2e-s3-aud-user-005',
-        email: 'e2e-s3-aud-005@segment.com'
+        userId: 'e2e-s3-aud-user-003',
+        email: 'e2e-s3-aud-003@segment.com'
       }),
       createE2EEngageAudienceEvent({
         type: 'track',
         action: 'remove',
         computationKey: COMPUTATION_KEY,
         computationId: COMPUTATION_ID,
-        userId: 'e2e-s3-aud-user-006',
-        email: 'e2e-s3-aud-006@segment.com'
+        userId: 'e2e-s3-aud-user-004',
+        email: 'e2e-s3-aud-004@segment.com'
       })
     ],
     expect: { status: 'success' },

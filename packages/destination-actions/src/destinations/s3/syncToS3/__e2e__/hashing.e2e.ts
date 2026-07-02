@@ -35,6 +35,7 @@ const fixtures: E2EFixture[] = [
     features: FLAG_ON,
     mapping: {
       ...baseMapping,
+      filename_prefix: 'hash-single',
       columns_to_hash: [
         { column_name: 'email', hash_algorithm: 'sha256' },
         { column_name: 'user_id', hash_algorithm: 'sha256' }
@@ -55,6 +56,7 @@ const fixtures: E2EFixture[] = [
     features: FLAG_ON,
     mapping: {
       ...baseMapping,
+      filename_prefix: 'hash-batch',
       columns_to_hash: [{ column_name: 'email', hash_algorithm: 'sha256' }]
     },
     events: [
@@ -78,7 +80,8 @@ const fixtures: E2EFixture[] = [
     mode: 'single',
     features: FLAG_ON,
     mapping: {
-      ...baseMapping
+      ...baseMapping,
+      filename_prefix: 'hash-none'
     },
     event: createE2EEvent('track', 'E2E No Hashing', {
       userId: 'e2e-s3-hash-user-004',

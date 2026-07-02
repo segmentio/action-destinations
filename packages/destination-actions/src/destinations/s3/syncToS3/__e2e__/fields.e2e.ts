@@ -1,10 +1,11 @@
 /**
- * E2E fixtures exercising many combinations of columns, delimiters, and file extensions.
+ * E2E fixtures exercising combinations of columns and value shapes.
  *
  * `columns` is an object mapping output-column name -> value (mapping-kit directives). These
  * fixtures override `columns` explicitly (rather than relying on defaultValues) to control exactly
- * which columns land in the file. Success = the upload did not throw; inspect the bucket to confirm
- * headers, delimiters, and object serialization.
+ * which columns land in the file. Delimiter and file-extension coverage lives in formats.e2e.ts;
+ * this file focuses on which columns are written and how object values serialize. Success = the
+ * upload did not throw; inspect the bucket to confirm headers and object serialization.
  */
 import type { E2EFixture } from '@segment/actions-core'
 import { defaultValues, createE2EEvent } from '@segment/actions-core'
@@ -42,6 +43,7 @@ const fixtures: E2EFixture[] = [
     mapping: {
       ...baseMapping,
       delimiter: ',',
+      filename_prefix: 'fields-minimal',
       columns: {
         user_id: { '@path': '$.userId' },
         email: { '@path': '$.properties.email' }
@@ -60,7 +62,8 @@ const fixtures: E2EFixture[] = [
     mode: 'single',
     mapping: {
       ...baseMapping,
-      delimiter: ','
+      delimiter: ',',
+      filename_prefix: 'fields-all'
     },
     event: richEvent(),
     expect: { status: 'success' },
@@ -73,6 +76,7 @@ const fixtures: E2EFixture[] = [
     mapping: {
       ...baseMapping,
       delimiter: ',',
+      filename_prefix: 'fields-custom',
       columns: {
         user_id: { '@path': '$.userId' },
         email: { '@path': '$.properties.email' },
@@ -90,40 +94,6 @@ const fixtures: E2EFixture[] = [
         loyalty_tier: 'gold'
       }
     }),
-    expect: { status: 'success' },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    description: 'Fields: tab delimiter with txt file extension',
-    subscribe: 'type = "track"',
-    mode: 'single',
-    mapping: {
-      ...baseMapping,
-      delimiter: 'tab',
-      file_extension: 'txt'
-    },
-    event: richEvent(),
-    expect: { status: 'success' },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    description: 'Fields: pipe delimiter, batch of events',
-    subscribe: 'type = "track"',
-    mode: 'batch',
-    mapping: {
-      ...baseMapping,
-      delimiter: '|'
-    },
-    events: [
-      createE2EEvent('track', 'E2E Fields Pipe A', {
-        userId: 'e2e-s3-fields-user-004',
-        properties: { email: 'e2e-s3-fields-004@segment.com' }
-      }),
-      createE2EEvent('track', 'E2E Fields Pipe B', {
-        userId: 'e2e-s3-fields-user-005',
-        properties: { email: 'e2e-s3-fields-005@segment.com' }
-      })
-    ],
     expect: { status: 'success' },
     verboseFailureHint: FAILURE_HINT
   }
