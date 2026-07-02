@@ -50,6 +50,21 @@ A cloud-mode Actions destination ("Quora Conversions API") that forwards Segment
 - Batching and errors: `performBatch` posts up to 1,000 with `throwHttpErrors: false`, then maps the 200-body per-item results to `MultiStatusResponse` by the returned `index` (OK -> `setSuccessResponseAtIndex`, ERROR -> `setErrorResponseAtIndex` carrying `error_code`/`error_message`). Modeled on the Mixpanel and Amazon batch destinations.
 - click_id capture: qclid lands on the landing-page URL after an ad click. Proposed: a browser "plugin" action (Reddit/Snap style) that reads qclid from the URL and stashes it in the integrations object, with a `$.properties.qclid` fallback for server-side sources.
 
+## Field formats and notes
+All user and device fields are optional strings. The server validates only `email` and `ip`; the rest are stored as sent, with no strict format enforcement. Formats below are the recommended conventions for mapping.
+
+- date_of_birth: YYYY-MM-DD (e.g. 2000-01-01).
+- country: ISO 3166-1 alpha-2 (e.g. US).
+- region: state or region name as a free string (e.g. California).
+- phone_number: no enforced format; E.164 preferred, the doc example is US-formatted.
+- language: locale string (e.g. en_US); Segment `context.locale` like en-US passes as-is.
+- mobile_device_id: the advertising ID (IDFA on iOS, AAID on Android). There is no separate IDFV / device-ID field today.
+- referer: the referring URL. The API field is spelled `referer` (single r); the public doc's `referrer` is a typo to be fixed, so map to `referer`.
+- event_id: optional (not required); a UUID is recommended but not enforced; empty string is treated as null. Map to Segment `messageId`.
+- click_id (qclid): required for attribution unless a matchable email is provided. Cache the most recent qclid client-side and send it on every event (last-click, up to a 90-day click-through window).
+- value: a number, treated as USD; capped near $214,748.36 (above that returns per-item `VALUE_OUT_OF_RANGE`).
+- timestamp: microseconds; if missing or outside the 90-day window the server substitutes the current time.
+
 ## Design decisions and open questions
 - Event field is constrained to the standard conversion types via `choices` (Reddit style), with presets covering the common Segment ecommerce events.
 - Email is mapped and sent as plaintext; Quora hashes server-side for matching, so the destination does not hash.
