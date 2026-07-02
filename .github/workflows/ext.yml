@@ -34,7 +34,7 @@ jobs:
           cache: yarn
 
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - name: Install

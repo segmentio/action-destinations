@@ -43,7 +43,7 @@ jobs:
       # registry this step configures. Skips automatically until ARTIFACTORY_URL
       # is set as a repo variable.
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - name: Use Github Personal Access Token
@@ -94,7 +94,7 @@ jobs:
           cache: yarn
 
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
@@ -135,7 +135,7 @@ jobs:
           cache: yarn
 
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
@@ -191,7 +191,7 @@ jobs:
           cache: yarn
 
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - name: Install Dependencies
@@ -234,7 +234,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - name: Get yarn cache directory path
@@ -287,7 +287,7 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Artifactory OIDC Auth
-        if: ${{ vars.ARTIFACTORY_URL != '' }}
+        if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
       - name: Get yarn cache directory path
