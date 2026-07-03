@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-bucket",
-  "version": "1.79.1-staging.7",
+  "version": "1.79.1-staging.8",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -16,8 +16,8 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@bucketco/tracking-sdk": "^2.0.0",
-    "@segment/actions-core": "3.168.1-staging.9",
-    "@segment/browser-destination-runtime": "1.97.1-staging.7"
+    "@segment/actions-core": "3.168.1-staging.10",
+    "@segment/browser-destination-runtime": "1.97.1-staging.8"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
