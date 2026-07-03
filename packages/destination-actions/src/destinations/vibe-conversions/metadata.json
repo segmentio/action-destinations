@@ -1,0 +1,427 @@
+{
+  "slug": "actions-vibe-conversions",
+  "name": "Vibe Tracking Event",
+  "mode": "cloud",
+  "description": "Send conversion events to Vibe.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "aid": {
+        "label": "Pixel ID",
+        "description": "The Vibe pixel ID associated with the advertiser. Found in the Vibe dashboard.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackConversion": {
+      "title": "Track Conversion",
+      "description": "Send a conversion event to Vibe.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "a": {
+          "label": "Event Type",
+          "description": "The action/event type that was performed.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "call",
+              "value": "call"
+            },
+            {
+              "label": "install",
+              "value": "install"
+            },
+            {
+              "label": "lead",
+              "value": "lead"
+            },
+            {
+              "label": "page_view",
+              "value": "page_view"
+            },
+            {
+              "label": "purchase",
+              "value": "purchase"
+            },
+            {
+              "label": "signup",
+              "value": "signup"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eid": {
+          "label": "Event ID",
+          "description": "Unique event ID. Must be unique for each event. UUID format is recommended. Defaults to the Segment messageId.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "ts": {
+          "label": "Timestamp",
+          "description": "Timestamp of the event, in ISO 8601 format or UNIX milliseconds. Must be within the last 7 days. Sent to Vibe as UNIX milliseconds.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "ip": {
+          "label": "IP Address",
+          "description": "IP address of the user who performed the action. Must be IPv4. Required if Email is not provided.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "em": {
+          "label": "Email",
+          "description": "User email address. Required if IP Address is not provided.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "ed": {
+          "label": "Event Data",
+          "description": "Event data. Reserved attributes are price_usd (float) and purchase_id (string). Sent to Vibe as a stringified JSON object.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "gid": {
+          "label": "Google Analytics ID",
+          "description": "Google Analytics ID for cross-platform attribution.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "ua": {
+          "label": "User Agent",
+          "description": "User Agent string.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.userAgent"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "url": {
+          "label": "Page URL",
+          "description": "The URL of the page where the action occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Order Completed",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "event = \"Order Completed\"",
+      "mapping": {
+        "eid": {
+          "@path": "$.messageId"
+        },
+        "ts": {
+          "@path": "$.timestamp"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "em": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "ed": {
+          "@path": "$.properties"
+        },
+        "ua": {
+          "@path": "$.context.userAgent"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "a": "purchase"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Viewed",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "eid": {
+          "@path": "$.messageId"
+        },
+        "ts": {
+          "@path": "$.timestamp"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "em": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "ed": {
+          "@path": "$.properties"
+        },
+        "ua": {
+          "@path": "$.context.userAgent"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "a": "page_view"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Signed Up",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "event = \"Signed Up\"",
+      "mapping": {
+        "eid": {
+          "@path": "$.messageId"
+        },
+        "ts": {
+          "@path": "$.timestamp"
+        },
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "em": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "ed": {
+          "@path": "$.properties"
+        },
+        "ua": {
+          "@path": "$.context.userAgent"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "a": "signup"
+      },
+      "eventSlug": null
+    }
+  ]
+}

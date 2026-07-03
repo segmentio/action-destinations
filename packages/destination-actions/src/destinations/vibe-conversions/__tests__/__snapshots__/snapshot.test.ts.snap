@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-vibe-conversions destination: trackConversion action - all fields 1`] = `
+Object {
+  "a": "purchase",
+  "aid": "pixel_123",
+  "ed": "{\\"price_usd\\":50.5,\\"purchase_id\\":\\"pid_123\\"}",
+  "eid": "msg_fixed_2",
+  "em": "joe@gmail.com",
+  "gid": "GA.234.234234",
+  "ip": "8.8.8.8",
+  "ts": 1782950400000,
+  "ua": "test-agent",
+  "url": "https://www.whatever.com",
+}
+`;
+
+exports[`Testing snapshot for actions-vibe-conversions destination: trackConversion action - required fields 1`] = `
+Object {
+  "a": "purchase",
+  "aid": "pixel_123",
+  "ed": "{}",
+  "eid": "msg_fixed_1",
+  "ip": "8.8.8.8",
+  "ts": 1782950400000,
+  "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
+  "url": "https://segment.com/academy/",
+}
+`;
+
+exports[`Testing snapshot for actions-vibe-conversions destination: trackConversion action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "accept": Array [
+      "application/json",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
