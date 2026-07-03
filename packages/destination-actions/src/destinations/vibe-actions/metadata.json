@@ -24,7 +24,7 @@
       "title": "Track Conversion Event",
       "description": "Send a server-to-server conversion event to Vibe.",
       "platform": "cloud",
-      "defaultSubscription": "type = \"track\"",
+      "defaultSubscription": "type = \"track\" or type = \"page\"",
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
@@ -59,16 +59,18 @@
         },
         "action": {
           "label": "Action",
-          "description": "The conversion action category performed.",
+          "description": "The conversion action category performed. No default is applied; set explicitly or via a preset.",
           "type": "string",
           "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": {
-            "@path": "$.event"
-          },
+          "default": null,
           "choices": [
+            {
+              "label": "Call",
+              "value": "call"
+            },
             {
               "label": "Install",
               "value": "install"
@@ -106,7 +108,7 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "Event timestamp. Converted to UNIX epoch milliseconds before sending.",
+          "description": "Event timestamp. Converted to UNIX epoch milliseconds before sending. Must be within the last 7 days.",
           "type": "datetime",
           "required": true,
           "multiple": false,
@@ -130,9 +132,55 @@
           "format": null,
           "additionalProperties": false
         },
+        "email": {
+          "label": "Email",
+          "description": "The user's email address. Required if IP Address is not provided.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@if": {
+                  "exists": {
+                    "@path": "$.traits.email"
+                  },
+                  "then": {
+                    "@path": "$.traits.email"
+                  },
+                  "else": {
+                    "@path": "$.context.traits.email"
+                  }
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
         "ipAddress": {
           "label": "IP Address",
-          "description": "The user's IP address.",
+          "description": "The user's IP address (IPv4). Required if Email is not provided.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -156,9 +204,35 @@
           "format": null,
           "additionalProperties": false
         },
+        "eventData": {
+          "label": "Event Data",
+          "description": "Additional event data sent as a stringified JSON object. Reserved keys `price_usd` (float) and `purchase_id` (string) can be set here or via their dedicated fields.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "priceUsd": {
           "label": "Price (USD)",
-          "description": "The purchase price in USD. Included in the event data payload.",
+          "description": "The purchase price in USD. Merged into the event data payload as `price_usd`.",
           "type": "number",
           "required": false,
           "multiple": false,
@@ -194,7 +268,7 @@
         },
         "purchaseId": {
           "label": "Purchase ID",
-          "description": "The purchase or order identifier. Included in the event data payload.",
+          "description": "The purchase or order identifier. Merged into the event data payload as `purchase_id`.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -230,7 +304,7 @@
         },
         "googleAnalyticsId": {
           "label": "Google Analytics ID",
-          "description": "Google Analytics identifier used for attribution.",
+          "description": "Google Analytics identifier used for cross-platform attribution.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -309,5 +383,246 @@
       }
     }
   },
-  "presets": []
+  "presets": [
+    {
+      "name": "Order Completed",
+      "type": "automatic",
+      "partnerAction": "trackConversionEvent",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "eventId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            }
+          }
+        },
+        "ipAddress": {
+          "@path": "$.context.ip"
+        },
+        "eventData": {
+          "@path": "$.properties"
+        },
+        "priceUsd": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.price"
+            },
+            "then": {
+              "@path": "$.properties.price"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "purchaseId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.order_id"
+            },
+            "then": {
+              "@path": "$.properties.order_id"
+            },
+            "else": {
+              "@path": "$.properties.purchase_id"
+            }
+          }
+        },
+        "googleAnalyticsId": {
+          "@path": "$.properties.gid"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "action": "purchase"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Viewed",
+      "type": "automatic",
+      "partnerAction": "trackConversionEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "eventId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            }
+          }
+        },
+        "ipAddress": {
+          "@path": "$.context.ip"
+        },
+        "eventData": {
+          "@path": "$.properties"
+        },
+        "priceUsd": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.price"
+            },
+            "then": {
+              "@path": "$.properties.price"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "purchaseId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.order_id"
+            },
+            "then": {
+              "@path": "$.properties.order_id"
+            },
+            "else": {
+              "@path": "$.properties.purchase_id"
+            }
+          }
+        },
+        "googleAnalyticsId": {
+          "@path": "$.properties.gid"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "action": "page_view"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Signed Up",
+      "type": "automatic",
+      "partnerAction": "trackConversionEvent",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "eventId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.email"
+                },
+                "then": {
+                  "@path": "$.traits.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            }
+          }
+        },
+        "ipAddress": {
+          "@path": "$.context.ip"
+        },
+        "eventData": {
+          "@path": "$.properties"
+        },
+        "priceUsd": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.price"
+            },
+            "then": {
+              "@path": "$.properties.price"
+            },
+            "else": {
+              "@path": "$.properties.revenue"
+            }
+          }
+        },
+        "purchaseId": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.order_id"
+            },
+            "then": {
+              "@path": "$.properties.order_id"
+            },
+            "else": {
+              "@path": "$.properties.purchase_id"
+            }
+          }
+        },
+        "googleAnalyticsId": {
+          "@path": "$.properties.gid"
+        },
+        "userAgent": {
+          "@path": "$.context.userAgent"
+        },
+        "url": {
+          "@path": "$.context.page.url"
+        },
+        "action": "signup"
+      },
+      "eventSlug": null
+    }
+  ]
 }
