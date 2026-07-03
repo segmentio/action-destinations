@@ -6,9 +6,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
-  description: `Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.
-
-    Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future`,
+  description: `Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud. Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future`,
   fields,
   dynamicFields,
   hooks,
