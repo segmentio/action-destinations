@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { EVENT_TYPES } from '../constants'
-import { sendEvent } from '../utils'
+import { sendEvent, sendBatch } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Conversion',
@@ -56,10 +56,38 @@ const action: ActionDefinition<Settings, Payload> = {
     ed: {
       label: 'Event Data',
       description:
-        'Event data. Reserved attributes are price_usd (float) and purchase_id (string). Sent to Vibe as a stringified JSON object.',
+        'Event data. Sent to Vibe as a stringified JSON object. The reserved attributes Price (USD) and Purchase ID are merged into this object.',
       type: 'object',
       required: false,
       default: { '@path': '$.properties' }
+    },
+    price_usd: {
+      label: 'Price (USD)',
+      description:
+        'Reserved event-data attribute: the price of the conversion in USD. Merged into Event Data as `price_usd`.',
+      type: 'number',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.price_usd' },
+          then: { '@path': '$.properties.price_usd' },
+          else: { '@path': '$.properties.price' }
+        }
+      }
+    },
+    purchase_id: {
+      label: 'Purchase ID',
+      description:
+        'Reserved event-data attribute: a unique identifier for the purchase. Merged into Event Data as `purchase_id`.',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.purchase_id' },
+          then: { '@path': '$.properties.purchase_id' },
+          else: { '@path': '$.properties.order_id' }
+        }
+      }
     },
     gid: {
       label: 'Google Analytics ID',
@@ -80,12 +108,31 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: { '@path': '$.context.page.url' }
+    },
+    enable_batching: {
+      label: 'Batch Data',
+      description: 'When enabled, Segment groups events before delivering them to this destination.',
+      type: 'boolean',
+      required: false,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      unsafe_hidden: true,
+      default: 1000
     }
   },
-  // Vibe's conversion API has no batch endpoint, so only a single-event
-  // `perform` is implemented (no `performBatch`).
   perform: (request, { payload, settings }) => {
     return sendEvent(request, settings, payload)
+  },
+  // Vibe's conversion API has no batch endpoint. When batching is enabled,
+  // events are sent as individual requests (one per event) with per-event
+  // error isolation via a MultiStatusResponse.
+  performBatch: (request, { payload, settings }) => {
+    return sendBatch(request, settings, payload)
   }
 }
 

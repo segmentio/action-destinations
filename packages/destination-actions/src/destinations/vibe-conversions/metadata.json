@@ -26,7 +26,7 @@
       "platform": "cloud",
       "defaultSubscription": "type = \"track\" or type = \"page\"",
       "hidden": false,
-      "hasPerformBatch": false,
+      "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
       "dynamicFields": null,
@@ -196,7 +196,7 @@
         },
         "ed": {
           "label": "Event Data",
-          "description": "Event data. Reserved attributes are price_usd (float) and purchase_id (string). Sent to Vibe as a stringified JSON object.",
+          "description": "Event data. Sent to Vibe as a stringified JSON object. The reserved attributes Price (USD) and Purchase ID are merged into this object.",
           "type": "object",
           "required": false,
           "multiple": false,
@@ -204,6 +204,78 @@
           "dynamic": false,
           "default": {
             "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "price_usd": {
+          "label": "Price (USD)",
+          "description": "Reserved event-data attribute: the price of the conversion in USD. Merged into Event Data as `price_usd`.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price_usd"
+              },
+              "then": {
+                "@path": "$.properties.price_usd"
+              },
+              "else": {
+                "@path": "$.properties.price"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "purchase_id": {
+          "label": "Purchase ID",
+          "description": "Reserved event-data attribute: a unique identifier for the purchase. Merged into Event Data as `purchase_id`.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.purchase_id"
+              },
+              "then": {
+                "@path": "$.properties.purchase_id"
+              },
+              "else": {
+                "@path": "$.properties.order_id"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -295,6 +367,54 @@
           "displayMode": null,
           "format": null,
           "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Data",
+          "description": "When enabled, Segment groups events before delivering them to this destination.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     }
@@ -331,12 +451,40 @@
         "ed": {
           "@path": "$.properties"
         },
+        "price_usd": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.price_usd"
+            },
+            "then": {
+              "@path": "$.properties.price_usd"
+            },
+            "else": {
+              "@path": "$.properties.price"
+            }
+          }
+        },
+        "purchase_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.purchase_id"
+            },
+            "then": {
+              "@path": "$.properties.purchase_id"
+            },
+            "else": {
+              "@path": "$.properties.order_id"
+            }
+          }
+        },
         "ua": {
           "@path": "$.context.userAgent"
         },
         "url": {
           "@path": "$.context.page.url"
         },
+        "enable_batching": true,
+        "batch_size": 1000,
         "a": "purchase"
       },
       "eventSlug": null
@@ -372,12 +520,40 @@
         "ed": {
           "@path": "$.properties"
         },
+        "price_usd": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.price_usd"
+            },
+            "then": {
+              "@path": "$.properties.price_usd"
+            },
+            "else": {
+              "@path": "$.properties.price"
+            }
+          }
+        },
+        "purchase_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.purchase_id"
+            },
+            "then": {
+              "@path": "$.properties.purchase_id"
+            },
+            "else": {
+              "@path": "$.properties.order_id"
+            }
+          }
+        },
         "ua": {
           "@path": "$.context.userAgent"
         },
         "url": {
           "@path": "$.context.page.url"
         },
+        "enable_batching": true,
+        "batch_size": 1000,
         "a": "page_view"
       },
       "eventSlug": null
@@ -413,12 +589,40 @@
         "ed": {
           "@path": "$.properties"
         },
+        "price_usd": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.price_usd"
+            },
+            "then": {
+              "@path": "$.properties.price_usd"
+            },
+            "else": {
+              "@path": "$.properties.price"
+            }
+          }
+        },
+        "purchase_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.purchase_id"
+            },
+            "then": {
+              "@path": "$.properties.purchase_id"
+            },
+            "else": {
+              "@path": "$.properties.order_id"
+            }
+          }
+        },
         "ua": {
           "@path": "$.context.userAgent"
         },
         "url": {
           "@path": "$.context.page.url"
         },
+        "enable_batching": true,
+        "batch_size": 1000,
         "a": "signup"
       },
       "eventSlug": null

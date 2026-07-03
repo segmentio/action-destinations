@@ -19,7 +19,6 @@ exports[`Testing snapshot for actions-vibe-conversions destination: trackConvers
 Object {
   "a": "purchase",
   "aid": "pixel_123",
-  "ed": "{}",
   "eid": "msg_fixed_1",
   "ip": "8.8.8.8",
   "ts": 1782950400000,

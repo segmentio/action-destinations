@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, defaultValues } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
 
@@ -42,6 +42,43 @@ describe('VibeConversions.trackConversion', () => {
     expect(typeof body.ts).toBe('number')
     // Event data is sent as a stringified JSON object.
     expect(body.ed).toBe(JSON.stringify({ price_usd: 50.5, purchase_id: 'pid_123' }))
+  })
+
+  it('merges price_usd and purchase_id into the ed object', async () => {
+    nock(BASE_URL).post('/s2s-conversion/events/segment').reply(200, {})
+
+    const event = createTestEvent({ timestamp: RECENT_ISO })
+
+    const responses = await testDestination.testAction('trackConversion', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping: {
+        a: 'purchase',
+        ed: { custom: 'value' },
+        price_usd: 99.99,
+        purchase_id: 'order_777'
+      }
+    })
+
+    const body = JSON.parse(responses[0].options.body as string)
+    expect(JSON.parse(body.ed as string)).toEqual({ custom: 'value', price_usd: 99.99, purchase_id: 'order_777' })
+  })
+
+  it('omits ed entirely when there is no event data', async () => {
+    nock(BASE_URL).post('/s2s-conversion/events/segment').reply(200, {})
+
+    const event = createTestEvent({ timestamp: RECENT_ISO, properties: {} })
+
+    const responses = await testDestination.testAction('trackConversion', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping: { a: 'purchase', ed: {}, price_usd: undefined, purchase_id: undefined }
+    })
+
+    const body = JSON.parse(responses[0].options.body as string)
+    expect(body.ed).toBeUndefined()
   })
 
   it('converts an ISO timestamp to UNIX milliseconds', async () => {
@@ -121,5 +158,50 @@ describe('VibeConversions.trackConversion', () => {
         mapping: { a: 'not_a_real_type' }
       })
     ).rejects.toThrowError()
+  })
+
+  describe('performBatch', () => {
+    it('sends one request per event and marks each as success', async () => {
+      // Vibe has no batch endpoint, so each event is its own POST.
+      nock(BASE_URL).post('/s2s-conversion/events/segment').times(2).reply(200, {})
+
+      const events = [
+        createTestEvent({ timestamp: RECENT_ISO, messageId: 'm1', properties: { price_usd: 10 } }),
+        createTestEvent({ timestamp: RECENT_ISO, messageId: 'm2', properties: { price_usd: 20 } })
+      ]
+
+      const responses = await testDestination.testBatchAction('trackConversion', {
+        events,
+        settings,
+        useDefaultMappings: true,
+        mapping: { a: 'purchase' }
+      })
+
+      // Two upstream HTTP calls were made.
+      expect(responses.length).toBe(2)
+    })
+
+    it('isolates an invalid event without failing the whole batch', async () => {
+      nock(BASE_URL).post('/s2s-conversion/events/segment').reply(200, {})
+
+      const goodEvent = createTestEvent({ timestamp: RECENT_ISO, messageId: 'good' })
+      // Missing both ip and em -> validation error for this event only.
+      const badEvent = createTestEvent({ timestamp: RECENT_ISO, messageId: 'bad', context: {} })
+
+      const mapping = {
+        ...defaultValues(Destination.actions.trackConversion.fields),
+        a: 'purchase'
+      }
+
+      const response = (await testDestination.executeBatch('trackConversion', {
+        events: [goodEvent, badEvent],
+        settings,
+        mapping
+      })) as unknown as Array<{ status: number; errortype?: string }>
+
+      expect(response[0].status).toBe(200)
+      expect(response[1].status).toBe(400)
+      expect(response[1].errortype).toBe('PAYLOAD_VALIDATION_FAILED')
+    })
   })
 })
