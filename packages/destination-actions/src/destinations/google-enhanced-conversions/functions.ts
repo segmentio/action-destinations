@@ -8,13 +8,14 @@ import {
   ConversionActionResponse,
   CustomVariableInterface,
   CreateAudienceInput,
-  CreateGoogleAudienceResponse,
   UserListResponse,
   UserList,
   OfflineUserJobPayload,
   AddOperationPayload,
   KeyValuePairList,
-  KeyValueItem
+  KeyValueItem,
+  DataManagerUserList,
+  PartnerLinkResponse
 } from './types'
 import {
   ModifiedResponse,
@@ -36,7 +37,6 @@ import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
 import type { Payload as ClickConversionPayload } from './uploadClickConversion/generated-types'
 import type { Payload as ClickConversionPayload2 } from './uploadClickConversion2/generated-types'
-import { RefreshTokenResponse } from '.'
 import { STATUS_CODE_MAPPING } from './constants'
 import { processHashing } from '../../lib/hashing-utils'
 import {
@@ -111,6 +111,160 @@ export const hash = (value: string | undefined): string | undefined => {
   const hash = createHash('sha256')
   hash.update(value)
   return hash.digest('hex')
+}
+
+export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
+
+// Maps Google Ads API uploadKeyType values to Data Manager API equivalents.
+// See: https://developers.google.com/data-manager/api/reference/rest/v1/accountTypes.accounts.userLists/create
+const UPLOAD_KEY_TYPE_MAP: Record<string, string> = {
+  CONTACT_INFO: 'CONTACT_ID',
+  CRM_ID: 'USER_ID',
+  MOBILE_ADVERTISING_ID: 'MOBILE_ID'
+}
+
+interface RefreshTokenResponse {
+  access_token: string
+  expires_in: number
+  token_type: string
+}
+
+/**
+ * Exchanges a refresh token for a fresh OAuth access token.
+ * Called explicitly for audienceConfig methods (createAudience/getAudience) because
+ * those contexts do not have extendRequest applied by the framework.
+ */
+export async function exchangeForAccessToken(request: RequestClient, refreshToken: string): Promise<string> {
+  if (!process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID || !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET) {
+    throw new PayloadValidationError('OAuth client credentials (client ID / client secret) are not configured.')
+  }
+
+  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: refreshToken,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return res.data.access_token
+}
+
+/**
+ * Creates a partner link between the advertiser's Google Ads account and
+ * Segment's Data Partner account via the Data Manager API.
+ *
+ * Auth: uses the CUSTOMER's access token (scope: datamanager.partnerlink).
+ *   The customer grants Segment permission to manage their audiences.
+ *
+ * owningAccount: the Google Ads account being linked. When the customer accesses
+ *   via a Manager Account (MCC), pass loginCustomerId — Google requires the MCC
+ *   details as the owningAccount in that case.
+ *
+ * partnerAccount: always Segment's Data Partner account (DATA_PARTNER type).
+ *   partnerLinkId is NOT sent in the request body — it is assigned by Google and
+ *   returned in the response.
+ *
+ * login-account header: resource name format required by the Data Manager API
+ *   (accountTypes/{type}/accounts/{id}), not just a bare account ID.
+ */
+export async function createDataManagerPartnerLink(
+  request: RequestClient,
+  customerId: string,
+  customerAccessToken: string,
+  loginCustomerId?: string
+): Promise<PartnerLinkResponse> {
+  const partnerAccountId = '1663649500'
+  if (!partnerAccountId) {
+    throw new IntegrationError(
+      'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID environment variable is not set.',
+      'MISSING_PARTNER_ACCOUNT_ID',
+      400
+    )
+  }
+
+  // When the customer uses an MCC to access a sub-account, the owningAccount
+  // must be the MCC (loginCustomerId), not the sub-account.
+  const owningAccountId = loginCustomerId ?? customerId
+
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
+
+  const response = await request<PartnerLinkResponse>(url, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${customerAccessToken}`,
+      // login-account must be a resource name, not a bare account ID
+      'login-account': `accountTypes/GOOGLE_ADS/accounts/${owningAccountId}`
+    },
+    json: {
+      owningAccount: { accountId: owningAccountId, accountType: 'GOOGLE_ADS' },
+      partnerAccount: { accountId: partnerAccountId, accountType: 'DATA_PARTNER' }
+    }
+  })
+
+  return response.data
+}
+
+/**
+ * Creates a new Customer Match user list via the Data Manager API.
+ *
+ * Auth: uses Segment's partner account access token (scope: datamanager).
+ *   The login-account header identifies Segment's Data Partner account using the
+ *   resource name format required by the Data Manager API.
+ */
+export async function createDataManagerUserList(
+  request: RequestClient,
+  customerId: string,
+  listName: string,
+  uploadKeyType: string,
+  segmentAccessToken: string,
+  appId?: string
+): Promise<DataManagerUserList> {
+  const partnerAccountId = '1663649500'
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`
+
+  const response = await request<DataManagerUserList>(url, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${segmentAccessToken}`,
+      // login-account must be a resource name, not a bare account ID
+      ...(partnerAccountId && { 'login-account': `accountTypes/DATA_PARTNER/accounts/${partnerAccountId}` })
+    },
+    json: {
+      displayName: listName,
+      uploadKeyType: UPLOAD_KEY_TYPE_MAP[uploadKeyType] ?? uploadKeyType,
+      ...(appId && { appId })
+    }
+  })
+
+  return response.data
+}
+
+/**
+ * Fetches an existing user list by ID via the Data Manager API.
+ *
+ * Auth: uses Segment's partner account access token (scope: datamanager).
+ */
+export async function getDataManagerUserList(
+  request: RequestClient,
+  customerId: string,
+  userListId: string,
+  segmentAccessToken: string
+): Promise<DataManagerUserList> {
+  const partnerAccountId = process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${userListId}`
+
+  const response = await request<DataManagerUserList>(url, {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${segmentAccessToken}`,
+      ...(partnerAccountId && { 'login-account': `accountTypes/DATA_PARTNER/accounts/${partnerAccountId}` })
+    }
+  })
+
+  return response.data
 }
 
 export async function getCustomVariables(
@@ -208,7 +362,7 @@ export async function getConversionActionDynamicData(
       nextPage: '',
       error: {
         message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
-        code: (err as GoogleAdsError).response?.status + '' ?? '500'
+        code: String((err as GoogleAdsError).response?.status ?? 500)
       }
     }
   }
@@ -306,7 +460,7 @@ export async function getListIds(
       nextPage: '',
       error: {
         message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
-        code: (err as GoogleAdsError).response?.status + '' ?? '500'
+        code: String((err as GoogleAdsError).response?.status ?? 500)
       }
     }
   }
@@ -315,133 +469,57 @@ export async function getListIds(
 export async function createGoogleAudience(
   request: RequestClient,
   input: CreateAudienceInput,
-  auth: CreateAudienceInput['settings']['oauth'],
-  features?: Features | undefined,
+  segmentAccessToken: string,
   statsContext?: StatsContext
-) {
+): Promise<string> {
   if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
   }
 
-  if (
-    !auth?.refresh_token ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
-  ) {
-    throw new PayloadValidationError('Oauth credentials missing.')
-  }
-
-  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: auth.refresh_token,
-      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
-      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
-      grant_type: 'refresh_token'
-    })
-  })
-
-  const accessToken = res.data.access_token
-
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
-  const json = {
-    operations: [
-      {
-        create: {
-          crmBasedUserList: {
-            uploadKeyType: input.audienceSettings.external_id_type,
-            appId: input.audienceSettings.app_id
-          },
-          membershipLifeSpan: '540',
-          name: `${input.audienceName}`
-        }
-      }
-    ]
-  }
 
-  const response = await request(
-    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-      input.settings.customerId
-    }/userLists:mutate`,
-    {
-      method: 'post',
-      headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-        authorization: `Bearer ${accessToken}`
-      },
-      json
-    }
+  const userList = await createDataManagerUserList(
+    request,
+    input.settings.customerId!,
+    input.audienceName,
+    input.audienceSettings.external_id_type ?? 'CONTACT_INFO',
+    segmentAccessToken,
+    input.audienceSettings.app_id
   )
 
-  // Successful response body looks like:
-  // {"results": [{ "resourceName": "customers/<customer_id>/userLists/<user_list_id>" }]}
-  const name = (response.data as CreateGoogleAudienceResponse).results[0].resourceName
-  if (!name) {
+  if (!userList?.id) {
     statsClient?.incr('createAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to receive a created customer list id.', 'INVALID_RESPONSE', 400)
   }
 
   statsClient?.incr('createAudience.success', 1, statsTags)
-  return name.split('/')[3]
+  return userList.id
 }
 
 export async function getGoogleAudience(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   externalId: string,
-  auth: CreateAudienceInput['settings']['oauth'],
-  features?: Features | undefined,
+  segmentAccessToken: string,
   statsContext?: StatsContext
-) {
-  if (
-    !auth?.refresh_token ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
-  ) {
-    throw new PayloadValidationError('Oauth credentials missing.')
-  }
-
-  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: auth.refresh_token,
-      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
-      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
-      grant_type: 'refresh_token'
-    })
-  })
-
-  const accessToken = res.data.access_token
+): Promise<UserListResponse> {
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
-  const json = {
-    query: `SELECT user_list.id, user_list.name FROM user_list where user_list.id = '${externalId}'`
-  }
 
-  const response = await request(
-    `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-      settings.customerId
-    }/googleAds:search`,
-    {
-      method: 'post',
-      headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`,
-        authorization: `Bearer ${accessToken}`
-      },
-      json
-    }
-  )
+  const userList = await getDataManagerUserList(request, settings.customerId!, externalId, segmentAccessToken)
 
-  const id = (response.data as any).results[0].userList.id
-
-  if (!id) {
+  if (!userList?.id) {
     statsClient?.incr('getAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to receive a customer list.', 'INVALID_RESPONSE', 400)
   }
 
   statsClient?.incr('getAudience.success', 1, statsTags)
-  return response.data as UserListResponse
+  // Adapt Data Manager response shape to the UserListResponse shape expected by callers
+  return {
+    results: [{ userList: { resourceName: userList.name, id: userList.id, name: userList.displayName } }],
+    fieldMask: ''
+  }
 }
 
 // Standardize phone number to E.164 format, This format represents a phone number as a number up to fifteen digits
