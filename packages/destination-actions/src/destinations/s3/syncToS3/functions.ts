@@ -131,8 +131,8 @@ export function validateColumnsToHash(
   const columnsToHash = new Map<string, HashAlgorithm>()
 
   for (const entry of entries) {
-    const columnName = String(entry.column_name ?? '')
-    const hashAlgorithm = String(entry.hash_algorithm ?? '')
+    const columnName = String(entry.column_name ?? '').trim()
+    const hashAlgorithm = String(entry.hash_algorithm ?? '').trim()
 
     if (!columnName) {
       throw new PayloadValidationError('columns_to_hash: column_name is required.')
