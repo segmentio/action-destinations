@@ -1,9 +1,16 @@
-import { PayloadValidationError, RequestClient, MultiStatusResponse, JSONLikeObject, HTTPError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+import {
+  PayloadValidationError,
+  RequestClient,
+  MultiStatusResponse,
+  JSONLikeObject,
+  HTTPError,
+  DEFAULT_REQUEST_TIMEOUT
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DataCenterLocation } from '../shared-fields'
 import { getRegionalBaseUrl } from '../utils'
-import { MAX_SUBSCRIPTION_ITEMS, VALID_ACTIONS, MIN_REQUEST_TIMEOUT } from './constants'
+import { MAX_SUBSCRIPTION_ITEMS, MIN_REQUEST_TIMEOUT } from './constants'
 import type { ResolvedIdentifier, BulkSubscriptionRequestBody } from './types'
 
 export async function performUpdateSubscriptions(request: RequestClient, payload: Payload, settings: Settings) {
@@ -15,14 +22,15 @@ export async function performUpdateSubscriptions(request: RequestClient, payload
   }
 
   if (subscriptionCount > MAX_SUBSCRIPTION_ITEMS) {
-    throw new PayloadValidationError(`Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`)
+    throw new PayloadValidationError(
+      `Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`
+    )
   }
 
   const identifier = resolveIdentifier(payload)
 
   const results = await Promise.all(
     subscriptions.map(async ({ subscription_group_type, subscription_group_id, action }) => {
-      validateAction(action)
       const endpoint = getSingleUserEndpoint(settings, subscription_group_type, subscription_group_id, identifier)
       const method = action === 'subscribe' ? 'patch' : 'delete'
       return request(endpoint, { method, timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT) })
@@ -77,26 +85,25 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
     return multiStatusResponse
   }
 
+  // All payloads in a batch are grouped by the `subscriptions` batch key (see `batch_keys` default in
+  // index.ts), so every payload here is guaranteed to share the same `subscriptions` config.
   const subscriptions = payloads[validPayloads[0].index].subscriptions
-
-  for (const { action } of subscriptions) {
-    try {
-      validateAction(action)
-    } catch (error) {
-      validPayloads.forEach(({ index }) => {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: (error as Error).message,
-          sent: payloads[index] as unknown as JSONLikeObject
-        })
-      })
-      return multiStatusResponse
-    }
+  const referenceKey = JSON.stringify(subscriptions)
+  const hasMismatchedSubscriptions = validPayloads.some(
+    ({ index }) => JSON.stringify(payloads[index].subscriptions) !== referenceKey
+  )
+  if (hasMismatchedSubscriptions) {
+    throw new PayloadValidationError(
+      'All events in a batch must share the same subscription preferences. Received a batch with differing subscriptions, which is not supported.'
+    )
   }
 
-  const users = validPayloads.filter(({ identifier }) => identifier.email).map(({ identifier }) => identifier.email as string)
-  const usersByUserId = validPayloads.filter(({ identifier }) => identifier.userId).map(({ identifier }) => identifier.userId as string)
+  const users = validPayloads
+    .filter(({ identifier }) => identifier.email)
+    .map(({ identifier }) => identifier.email as string)
+  const usersByUserId = validPayloads
+    .filter(({ identifier }) => identifier.userId)
+    .map(({ identifier }) => identifier.userId as string)
 
   const body: BulkSubscriptionRequestBody = {
     ...(users.length > 0 && { users }),
@@ -149,14 +156,11 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   return multiStatusResponse
 }
 
-function validateAction(action: string): void {
-  if (!VALID_ACTIONS.includes(action as typeof VALID_ACTIONS[number])) {
-    throw new PayloadValidationError(`Invalid action: '${action}'. Must be 'subscribe' or 'unsubscribe'.`)
-  }
-}
-
 export function resolveIdentifier(payload: Payload): ResolvedIdentifier {
-  const { identifier: { email, userId }, user_identifier_preference } = payload
+  const {
+    identifier: { email, userId },
+    user_identifier_preference
+  } = payload
   const trimmedEmail = email?.trim()
   const trimmedUserId = userId?.trim()
 

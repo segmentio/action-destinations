@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * User identifier - provide email, userId, or both.
+   * User identifier - provide email, userId, or both. At least one is required.
    */
   identifier: {
     /**
@@ -15,7 +15,7 @@ export interface Payload {
     userId?: string
   }
   /**
-   * When both email and userId are provided, this determines which identifier is sent to Iterable.
+   * When both email and userId are provided, this determines which identifier is sent to Iterable. Iterable requires one or the other, not both.
    */
   user_identifier_preference: string
   /**
@@ -27,11 +27,11 @@ export interface Payload {
      */
     subscription_group_type: string
     /**
-     * The ID of the subscription group.
+     * The ID of the subscription group. Select a group type first to see available options.
      */
     subscription_group_id: string
     /**
-     * Whether to subscribe or unsubscribe the user.
+     * Whether to subscribe or unsubscribe the user from this group.
      */
     action: string
   }[]

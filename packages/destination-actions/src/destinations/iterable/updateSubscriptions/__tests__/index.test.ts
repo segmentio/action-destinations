@@ -435,7 +435,7 @@ describe('Iterable.updateSubscriptions', () => {
         .put('/api/subscriptions/messageChannel/123?action=subscribe')
         .reply(200, { code: 'Success', msg: '' })
 
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
+      await testDestination.testBatchAction('updateSubscriptions', {
         events,
         mapping: {
           ...defaultMapping,
@@ -477,7 +477,7 @@ describe('Iterable.updateSubscriptions', () => {
         .put('/api/subscriptions/messageChannel/123?action=subscribe')
         .reply(400, { code: 'BadParams', msg: 'Invalid subscription group' })
 
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
+      await testDestination.testBatchAction('updateSubscriptions', {
         events,
         mapping: defaultMapping
       })
@@ -509,7 +509,7 @@ describe('Iterable.updateSubscriptions', () => {
         })
       ]
 
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
+      await testDestination.testBatchAction('updateSubscriptions', {
         events,
         mapping: {
           ...defaultMapping,
@@ -536,6 +536,41 @@ describe('Iterable.updateSubscriptions', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED'
       })
       expect(multistatus![1].errormessage).toContain('subscribe')
+    })
+
+    it('throws PayloadValidationError when payloads in a batch have differing subscriptions', async () => {
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: 'Subscriptions Updated',
+          properties: {
+            email: 'user1@iterable.com',
+            subscriptions: [
+              { subscription_group_type: 'messageChannel', subscription_group_id: '123', action: 'subscribe' }
+            ]
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Subscriptions Updated',
+          properties: {
+            email: 'user2@iterable.com',
+            subscriptions: [
+              { subscription_group_type: 'messageChannel', subscription_group_id: '456', action: 'unsubscribe' }
+            ]
+          }
+        })
+      ]
+
+      await expect(
+        testDestination.testBatchAction('updateSubscriptions', {
+          events,
+          mapping: {
+            ...defaultMapping,
+            subscriptions: { '@path': '$.properties.subscriptions' }
+          }
+        })
+      ).rejects.toThrowError(PayloadValidationError)
     })
   })
 })
