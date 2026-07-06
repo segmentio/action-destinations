@@ -2,6 +2,8 @@ import {
   MultiStatusResponse,
   PayloadValidationError,
   RetryableError,
+  InvalidAuthenticationError,
+  APIError,
   JSONLikeObject,
   RequestClient,
   StatsContext
@@ -9,7 +11,7 @@ import {
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
 import type { AudienceJSON, LinkedInCompanyAudienceElement, ValidCompanyPayload, HookOutputs } from './types'
-import { AUDIENCE_ACTION, ORGANIZATION_URN_PREFIX } from './constants'
+import { AUDIENCE_ACTION, ORGANIZATION_URN_PREFIX, RETRYABLE_STATUSES } from './constants'
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
   return linkedInCompanyId.startsWith(ORGANIZATION_URN_PREFIX)
@@ -100,10 +102,8 @@ export async function send(
 
   const response = await linkedinApiClient.batchUpdateCompanies(segmentId, json)
 
-  if (response.status < 200 || response.status >= 300) {
-    throw new RetryableError(
-      'Error while attempting to update LinkedIn DMP Company Segment. This batch will be retried.'
-    )
+  if (response.status !== 200) {
+    handleRequestError(response.status, statsContext)
   }
 
   if (!isBatch) {
@@ -113,23 +113,44 @@ export async function send(
   const resultElements = response.data?.elements ?? []
   validPayloads.forEach((payload, i) => {
     const result = resultElements[i]
-    const status = result?.status ?? 500
-    if (status >= 200 && status < 300) {
+    if (result && result.status >= 200 && result.status < 300) {
       msResponse.setSuccessResponseAtIndex(payload.index, {
-        status,
-        sent: payload as unknown as JSONLikeObject,
-        body: { elements: [json.elements[i]] } as unknown as JSONLikeObject
+        status: result.status,
+        sent: json.elements[i] as unknown as JSONLikeObject,
+        body: payload as unknown as JSONLikeObject
       })
     } else {
       msResponse.setErrorResponseAtIndex(payload.index, {
-        status,
+        status: result?.status ?? 400,
         errortype: 'BAD_REQUEST',
-        errormessage: result?.error?.message || 'Failed to update LinkedIn Company Audience',
-        sent: payload as unknown as JSONLikeObject,
-        body: { elements: [json.elements[i]] } as unknown as JSONLikeObject
+        errormessage: result?.error?.message || 'LinkedIn did not return a result for this company.',
+        sent: json.elements[i] as unknown as JSONLikeObject,
+        body: payload as unknown as JSONLikeObject
       })
     }
   })
 
   return msResponse
+}
+
+function handleRequestError(status: number, statsContext: StatsContext | undefined): never {
+  statsContext?.statsClient?.incr('linkedin_dmp_company_segment_update_error', 1, [
+    ...(statsContext?.tags ?? []),
+    `status_code:${status}`
+  ])
+
+  if (status === 401) {
+    throw new InvalidAuthenticationError(
+      'Invalid LinkedIn OAuth access token. New authentication token will be requested.'
+    )
+  }
+
+  if (RETRYABLE_STATUSES.includes(status)) {
+    throw new RetryableError(
+      'Transient error while updating the LinkedIn DMP Company Segment. This batch will be retried.',
+      status as 408 | 423 | 429 | 500 | 502 | 503 | 504
+    )
+  }
+
+  throw new APIError(`Failed to update LinkedIn DMP Company Segment. LinkedIn returned status ${status}.`, status)
 }

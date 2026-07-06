@@ -153,18 +153,44 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       ).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required")
     })
 
-    it('retries when LinkedIn returns a non-2xx overall response', async () => {
-      nock(BASE_URL).post(`/dmpSegments/${SEGMENT_ID}/companies`).reply(404, {})
+    const performWithStatus = (status: number) => {
+      nock(BASE_URL).post(`/dmpSegments/${SEGMENT_ID}/companies`).reply(status, {})
+      return testDestination.testAction('updateCompanyAudience', {
+        event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { action: 'ADD', ...hookOutputs }
+      })
+    }
 
-      await expect(
-        testDestination.testAction('updateCompanyAudience', {
-          event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
-          settings,
-          auth,
-          useDefaultMappings: true,
-          mapping: { action: 'ADD', ...hookOutputs }
-        })
-      ).rejects.toThrow('This batch will be retried')
+    it('throws a retryable error on 429 (rate limit)', async () => {
+      const error = await performWithStatus(429).catch((e) => e)
+      expect(error.code).toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(429)
+    })
+
+    it('throws a retryable error on 500', async () => {
+      const error = await performWithStatus(500).catch((e) => e)
+      expect(error.code).toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(500)
+    })
+
+    it('throws InvalidAuthenticationError on 401 so the token can be refreshed', async () => {
+      const error = await performWithStatus(401).catch((e) => e)
+      expect(error.code).toBe('INVALID_AUTHENTICATION')
+    })
+
+    it('throws a non-retryable error on 400 (malformed request)', async () => {
+      const error = await performWithStatus(400).catch((e) => e)
+      expect(error.code).not.toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(400)
+    })
+
+    it('throws a non-retryable error on 404 (segment not found)', async () => {
+      const error = await performWithStatus(404).catch((e) => e)
+      expect(error.code).not.toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(404)
     })
   })
 
@@ -191,6 +217,12 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(response[0].status).toBe(201)
       expect(response[1].status).toBe(400)
       expect((response[1] as any).errormessage).toBe('Invalid company')
+
+      // sent = the element sent to LinkedIn; body = the Segment payload into performBatch
+      expect((response[0] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
+      expect((response[0] as any).body).toMatchObject({ identifiers: { companyDomain: 'microsoft.com' } })
+      expect((response[1] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'invalid' })
+      expect((response[1] as any).body).toMatchObject({ identifiers: { companyDomain: 'invalid' } })
     })
 
     it('marks payloads with no identifier as per-item errors without failing the batch', async () => {
@@ -213,6 +245,29 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(response[0].status).toBe(400)
       expect((response[0] as any).errormessage).toContain("At least one of 'Company Domain'")
       expect(response[1].status).toBe(201)
+    })
+
+    it('fails a payload non-retryably when LinkedIn returns fewer results than sent', async () => {
+      // Two companies sent, but LinkedIn returns only one element in the 200 body.
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`)
+        .reply(200, { elements: [{ status: 201 }] })
+
+      const events = [
+        { type: 'track', traits: { company_domain: 'microsoft.com' } },
+        { type: 'track', traits: { company_domain: 'segment.com' } }
+      ] as any
+
+      const response = await testDestination.executeBatch('updateCompanyAudience', {
+        events,
+        settings,
+        auth,
+        mapping: batchMapping
+      })
+
+      expect(response[0].status).toBe(201)
+      expect(response[1].status).toBe(400)
+      expect((response[1] as any).errormessage).toContain('did not return a result')
     })
   })
 

@@ -11,3 +11,5 @@ export const AUDIENCE_ACTION = {
   ADD: 'ADD',
   REMOVE: 'REMOVE'
 } as const
+
+export const RETRYABLE_STATUSES: readonly number[] = [408, 423, 429, 500, 502, 503, 504]
