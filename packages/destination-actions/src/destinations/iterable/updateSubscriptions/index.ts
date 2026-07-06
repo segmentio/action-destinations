@@ -86,8 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [
             { label: 'Subscribe', value: 'subscribe' },
             { label: 'Unsubscribe', value: 'unsubscribe' }
-          ],
-          disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+          ]
         }
       }
     },
