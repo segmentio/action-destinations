@@ -7,6 +7,8 @@ export interface Payload {
   key?: string
   /**
    * The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.
+   *
+   * See more information on how to find your Data Extension ID [here](https://help.salesforce.com/s/articleView?id=000385238&type=1).
    */
   id?: string
   /**
