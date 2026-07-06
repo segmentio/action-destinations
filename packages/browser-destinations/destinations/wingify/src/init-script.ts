@@ -23,7 +23,8 @@ export function initScript({ wingifyAccountId, settingsTolerance = 2000 }) {
         o = n.currentScript,
         e = { sT: settings_tolerance, hES: hide_element_style, hE: hide_element }
       try {
-        e = Object.assign(JSON.parse(localStorage.getItem('_wingify_' + account_id + '_config')), e)
+        var c = JSON.parse(localStorage.getItem('_wingify_' + account_id + '_config'))
+        e = Object.assign(c && typeof c === 'object' ? c : {}, e)
       } catch (e) {}
       var code = {
         nonce: o && o.nonce,

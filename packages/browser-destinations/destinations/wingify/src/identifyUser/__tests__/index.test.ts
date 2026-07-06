@@ -60,4 +60,42 @@ describe('Wingify.identifyUser', () => {
       }
     )
   })
+
+  test('Visitor call with empty traits', async () => {
+    const context = new Context({
+      type: 'identify',
+      traits: {}
+    })
+    await identifyUser.identify?.(context)
+
+    expect(window.Wingify.visitor).toHaveBeenCalledWith(
+      {},
+      {
+        source: 'segment.web'
+      }
+    )
+  })
+
+  test('queues identify when Wingify library has not loaded', async () => {
+    window.Wingify = [] as unknown as typeof window.Wingify
+    const pushSpy = jest.spyOn(window.Wingify, 'push')
+
+    const context = new Context({
+      type: 'identify',
+      traits: {
+        textAttribute: 'Hello'
+      }
+    })
+    await identifyUser.identify?.(context)
+
+    expect(pushSpy).toHaveBeenCalledWith([
+      'visitor',
+      {
+        'segment.textAttribute': 'Hello'
+      },
+      {
+        source: 'segment.web'
+      }
+    ])
+  })
 })

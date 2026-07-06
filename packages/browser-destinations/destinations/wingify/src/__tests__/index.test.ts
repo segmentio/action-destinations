@@ -56,5 +56,8 @@ describe('Wingify Web (Actions)', () => {
 
     const wingifyObject = window.Wingify
     expect(wingifyObject).toBeDefined()
+
+    const script = window.document.querySelector('script[src~="https://edge.wingify.net/tag/654331.js"]')
+    expect(script).toBeNull()
   })
 })

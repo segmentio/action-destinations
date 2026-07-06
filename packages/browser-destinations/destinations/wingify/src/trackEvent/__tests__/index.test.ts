@@ -83,4 +83,49 @@ describe('Wingify.trackEvent', () => {
       }
     )
   })
+
+  test('queues track event when Wingify library has not loaded', async () => {
+    window.Wingify = [] as unknown as typeof window.Wingify
+    const pushSpy = jest.spyOn(window.Wingify, 'push')
+
+    const context = new Context({
+      type: 'track',
+      event: 'ctaClick'
+    })
+    await trackEvent.track?.(context)
+
+    expect(pushSpy).toHaveBeenCalledWith([
+      'event',
+      'segment.ctaClick',
+      {},
+      {
+        source: 'segment.web',
+        ogName: 'ctaClick'
+      }
+    ])
+  })
+
+  test('Track call with nested property value', async () => {
+    const context = new Context({
+      type: 'track',
+      event: 'purchase',
+      properties: {
+        nested: { sku: 'abc', count: 2 },
+        flag: true
+      }
+    })
+    await trackEvent.track?.(context)
+
+    expect(window.Wingify.event).toHaveBeenCalledWith(
+      'segment.purchase',
+      {
+        nested: { sku: 'abc', count: 2 },
+        flag: true
+      },
+      {
+        source: 'segment.web',
+        ogName: 'purchase'
+      }
+    )
+  })
 })
