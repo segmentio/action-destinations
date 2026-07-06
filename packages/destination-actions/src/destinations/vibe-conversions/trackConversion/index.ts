@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { EVENT_TYPES } from '../constants'
-import { sendEvent } from '../utils'
+import { sendEvent, sendBatch } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Conversion',
@@ -95,10 +95,31 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: { '@path': '$.context.page.url' }
+    },
+    enable_batching: {
+      label: 'Batch Data',
+      description: 'When enabled, Segment groups events before delivering them to this destination.',
+      type: 'boolean',
+      required: false,
+      default: true
+    },
+    batch_size: {
+      label: 'Batch Size',
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      type: 'number',
+      required: false,
+      unsafe_hidden: true,
+      default: 1000
     }
   },
   perform: (request, { payload, settings }) => {
     return sendEvent(request, settings, payload)
+  },
+  // NOTE: Vibe's conversion API has no batch endpoint. performBatch is provided
+  // only for per-event error isolation and Segment-side grouping — each event is
+  // still sent as its own POST request (see sendBatch in ../utils).
+  performBatch: (request, { payload, settings }) => {
+    return sendBatch(request, settings, payload)
   }
 }
 

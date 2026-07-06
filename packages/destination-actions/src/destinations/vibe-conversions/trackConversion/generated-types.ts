@@ -47,4 +47,12 @@ export interface Payload {
    * The URL of the page where the action occurred.
    */
   url?: string
+  /**
+   * When enabled, Segment groups events before delivering them to this destination.
+   */
+  enable_batching?: boolean
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   */
+  batch_size?: number
 }

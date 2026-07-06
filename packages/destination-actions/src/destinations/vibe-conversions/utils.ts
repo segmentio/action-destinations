@@ -1,6 +1,6 @@
 import { isIP } from 'net'
 import type { RequestClient } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, MultiStatusResponse, getErrorCodeFromHttpStatus } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload } from './trackConversion/generated-types'
 import type { ConversionEventRequest, ConversionEventResponse, EventType } from './types'
@@ -57,14 +57,8 @@ export function buildConversionEvent(payload: Payload, settings: Settings): Conv
   }
 
   const tsMs = toUnixMs(ts)
-  if (tsMs !== undefined) {
-    const now = Date.now()
-    if (tsMs > now) {
-      throw new PayloadValidationError('`ts` (timestamp) cannot be in the future.')
-    }
-    if (now - tsMs > MAX_EVENT_AGE_MS) {
-      throw new PayloadValidationError('`ts` (timestamp) must be within the last 7 days.')
-    }
+  if (tsMs !== undefined && Date.now() - tsMs > MAX_EVENT_AGE_MS) {
+    throw new PayloadValidationError('`ts` (timestamp) must be within the last 7 days.')
   }
 
   return {
@@ -81,10 +75,8 @@ export function buildConversionEvent(payload: Payload, settings: Settings): Conv
   }
 }
 
-// Send a single conversion event to Vibe. The API has no batch endpoint,
-// so events are always sent one request at a time.
-export function sendEvent(request: RequestClient, settings: Settings, payload: Payload) {
-  const body = buildConversionEvent(payload, settings)
+// Post a single typed request body to the Vibe conversion endpoint.
+function postEvent(request: RequestClient, body: ConversionEventRequest) {
   return request<ConversionEventResponse>(CONVERSION_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -93,4 +85,62 @@ export function sendEvent(request: RequestClient, settings: Settings, payload: P
     },
     json: body
   })
+}
+
+// Send a single conversion event to Vibe.
+export function sendEvent(request: RequestClient, settings: Settings, payload: Payload) {
+  const body = buildConversionEvent(payload, settings)
+  return postEvent(request, body)
+}
+
+// Send a batch of conversion events.
+//
+// NOTE: Vibe's conversion API does NOT expose a batch endpoint — there is no
+// single request that accepts multiple events. `performBatch` is implemented
+// only so that Segment can group events and so that a single invalid or failed
+// event does not fail the whole batch (per-event isolation via
+// MultiStatusResponse). Under the hood each event is still sent as its own POST
+// request. If Vibe adds a true batch endpoint in future, this should be
+// reworked to send a single request.
+export async function sendBatch(
+  request: RequestClient,
+  settings: Settings,
+  payloads: Payload[]
+): Promise<MultiStatusResponse> {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  await Promise.all(
+    payloads.map(async (payload, index) => {
+      let body: ConversionEventRequest
+      try {
+        body = buildConversionEvent(payload, settings)
+      } catch (error) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: (error as { status?: number })?.status ?? 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: (error as Error)?.message ?? 'Validation failed'
+        })
+        return
+      }
+
+      try {
+        const response = await postEvent(request, body)
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: response.status,
+          sent: body as unknown as Record<string, unknown>,
+          body: (response.data as unknown as Record<string, unknown>) ?? {}
+        })
+      } catch (error) {
+        const status = (error as { status?: number })?.status ?? 500
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status,
+          errortype: getErrorCodeFromHttpStatus(status),
+          errormessage: (error as Error)?.message ?? 'Delivery failed',
+          sent: body as unknown as Record<string, unknown>
+        })
+      }
+    })
+  )
+
+  return multiStatusResponse
 }
