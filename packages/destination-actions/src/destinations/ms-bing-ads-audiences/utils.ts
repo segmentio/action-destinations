@@ -188,7 +188,7 @@ export const handleHttpError = async (
 
 // Cap the response body we fold into the error message. Bing (or an intermediary proxy) can
 // return large HTML error pages, and the message ends up in logs / downstream payloads.
-const MAX_ERROR_BODY_LENGTH = 2048
+export const MAX_ERROR_BODY_LENGTH = 2048
 
 /**
  * Safely reads the body of an error response from the Bing Ads API for logging.

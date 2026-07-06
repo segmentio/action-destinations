@@ -7,7 +7,8 @@ import {
   handleMultistatusResponse,
   categorizePayloadByAction,
   readResponseBody,
-  formatBingErrorBody
+  formatBingErrorBody,
+  MAX_ERROR_BODY_LENGTH
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
@@ -657,10 +658,10 @@ describe('readResponseBody', () => {
   })
 
   it('truncates content longer than the cap and appends a marker', async () => {
-    const longBody = 'x'.repeat(3000)
+    const longBody = 'x'.repeat(MAX_ERROR_BODY_LENGTH + 1000)
     const result = await readResponseBody(asResponse({ content: longBody }))
     expect(result.endsWith('...(truncated)')).toBe(true)
-    expect(result.length).toBe(2048 + '...(truncated)'.length)
+    expect(result.length).toBe(MAX_ERROR_BODY_LENGTH + '...(truncated)'.length)
   })
 })
 
