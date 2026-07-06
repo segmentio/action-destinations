@@ -210,6 +210,34 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
     expect(scope.isDone()).toBe(true)
   })
 
+  test('decimal item price is accepted and forwarded (not rejected as non-integer)', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        const items = body.data[0].customData.items
+        expect(items).toHaveLength(1)
+        expect(items[0].price).toBe(9.99)
+        expect(items[0].quantity).toBe(2)
+        expect(items[0].id).toBe('sku-1')
+        return true
+      })
+      .reply(200, {})
+    const responses: any = await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: new Date('2024-01-01T00:00:00.000Z').toISOString() },
+        customData: { value: 9.99 },
+        items: [{ id: 'sku-1', name: 'Widget', price: 9.99, quantity: 2 }],
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    // testAction resolves (no mapping-kit validation error thrown) for a decimal price
+    expect(responses[0].status).toBe(200)
+    expect(scope.isDone()).toBe(true)
+  })
+
   test('pageLoad event requires page context mapping and is sent correctly', async () => {
     const iso = '2024-06-01T12:00:00.000Z'
     const event = buildTrackEvent({ type: 'page', event: undefined })
