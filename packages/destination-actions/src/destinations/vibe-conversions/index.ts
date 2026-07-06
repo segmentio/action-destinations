@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { defaultValues } from '@segment/actions-core'
+import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackConversion from './trackConversion'
@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     testAuthentication: (_request, { settings }) => {
       if (!settings.aid) {
-        throw new Error('Pixel ID is required.')
+        throw new InvalidAuthenticationError('Pixel ID is required.')
       }
       return true
     }
