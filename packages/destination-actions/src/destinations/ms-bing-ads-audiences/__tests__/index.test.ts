@@ -144,12 +144,14 @@ describe('Bing Ads Audiences', () => {
       expect(error.status).toBe(500)
     })
 
-    it('should fall back to raw body when a non-2xx response is not the known JSON shape', async () => {
+    it('should use a safe placeholder (not the raw body) when a non-2xx response is not the known JSON shape', async () => {
       nock(BASE_URL).post('/Audiences').reply(400, 'Bad Request')
 
       const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
       expect(error).toBeInstanceOf(IntegrationError)
-      expect(error.message).toBe('Failed to create audience. Microsoft Bing Ads returned HTTP 400: Bad Request')
+      expect(error.message).toBe(
+        'Failed to create audience. Microsoft Bing Ads returned HTTP 400: unrecognized error response'
+      )
       expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
       expect(error.status).toBe(400)
     })

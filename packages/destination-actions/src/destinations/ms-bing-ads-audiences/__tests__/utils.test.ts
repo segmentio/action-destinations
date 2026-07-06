@@ -692,11 +692,12 @@ describe('formatBingErrorBody', () => {
     )
   })
 
-  it('falls back to the raw body when it is not the known JSON shape', () => {
-    expect(formatBingErrorBody('<html>502 Bad Gateway</html>')).toBe('<html>502 Bad Gateway</html>')
+  it('returns a safe placeholder (never the raw body) when it is not the known JSON shape', () => {
+    // A non-JSON body (e.g. an HTML proxy page) could reflect request headers, so we must not echo it.
+    expect(formatBingErrorBody('<html>502 Bad Gateway</html>')).toBe('unrecognized error response')
   })
 
-  it('returns the raw body when JSON has no Errors and no TrackingId', () => {
-    expect(formatBingErrorBody('{"foo":"bar"}')).toBe('{"foo":"bar"}')
+  it('returns a safe placeholder when JSON has no Errors and no TrackingId', () => {
+    expect(formatBingErrorBody('{"foo":"bar"}')).toBe('unrecognized error response')
   })
 })

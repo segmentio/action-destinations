@@ -233,13 +233,18 @@ export const readResponseBody = async (response?: ModifiedResponse): Promise<str
  *   { Errors: [{ ErrorCode, Message, Code }], TrackingId, Type }
  * We surface only ErrorCode, Message and TrackingId. The TrackingId is the reference Microsoft
  * support needs to investigate a failure, and none of these fields carry request credentials or
- * PII. If the body isn't the known JSON shape (e.g. an HTML proxy page or empty body), fall back
- * to the raw (already-truncated) text so we still surface *something* rather than nothing.
+ * PII.
+ *
+ * We deliberately never return the raw body. If the body isn't the known JSON shape (e.g. an HTML
+ * proxy/gateway error page), it could reflect request headers such as the Authorization or
+ * DeveloperToken, so we surface a safe placeholder instead — the HTTP status is still included by
+ * the caller, which is enough to know it was an unrecognized upstream error.
  */
 export const formatBingErrorBody = (rawBody: string): string => {
   if (!rawBody) {
     return 'no response body'
   }
+  const UNRECOGNIZED = 'unrecognized error response'
   try {
     const parsed = JSON.parse(rawBody) as {
       Errors?: Array<{ ErrorCode?: string; Message?: string }>
@@ -251,9 +256,10 @@ export const formatBingErrorBody = (rawBody: string): string => {
     if (parsed?.TrackingId) {
       parts.push(`TrackingId: ${parsed.TrackingId}`)
     }
-    return parts.length ? parts.join('; ') : rawBody
+    // Valid JSON but not the known fault shape (no Errors/TrackingId) — don't echo arbitrary fields.
+    return parts.length ? parts.join('; ') : UNRECOGNIZED
   } catch {
-    // Not the known JSON shape (HTML page, truncated body, etc.) — surface the raw text.
-    return rawBody
+    // Not JSON at all (HTML page, truncated body, etc.) — never echo raw bytes that may be sensitive.
+    return UNRECOGNIZED
   }
 }
