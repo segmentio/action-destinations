@@ -85,7 +85,22 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
     return multiStatusResponse
   }
 
+  // All payloads in a batch are grouped by the `subscriptions` batch key (see `batch_keys` default in
+  // index.ts), so every payload here is guaranteed to share the same `subscriptions` config. We rely on
+  // that invariant to issue one bulk request per subscription on behalf of all users in the batch, using
+  // the first payload's subscriptions as the reference. Assert it explicitly: if it is ever violated
+  // (e.g. `batch_keys` is overridden or platform grouping changes), using the first payload's config for
+  // everyone would silently apply the wrong subscription changes to the other users, so fail loudly.
   const subscriptions = payloads[validPayloads[0].index].subscriptions
+  const referenceKey = JSON.stringify(subscriptions)
+  const hasMismatchedSubscriptions = validPayloads.some(
+    ({ index }) => JSON.stringify(payloads[index].subscriptions) !== referenceKey
+  )
+  if (hasMismatchedSubscriptions) {
+    throw new PayloadValidationError(
+      'All events in a batch must share the same subscription preferences. Received a batch with differing subscriptions, which is not supported.'
+    )
+  }
 
   const users = validPayloads
     .filter(({ identifier }) => identifier.email)
