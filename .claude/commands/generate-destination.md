@@ -69,7 +69,7 @@ The destination goes in `packages/destination-actions/src/destinations/<destinat
 
 > **File-organization rule (do NOT inline everything into the action `index.ts`):**
 >
-> - `constants.ts` — the API base URL, endpoint path constants, and any fixed enums (e.g. allowed action values). Import these into the action instead of hardcoding string literals inline.
+> - `constants.ts` — the API base URL, endpoint path constants (include BOTH the single and batch endpoint paths when a batch endpoint exists), and any fixed enums (e.g. allowed action values). Import these into the action instead of hardcoding string literals inline.
 > - `types.ts` — explicit TypeScript interfaces for **every request body and API response object** the destination sends or receives. Never send an untyped inline object or read an `any` response.
 > - `utils.ts` — the actual "send event" logic and payload transforms (single + batch). The action `index.ts` `perform`/`performBatch` should be thin wrappers that build the typed payload and delegate to a `utils.ts` function.
 >
@@ -162,13 +162,15 @@ Print file listing and summary table of all actions with event types, endpoints,
 
 ### Action Pattern Detection
 
-| Spec Pattern             | Code Pattern                                                       |
-| ------------------------ | ------------------------------------------------------------------ |
-| "upsert"                 | Query API then create/update                                       |
-| Any event-sending action | Implement BOTH `perform` and `performBatch` (see Batching section) |
-| "hash" / "SHA-256"       | `crypto.createHash('sha256')` helper                               |
-| "archive" / "delete"     | PATCH with `{archived: true}` or DELETE                            |
-| "create if not found"    | try/catch with 404 fallback to POST                                |
+| Spec Pattern                         | Code Pattern                                                                                   |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| "upsert"                             | Query API then create/update                                                                   |
+| Any event-sending action             | Implement BOTH `perform` and `performBatch` (see Batching section)                             |
+| Action has a batch/bulk endpoint     | `performBatch` posts the array to the **batch endpoint** (not a loop over the single endpoint) |
+| Single & batch body shapes identical | `perform`/`performBatch` reuse ONE `utils.ts` builder (see "When can they reuse")              |
+| "hash" / "SHA-256"                   | `crypto.createHash('sha256')` helper                                                           |
+| "archive" / "delete"                 | PATCH with `{archived: true}` or DELETE                                                        |
+| "create if not found"                | try/catch with 404 fallback to POST                                                            |
 
 ## Batching (REQUIRED for event-sending actions)
 
@@ -208,7 +210,21 @@ batch_keys: {
 - `batch_keys` groups events that must be sent together (e.g. same list/audience). Use a **low-cardinality** field. Omit `batch_keys` entirely if the API endpoint has no per-group requirement.
 - Keep `batch_size` and `batch_keys` `unsafe_hidden: true` unless the customer genuinely needs control. Only expose `batch_size` with `minimum`/`maximum` when the API documents a records-per-request limit.
 
-**Handler shape** — `perform` and `performBatch` should both delegate to the same `utils.ts` builder so single and batch paths stay consistent:
+### Prefer the batch endpoint for `performBatch`
+
+If the endpoint-mapping / spec identifies a dedicated **batch/bulk endpoint** for an action (see the `batchEndpoint` object in `endpoint-mapping.json`), `performBatch` MUST target that endpoint — not loop the single-record endpoint. Use the mapping's `arrayWrapperKey` to shape the body (root array vs `{ "<key>": [...] }`) and honor `maxRecordsPerRequest` when setting `batch_size` limits.
+
+Decision order for `performBatch`:
+
+1. **Dedicated batch endpoint exists** → post the array (wrapped per `arrayWrapperKey`) to the batch endpoint in a single request. Preferred.
+2. **Single endpoint accepts an array** (`sameAsSingle: true`) → post the array to that same endpoint.
+3. **Only a single-record endpoint exists** → fan out with `Promise.all` over the single endpoint as a fallback, and note in the PR that the API has no native batch endpoint.
+
+Never send a batch to the single-record endpoint when a batch endpoint is available.
+
+### Handler shape — reuse ONE builder when the payloads are identical
+
+`perform` and `performBatch` should delegate to the same `utils.ts` builder **whenever the single and batch request bodies are the same shape** (i.e. the single path is just a batch of one). This is the common case and keeps the two paths from drifting:
 
 ```typescript
 perform: (request, { payload, settings }) => {
@@ -220,7 +236,24 @@ performBatch: (request, { payload, settings }) => {
 }
 ```
 
-Where `sendEvents(request, settings, payloads: Payload[])` lives in `utils.ts`, maps each payload to the typed request body (from `types.ts`), and posts to the endpoint constant (from `constants.ts`).
+Where `sendEvents(request, settings, payloads: Payload[])` lives in `utils.ts`, maps each payload to the typed request body (from `types.ts`), and posts to the batch endpoint constant (from `constants.ts`).
+
+**When can `perform` and `performBatch` reuse the same function?** Reuse a single `payloads: Payload[]` builder when ALL of these hold:
+
+- The single and batch endpoints share the **same request body element shape** (each record serializes identically whether alone or in a batch).
+- The batch endpoint accepts an **array of those same records** (root array or a simple `{ "<key>": [...] }` wrapper) — no per-record fan-out, no different envelope.
+- The single call is semantically "a batch of one" — same auth, same path params (or params derived per-record inside the builder), same response handling.
+
+When these hold, write ONE `sendEvents(request, settings, payloads)` function and have both handlers call it (`perform` with `[payload]`, `performBatch` with `payload`).
+
+**Do NOT force reuse — split into separate functions — when any of these differ:**
+
+- The single endpoint and batch endpoint have **different body shapes or envelopes** that aren't just "wrap the array" (e.g. single is `{ user: {...} }` but batch is `{ operations: [{ method, body }] }`).
+- The batch path requires **per-record metadata** (per-record method/op, per-record path) that the single path doesn't.
+- **No batch endpoint exists** and `performBatch` must fan out over the single endpoint (`Promise.all`) — keep the single-record builder shared and let `performBatch` map over it, rather than pretending it's one call.
+- Response handling or error semantics differ between the two (e.g. batch returns per-record status; single throws directly).
+
+In those cases, still keep both builders in `utils.ts` (e.g. `buildSingleRequest` and `buildBatchRequest`), and have each handler delegate to its own. The goal is: reuse when the shapes are genuinely the same, split cleanly when they aren't — never inline the logic into the action `index.ts`, and never duplicate identical mapping logic across the two handlers.
 
 ## Typed Requests and Responses (REQUIRED)
 
@@ -355,6 +388,8 @@ Adjust the `destinationSlug` constant to match the destination's `slug`. Run the
 - **DO NOT** register a destination ID in `destinations/index.ts` with a placeholder/generated ID — leave registration as a TODO for the production-assigned ID (see Step 6)
 - **DO NOT** collapse `constants.ts` / `types.ts` / `utils.ts` back into the action `index.ts`
 - **DO NOT** skip `performBatch` for event-sending actions unless the API cannot accept multiple records (and say so in the PR)
+- **DO NOT** loop the single-record endpoint in `performBatch` when a dedicated batch endpoint exists — target the batch endpoint
+- **DO NOT** duplicate identical single/batch mapping logic across `perform` and `performBatch` — share ONE `utils.ts` builder when the request shapes match; split into separate builders only when they genuinely differ
 - **DO NOT** send untyped request bodies or read untyped (`any`) responses
 
 ## Quality Checklist
@@ -363,6 +398,8 @@ Adjust the `destinationSlug` constant to match the destination's `slug`. Run the
 - [ ] Every action has fields with proper types and defaults
 - [ ] Every action has a `perform` function hitting the correct endpoint
 - [ ] Every event-sending action implements `performBatch` with `enable_batching` / `batch_size` (+ `batch_keys` if grouping is needed)
+- [ ] `performBatch` targets the dedicated batch endpoint when one exists (single-endpoint fan-out only as a documented fallback)
+- [ ] `perform` and `performBatch` share ONE `utils.ts` builder when request shapes match; split into separate builders only where they genuinely differ (no duplicated mapping logic)
 - [ ] `constants.ts`, `types.ts`, and `utils.ts` exist; endpoint/enums, request+response interfaces, and send logic are separated out
 - [ ] All request bodies and API responses are typed (no inline untyped objects, no `any` responses)
 - [ ] Every action has at least 2 unit tests (happy path + edge case)
