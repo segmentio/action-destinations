@@ -6,7 +6,8 @@ import { getSubscriptionGroupId } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Subscriptions',
-  description: 'Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists.',
+  description:
+    'Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists.',
   defaultSubscription: 'type = "track" and event = "Subscriptions Updated"',
   fields: {
     identifier: {
@@ -85,7 +86,8 @@ const action: ActionDefinition<Settings, Payload> = {
           choices: [
             { label: 'Subscribe', value: 'subscribe' },
             { label: 'Unsubscribe', value: 'unsubscribe' }
-          ]
+          ],
+          disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
         }
       }
     },
