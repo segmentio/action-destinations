@@ -946,7 +946,7 @@ describe('Reddit Conversions Api', () => {
 
       it('should use the canary API version when the feature flag is enabled', async () => {
         nock('https://ads-api.reddit.com')
-          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
           .reply(200, {})
 
         const responses = await testDestination.testAction('standardEvent', {
@@ -978,7 +978,7 @@ describe('Reddit Conversions Api', () => {
 
       it('performBatch should use the canary API version when the feature flag is enabled', async () => {
         nock('https://ads-api.reddit.com')
-          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
           .reply(200, {})
 
         const responses = await testDestination.testBatchAction('standardEvent', {
@@ -1012,7 +1012,7 @@ describe('Reddit Conversions Api', () => {
 
       it('should use the canary API version when the feature flag is enabled', async () => {
         nock('https://ads-api.reddit.com')
-          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
           .reply(200, {})
 
         const responses = await testDestination.testAction('customEvent', {
@@ -1044,7 +1044,7 @@ describe('Reddit Conversions Api', () => {
 
       it('performBatch should use the canary API version when the feature flag is enabled', async () => {
         nock('https://ads-api.reddit.com')
-          .post(`/api/${CANARY_API_VERSION}/conversions/events/ad_account_id_1`)
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
           .reply(200, {})
 
         const responses = await testDestination.testBatchAction('customEvent', {
@@ -1057,6 +1057,81 @@ describe('Reddit Conversions Api', () => {
 
         expect(responses[0].status).toBe(200)
         expect(responses[0].url).toContain(`/api/${CANARY_API_VERSION}/`)
+      })
+    })
+
+    describe('v3 payload shape', () => {
+      it('wraps events in data, renames type/metadata, uses epoch-ms + UPPER_SNAKE + action_source', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('standardEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { tracking_type: 'Purchase', action_source: 'WEBSITE', event_metadata: { value_decimal: 100 } },
+          features: { [FLAGON_NAME]: true }
+        })
+
+        expect(responses[0].status).toBe(200)
+        const body = responses[0].options.json as {
+          data: { partner: string; events: Record<string, unknown>[] }
+        }
+        expect(body.data.partner).toBe('SEGMENT')
+        const event = body.data.events[0] as {
+          event_at: number
+          action_source: string
+          type: { tracking_type: string }
+          metadata: { value: number }
+        }
+        // epoch ms (timestamp = 2024-01-08T13:52:50.212Z)
+        expect(event.event_at).toBe(Date.parse(timestamp))
+        expect(typeof event.event_at).toBe('number')
+        expect(event.action_source).toBe('WEBSITE')
+        expect(event.type.tracking_type).toBe('PURCHASE')
+        expect(event.metadata.value).toBe(100)
+        // v2-only keys must be gone
+        expect(event).not.toHaveProperty('event_type')
+        expect(event).not.toHaveProperty('event_metadata')
+      })
+
+      it('maps custom events to CUSTOM with custom_event_name inside type', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('customEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { custom_event_name: 'My Custom Event', action_source: 'WEBSITE' },
+          features: { [FLAGON_NAME]: true }
+        })
+
+        expect(responses[0].status).toBe(200)
+        const body = responses[0].options.json as { data: { events: Record<string, unknown>[] } }
+        const type = (body.data.events[0] as { type: { tracking_type: string; custom_event_name: string } }).type
+        expect(type.tracking_type).toBe('CUSTOM')
+        expect(type.custom_event_name).toBe('My Custom Event')
+      })
+
+      it('routes to Event Testing when test_id is set', async () => {
+        nock('https://ads-api.reddit.com')
+          .post(`/api/${CANARY_API_VERSION}/pixels/ad_account_id_1/conversion_events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('standardEvent', {
+          event: flagEvent,
+          settings,
+          useDefaultMappings: true,
+          mapping: { tracking_type: 'Purchase', action_source: 'WEBSITE', test_id: 'test-123' },
+          features: { [FLAGON_NAME]: true }
+        })
+
+        expect(responses[0].status).toBe(200)
+        const body = responses[0].options.json as { data: { test_id?: string } }
+        expect(body.data.test_id).toBe('test-123')
       })
     })
   })

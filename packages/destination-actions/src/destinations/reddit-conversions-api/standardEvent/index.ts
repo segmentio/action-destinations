@@ -11,7 +11,10 @@ import {
   data_processing_options,
   screen_dimensions,
   event_metadata,
-  conversion_id
+  conversion_id,
+  action_source,
+  event_source_url,
+  test_id
 } from '../fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -26,7 +29,10 @@ const action: ActionDefinition<Settings, Payload> = {
     data_processing_options,
     screen_dimensions,
     event_metadata,
-    conversion_id
+    conversion_id,
+    action_source,
+    event_source_url,
+    test_id
   },
   perform: async (request, { settings, payload, features }) => {
     return await send(request, settings, [payload], features)
