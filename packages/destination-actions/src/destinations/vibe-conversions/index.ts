@@ -4,8 +4,6 @@ import type { Settings } from './generated-types'
 
 import trackConversion from './trackConversion'
 
-// Preset mappings reuse the action's default field values, but pin `a` to a
-// preset-specific enum value (the `a` field itself intentionally has no default).
 const baseMapping = defaultValues(trackConversion.fields)
 
 const destination: DestinationDefinition<Settings> = {
@@ -15,8 +13,6 @@ const destination: DestinationDefinition<Settings> = {
   description: 'Send conversion events to Vibe.',
 
   authentication: {
-    // Vibe's conversion API requires no API key or token. The advertiser is
-    // identified by the Pixel ID (aid), which is injected into every event.
     scheme: 'custom',
     fields: {
       aid: {

@@ -4,7 +4,7 @@ exports[`Testing snapshot for actions-vibe-conversions destination: trackConvers
 Object {
   "a": "purchase",
   "aid": "pixel_123",
-  "ed": "{\\"price_usd\\":50.5,\\"purchase_id\\":\\"pid_123\\"}",
+  "ed": "{\\"purchase_id\\":\\"pid_123\\",\\"price_usd\\":50.5}",
   "eid": "msg_fixed_2",
   "em": "joe@gmail.com",
   "gid": "GA.234.234234",

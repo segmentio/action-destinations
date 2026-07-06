@@ -22,19 +22,19 @@ export interface Payload {
    */
   em?: string
   /**
-   * Event data. Sent to Vibe as a stringified JSON object. The reserved attributes Price (USD) and Purchase ID are merged into this object.
+   * Additional data to be sent with the event.
    */
   ed?: {
+    /**
+     * A unique identifier for the purchase.
+     */
+    purchase_id?: string
+    /**
+     * The price of the conversion in USD.
+     */
+    price_usd?: number
     [k: string]: unknown
   }
-  /**
-   * Reserved event-data attribute: the price of the conversion in USD. Merged into Event Data as `price_usd`.
-   */
-  price_usd?: number
-  /**
-   * Reserved event-data attribute: a unique identifier for the purchase. Merged into Event Data as `purchase_id`.
-   */
-  purchase_id?: string
   /**
    * Google Analytics ID for cross-platform attribution.
    */
@@ -47,12 +47,4 @@ export interface Payload {
    * The URL of the page where the action occurred.
    */
   url?: string
-  /**
-   * When enabled, Segment groups events before delivering them to this destination.
-   */
-  enable_batching?: boolean
-  /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
-   */
-  batch_size?: number
 }

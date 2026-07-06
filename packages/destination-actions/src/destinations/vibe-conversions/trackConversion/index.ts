@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { EVENT_TYPES } from '../constants'
-import { sendEvent, sendBatch } from '../utils'
+import { sendEvent } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Conversion',
@@ -55,38 +55,25 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ed: {
       label: 'Event Data',
-      description:
-        'Event data. Sent to Vibe as a stringified JSON object. The reserved attributes Price (USD) and Purchase ID are merged into this object.',
+      description: 'Additional data to be sent with the event.',
       type: 'object',
       required: false,
-      default: { '@path': '$.properties' }
-    },
-    price_usd: {
-      label: 'Price (USD)',
-      description:
-        'Reserved event-data attribute: the price of the conversion in USD. Merged into Event Data as `price_usd`.',
-      type: 'number',
-      required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.price_usd' },
-          then: { '@path': '$.properties.price_usd' },
-          else: { '@path': '$.properties.price' }
+      additionalProperties: true,
+      properties: {
+        purchase_id: {
+          label: 'Purchase ID',
+          description: 'A unique identifier for the purchase.',
+          type: 'string'
+        },
+        price_usd: {
+          label: 'Price (USD)',
+          description: 'The price of the conversion in USD.',
+          type: 'number'
         }
-      }
-    },
-    purchase_id: {
-      label: 'Purchase ID',
-      description:
-        'Reserved event-data attribute: a unique identifier for the purchase. Merged into Event Data as `purchase_id`.',
-      type: 'string',
-      required: false,
+      },
       default: {
-        '@if': {
-          exists: { '@path': '$.properties.purchase_id' },
-          then: { '@path': '$.properties.purchase_id' },
-          else: { '@path': '$.properties.order_id' }
-        }
+        purchase_id: { '@path': '$.properties.purchase_id' },
+        price_usd: { '@path': '$.properties.price_usd' }
       }
     },
     gid: {
@@ -108,31 +95,10 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false,
       default: { '@path': '$.context.page.url' }
-    },
-    enable_batching: {
-      label: 'Batch Data',
-      description: 'When enabled, Segment groups events before delivering them to this destination.',
-      type: 'boolean',
-      required: false,
-      default: true
-    },
-    batch_size: {
-      label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
-      type: 'number',
-      required: false,
-      unsafe_hidden: true,
-      default: 1000
     }
   },
   perform: (request, { payload, settings }) => {
     return sendEvent(request, settings, payload)
-  },
-  // Vibe's conversion API has no batch endpoint. When batching is enabled,
-  // events are sent as individual requests (one per event) with per-event
-  // error isolation via a MultiStatusResponse.
-  performBatch: (request, { payload, settings }) => {
-    return sendBatch(request, settings, payload)
   }
 }
 
