@@ -1,6 +1,6 @@
 # Publishes @segment/* packages to public npm via keyless OIDC trusted publishing.
 # Handles BOTH release channels from one workflow file so a single npm trusted-publisher
-# registration per package (repo + publish.yml) covers everything:
+# registration per package (repo + publish.yml + `production` environment) covers everything:
 #   - push to main / hotfix/**  -> --dist-tag latest  (+ release tags + GitHub release)
 #   - push to staging           -> --dist-tag canary
 # Triggered only by a commit whose message starts with "Publish" (created by the
@@ -25,11 +25,18 @@ jobs:
 
     timeout-minutes: 15
 
+    # Must match the npm trusted-publisher registration (repo + publish.yml +
+    # environment). The 59 packages are registered with environment `production`,
+    # so the OIDC token MUST carry that environment claim or npm rejects the
+    # exchange. Also gives the `production` environment's protection rules
+    # (e.g. required reviewers) a chance to gate the release.
+    environment: production
+
     # id-token: write lets Lerna 9 exchange a GitHub OIDC token for a short-lived,
     # per-package npm token (keyless "trusted publishing"). contents: write is used
     # by the release-tag/GitHub-release steps on the latest channel. Each package
     # must be registered as a trusted publisher on npmjs.org for this repo +
-    # publish.yml, or its publish fails with ENEEDAUTH.
+    # publish.yml + `production`, or its publish fails.
     permissions:
       contents: write
       id-token: write
