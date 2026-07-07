@@ -9,14 +9,6 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Syncs Segment audiences to Wingify',
   defaultSubscription: 'type = "track" or type = "identify"',
   fields: {
-    name: {
-      description: 'Name of the event',
-      label: 'Event Name',
-      type: 'string',
-      default: {
-        '@path': '$.event'
-      }
-    },
     userId: {
       description: 'A unique identifier for the user',
       label: 'User ID',

@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * Name of the event
-   */
-  name?: string
-  /**
    * A unique identifier for the user
    */
   userId?: string

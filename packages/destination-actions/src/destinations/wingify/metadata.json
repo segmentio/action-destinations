@@ -596,35 +596,9 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
-        "name": {
-          "label": "Event Name",
-          "description": "Name of the event",
-          "type": "string",
-          "required": true,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.event"
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
         "userId": {
           "label": "User ID",
-          "description": "An unique identifier for the user",
+          "description": "A unique identifier for the user",
           "type": "string",
           "required": false,
           "multiple": false,
