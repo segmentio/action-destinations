@@ -778,9 +778,6 @@
       "partnerAction": "syncAudience",
       "subscribe": "type = \"track\" or type = \"identify\"",
       "mapping": {
-        "name": {
-          "@path": "$.event"
-        },
         "userId": {
           "@path": "$.userId"
         },
