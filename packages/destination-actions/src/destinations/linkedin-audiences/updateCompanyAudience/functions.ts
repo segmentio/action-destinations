@@ -50,6 +50,16 @@ export function validate(
   return validPayloads
 }
 
+export function companyKey(payload: ValidCompanyPayload): string {
+  const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
+  const domainTrimmed = companyDomain ? companyDomain.trim().toLowerCase() : ''
+  const domain = domainTrimmed ? domainTrimmed : ''
+  const linkedinCompanyIdTrimmed = linkedInCompanyId ? linkedInCompanyId.trim() : ''
+  const urn = linkedinCompanyIdTrimmed ? toOrganizationUrn(linkedinCompanyIdTrimmed) : ''
+  const action = payload.action === AUDIENCE_ACTION.REMOVE ? AUDIENCE_ACTION.REMOVE : AUDIENCE_ACTION.ADD
+  return `${action}::${domain}::${urn}`
+}
+
 export function buildJSON(payloads: ValidCompanyPayload[]): AudienceJSON<LinkedInCompanyAudienceElement> {
   const elements: LinkedInCompanyAudienceElement[] = payloads.map((payload) => {
     const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
@@ -92,7 +102,22 @@ export async function send(
     throw new PayloadValidationError('No valid payloads to process after validation.')
   }
 
-  const json = buildJSON(validPayloads)
+  const uniquePayloads: ValidCompanyPayload[] = []
+  const payloadIndexes: number[][] = []
+  const keyToPosition = new Map<string, number>()
+  for (const payload of validPayloads) {
+    const key = companyKey(payload)
+    const position = keyToPosition.get(key)
+    if (position === undefined) {
+      keyToPosition.set(key, uniquePayloads.length)
+      uniquePayloads.push(payload)
+      payloadIndexes.push([payload.index])
+    } else {
+      payloadIndexes[position].push(payload.index)
+    }
+  }
+
+  const json = buildJSON(uniquePayloads)
   const linkedinApiClient = new LinkedInAudiences(request)
 
   statsContext?.statsClient?.incr('oauth_app_api_call', 1, [
@@ -111,23 +136,26 @@ export async function send(
   }
 
   const resultElements = response.data?.elements ?? []
-  validPayloads.forEach((payload, i) => {
+  uniquePayloads.forEach((payload, i) => {
     const result = resultElements[i]
-    if (result && result.status >= 200 && result.status < 300) {
-      msResponse.setSuccessResponseAtIndex(payload.index, {
-        status: result.status,
-        sent: json.elements[i] as unknown as JSONLikeObject,
-        body: payload as unknown as JSONLikeObject
-      })
-    } else {
-      msResponse.setErrorResponseAtIndex(payload.index, {
-        status: result?.status ?? 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: result?.error?.message || 'LinkedIn did not return a result for this company.',
-        sent: json.elements[i] as unknown as JSONLikeObject,
-        body: payload as unknown as JSONLikeObject
-      })
-    }
+    const sent = json.elements[i] as unknown as JSONLikeObject
+    payloadIndexes[i].forEach((index) => {
+      if (result && result.status >= 200 && result.status < 300) {
+        msResponse.setSuccessResponseAtIndex(index, {
+          status: result.status,
+          sent,
+          body: payload as unknown as JSONLikeObject
+        })
+      } else {
+        msResponse.setErrorResponseAtIndex(index, {
+          status: result?.status ?? 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: result?.error?.message || 'LinkedIn did not return a result for this company.',
+          sent,
+          body: payload as unknown as JSONLikeObject
+        })
+      }
+    })
   })
 
   return msResponse

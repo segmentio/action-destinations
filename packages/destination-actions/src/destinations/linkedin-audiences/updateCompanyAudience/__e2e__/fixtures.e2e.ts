@@ -178,6 +178,52 @@ const fixtures: E2EFixture[] = [
       jsonContains: [{ status: 201 }, { status: 201 }, { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' }]
     },
     verboseFailureHint: FAILURE_HINT
+  },
+  {
+    description: 'Batch with duplicate companies collapses to one element, every row still gets a status',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...baseMapping,
+      identifiers: {
+        companyDomain: { '@path': '$.properties.companyDomain' },
+        linkedInCompanyId: { '@path': '$.properties.linkedInCompanyId' }
+      },
+      action: { '@path': '$.properties.action' },
+      ...hookOutputs
+    },
+    mode: 'batchWithMultistatus',
+    events: [
+      companyEvent({ companyDomain: 'Adobe.com', linkedInCompanyId: '1480', action: 'ADD' }),
+      companyEvent({ companyDomain: 'oracle.com', action: 'ADD' }),
+      companyEvent({ action: 'ADD' }),
+      companyEvent({ companyDomain: 'adobe.com', linkedInCompanyId: 'urn:li:organization:1480', action: 'ADD' }),
+      companyEvent({ linkedInCompanyId: '1476', action: 'ADD' }),
+      companyEvent({ companyDomain: 'ibm.com', action: 'ADD' }),
+      companyEvent({ companyDomain: 'ADOBE.COM', linkedInCompanyId: '1480', action: 'ADD' }),
+      companyEvent({ action: 'REMOVE' }),
+      companyEvent({ companyDomain: ' oracle.com ', action: 'ADD' }),
+      companyEvent({ linkedInCompanyId: 'urn:li:organization:1476', action: 'ADD' }),
+      companyEvent({ companyDomain: 'IBM.com', action: 'ADD' }),
+      companyEvent({ companyDomain: 'adobe.com', linkedInCompanyId: '1480', action: 'ADD' })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        { status: 201 },
+        { status: 201 },
+        { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' },
+        { status: 201 },
+        { status: 201 },
+        { status: 201 },
+        { status: 201 },
+        { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' },
+        { status: 201 },
+        { status: 201 },
+        { status: 201 },
+        { status: 201 }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
   }
 ]
 
