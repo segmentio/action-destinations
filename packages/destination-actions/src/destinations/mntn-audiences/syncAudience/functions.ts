@@ -3,7 +3,8 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   AudienceMembership,
-  HTTPError
+  HTTPError,
+  PayloadValidationError
 } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Payload } from './generated-types'
@@ -106,8 +107,23 @@ export async function syncAudience(
     }
     seen.add(identity_id)
 
+    const membership = audienceMemberships[index]
+    if (typeof membership !== 'boolean') {
+      const errormessage = `Missing audience membership for identity_id "${identity_id}". Expected a boolean indicating whether the user was added to or removed from the audience.`
+      if (!isBatch) {
+        throw new PayloadValidationError(errormessage)
+      }
+      msResponse?.setErrorResponseAtIndex(index, {
+        status: 400,
+        errormessage,
+        sent: p as unknown as JSONLikeObject,
+        body: {}
+      })
+      return
+    }
+
     const identity = buildIdentity(p)
-    if (audienceMemberships[index]) {
+    if (membership) {
       adds.push({ index, p, identity })
     } else {
       removes.push({ index, p, identity })

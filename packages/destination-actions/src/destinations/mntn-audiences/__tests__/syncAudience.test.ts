@@ -501,6 +501,59 @@ describe('syncAudience — performBatch: mixed', () => {
   })
 })
 
+// ─── missing audience membership: fail fast ─────────────────────────────────
+
+describe('syncAudience — missing audience membership', () => {
+  it('perform throws instead of issuing a DELETE when audienceMembership is undefined', async () => {
+    const mockRequest = jest.fn()
+
+    await expect(
+      syncAudienceAction.perform(mockRequest, {
+        payload: { segment_id: SEGMENT_ID, identity_id: 'user-1' },
+        settings: TEST_SETTINGS
+      })
+    ).rejects.toThrow(/audience membership/i)
+
+    expect(mockRequest).not.toHaveBeenCalled()
+  })
+
+  it('performBatch marks entries with missing membership as errors and does not DELETE them', async () => {
+    const mockRequest = jest.fn().mockResolvedValue({ status: 202, data: {} })
+
+    const result = await syncAudienceAction.performBatch(mockRequest, {
+      payload: [
+        { segment_id: SEGMENT_ID, identity_id: 'user-1' },
+        { segment_id: SEGMENT_ID, identity_id: 'user-2' }
+      ],
+      audienceMembership: [true],
+      settings: TEST_SETTINGS
+    })
+
+    expect(result.getResponseAtIndex(0).value().status).toBe(202)
+    expect(result.getResponseAtIndex(1).value().status).toBe(400)
+    expect(result.getResponseAtIndex(1).value().errormessage).toMatch(/audience membership/i)
+
+    expect(mockRequest).toHaveBeenCalledTimes(1)
+    expect(mockRequest.mock.calls[0][1].method).toBe('POST')
+  })
+
+  it('performBatch issues no DELETE when audienceMembership is entirely missing', async () => {
+    const mockRequest = jest.fn().mockResolvedValue({ status: 202, data: {} })
+
+    const result = await syncAudienceAction.performBatch(mockRequest, {
+      payload: [
+        { segment_id: SEGMENT_ID, identity_id: 'user-1' },
+        { segment_id: SEGMENT_ID, identity_id: 'user-2' }
+      ],
+      settings: TEST_SETTINGS
+    })
+
+    expect(result.getResponseAtIndex(0).value().status).toBe(400)
+    expect(result.getResponseAtIndex(1).value().status).toBe(400)
+    expect(mockRequest).not.toHaveBeenCalled()
+  })
+})
+
 // ─── performBatch: duplicate detection ───────────────────────────────────────
 
 describe('syncAudience — performBatch: duplicate detection', () => {

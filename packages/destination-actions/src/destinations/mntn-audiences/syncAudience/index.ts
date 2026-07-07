@@ -93,7 +93,7 @@ const action: ActionDefinition<Settings, Payload> = {
     return syncAudience(request, [payload], [audienceMembership], false)
   },
   performBatch: (request, { payload, audienceMembership }) => {
-    return syncAudience(request, payload, audienceMembership || [], true)
+    return syncAudience(request, payload, Array.isArray(audienceMembership) ? audienceMembership : [], true)
   }
 }
 
