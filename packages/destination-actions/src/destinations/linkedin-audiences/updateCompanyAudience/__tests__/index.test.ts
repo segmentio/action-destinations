@@ -195,6 +195,122 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
   })
 
   describe('performBatch', () => {
+    it('dedupes same-company payloads and fans each result back to every original index', async () => {
+      // The 10 valid rows below collapse to 4 unique company+action elements. Case, surrounding
+      // whitespace, and bare-id-vs-URN forms of the same company all key the same:
+      //   Adobe (idx 0,3,6,11), oracle.com (idx 1,8), org 1476 (idx 4,9), ibm.com (idx 5,10).
+      // LinkedIn is sent exactly 4 elements; its per-element result is copied to every original
+      // index in that group, and the two no-identifier rows (idx 2,7) fail before the request.
+      let sentBody: any
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, {
+          elements: [
+            { status: 201 }, // Adobe
+            { status: 201 }, // oracle.com
+            { status: 400, error: { message: 'Invalid organization urn' } }, // org 1476
+            { status: 201 } // ibm.com
+          ]
+        })
+
+      const perEventMapping = {
+        action: { '@path': '$.traits.action' },
+        identifiers: {
+          companyDomain: { '@path': '$.traits.company_domain' },
+          linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
+        },
+        ...hookOutputs
+      }
+
+      const events = [
+        { type: 'track', traits: { company_domain: 'Adobe.com', linkedin_company_id: '1480', action: 'ADD' } },
+        { type: 'track', traits: { company_domain: 'oracle.com', action: 'ADD' } },
+        { type: 'track', traits: { action: 'ADD' } },
+        {
+          type: 'track',
+          traits: { company_domain: 'adobe.com', linkedin_company_id: 'urn:li:organization:1480', action: 'ADD' }
+        },
+        { type: 'track', traits: { linkedin_company_id: '1476', action: 'ADD' } },
+        { type: 'track', traits: { company_domain: 'ibm.com', action: 'ADD' } },
+        { type: 'track', traits: { company_domain: 'ADOBE.COM', linkedin_company_id: '1480', action: 'ADD' } },
+        { type: 'track', traits: { action: 'REMOVE' } },
+        { type: 'track', traits: { company_domain: ' oracle.com ', action: 'ADD' } },
+        { type: 'track', traits: { linkedin_company_id: 'urn:li:organization:1476', action: 'ADD' } },
+        { type: 'track', traits: { company_domain: 'IBM.com', action: 'ADD' } },
+        { type: 'track', traits: { company_domain: 'adobe.com', linkedin_company_id: '1480', action: 'ADD' } }
+      ] as any
+
+      const response = await testDestination.executeBatch('updateCompanyAudience', {
+        events,
+        settings,
+        auth,
+        mapping: perEventMapping
+      })
+
+      // Only 4 unique elements are sent to LinkedIn despite 12 input rows.
+      expect(sentBody).toEqual({
+        elements: [
+          { action: 'ADD', companyWebsiteDomain: 'Adobe.com', organizationUrn: 'urn:li:organization:1480' },
+          { action: 'ADD', companyWebsiteDomain: 'oracle.com' },
+          { action: 'ADD', organizationUrn: 'urn:li:organization:1476' },
+          { action: 'ADD', companyWebsiteDomain: 'ibm.com' }
+        ]
+      })
+
+      const adobe = {
+        status: 201,
+        sent: { action: 'ADD', companyWebsiteDomain: 'Adobe.com', organizationUrn: 'urn:li:organization:1480' },
+        body: { action: 'ADD', identifiers: { companyDomain: 'Adobe.com', linkedInCompanyId: '1480' }, index: 0 }
+      }
+      const oracle = {
+        status: 201,
+        sent: { action: 'ADD', companyWebsiteDomain: 'oracle.com' },
+        body: { action: 'ADD', identifiers: { companyDomain: 'oracle.com' }, index: 1 }
+      }
+      const ibm = {
+        status: 201,
+        sent: { action: 'ADD', companyWebsiteDomain: 'ibm.com' },
+        body: { action: 'ADD', identifiers: { companyDomain: 'ibm.com' }, index: 5 }
+      }
+      const org1476Error = {
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: 'Invalid organization urn',
+        sent: { action: 'ADD', organizationUrn: 'urn:li:organization:1476' },
+        body: { action: 'ADD', identifiers: { linkedInCompanyId: '1476' }, index: 4 },
+        errorreporter: 'DESTINATION'
+      }
+      const noIdentifier = (action: string) => ({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.",
+        sent: { action, identifiers: {} },
+        body: {},
+        errorreporter: 'DESTINATION'
+      })
+
+      // Every original index gets a status; duplicate rows carry the representative's sent/body,
+      // and the two members of the failed org-1476 group (idx 4, 9) both get the 400 error.
+      expect(response).toEqual([
+        adobe, // 0
+        oracle, // 1
+        noIdentifier('ADD'), // 2
+        adobe, // 3 (dup of 0)
+        org1476Error, // 4
+        ibm, // 5
+        adobe, // 6 (dup of 0)
+        noIdentifier('REMOVE'), // 7
+        oracle, // 8 (dup of 1, whitespace-normalized)
+        org1476Error, // 9 (dup of 4, URN form)
+        ibm, // 10 (dup of 5, case-normalized)
+        adobe // 11 (dup of 0)
+      ])
+    })
+
     it('returns a per-item MultiStatusResponse for a mixed batch', async () => {
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`)
