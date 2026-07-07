@@ -36,7 +36,7 @@ function generate(name: string, namespace: string): string {
   return uuidv5(name, namespace)
 }
 
-export function formatJSON(name: string, payload: SegmentPayload, isCustomEvent: boolean, apiKey = '', accountId = 0): WingifyJSON {
+function formatJSON(name: string, payload: SegmentPayload, isCustomEvent: boolean, apiKey = '', accountId = 0): WingifyJSON {
   const wingifyUuid = apiKey.trim().length ? generateUUIDFor(payload.wingifyUuid, accountId) : payload.wingifyUuid
 
   const formattedProperties = 'properties' in payload && payload.properties ? { ...payload.properties } : {}
@@ -94,7 +94,7 @@ export function formatJSON(name: string, payload: SegmentPayload, isCustomEvent:
 } 
 
 
-export function formatHeader(userAgent?: string, ip?: string): { [k: string]: string } {
+function formatHeader(userAgent?: string, ip?: string): { [k: string]: string } {
   const headers: { [k: string]: string } = userAgent ? { 'User-Agent': userAgent } : {}
 
   if (ip) {
@@ -103,7 +103,7 @@ export function formatHeader(userAgent?: string, ip?: string): { [k: string]: st
   return headers
 }
 
-export function sanitiseEventName(name: string) {
+function sanitiseEventName(name: string) {
   const trimmed = name.trim()
   if(!trimmed) {
     throw new PayloadValidationError('Event name cannot be empty or whitespace only')
@@ -111,7 +111,7 @@ export function sanitiseEventName(name: string) {
   return 'segment.' + name
 }
 
-export function formatAttributes(attributes: { [k: string]: unknown } | undefined) {
+function formatAttributes(attributes: { [k: string]: unknown } | undefined) {
   const formattedAttributes: { [k: string]: unknown } = {}
   if (!attributes) {
     return formattedAttributes
