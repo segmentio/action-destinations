@@ -5,6 +5,12 @@ import { API_VERSION } from '../functions'
 import { SegmentEvent } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 
+const DATA_MANAGER_HOST = 'https://datamanager.googleapis.com'
+const HOOK_CUSTOMER_ID = '1234567890'
+const HOOK_REFRESH_TOKEN = 'hook-refresh-token'
+const HOOK_ACCESS_TOKEN = 'hook-access-token'
+const HOOK_USER_LIST_ID = 'ul_hook123'
+
 const testDestination = createTestIntegration(GoogleEnhancedConversions)
 const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
 const customerId = '1234'
@@ -1944,5 +1950,202 @@ describe('GoogleEnhancedConversions', () => {
         errorreporter: 'DESTINATION'
       })
     })
+  })
+})
+
+// ─── STRATCONN-6707: userList performHook (retlOnMappingSave) OAuth changes ───
+
+describe('GoogleEnhancedConversions — userList performHook (STRATCONN-6707)', () => {
+  const savedClientId = process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID
+  const savedClientSecret = process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+
+  beforeEach(() => {
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID = 'client-id'
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET = 'client-secret'
+    nock.cleanAll()
+  })
+
+  afterEach(() => {
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID = savedClientId
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET = savedClientSecret
+    nock.cleanAll()
+  })
+
+  const hookSettings = { customerId: HOOK_CUSTOMER_ID, oauth: { refresh_token: HOOK_REFRESH_TOKEN } }
+
+  it('returns TOKEN_EXCHANGE_FAILURE error when token exchange fails', async () => {
+    nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(401, { error: 'invalid_grant' })
+
+    const result = await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_name: 'New List', external_id_type: 'CONTACT_INFO' },
+      payload: {}
+    })
+
+    expect(result).toMatchObject({ error: { code: 'TOKEN_EXCHANGE_FAILURE' } })
+  })
+
+  it('uses an existing list when list_id is provided and the list exists', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .get(`/v1/accountTypes/GOOGLE_ADS/accounts/${HOOK_CUSTOMER_ID}/userLists/${HOOK_USER_LIST_ID}`)
+      .reply(200, {
+        name: `accounts/${HOOK_CUSTOMER_ID}/userLists/${HOOK_USER_LIST_ID}`,
+        id: HOOK_USER_LIST_ID,
+        displayName: 'My Existing List'
+      })
+
+    const result = await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_id: HOOK_USER_LIST_ID, list_name: 'My Existing List', external_id_type: 'CONTACT_INFO' },
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      successMessage: expect.stringContaining(HOOK_USER_LIST_ID),
+      savedData: { id: HOOK_USER_LIST_ID, name: 'My Existing List', external_id_type: 'CONTACT_INFO' }
+    })
+  })
+
+  it('returns GET_LIST_FAILURE error when an existing list cannot be fetched', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .get(`/v1/accountTypes/GOOGLE_ADS/accounts/${HOOK_CUSTOMER_ID}/userLists/${HOOK_USER_LIST_ID}`)
+      .reply(404, { error: { message: 'User list not found' } })
+
+    const result = await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_id: HOOK_USER_LIST_ID, list_name: 'My List', external_id_type: 'CONTACT_INFO' },
+      payload: {}
+    })
+
+    expect(result).toMatchObject({ error: { code: expect.stringMatching(/GET_LIST_FAILURE|INVALID_RESPONSE/) } })
+  })
+
+  it('creates a new list when no list_id is provided', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${HOOK_CUSTOMER_ID}/userLists`)
+      .reply(200, {
+        name: `accounts/${HOOK_CUSTOMER_ID}/userLists/${HOOK_USER_LIST_ID}`,
+        id: HOOK_USER_LIST_ID,
+        displayName: 'Brand New List'
+      })
+
+    const result = await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_name: 'Brand New List', external_id_type: 'CONTACT_INFO' },
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      successMessage: expect.stringContaining(HOOK_USER_LIST_ID),
+      savedData: { id: HOOK_USER_LIST_ID, name: 'Brand New List' }
+    })
+  })
+
+  it('returns CREATE_LIST_FAILURE error when list creation fails', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${HOOK_CUSTOMER_ID}/userLists`)
+      .reply(400, { error: { message: 'Invalid request' } })
+
+    const result = await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_name: 'Bad List', external_id_type: 'CONTACT_INFO' },
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: { code: expect.stringMatching(/CREATE_LIST_FAILURE|CREATE_AUDIENCE_FAILED/) }
+    })
+  })
+
+  it('returns PayloadValidationError wrapped in error when MOBILE_ADVERTISING_ID is used without app_id', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    const result = await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_name: 'Mobile List', external_id_type: 'MOBILE_ADVERTISING_ID' }, // no app_id
+      payload: {}
+    })
+
+    expect(result).toMatchObject({ error: { message: expect.stringContaining('App ID') } })
+  })
+
+  it('maps CONTACT_INFO → CONTACT_ID in the Data Manager request', async () => {
+    let capturedBody: any
+
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${HOOK_CUSTOMER_ID}/userLists`, (body) => {
+        capturedBody = body
+        return true
+      })
+      .reply(200, {
+        name: `accounts/${HOOK_CUSTOMER_ID}/userLists/${HOOK_USER_LIST_ID}`,
+        id: HOOK_USER_LIST_ID,
+        displayName: 'Contact List'
+      })
+
+    await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_name: 'Contact List', external_id_type: 'CONTACT_INFO' },
+      payload: {}
+    })
+
+    expect(capturedBody?.uploadKeyType).toBe('CONTACT_ID')
+  })
+
+  it('maps CRM_ID → USER_ID in the Data Manager request', async () => {
+    let capturedBody: any
+
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: HOOK_ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${HOOK_CUSTOMER_ID}/userLists`, (body) => {
+        capturedBody = body
+        return true
+      })
+      .reply(200, {
+        name: `accounts/${HOOK_CUSTOMER_ID}/userLists/${HOOK_USER_LIST_ID}`,
+        id: HOOK_USER_LIST_ID,
+        displayName: 'CRM List'
+      })
+
+    await testDestination.actions.userList.executeHook('retlOnMappingSave', {
+      auth: { refreshToken: HOOK_REFRESH_TOKEN, accessToken: '' },
+      settings: hookSettings,
+      hookInputs: { list_name: 'CRM List', external_id_type: 'CRM_ID' },
+      payload: {}
+    })
+
+    expect(capturedBody?.uploadKeyType).toBe('USER_ID')
   })
 })
