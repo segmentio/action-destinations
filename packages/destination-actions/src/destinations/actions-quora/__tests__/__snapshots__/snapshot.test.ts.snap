@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-quora destination: trackConversion action - all fields 1`] = `
+Object {
+  "account_id": 527745581653587,
+  "conversion": Object {
+    "click_id": "2@EZUiH",
+    "event_id": "2@EZUiH",
+    "event_name": "AppInstall",
+    "timestamp": 1612137600000000,
+    "value": -66543318560931.84,
+  },
+  "device": Object {
+    "language": "2@EZUiH",
+    "mobile_device_id": "2@EZUiH",
+    "referer": "2@EZUiH",
+    "user_agent": "2@EZUiH",
+  },
+  "user": Object {
+    "city": "2@EZUiH",
+    "country": "2@EZUiH",
+    "date_of_birth": "2@EZUiH",
+    "email": "horulvuw@bibhac.aw",
+    "ip": "2@EZUiH",
+    "name": "2@EZUiH",
+    "phone_number": "+9428558711",
+    "postal_code": "2@EZUiH",
+    "region": "2@EZUiH",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-quora destination: trackConversion action - required fields 1`] = `
+Object {
+  "account_id": 527745581653587,
+  "conversion": Object {
+    "click_id": "2@EZUiH",
+    "event_id": "2@EZUiH",
+    "event_name": "AppInstall",
+  },
+}
+`;
