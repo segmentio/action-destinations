@@ -3,7 +3,14 @@ import type { RequestClient, ModifiedResponse, Features } from '@segment/actions
 import type { Settings } from './generated-types'
 import type { Payload } from './updateAudience/generated-types'
 import { BASE_URL, LINKEDIN_SOURCE_PLATFORM, getApiVersion } from './constants'
+import { LINKEDIN_PROTOCOL_VERSION, SEGMENT_TYPES } from './updateCompanyAudience/constants'
 import type { ProfileAPIResponse, AdAccountUserResponse, LinkedInAudiencePayload } from './types'
+import type {
+  AudienceJSON,
+  GetDMPSegmentsResponse,
+  LinkedInCompanyAudienceElement,
+  LinkedInBatchUpdateResponse
+} from './updateCompanyAudience/types'
 
 export class LinkedInAudiences {
   request: RequestClient
@@ -69,6 +76,65 @@ export class LinkedInAudiences {
       json: {
         elements
       },
+      throwHttpErrors: false
+    })
+  }
+
+  async listDmpSegmentsByAccount(settings: Settings): Promise<ModifiedResponse<GetDMPSegmentsResponse>> {
+    return this.request(`${BASE_URL}/dmpSegments`, {
+      method: 'GET',
+      headers: {
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION
+      },
+      searchParams: {
+        q: 'account',
+        account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM
+      }
+    })
+  }
+
+  async getDmpSegmentById(dmpSegmentId: string): Promise<ModifiedResponse<{ id: string; name: string; type: string }>> {
+    return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}`, {
+      method: 'GET',
+      headers: {
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION
+      }
+    })
+  }
+
+  async createCompanyDmpSegment(settings: Settings, segmentName: string): Promise<ModifiedResponse> {
+    return this.request(`${BASE_URL}/dmpSegments`, {
+      method: 'POST',
+      headers: {
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION
+      },
+      json: {
+        name: segmentName,
+        sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
+        account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
+        type: SEGMENT_TYPES.COMPANY,
+        destinations: [
+          {
+            destination: 'LINKEDIN'
+          }
+        ]
+      }
+    })
+  }
+
+  async batchUpdateCompanies(
+    dmpSegmentId: string,
+    json: AudienceJSON<LinkedInCompanyAudienceElement>
+  ): Promise<ModifiedResponse<LinkedInBatchUpdateResponse>> {
+    return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}/companies`, {
+      method: 'POST',
+      headers: {
+        'X-RestLi-Method': 'BATCH_CREATE',
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION,
+        'LinkedIn-Version': getApiVersion(this.features)
+      },
+      json,
       throwHttpErrors: false
     })
   }

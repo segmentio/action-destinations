@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for LinkedinAudiences's updateCompanyAudience destination action: all fields 1`] = `
+Object {
+  "elements": Array [
+    Object {
+      "action": "ADD",
+      "companyWebsiteDomain": "t$O9PpW&",
+      "organizationUrn": "urn:li:organization:t$O9PpW&",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for LinkedinAudiences's updateCompanyAudience destination action: required fields 1`] = `
+Object {
+  "elements": Array [
+    Object {
+      "action": "ADD",
+      "companyWebsiteDomain": "microsoft.com",
+    },
+  ],
+}
+`;
