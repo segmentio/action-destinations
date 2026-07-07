@@ -98,6 +98,51 @@ describe('Wingify.syncAudience', () => {
     expect(responses[0].options.json).toMatchObject(expectedRequest)
   })
 
+  it('should handle identify events without an event field', async () => {
+    const event = createTestEvent({
+      type: 'identify',
+      userId: 'test_user',
+      event: undefined,
+      context: {
+        personas: {
+          computation_class: 'audience',
+          computation_key: AUDIENCE_KEY
+        }
+      },
+      traits: {
+        audience_key: AUDIENCE_KEY,
+        [AUDIENCE_KEY]: true
+      }
+    })
+    nock(BASE_ENDPOINT).post(`/events/t?en=wingify_integration&a=${WINGIFY_ACCOUNT_ID}`).reply(200, {})
+    const responses = await testDestination.testAction('syncAudience', {
+      event,
+      useDefaultMappings: true,
+      audienceMembership: true,
+      settings: {
+        wingifyAccountId: WINGIFY_ACCOUNT_ID,
+        apikey: ''
+      }
+    })
+    const expectedRequest = {
+      d: {
+        event: {
+          name: 'wingify_integration',
+          props: {
+            action: 'audience_entered',
+            audienceName: AUDIENCE_KEY,
+            audienceId: AUDIENCE_KEY,
+            identifier: 'test_user',
+            accountId: 654331,
+            integration: 'segment'
+          }
+        }
+      }
+    }
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).toMatchObject(expectedRequest)
+  })
+
   it('should send the remove audience call', async () => {
     const event = createTestEvent({
       type: 'track',

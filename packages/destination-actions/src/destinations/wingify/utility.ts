@@ -36,7 +36,13 @@ function generate(name: string, namespace: string): string {
   return uuidv5(name, namespace)
 }
 
-function formatJSON(name: string, payload: SegmentPayload, isCustomEvent: boolean, apiKey = '', accountId = 0): WingifyJSON {
+function formatJSON(
+  name: string,
+  payload: SegmentPayload,
+  isCustomEvent: boolean,
+  apiKey = '',
+  accountId = 0
+): WingifyJSON {
   const wingifyUuid = apiKey.trim().length ? generateUUIDFor(payload.wingifyUuid, accountId) : payload.wingifyUuid
 
   const formattedProperties = 'properties' in payload && payload.properties ? { ...payload.properties } : {}
@@ -91,8 +97,7 @@ function formatJSON(name: string, payload: SegmentPayload, isCustomEvent: boolea
   }
 
   return json
-} 
-
+}
 
 function formatHeader(userAgent?: string, ip?: string): { [k: string]: string } {
   const headers: { [k: string]: string } = userAgent ? { 'User-Agent': userAgent } : {}
@@ -105,10 +110,11 @@ function formatHeader(userAgent?: string, ip?: string): { [k: string]: string } 
 
 function sanitiseEventName(name: string) {
   const trimmed = name.trim()
-  if(!trimmed) {
+  if (!trimmed) {
     throw new PayloadValidationError('Event name cannot be empty or whitespace only')
   }
-  return 'segment.' + name
+  // Avoid double-prefixing if the caller already passed a prefixed name.
+  return trimmed.startsWith('segment.') ? trimmed : 'segment.' + trimmed
 }
 
 function formatAttributes(attributes: { [k: string]: unknown } | undefined) {
@@ -131,19 +137,20 @@ export function generateUUIDFor(userId: string | number, accountId: number) {
   return desiredUuid
 }
 
-export function send(event: string, isCustomEvent: boolean, request: RequestClient, payload: SegmentPayload, settings: Settings, sanitise = true){
+export function send(
+  event: string,
+  isCustomEvent: boolean,
+  request: RequestClient,
+  payload: SegmentPayload,
+  settings: Settings,
+  sanitise = true
+) {
   const eventName = sanitise ? sanitiseEventName(event) : event
   const headers = formatHeader(payload.userAgent, payload.ip)
-  const json = formatJSON(
-    eventName,
-    payload,
-    isCustomEvent,
-    settings.apikey,
-    settings.wingifyAccountId
-  )
+  const json = formatJSON(eventName, payload, isCustomEvent, settings.apikey, settings.wingifyAccountId)
   const region = settings.region || 'US'
-  const host = hosts[region]
-  const endpoint = `${host}/events/t?en=${eventName}&a=${settings.wingifyAccountId}`
+  const host = hosts[region] ?? hosts.US
+  const endpoint = `${host}/events/t?en=${encodeURIComponent(eventName)}&a=${settings.wingifyAccountId}`
   return request<WingifyJSON>(endpoint, {
     method: 'POST',
     json,

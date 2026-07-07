@@ -12,14 +12,13 @@ const action: ActionDefinition<Settings, Payload> = {
     name: {
       description: 'Name of the event',
       label: 'Event Name',
-      required: true,
       type: 'string',
       default: {
         '@path': '$.event'
       }
     },
     userId: {
-      description: 'An unique identifier for the user',
+      description: 'A unique identifier for the user',
       label: 'User ID',
       type: 'string',
       default: {
@@ -47,14 +46,14 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, audienceMembership }) => {
     const epochTime = new Date().valueOf()
     const time = Math.floor(epochTime)
-    const action = audienceMembership ? 'audience_entered' : 'audience_exited'
+    const audienceAction = audienceMembership ? 'audience_entered' : 'audience_exited'
     const wingifyPayload: WingifyAudienceJSON = {
       d: {
         event: {
           name: 'wingify_integration',
           time,
           props: {
-            action,
+            action: audienceAction,
             audienceName: payload.audienceId,
             audienceId: payload.audienceId,
             identifier: payload.userId ?? payload.anonymousId ?? '',
@@ -65,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
     const region = settings.region || 'US'
-    const host = hosts[region]
+    const host = hosts[region] ?? hosts.US
     const endpoint = `${host}/events/t?en=wingify_integration&a=${settings.wingifyAccountId}`
 
     return request(endpoint, {
