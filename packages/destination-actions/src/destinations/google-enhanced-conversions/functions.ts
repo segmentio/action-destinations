@@ -187,7 +187,7 @@ export async function createDataManagerPartnerLink(
 
   // When the customer uses an MCC to access a sub-account, the owningAccount
   // must be the MCC (loginCustomerId), not the sub-account.
-  const owningAccountId = loginCustomerId ?? customerId
+  const owningAccountId = loginCustomerId || customerId
 
   const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
 

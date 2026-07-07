@@ -166,7 +166,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
 
       // Normalise loginCustomerId (strip dashes) — used as owningAccount for MCC setups.
-      const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '')
+      // Use || so an empty string after trimming is treated as absent (falls back to customerId).
+      const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
 
       const auth = createAudienceInput.settings.oauth
       if (!auth?.refresh_token) {
