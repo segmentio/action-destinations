@@ -1,5 +1,61 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`PinterestConversionApi ReportConversionEvent Should send an event to pinterest successfully when user data only has a phone number 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "action_source": "web",
+      "app_id": undefined,
+      "app_name": "InitechGlobal",
+      "app_version": "545",
+      "custom_data": Object {
+        "content_ids": undefined,
+        "contents": undefined,
+        "currency": undefined,
+        "num_items": undefined,
+        "opt_out_type": undefined,
+        "order_id": undefined,
+        "search_string": undefined,
+        "value": undefined,
+      },
+      "device_brand": undefined,
+      "device_carrier": undefined,
+      "device_model": "iPhone7,2",
+      "device_type": "ios",
+      "event_id": "test-message-rocnz07d5e8",
+      "event_name": "checkout",
+      "event_source_url": "https://segment.com/academy/",
+      "event_time": 1678694183,
+      "language": undefined,
+      "opt_out": true,
+      "os_version": "8.1.3",
+      "partner_name": "ss-segment",
+      "user_data": Object {
+        "click_id": undefined,
+        "client_ip_address": undefined,
+        "client_user_agent": undefined,
+        "country": undefined,
+        "ct": undefined,
+        "db": undefined,
+        "em": undefined,
+        "external_id": undefined,
+        "fn": undefined,
+        "ge": undefined,
+        "hashed_maids": undefined,
+        "ln": undefined,
+        "partner_id": undefined,
+        "ph": Array [
+          "15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225",
+        ],
+        "st": undefined,
+        "zp": undefined,
+      },
+      "wifi": undefined,
+    },
+  ],
+}
+`;
+
 exports[`PinterestConversionApi ReportConversionEvent Should send an event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent 1`] = `
 Object {
   "data": Array [

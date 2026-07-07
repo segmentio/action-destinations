@@ -141,6 +141,28 @@ describe('PinterestConversionApi', () => {
       )
     })
 
+    it('Should send an event to pinterest successfully when user data only has a phone number', async () => {
+      nock(`https://api.pinterest.com`)
+        .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('reportConversionEvent', {
+        event,
+        settings: authData,
+        useDefaultMappings: true,
+        mapping: {
+          event_name: 'checkout',
+          user_data: {
+            phone: ['123456789']
+          }
+        }
+      })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(JSON.parse(responses[0]?.options?.body as string)?.data?.length).toBe(1)
+      expect(responses[0].options.json).toMatchSnapshot()
+    })
+
     it('Should send an signup event to pinterest successfully,if user data have either of email,hashed_maids or both client_ip_address and client_user_agent', async () => {
       nock(`https://api.pinterest.com`)
         .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)

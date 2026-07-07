@@ -168,6 +168,7 @@ const action: ActionDefinition<Settings, Payload> = {
 async function processPayload(request: RequestClient, settings: Settings, payload: Payload) {
   if (
     isEmpty(payload.user_data?.email) &&
+    isEmpty(payload.user_data?.phone) &&
     isEmpty(payload.user_data?.hashed_maids) &&
     !(payload.user_data?.client_ip_address && payload.user_data?.client_user_agent)
   ) {
