@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-fullsession",
   "version": "1.10.1-staging.10",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/fullsession"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
