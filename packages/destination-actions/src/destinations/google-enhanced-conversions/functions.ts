@@ -917,6 +917,12 @@ const extractBatchUserIdentifiers = (
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
+  // Track each subset's position -> original payload index, so that a Google
+  // partialFailureError's failedIndex (relative to a single addOperations call)
+  // can be resolved back to the correct original payload index, even when a
+  // batch contains a mix of add and remove operations sent as separate calls.
+  const addPayloadIndices: number[] = []
+  const removePayloadIndices: number[] = []
 
   //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
@@ -956,12 +962,20 @@ const extractBatchUserIdentifiers = (
     validPayloadIndicesBitmap.push(index)
     if (operationType === 'add') {
       addUserIdentifiers.push({ create: { userIdentifiers } })
+      addPayloadIndices.push(index)
     } else {
       removeUserIdentifiers.push({ remove: { userIdentifiers } })
+      removePayloadIndices.push(index)
     }
   })
 
-  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap }
+  return {
+    addUserIdentifiers,
+    removeUserIdentifiers,
+    validPayloadIndicesBitmap,
+    addPayloadIndices,
+    removePayloadIndices
+  }
 }
 
 // Helper function to determine operation type
@@ -1014,13 +1028,13 @@ export const processBatchPayload = async (
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Extract user identifiers and validPayloadIndicesBitmap from payloads
-  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
-    payloads,
-    id_type,
-    multiStatusResponse,
-    syncMode,
-    features
-  )
+  const {
+    addUserIdentifiers,
+    removeUserIdentifiers,
+    validPayloadIndicesBitmap,
+    addPayloadIndices,
+    removePayloadIndices
+  } = extractBatchUserIdentifiers(payloads, id_type, multiStatusResponse, syncMode, features)
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Step1 :- Create an Offline user data job
@@ -1045,7 +1059,7 @@ export const processBatchPayload = async (
       request,
       addUserIdentifiers,
       resourceName,
-      validPayloadIndicesBitmap,
+      addPayloadIndices,
       failedPayloadIndices,
       multiStatusResponse,
       features,
@@ -1058,7 +1072,7 @@ export const processBatchPayload = async (
       request,
       removeUserIdentifiers,
       resourceName,
-      validPayloadIndicesBitmap,
+      removePayloadIndices,
       failedPayloadIndices,
       multiStatusResponse,
       features,

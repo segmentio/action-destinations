@@ -1490,6 +1490,174 @@ describe('GoogleEnhancedConversions', () => {
       })
     })
 
+    it('correctly attributes a Google partialFailureError to the right original payload index on a mixed add/remove batch (STRATCONN-6862)', async () => {
+      // Batch layout:
+      //   index 0 - add (Audience Entered)      -> succeeds
+      //   index 1 - remove (Audience Exited)     -> succeeds
+      //   index 2 - remove (Audience Exited)     -> the one Google actually fails (removes-only call, failedIndex = 1)
+      //   index 3 - add (Audience Entered)       -> invalid email, fails client-side validation before any API call
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            email: 'test.add@example.com'
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Audience Exited',
+          properties: {
+            email: 'test.remove1@example.com'
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Audience Exited',
+          properties: {
+            email: 'test.remove2@example.com'
+          }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Audience Entered',
+          properties: {
+            email: 'invalid_email'
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      // adds-only call - single valid operation, succeeds with no partial failure
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/userLists/1234:addOperations`)
+        .post(/.*/, (body: Record<string, unknown>) => {
+          const operations = body.operations as Array<Record<string, unknown>>
+          return operations.every((op) => 'create' in op && !('remove' in op))
+        })
+        .reply(200, {})
+
+      // removes-only call - two operations, Google fails the 2nd one (failedIndex = 1 within THIS call),
+      // which corresponds to original payload index 2, NOT index 1.
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/userLists/1234:addOperations`)
+        .post(/.*/, (body: Record<string, unknown>) => {
+          const operations = body.operations as Array<Record<string, unknown>>
+          return operations.every((op) => 'remove' in op && !('create' in op))
+        })
+        .reply(200, {
+          partialFailureError: {
+            code: 3,
+            message: 'Mocking Partial Failure Error',
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      offlineUserDataJobError: 'INVALID_SHA256_FORMAT'
+                    },
+                    message: 'The SHA256 encoded value is malformed.',
+                    location: {
+                      fieldPathElements: [
+                        {
+                          fieldName: 'operations',
+                          index: 1
+                        },
+                        {
+                          fieldName: 'remove'
+                        },
+                        {
+                          fieldName: 'user_identifiers',
+                          index: 0
+                        },
+                        {
+                          fieldName: 'hashed_email'
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/userLists/1234:run`)
+        .post(/.*/)
+        .reply(200, { done: true })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping,
+        settings: {
+          customerId
+        }
+      })
+
+      // index 0 - add - succeeds
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        sent: '/customers/1234/userLists/1234:run',
+        body: { done: true }
+      })
+
+      // index 1 - remove - succeeds (this is the payload the pre-fix bug would have incorrectly failed)
+      expect(responses[1]).toMatchObject({
+        status: 200,
+        sent: '/customers/1234/userLists/1234:run',
+        body: { done: true }
+      })
+
+      // index 2 - remove - the actual failing payload; must carry the partial failure error and its own sent/body
+      expect(responses[2]).toMatchObject({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: 'The SHA256 encoded value is malformed.',
+        sent: {
+          remove: {
+            userIdentifiers: [
+              {
+                hashedEmail: '867cda0232be295cb81c3e98a175b80083e309d941295311bfde52720ea053e5'
+              }
+            ]
+          }
+        },
+        body: {
+          errorCode: { offlineUserDataJobError: 'INVALID_SHA256_FORMAT' },
+          message: 'The SHA256 encoded value is malformed.',
+          location: {
+            fieldPathElements: [
+              {
+                fieldName: 'operations',
+                index: 1
+              },
+              {
+                fieldName: 'remove'
+              },
+              {
+                fieldName: 'user_identifiers',
+                index: 0
+              },
+              {
+                fieldName: 'hashed_email'
+              }
+            ]
+          }
+        },
+        errorreporter: 'DESTINATION'
+      })
+
+      // index 3 - invalid email - client-side validation error, unaffected by the API partial failure path
+      expect(responses[3]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "Email provided doesn't seem to be in a valid format.",
+        errorreporter: 'INTEGRATIONS'
+      })
+    })
+
     it('should successfully handle a batch of events where email is invalid or missing data for CONTACT_INFO', async () => {
       nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
         .post(/.*/)
