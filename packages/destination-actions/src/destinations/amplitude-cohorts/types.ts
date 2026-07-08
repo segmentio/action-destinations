@@ -5,7 +5,7 @@ export type Region = 'north_america' | 'europe'
 export type CreateAudienceJSON = {
     name: string                        // Cohort Name
     app_id: string                      // Amplitude App ID
-    id_type: 'BY_AMP_ID' | 'BY_USER_ID' // Device ID not supported by Amplitude Cohorts. Only a few customers will have access to an Amplitude ID.
+    id_type: 'BY_USER_ID'               // Device ID not supported by Amplitude Cohorts. Only BY_USER_ID is supported when creating a cohort.
     cg?: string                         // Cohort Grouping
     ids: Array<string>                  // List of User IDs or Amplitude IDs. Must contain at least one User ID to create the cohort.
     owner: string                       // Cohort owner. The login email of the user who will own the cohort in Amplitude

@@ -110,7 +110,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     user_id: {
       label: 'User ID',
       description:
-        'A valid User ID that exists in your Amplitude project. This is required to create the cohort. The user will be added during creation and immediately removed. If no value is provided, Segment will attempt to search for a valid User ID automatically, but this may fail if no users are found.',
+        'A valid User ID that exists in your Amplitude project. Amplitude requires a temporary seed user to create the cohort; this user will be added during creation and immediately removed. If no value is provided, Segment will attempt to discover a valid User ID automatically. Only provide this field manually if that automatic lookup fails or no users are found.',
       type: 'string',
       required: false
     }
