@@ -4,7 +4,7 @@ import createRequestClient from '../../../../../../core/src/create-request-clien
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
 import { toOrganizationUrn } from '../functions'
-import { performCompanyHook, getCompanyAudiences } from '../hooks'
+import { performCompanyHook, getCompanyAudiences, companyAudienceHook } from '../hooks'
 import type { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Destination)
@@ -432,6 +432,42 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         error: { message: expect.stringContaining('Provide a name'), code: 'MISSING_SEGMENT_NAME' }
       })
     })
+
+    it('returns CREATE_SEGMENT_FAILURE when LinkedIn creates the segment but omits the x-restli-id header', async () => {
+      // 201 with no x-restli-id header => the hook cannot learn the new segment's id.
+      nock(BASE_URL).post('/dmpSegments').reply(201, {})
+
+      const result = await performCompanyHook(requestClient, settings, { segment_creation_name: 'My New Audience' })
+
+      expect(result).toEqual({
+        error: {
+          message: expect.stringContaining('did not return an id'),
+          code: 'CREATE_SEGMENT_FAILURE'
+        }
+      })
+    })
+
+    it('returns an error when creating the segment throws', async () => {
+      nock(BASE_URL).post('/dmpSegments').reply(500, { message: 'Internal error' })
+
+      const result = await performCompanyHook(requestClient, settings, { segment_creation_name: 'My New Audience' })
+
+      expect(result).toMatchObject({
+        error: { code: expect.any(String), message: expect.any(String) }
+      })
+      expect(result).not.toHaveProperty('savedData')
+    })
+
+    it('returns an error when fetching the selected existing segment throws', async () => {
+      nock(BASE_URL).get('/dmpSegments/999').reply(500, { message: 'Internal error' })
+
+      const result = await performCompanyHook(requestClient, settings, { existing_audience_id: '999' })
+
+      expect(result).toMatchObject({
+        error: { code: expect.any(String), message: expect.any(String) }
+      })
+      expect(result).not.toHaveProperty('savedData')
+    })
   })
 
   describe('hook dropdown: getCompanyAudiences', () => {
@@ -454,6 +490,51 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           { value: '1', label: 'Company Aud' },
           { value: '3', label: 'Another Company' }
         ]
+      })
+    })
+
+    it('returns empty choices with an error when listing segments throws', async () => {
+      nock(BASE_URL).get('/dmpSegments').query(true).reply(500, { message: 'Internal error' })
+
+      const result = await getCompanyAudiences(requestClient, settings)
+
+      expect(result.choices).toEqual([])
+      expect((result as { error?: { message: string; code: string } }).error).toMatchObject({
+        message: expect.any(String),
+        code: expect.any(String)
+      })
+    })
+  })
+
+  describe('hook: companyAudienceHook.performHook wrapper', () => {
+    const { performHook } = companyAudienceHook
+
+    it('delegates to performCompanyHook and returns its result', async () => {
+      nock(BASE_URL)
+        .post('/dmpSegments', (body) => body.type === 'COMPANY' && body.name === 'Via Wrapper')
+        .reply(201, {}, { 'x-restli-id': 'wrapped_segment_id' })
+
+      const result = await performHook(requestClient, {
+        settings,
+        payload: {},
+        hookInputs: { segment_creation_name: 'Via Wrapper' }
+      })
+
+      expect(result).toEqual({
+        successMessage: expect.stringContaining('wrapped_segment_id'),
+        savedData: { id: 'wrapped_segment_id', name: 'Via Wrapper' }
+      })
+    })
+
+    it('defaults hookInputs to an empty object when none are provided', async () => {
+      const result = await performHook(requestClient, {
+        settings,
+        payload: {},
+        hookInputs: undefined
+      })
+
+      expect(result).toEqual({
+        error: { message: expect.stringContaining('Provide a name'), code: 'MISSING_SEGMENT_NAME' }
       })
     })
   })
