@@ -84,7 +84,8 @@ export class LinkedInAudiences {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'GET',
       headers: {
-        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION,
+        'LinkedIn-Version': getApiVersion(this.features)
       },
       searchParams: {
         q: 'account',
@@ -98,7 +99,8 @@ export class LinkedInAudiences {
     return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}`, {
       method: 'GET',
       headers: {
-        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION,
+        'LinkedIn-Version': getApiVersion(this.features)
       }
     })
   }
@@ -107,7 +109,8 @@ export class LinkedInAudiences {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       headers: {
-        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION
+        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION,
+        'LinkedIn-Version': getApiVersion(this.features)
       },
       json: {
         name: segmentName,

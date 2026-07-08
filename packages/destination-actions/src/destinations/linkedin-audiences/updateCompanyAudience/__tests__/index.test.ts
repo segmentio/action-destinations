@@ -250,10 +250,11 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         mapping: perEventMapping
       })
 
-      // Only 4 unique elements are sent to LinkedIn despite 12 input rows.
+      // Only 4 unique elements are sent to LinkedIn despite 12 input rows. Domains are normalized
+      // (trimmed + lower-cased) before being sent.
       expect(sentBody).toEqual({
         elements: [
-          { action: 'ADD', companyWebsiteDomain: 'Adobe.com', organizationUrn: 'urn:li:organization:1480' },
+          { action: 'ADD', companyWebsiteDomain: 'adobe.com', organizationUrn: 'urn:li:organization:1480' },
           { action: 'ADD', companyWebsiteDomain: 'oracle.com' },
           { action: 'ADD', organizationUrn: 'urn:li:organization:1476' },
           { action: 'ADD', companyWebsiteDomain: 'ibm.com' }
@@ -262,8 +263,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       const adobe = {
         status: 201,
-        sent: { action: 'ADD', companyWebsiteDomain: 'Adobe.com', organizationUrn: 'urn:li:organization:1480' },
-        body: { action: 'ADD', identifiers: { companyDomain: 'Adobe.com', linkedInCompanyId: '1480' }, index: 0 }
+        sent: { action: 'ADD', companyWebsiteDomain: 'adobe.com', organizationUrn: 'urn:li:organization:1480' },
+        body: { action: 'ADD', identifiers: { companyDomain: 'adobe.com', linkedInCompanyId: '1480' }, index: 0 }
       }
       const oracle = {
         status: 201,

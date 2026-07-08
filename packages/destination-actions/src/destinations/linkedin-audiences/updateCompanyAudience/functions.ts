@@ -27,7 +27,8 @@ export function validate(
   const validPayloads: ValidCompanyPayload[] = []
 
   payloads.forEach((payload, index) => {
-    const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
+    const companyDomain = payload.identifiers?.companyDomain?.trim().toLowerCase() || undefined
+    const linkedInCompanyId = payload.identifiers?.linkedInCompanyId?.trim() || undefined
     if (!companyDomain && !linkedInCompanyId) {
       const message =
         "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field."
@@ -43,7 +44,7 @@ export function validate(
         throw new PayloadValidationError(message)
       }
     } else {
-      validPayloads.push({ ...payload, index })
+      validPayloads.push({ ...payload, identifiers: { companyDomain, linkedInCompanyId }, index })
     }
   })
 
@@ -52,10 +53,8 @@ export function validate(
 
 export function companyKey(payload: ValidCompanyPayload): string {
   const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
-  const domainTrimmed = companyDomain ? companyDomain.trim().toLowerCase() : ''
-  const domain = domainTrimmed ? domainTrimmed : ''
-  const linkedinCompanyIdTrimmed = linkedInCompanyId ? linkedInCompanyId.trim() : ''
-  const urn = linkedinCompanyIdTrimmed ? toOrganizationUrn(linkedinCompanyIdTrimmed) : ''
+  const domain = companyDomain ?? ''
+  const urn = linkedInCompanyId ? toOrganizationUrn(linkedInCompanyId) : ''
   const action = payload.action === AUDIENCE_ACTION.REMOVE ? AUDIENCE_ACTION.REMOVE : AUDIENCE_ACTION.ADD
   return `${action}::${domain}::${urn}`
 }
@@ -127,7 +126,7 @@ export async function send(
 
   const response = await linkedinApiClient.batchUpdateCompanies(segmentId, json)
 
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
     handleRequestError(response.status, statsContext)
   }
 
