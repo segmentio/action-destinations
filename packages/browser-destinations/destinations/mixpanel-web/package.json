@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-mixpanel-web-actions",
-  "version": "1.10.1-staging.10",
+  "version": "1.10.1-staging-96f50b28f.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.97.1-staging.10"
+    "@segment/browser-destination-runtime": "1.97.1-staging-96f50b28f.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
