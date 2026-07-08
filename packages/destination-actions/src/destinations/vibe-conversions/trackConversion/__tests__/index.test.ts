@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, defaultValues } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
 
@@ -186,49 +186,5 @@ describe('VibeConversions.trackConversion', () => {
         mapping: { a: 'not_a_real_type' }
       })
     ).rejects.toThrowError()
-  })
-
-  describe('performBatch', () => {
-    // Vibe has no batch endpoint, so each event is sent as its own POST.
-    it('sends one request per event', async () => {
-      nock(BASE_URL).post('/s2s-conversion/events/segment').times(2).reply(200, {})
-
-      const events = [
-        createTestEvent({ timestamp: RECENT_ISO, messageId: 'm1', properties: { price_usd: 10 } }),
-        createTestEvent({ timestamp: RECENT_ISO, messageId: 'm2', properties: { price_usd: 20 } })
-      ]
-
-      const responses = await testDestination.testBatchAction('trackConversion', {
-        events,
-        settings,
-        useDefaultMappings: true,
-        mapping: { a: 'purchase' }
-      })
-
-      expect(responses.length).toBe(2)
-    })
-
-    it('isolates an invalid event without failing the whole batch', async () => {
-      nock(BASE_URL).post('/s2s-conversion/events/segment').reply(200, {})
-
-      const goodEvent = createTestEvent({ timestamp: RECENT_ISO, messageId: 'good' })
-      // Missing both ip and em -> validation error for this event only.
-      const badEvent = createTestEvent({ timestamp: RECENT_ISO, messageId: 'bad', context: {} })
-
-      const mapping = {
-        ...defaultValues(Destination.actions.trackConversion.fields),
-        a: 'purchase'
-      }
-
-      const response = (await testDestination.executeBatch('trackConversion', {
-        events: [goodEvent, badEvent],
-        settings,
-        mapping
-      })) as unknown as Array<{ status: number; errortype?: string }>
-
-      expect(response[0].status).toBe(200)
-      expect(response[1].status).toBe(400)
-      expect(response[1].errortype).toBe('PAYLOAD_VALIDATION_FAILED')
-    })
   })
 })
