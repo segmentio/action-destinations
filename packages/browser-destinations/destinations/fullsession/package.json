@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullsession",
-  "version": "1.10.1-staging.10",
+  "version": "1.10.1-staging-897a364a8.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +15,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "1.97.1-staging.10",
+    "@segment/browser-destination-runtime": "1.97.1-staging-897a364a8.0",
     "fullsession": "^1.0.0"
   },
   "peerDependencies": {
