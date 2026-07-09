@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-replaybird",
   "version": "1.80.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/replaybird"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
