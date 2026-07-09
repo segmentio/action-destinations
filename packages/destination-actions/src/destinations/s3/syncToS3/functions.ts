@@ -4,8 +4,9 @@ import { processHashing } from '../../../lib/hashing-utils'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { Client } from './client'
-import { RawMapping, ColumnHeader, HashAlgorithm } from './types'
+import { RawMapping, ColumnHeader, HashAlgorithm, Normalization, ColumnTransform } from './types'
 import { S3_HASHING_FEATURE_FLAG } from '../constants'
+import { SUPPORTED_HASH_ALGORITHMS, SUPPORTED_NORMALIZATIONS } from './constants'
 
 export async function send(
   payloads: Payload[],
@@ -32,20 +33,20 @@ export async function send(
     headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
   }
 
-  const configuredColumnsToHash = payloads[0]?.columns_to_hash ?? []
+  const configuredColumnTransforms = payloads[0]?.columns_to_transform ?? []
   const flagEnabled = Boolean(features && features[S3_HASHING_FEATURE_FLAG])
 
-  if (!flagEnabled && configuredColumnsToHash.length > 0) {
+  if (!flagEnabled && configuredColumnTransforms.length > 0) {
     throw new PayloadValidationError(
-      'Column hashing is currently not enabled for your Segment workspace. Remove the columns to hash or contact Segment by emailing friends@segment.com to enable the feature.'
+      'Column hashing and normalization is currently not enabled for your Segment workspace. Remove the columns to hash / normalize or contact Segment by emailing friends@segment.com to enable the feature.'
     )
   }
 
-  const columnsToHash = flagEnabled
-    ? validateColumnsToHash(configuredColumnsToHash, new Set(headers.map((h) => h.originalName)))
-    : new Map<string, HashAlgorithm>()
+  const columnTransforms = flagEnabled
+    ? resolveColumnTransforms(configuredColumnTransforms, new Set(headers.map((h) => h.originalName)))
+    : new Map<string, ColumnTransform>()
 
-  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnsToHash)
+  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnTransforms)
 
   const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
 
@@ -66,7 +67,20 @@ export function clean(delimiter: string, str?: string) {
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
 }
 
-function processField(value: unknown | undefined, hashAlgorithm?: HashAlgorithm): string {
+export function getNormalizer(normalize?: Normalization): ((value: string) => string) | undefined {
+  switch (normalize) {
+    case 'lowercase':
+      return (value: string) => value.toLowerCase()
+    case 'trim':
+      return (value: string) => value.trim()
+    case 'lowercase_trim':
+      return (value: string) => value.trim().toLowerCase()
+    default:
+      return undefined
+  }
+}
+
+function processField(value: unknown | undefined, transform?: ColumnTransform): string {
   const str =
     value === undefined || value === null
       ? ''
@@ -74,11 +88,17 @@ function processField(value: unknown | undefined, hashAlgorithm?: HashAlgorithm)
       ? String(JSON.stringify(value))
       : String(value)
 
-  if (hashAlgorithm && str !== '') {
-    return encodeString(processHashing(str, hashAlgorithm, 'hex'))
+  if (str === '' || !transform) {
+    return encodeString(str)
   }
 
-  return encodeString(str)
+  const normalizer = getNormalizer(transform.normalize)
+
+  if (transform.algorithm) {
+    return encodeString(processHashing(str, transform.algorithm, 'hex', normalizer))
+  }
+
+  return encodeString(normalizer ? normalizer(str) : str)
 }
 
 export function generateFile(
@@ -87,18 +107,18 @@ export function generateFile(
   delimiter: string,
   actionColName?: string,
   batchColName?: string,
-  columnsToHash: Map<string, HashAlgorithm> = new Map()
+  columnTransforms: Map<string, ColumnTransform> = new Map()
 ): Buffer {
   const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row = headers.map((header): string => {
       if (header.originalName === actionColName) {
-        return processField(getAudienceAction(payload), columnsToHash.get(header.originalName))
+        return processField(getAudienceAction(payload), columnTransforms.get(header.originalName))
       }
       if (header.originalName === batchColName) {
-        return processField(payloads.length, columnsToHash.get(header.originalName))
+        return processField(payloads.length, columnTransforms.get(header.originalName))
       }
-      return processField(payload.columns[header.originalName], columnsToHash.get(header.originalName))
+      return processField(payload.columns[header.originalName], columnTransforms.get(header.originalName))
     })
 
     return Buffer.from(`${row.join(delimiter === 'tab' ? '\t' : delimiter)}${isLastRow ? '' : '\n'}`)
@@ -122,42 +142,52 @@ export function getAudienceAction(payload: Payload): boolean | undefined {
   return (payload?.traits_or_props as Record<string, boolean> | undefined)?.[payload.computation_key] ?? undefined
 }
 
-const SUPPORTED_HASH_ALGORITHMS: HashAlgorithm[] = ['sha256']
-
-export function validateColumnsToHash(
-  entries: NonNullable<Payload['columns_to_hash']>,
+export function resolveColumnTransforms(
+  entries: NonNullable<Payload['columns_to_transform']>,
   validColumnNames: Set<string>
-): Map<string, HashAlgorithm> {
-  const columnsToHash = new Map<string, HashAlgorithm>()
+): Map<string, ColumnTransform> {
+  const columnTransforms = new Map<string, ColumnTransform>()
 
   for (const entry of entries) {
     const columnName = String(entry.column_name ?? '').trim()
     const hashAlgorithm = String(entry.hash_algorithm ?? '').trim()
+    const normalize = String(entry.normalize ?? 'none').trim() || 'none'
 
     if (!columnName) {
-      throw new PayloadValidationError('columns_to_hash: column_name is required.')
+      throw new PayloadValidationError('columns_to_transform: column_name is required.')
     }
-    if (!hashAlgorithm) {
-      throw new PayloadValidationError('columns_to_hash: hash_algorithm is required.')
+
+    let algorithm: HashAlgorithm | undefined
+    if (hashAlgorithm && hashAlgorithm !== 'none') {
+      algorithm = SUPPORTED_HASH_ALGORITHMS.find((a) => a === hashAlgorithm)
+      if (!algorithm) {
+        throw new PayloadValidationError(
+          `columns_to_transform: unsupported hash_algorithm "${hashAlgorithm}". Supported: ${[
+            'none',
+            ...SUPPORTED_HASH_ALGORITHMS
+          ].join(', ')}`
+        )
+      }
     }
-    const algorithm = SUPPORTED_HASH_ALGORITHMS.find((a) => a === hashAlgorithm)
-    if (!algorithm) {
+
+    if (!SUPPORTED_NORMALIZATIONS.includes(normalize as Normalization)) {
       throw new PayloadValidationError(
-        `columns_to_hash: unsupported hash_algorithm "${hashAlgorithm}". Supported: ${SUPPORTED_HASH_ALGORITHMS.join(
-          ', '
-        )}`
+        `columns_to_transform: unsupported normalize "${normalize}". Supported: ${SUPPORTED_NORMALIZATIONS.join(', ')}`
       )
     }
-    if (columnsToHash.has(columnName)) {
-      throw new PayloadValidationError(`columns_to_hash: duplicate column_name "${columnName}".`)
+
+    if (columnTransforms.has(columnName)) {
+      throw new PayloadValidationError(`columns_to_transform: duplicate column_name "${columnName}".`)
     }
-    columnsToHash.set(columnName, algorithm)
+    columnTransforms.set(columnName, { algorithm, normalize: normalize as Normalization })
   }
 
-  const invalidColumns = [...columnsToHash.keys()].filter((col) => !validColumnNames.has(col))
+  const invalidColumns = [...columnTransforms.keys()].filter((col) => !validColumnNames.has(col))
   if (invalidColumns.length > 0) {
-    throw new PayloadValidationError(`columns_to_hash contains columns that do not exist: ${invalidColumns.join(', ')}`)
+    throw new PayloadValidationError(
+      `columns_to_transform contains columns that do not exist: ${invalidColumns.join(', ')}`
+    )
   }
 
-  return columnsToHash
+  return columnTransforms
 }
