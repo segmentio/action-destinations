@@ -196,7 +196,7 @@
         },
         "ed": {
           "label": "Event Data",
-          "description": "Additional data to be sent with the event.",
+          "description": "Additional event data to send with the event.",
           "type": "object",
           "required": false,
           "multiple": false,

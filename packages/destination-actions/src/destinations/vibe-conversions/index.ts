@@ -1,5 +1,5 @@
 import type { DestinationDefinition } from '@segment/actions-core'
-import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
+import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import trackConversion from './trackConversion'
@@ -21,12 +21,6 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The Vibe pixel ID associated with the advertiser. Found in the Vibe dashboard.',
         required: true
       }
-    },
-    testAuthentication: (_request, { settings }) => {
-      if (!settings.aid) {
-        throw new InvalidAuthenticationError('Pixel ID is required.')
-      }
-      return true
     }
   },
 

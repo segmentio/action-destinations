@@ -1,10 +1,10 @@
 import { isIP } from 'net'
 import type { RequestClient } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import type { Payload } from './trackConversion/generated-types'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
 import type { ConversionEventRequest, ConversionEventResponse, EventType } from './types'
-import { CONVERSION_ENDPOINT, EVENT_TYPES, MAX_EVENT_AGE_MS } from './constants'
+import { CONVERSION_ENDPOINT, EVENT_TYPES, MAX_EVENT_AGE_MS } from '../constants'
 
 function isEventType(value: string): value is EventType {
   return (EVENT_TYPES as readonly string[]).includes(value)
@@ -76,19 +76,19 @@ export function buildConversionEvent(payload: Payload, settings: Settings): Conv
 }
 
 // Post a single typed request body to the Vibe conversion endpoint.
-function postEvent(request: RequestClient, body: ConversionEventRequest) {
+function postEvent(request: RequestClient, json: ConversionEventRequest) {
   return request<ConversionEventResponse>(CONVERSION_ENDPOINT, {
     method: 'POST',
     headers: {
       accept: 'application/json',
       'content-type': 'application/json'
     },
-    json: body
+    json
   })
 }
 
 // Send a single conversion event to Vibe.
 export function sendEvent(request: RequestClient, settings: Settings, payload: Payload) {
-  const body = buildConversionEvent(payload, settings)
-  return postEvent(request, body)
+  const json = buildConversionEvent(payload, settings)
+  return postEvent(request, json)
 }

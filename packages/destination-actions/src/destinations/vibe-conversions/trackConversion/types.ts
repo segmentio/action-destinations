@@ -1,4 +1,4 @@
-import type { EVENT_TYPES } from './constants'
+import type { EVENT_TYPES } from '../constants'
 
 export type EventType = typeof EVENT_TYPES[number]
 

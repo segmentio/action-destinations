@@ -1,19 +1,6 @@
-import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
 
-const testDestination = createTestIntegration(Destination)
-
 describe('Vibe Tracking Event', () => {
-  describe('testAuthentication', () => {
-    it('succeeds when a Pixel ID is provided', async () => {
-      await expect(testDestination.testAuthentication({ aid: 'pixel_123' })).resolves.not.toThrow()
-    })
-
-    it('fails when the Pixel ID is missing', async () => {
-      await expect(testDestination.testAuthentication({ aid: '' })).rejects.toThrow()
-    })
-  })
-
   it('exposes the expected presets', () => {
     const presets = Destination.presets ?? []
     expect(presets.map((p) => p.name)).toEqual(['Order Completed', 'Page Viewed', 'Signed Up'])

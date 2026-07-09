@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { EVENT_TYPES } from '../constants'
-import { sendEvent } from '../utils'
+import { sendEvent } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Conversion',
@@ -55,7 +55,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ed: {
       label: 'Event Data',
-      description: 'Additional data to be sent with the event.',
+      description: 'Additional event data to send with the event.',
       type: 'object',
       required: false,
       additionalProperties: true,

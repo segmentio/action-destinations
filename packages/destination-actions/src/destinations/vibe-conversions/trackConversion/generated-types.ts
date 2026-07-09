@@ -22,7 +22,7 @@ export interface Payload {
    */
   em?: string
   /**
-   * Additional data to be sent with the event.
+   * Additional event data to send with the event.
    */
   ed?: {
     /**
