@@ -1,18 +1,24 @@
 import { SegmentEvent, createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
 import Mixpanel from '../index'
-import { MixpanelTrackApiResponseType } from '../common/utils'
+import { MixpanelTrackApiResponseType, FLAGS } from '../common/utils'
 import { Features } from '@segment/actions-core/mapping-kit'
 
 beforeEach(() => {
   nock.cleanAll()
 })
 
+const PROJECT_TOKEN = 'test-api-key'
+const API_SECRET = 'test-api-secret'
+
 const settings = {
-  projectToken: 'test-api-key',
-  apiSecret: 'test-proj-token',
+  projectToken: PROJECT_TOKEN,
   apiRegion: 'US'
 }
+
+// Expected Basic auth header values for the /import endpoint: `Basic base64("<credential>:")`.
+const projectTokenAuth = `Basic ${Buffer.from(`${PROJECT_TOKEN}:`).toString('base64')}`
+const apiSecretAuth = `Basic ${Buffer.from(`${API_SECRET}:`).toString('base64')}`
 
 const END_POINT = 'https://api.mixpanel.com'
 
@@ -450,6 +456,60 @@ describe('MultiStatus', () => {
           errorreporter: 'DESTINATION'
         }
       ])
+    })
+  })
+
+  describe('/import auth credential', () => {
+    // nock only matches the request when the authorization header equals the expected credential, so a
+    // successful (200) batch response proves the correct Basic-auth credential was sent.
+    const mapping = {
+      event: {
+        '@path': '$.event'
+      }
+    }
+    const events: SegmentEvent[] = [
+      createTestEvent({ timestamp, event: 'Test event' }),
+      createTestEvent({ timestamp, event: 'Test event' })
+    ]
+
+    const runExpectingAuth = async (expectedAuth: string, batchSettings: Record<string, unknown>, flagOn: boolean) => {
+      nock(END_POINT)
+        .post('/import?strict=1')
+        .matchHeader('authorization', expectedAuth)
+        .reply(200, { code: 200, status: 'Ok', num_records_imported: 2 })
+
+      const features: Features = { 'mixpanel-multistatus': true }
+      if (flagOn) {
+        features[FLAGS.PROJECT_TOKEN_AUTH] = true
+      }
+      const response = await testDestination.executeBatch('trackEvent', {
+        events,
+        mapping,
+        settings: batchSettings as never,
+        features
+      })
+      expect(response[0]).toMatchObject({ status: 200, body: 'Ok' })
+      expect(response[1]).toMatchObject({ status: 200, body: 'Ok' })
+    }
+
+    it('uses the API secret when the project-token-auth flag is OFF', async () => {
+      await runExpectingAuth(
+        apiSecretAuth,
+        { projectToken: PROJECT_TOKEN, apiSecret: API_SECRET, apiRegion: 'US' },
+        false
+      )
+    })
+
+    it('uses the project token when the project-token-auth flag is ON', async () => {
+      await runExpectingAuth(
+        projectTokenAuth,
+        { projectToken: PROJECT_TOKEN, apiSecret: API_SECRET, apiRegion: 'US' },
+        true
+      )
+    })
+
+    it('falls back to the project token when the flag is OFF and no API secret is set', async () => {
+      await runExpectingAuth(projectTokenAuth, { projectToken: PROJECT_TOKEN, apiRegion: 'US' }, false)
     })
   })
 })

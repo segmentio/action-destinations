@@ -4,7 +4,6 @@ import Destination from '../../index'
 import { ApiRegions } from '../../common/utils'
 
 const testDestination = createTestIntegration(Destination)
-const MIXPANEL_API_SECRET = 'test-api-key'
 const MIXPANEL_PROJECT_TOKEN = 'test-proj-token'
 
 describe('Mixpanel.alias', () => {
@@ -18,7 +17,6 @@ describe('Mixpanel.alias', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.US
       }
     })
@@ -49,7 +47,6 @@ describe('Mixpanel.alias', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.EU
       }
     })
@@ -78,7 +75,6 @@ describe('Mixpanel.alias', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         apiRegion: ApiRegions.IN
       }
     })
@@ -109,7 +105,6 @@ describe('Mixpanel.alias', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET
       }
     })
     expect(responses.length).toBe(1)
@@ -139,7 +134,6 @@ describe('Mixpanel.alias', () => {
       useDefaultMappings: true,
       settings: {
         projectToken: MIXPANEL_PROJECT_TOKEN,
-        apiSecret: MIXPANEL_API_SECRET,
         sourceName: 'example segment source name'
       }
     })

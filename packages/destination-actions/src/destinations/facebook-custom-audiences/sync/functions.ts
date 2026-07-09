@@ -12,19 +12,17 @@ import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow, RawData } from './types'
-import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../constants'
+import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
 /*
- * Temporary function to handle audience membership when preset journeys_step_entered_track is in use.
- * All users will be added to the audience (no removals).
- * This function will be removed once the Journeys team have migrated customers off of the
- * journeys_step_entered_track preset.
+ * Payloads with computation_class === 'journey_step' are Journeys payloads.
+ * Check that all or none are Journeys payloads. If some are and some aren't, throw an error (which should never happen)
  */
-export function getJourneysMemberships(rawDatas: RawData[] | undefined): boolean[] | undefined {
+export function isJourneyPayloads(rawDatas: RawData[] | undefined): boolean {
   if (!rawDatas || (Array.isArray(rawDatas) && rawDatas.length === 0)) {
-    return undefined
+    return false
   }
 
   const isJourneyStep = rawDatas.map((raw) => raw?.context?.personas?.computation_class === 'journey_step')
@@ -38,10 +36,10 @@ export function getJourneysMemberships(rawDatas: RawData[] | undefined): boolean
   }
 
   if (noneJourney) {
-    return undefined
+    return false
   }
 
-  return new Array(rawDatas.length).fill(true)
+  return true
 }
 
 export async function send(
@@ -56,14 +54,19 @@ export async function send(
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
 
-  if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
-    const journeyMemberships = getJourneysMemberships(rawData)
-    if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
-      if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
-        // The above check is to ensure that the future JourneysVs preset will be able to add + remove users from the audience.
-        audienceMemberships = journeyMemberships
-      }
-    }
+  // isJourneyPayloads also throws if the batch mixes journey_step and non-journey_step events.
+  const isJourney = isJourneyPayloads(rawData)
+  if (isJourney && !audienceMemberships?.every((m) => typeof m === 'boolean')) {
+    // If audienceMemberships is already populated with booleans we assume JourneysV2 (which can add
+    // AND remove users), so we leave it untouched. Otherwise we assume JourneysV1 (which only adds)
+    // and set all memberships to true.
+    //
+    // NOTE: the membership array is sized to `payloads`, NOT to `rawData`. `rawData` is the full,
+    // unfiltered batch, but invalid payloads are dropped before they reach here — so `payloads` may
+    // be shorter. Building the array from `payloads.length` keeps it aligned and avoids a spurious
+    // "Audience membership details count does not match batch payload count." error that would fail
+    // the whole batch when one event was filtered out.
+    audienceMemberships = new Array(payloads.length).fill(true)
   }
 
   const audienceId = getAudienceId(payloads[0], hookOutputs)

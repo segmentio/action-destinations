@@ -8,7 +8,7 @@ export interface Settings {
   /**
    * Mixpanel project secret.
    */
-  apiSecret: string
+  apiSecret?: string
   /**
    * Learn about [EU data residency](https://docs.mixpanel.com/docs/privacy/eu-residency) and [India data residency](https://docs.mixpanel.com/docs/privacy/in-residency)
    */

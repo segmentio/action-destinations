@@ -1,10 +1,9 @@
 import type { ActionDefinition } from '@segment/actions-core'
+import { MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { convertAttributeTimestamps, sendSingle, sendBatch, resolveIdentifiers } from '../utils'
 import { eventProperties } from '../customerio-properties'
-
-type Action = 'identify' | 'identify_anonymous'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Object',
@@ -91,26 +90,28 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
-    const payloadsByAction: Record<Action, Record<string, unknown>[]> = {
-      identify: [],
-      identify_anonymous: []
+  performBatch: async (request, { payload: payloads, settings }) => {
+    const identifyOptions: { index: number; payload: Record<string, unknown> }[] = []
+    const identifyAnonOptions: { index: number; payload: Record<string, unknown> }[] = []
+
+    for (let i = 0; i < payloads.length; i++) {
+      const { action, body } = mapPayload(payloads[i])
+
+      if (action === 'identify_anonymous') {
+        identifyAnonOptions.push({ index: i, payload: body })
+      } else {
+        identifyOptions.push({ index: i, payload: body })
+      }
     }
 
-    for (const payload of payloads) {
-      const { action, body } = mapPayload(payload)
-
-      payloadsByAction[action as Action].push(body)
-    }
-
-    return Promise.all([
+    const [identifyResult, identifyAnonResult] = await Promise.all([
       sendBatch(
         request,
-        payloadsByAction.identify.map((payload) => ({ action: 'identify', payload, settings, type: 'object' }))
+        identifyOptions.map(({ payload }) => ({ action: 'identify', payload, settings, type: 'object' }))
       ),
       sendBatch(
         request,
-        payloadsByAction.identify_anonymous.map((payload) => ({
+        identifyAnonOptions.map(({ payload }) => ({
           action: 'identify_anonymous',
           payload,
           settings,
@@ -118,6 +119,28 @@ const action: ActionDefinition<Settings, Payload> = {
         }))
       )
     ])
+
+    const merged = new MultiStatusResponse()
+
+    if (identifyResult) {
+      for (let i = 0; i < identifyOptions.length; i++) {
+        const item = identifyResult.getResponseAtIndex(i)
+        if (item) {
+          merged.pushResponseObjectAtIndex(identifyOptions[i].index, item)
+        }
+      }
+    }
+
+    if (identifyAnonResult) {
+      for (let i = 0; i < identifyAnonOptions.length; i++) {
+        const item = identifyAnonResult.getResponseAtIndex(i)
+        if (item) {
+          merged.pushResponseObjectAtIndex(identifyAnonOptions[i].index, item)
+        }
+      }
+    }
+
+    return merged
   },
 
   perform: (request, { payload, settings }) => {

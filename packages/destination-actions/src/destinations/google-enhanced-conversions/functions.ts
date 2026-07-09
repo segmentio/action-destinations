@@ -26,7 +26,9 @@ import {
   Features,
   MultiStatusResponse,
   JSONLikeObject,
-  ErrorCodes
+  ErrorCodes,
+  AudienceMembership,
+  FLAGS
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -525,7 +527,8 @@ const extractUserIdentifiers = (
   idType: string,
   syncMode?: string,
   features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  statsContext?: StatsContext | undefined,
+  audienceMembership?: AudienceMembership
 ) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
@@ -566,20 +569,52 @@ const extractUserIdentifiers = (
       return identifiers
     }
   }
-  // Map user data to Google Ads API format
+
   for (const payload of payloads) {
-    if (
-      payload.event_name === 'Audience Entered' ||
-      syncMode === 'add' ||
-      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
-    ) {
-      addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
-    } else if (
-      payload.event_name === 'Audience Exited' ||
-      syncMode === 'delete' ||
-      (syncMode === 'mirror' && payload.event_name === 'deleted')
-    ) {
-      removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+    if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
+      if (
+        payload.event_name === 'Audience Entered' ||
+        syncMode === 'add' ||
+        (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+        audienceMembership === true
+      ) {
+        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
+      } else if (
+        payload.event_name === 'Audience Exited' ||
+        syncMode === 'delete' ||
+        (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+        audienceMembership === false
+      ) {
+        removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+      } else {
+        // Neither add nor remove resolved (e.g. 'mirror' default with an unrecognized event_name and
+        // no audienceMembership signal): the payload is silently dropped. Track so flag-driven
+        // regressions in the membership logic are observable.
+        statsContext?.statsClient?.incr('google_ec.user_list.no_operation', 1, [
+          ...(statsContext?.tags ?? []),
+          'feature_flag:on'
+        ])
+      }
+    } else {
+      // Map user data to Google Ads API format
+      if (
+        payload.event_name === 'Audience Entered' ||
+        syncMode === 'add' ||
+        (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
+      ) {
+        addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
+      } else if (
+        payload.event_name === 'Audience Exited' ||
+        syncMode === 'delete' ||
+        (syncMode === 'mirror' && payload.event_name === 'deleted')
+      ) {
+        removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+      } else {
+        statsContext?.statsClient?.incr('google_ec.user_list.no_operation', 1, [
+          ...(statsContext?.tags ?? []),
+          'feature_flag:off'
+        ])
+      }
     }
   }
   return [addUserIdentifiers, removeUserIdentifiers]
@@ -660,7 +695,8 @@ const processOperations = async (
   failedPayloadIndices: Set<number>,
   multiStatusResponse: MultiStatusResponse,
   features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  statsContext?: StatsContext | undefined,
+  isMixedBatch?: boolean
 ) => {
   const operationPayload = { operations: userIdentifiers, enablePartialFailure: true }
   const { success, data, error } = await addOperations(request, operationPayload, resourceName, features, statsContext)
@@ -676,6 +712,15 @@ const processOperations = async (
   const partialFailureError = (data as any)?.partialFailureError
 
   if (partialFailureError) {
+    if (isMixedBatch) {
+      // Partial failure on a batch containing BOTH adds and removes: the error-to-payload index
+      // mapping is known to be unreliable here (STRATCONN-6862). Track to quantify real-world
+      // blast radius and gauge when the fix should be prioritized.
+      statsContext?.statsClient?.incr('google_ec.user_list.mixed_batch_partial_failure', 1, [
+        ...(statsContext?.tags ?? []),
+        `feature_flag:${features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP] ? 'on' : 'off'}`
+      ])
+    }
     handlePartialFailureResponse(
       partialFailureError,
       validPayloadIndicesBitmap,
@@ -695,7 +740,8 @@ export const handleUpdate = async (
   hookListType: string,
   syncMode?: string,
   features?: Features | undefined,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  audienceMembership?: AudienceMembership
 ) => {
   const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -708,7 +754,8 @@ export const handleUpdate = async (
     id_type,
     syncMode,
     features,
-    statsContext
+    statsContext,
+    audienceMembership
   )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
@@ -805,13 +852,17 @@ const updateMultiStatusResponseWithSuccess = (
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
   sentBody: JSONLikeObject | string,
-  failedPayloadIndices: Set<number>
+  failedPayloadIndices: Set<number>,
+  operationByIndex: Map<number, JSONLikeObject>
 ) => {
   validPayloadIndicesBitmap.forEach((index) => {
     if (!failedPayloadIndices.has(index)) {
+      // Surface the actual operation sent to Google for this payload ({ create: ... } or
+      // { remove: ... }) so add/remove is observable per item. Falls back to sentBody so a
+      // successful payload is never suppressed if the operation lookup ever misses.
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: sentBody,
+        sent: operationByIndex.get(index) ?? sentBody,
         body: executedJob.data as JSONLikeObject
       })
     }
@@ -832,6 +883,13 @@ export const handlePartialFailureResponse = (
       )?.index
 
       if (failedIndex >= 0) {
+        // KNOWN BUG (pre-existing; out of scope for this PR — fix tracked in STRATCONN-6862):
+        // Introduced in https://github.com/segmentio/action-destinations/pull/2853 (Multistatus Support).
+        // For batches that contain BOTH adds and removes, a Google-side partial-failure error can be
+        // attributed to the wrong original payload index. `failedIndex` is the position within a
+        // single operations array (adds-only or removes-only, as sent to Google), but
+        // `validPayloadIndicesBitmap` is indexed across all valid payloads (adds and removes mixed),
+        // so the two index spaces don't line up. Mapping is correct for all-add or all-remove batches.
         const originalIndex = validPayloadIndicesBitmap[failedIndex]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
@@ -912,11 +970,17 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
-  features?: Features
+  features?: Features,
+  audienceMemberships?: AudienceMembership[],
+  statsContext?: StatsContext
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
+  // Maps each original payload index to the exact operation object sent to Google for that
+  // payload ({ create: ... } or { remove: ... }), so the per-payload multi-status `sent` field
+  // reflects the actual add/remove decision rather than a generic value.
+  const operationByIndex = new Map<number, JSONLikeObject>()
 
   //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
@@ -943,8 +1007,15 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode)
-    if (!operationType) {
+    const operationType = determineOperationType(payload, syncMode, features, audienceMemberships?.[index])
+    if (operationType === undefined) {
+      // Neither add nor remove resolved for this payload (e.g. 'mirror' default with an unrecognized
+      // event_name and no audienceMembership signal). Track so flag-driven regressions in the
+      // membership logic are observable rather than silently surfacing as payload validation errors.
+      statsContext?.statsClient?.incr('google_ec.user_list.undetermined_operation_type', 1, [
+        ...(statsContext?.tags ?? []),
+        `feature_flag:${features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP] ? 'on' : 'off'}`
+      ])
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
@@ -954,33 +1025,59 @@ const extractBatchUserIdentifiers = (
     }
 
     validPayloadIndicesBitmap.push(index)
-    if (operationType === 'add') {
-      addUserIdentifiers.push({ create: { userIdentifiers } })
+    if (operationType === true) {
+      const operation = { create: { userIdentifiers } }
+      addUserIdentifiers.push(operation)
+      operationByIndex.set(index, operation)
     } else {
-      removeUserIdentifiers.push({ remove: { userIdentifiers } })
+      const operation = { remove: { userIdentifiers } }
+      removeUserIdentifiers.push(operation)
+      operationByIndex.set(index, operation)
     }
   })
 
-  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap }
+  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap, operationByIndex }
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
-  if (
-    payload.event_name === 'Audience Entered' ||
-    syncMode === 'add' ||
-    (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
-  ) {
-    return 'add'
-  } else if (
-    payload.event_name === 'Audience Exited' ||
-    syncMode === 'delete' ||
-    (syncMode === 'mirror' && payload.event_name === 'deleted')
-  ) {
-    return 'remove'
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  features?: Features,
+  audienceMembership?: AudienceMembership
+): boolean | undefined => {
+  if (features?.[FLAGS.ACTIONS_GOOGLE_EC_AUDIENCE_MEMBERSHIP]) {
+    if (
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+      audienceMembership === true
+    ) {
+      return true
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      audienceMembership === false
+    ) {
+      return false
+    }
+  } else {
+    if (
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
+    ) {
+      return true
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted')
+    ) {
+      return false
+    }
   }
-
-  return null
+  return undefined
 }
 
 const createOfflineUserJobPayload = (audienceId: string, payload: UserListPayload, customerId?: string) => ({
@@ -1005,7 +1102,8 @@ export const processBatchPayload = async (
   hookListType: string,
   syncMode?: string,
   features?: Features | undefined,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const externalAudienceId = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -1014,13 +1112,16 @@ export const processBatchPayload = async (
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Extract user identifiers and validPayloadIndicesBitmap from payloads
-  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
-    payloads,
-    id_type,
-    multiStatusResponse,
-    syncMode,
-    features
-  )
+  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap, operationByIndex } =
+    extractBatchUserIdentifiers(
+      payloads,
+      id_type,
+      multiStatusResponse,
+      syncMode,
+      features,
+      audienceMemberships,
+      statsContext
+    )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Step1 :- Create an Offline user data job
@@ -1039,6 +1140,9 @@ export const processBatchPayload = async (
     return multiStatusResponse
   }
   const failedPayloadIndices: Set<number> = new Set()
+  // Batches containing both adds and removes are subject to the partial-failure index
+  // misattribution bug (STRATCONN-6862); flag so processOperations can track occurrences.
+  const isMixedBatch = addUserIdentifiers.length > 0 && removeUserIdentifiers.length > 0
   // Step 2:- Add operations to the Offline user data job
   if (addUserIdentifiers.length > 0) {
     await processOperations(
@@ -1049,7 +1153,8 @@ export const processBatchPayload = async (
       failedPayloadIndices,
       multiStatusResponse,
       features,
-      statsContext
+      statsContext,
+      isMixedBatch
     )
   }
 
@@ -1062,7 +1167,8 @@ export const processBatchPayload = async (
       failedPayloadIndices,
       multiStatusResponse,
       features,
-      statsContext
+      statsContext,
+      isMixedBatch
     )
   }
   if (failedPayloadIndices.size === validPayloadIndicesBitmap.length) {
@@ -1082,7 +1188,8 @@ export const processBatchPayload = async (
       validPayloadIndicesBitmap,
       multiStatusResponse,
       sentBody,
-      failedPayloadIndices
+      failedPayloadIndices,
+      operationByIndex
     )
   }
   return multiStatusResponse
