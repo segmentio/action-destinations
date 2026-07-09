@@ -4,7 +4,7 @@
   "version": "3.168.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/segmentio/fab-5-engine",
+    "url": "https://github.com/segmentio/action-destinations",
     "directory": "packages/core"
   },
   "main": "dist/cjs",

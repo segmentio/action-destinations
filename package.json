@@ -1,5 +1,9 @@
 {
   "name": "action-destinations",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations"
+  },
   "private": true,
   "license": "MIT",
   "workspaces": {
@@ -66,7 +70,7 @@
     "karma-jasmine": "^5.1.0",
     "karma-webkit-launcher": "^2.0.0",
     "karma-webpack": "^5.0.0",
-    "lerna": "^8.1.8",
+    "lerna": "^9.0.7",
     "lint-staged": "^10.5.3",
     "open": "^8.4.0",
     "os-browserify": "^0.3.0",
