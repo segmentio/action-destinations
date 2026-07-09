@@ -23,7 +23,8 @@ export const EVENT_NAME = {
   SUBSCRIBE: 'subscribe',
   VIEW_CATEGORY: 'view_category',
   VIEW_CONTENT: 'view_content',
-  WATCH_VIDEO: 'watch_video'
+  WATCH_VIDEO: 'watch_video',
+  
 }
 export const ACTION_SOURCE = ['app_android', 'app_ios', 'web', 'offline']
 export const PARTNER_NAME = 'ss-segment'

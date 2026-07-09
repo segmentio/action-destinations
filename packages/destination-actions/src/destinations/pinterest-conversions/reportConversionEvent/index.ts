@@ -211,6 +211,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'App Info',
       description: 'Object containing information about the application where event occurred.',
       type: 'object',
+      additionalProperties: false,
+      defaultObjectUI: 'keyvalue',
       depends_on: DEPENDS_ON_LATEST,
       properties: {
         app_id: {
@@ -272,6 +274,8 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Device Info',
       description: 'Object containing information about the device where event occurred.',
       type: 'object',
+      additionalProperties: false,
+      defaultObjectUI: 'keyvalue',
       depends_on: DEPENDS_ON_LATEST,
       properties: {
         battery_level: {
