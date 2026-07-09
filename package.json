@@ -1,5 +1,9 @@
 {
   "name": "action-destinations",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations"
+  },
   "private": true,
   "license": "MIT",
   "workspaces": {
