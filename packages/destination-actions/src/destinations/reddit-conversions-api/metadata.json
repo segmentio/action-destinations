@@ -190,6 +190,12 @@
                 },
                 "name": {
                   "@path": "$.name"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_price": {
+                  "@path": "$.price"
                 }
               }
             ]
@@ -249,6 +255,54 @@
               "label": "Product Name",
               "description": "The name of the product. Optional.",
               "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The number of this product in the event. Only applies to Reddit Conversions API v3.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_price": {
+              "label": "Item Price",
+              "description": "The unit price of the product. Only applies to Reddit Conversions API v3.",
+              "type": "number",
               "required": false,
               "multiple": false,
               "allowNull": false,
@@ -2528,6 +2582,97 @@
           "placeholder": null,
           "properties": null,
           "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "action_source": {
+          "label": "Action Source",
+          "description": "The source/channel where the conversion occurred (used for omnichannel attribution). Only applies to Reddit Conversions API v3.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "WEBSITE",
+          "choices": [
+            {
+              "label": "Website",
+              "value": "WEBSITE"
+            },
+            {
+              "label": "App",
+              "value": "APP"
+            },
+            {
+              "label": "Offline (Physical Store)",
+              "value": "PHYSICAL_STORE"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_source_url": {
+          "label": "Event Source URL",
+          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API v3.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "test_id": {
+          "label": "Test ID",
+          "description": "A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API v3.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
@@ -2658,6 +2803,12 @@
                 },
                 "name": {
                   "@path": "$.name"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_price": {
+                  "@path": "$.price"
                 }
               }
             ]
@@ -2717,6 +2868,54 @@
               "label": "Product Name",
               "description": "The name of the product. Optional.",
               "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The number of this product in the event. Only applies to Reddit Conversions API v3.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_price": {
+              "label": "Item Price",
+              "description": "The unit price of the product. Only applies to Reddit Conversions API v3.",
+              "type": "number",
               "required": false,
               "multiple": false,
               "allowNull": false,
@@ -5006,6 +5205,97 @@
           "displayMode": null,
           "format": null,
           "additionalProperties": false
+        },
+        "action_source": {
+          "label": "Action Source",
+          "description": "The source/channel where the conversion occurred (used for omnichannel attribution). Only applies to Reddit Conversions API v3.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "WEBSITE",
+          "choices": [
+            {
+              "label": "Website",
+              "value": "WEBSITE"
+            },
+            {
+              "label": "App",
+              "value": "APP"
+            },
+            {
+              "label": "Offline (Physical Store)",
+              "value": "PHYSICAL_STORE"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_source_url": {
+          "label": "Event Source URL",
+          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API v3.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "test_id": {
+          "label": "Test ID",
+          "description": "A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API v3.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -5065,6 +5355,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5146,6 +5442,10 @@
         "event_metadata": {},
         "conversion_id": {
           "@path": "$.messageId"
+        },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "tracking_type": "PageVisit"
       },
@@ -5185,6 +5485,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5266,6 +5572,10 @@
         "event_metadata": {},
         "conversion_id": {
           "@path": "$.messageId"
+        },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "tracking_type": "ViewContent"
       },
@@ -5305,6 +5615,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5387,6 +5703,10 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
         "tracking_type": "Search"
       },
       "eventSlug": null
@@ -5425,6 +5745,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5516,6 +5842,10 @@
         },
         "conversion_id": {
           "@path": "$.messageId"
+        },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "tracking_type": "AddToCart"
       },
@@ -5555,6 +5885,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5647,6 +5983,10 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
         "tracking_type": "AddToWishlist"
       },
       "eventSlug": null
@@ -5685,6 +6025,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5787,6 +6133,10 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
         "tracking_type": "Purchase"
       },
       "eventSlug": null
@@ -5825,6 +6175,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -5913,6 +6269,10 @@
         },
         "conversion_id": {
           "@path": "$.messageId"
+        },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "tracking_type": "Lead"
       },
@@ -5952,6 +6312,12 @@
               },
               "name": {
                 "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_price": {
+                "@path": "$.price"
               }
             }
           ]
@@ -6040,6 +6406,10 @@
         },
         "conversion_id": {
           "@path": "$.messageId"
+        },
+        "action_source": "WEBSITE",
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "tracking_type": "SignUp"
       },
