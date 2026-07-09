@@ -18,13 +18,25 @@ export interface Payload {
    */
   recording_url: string
   /**
+   * The first name for the customer.
+   */
+  customer_first_name?: string
+  /**
+   * The last name for the customer.
+   */
+  customer_last_name?: string
+  /**
    * The first name for the primary handling agent.
    */
-  first_name?: string
+  agent_first_name?: string
   /**
    * The last name for the primary handling agent.
    */
-  last_name?: string
+  agent_last_name?: string
+  /**
+   * When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part.
+   */
+  assign_first_last_name_by_splitting_email?: boolean
   /**
    * Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.
    */
@@ -73,11 +85,11 @@ export interface Payload {
     /**
      * The first name of the agent for this call leg.
      */
-    first_name: string
+    first_name?: string
     /**
      * The last name of the agent for this call leg.
      */
-    last_name: string
+    last_name?: string
   }[]
   /**
    * Additional call metadata to forward to Voiceops unchanged.

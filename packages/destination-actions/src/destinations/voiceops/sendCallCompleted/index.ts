@@ -8,6 +8,47 @@ const HANDLING_AGENT_TYPE = 'HANDLING_AGENT'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const UNIX_SECONDS_PATTERN = /^\d{10}$/
 
+function titleCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+}
+
+function splitNameFromEmail(email?: string): { first_name?: string; last_name?: string } {
+  const localPart = email?.split('@')[0]?.split('+')[0]
+  const nameParts = localPart?.split(/[^a-zA-Z0-9]+/).filter(Boolean) ?? []
+
+  if (nameParts.length === 0) {
+    return {}
+  }
+
+  return {
+    first_name: titleCase(nameParts[0]),
+    last_name: nameParts.length > 1 ? nameParts.slice(1).map(titleCase).join(' ') : undefined
+  }
+}
+
+function withEmailSplitNames(payload: Payload): Payload {
+  if (!payload.assign_first_last_name_by_splitting_email) {
+    return payload
+  }
+
+  const primaryAgentName = splitNameFromEmail(payload.agent_email)
+
+  return {
+    ...payload,
+    agent_first_name: payload.agent_first_name || primaryAgentName.first_name,
+    agent_last_name: payload.agent_last_name || primaryAgentName.last_name,
+    agentLegs: payload.agentLegs?.map((agentLeg) => {
+      const splitName = splitNameFromEmail(agentLeg.agent_email)
+
+      return {
+        ...agentLeg,
+        first_name: agentLeg.first_name || splitName.first_name,
+        last_name: agentLeg.last_name || splitName.last_name
+      }
+    })
+  }
+}
+
 function validateSegmentPayload(payload: Payload): void {
   if (!UNIX_SECONDS_PATTERN.test(payload.call_started_at)) {
     throw new PayloadValidationError('call_started_at must be a 10-digit Unix timestamp in seconds.')
@@ -86,20 +127,45 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.recording_url'
       }
     },
-    first_name: {
-      label: 'First Name',
+    customer_first_name: {
+      label: 'Customer First Name',
+      description: 'The first name for the customer.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.customer_first_name'
+      }
+    },
+    customer_last_name: {
+      label: 'Customer Last Name',
+      description: 'The last name for the customer.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.customer_last_name'
+      }
+    },
+    agent_first_name: {
+      label: 'Agent First Name',
       description: 'The first name for the primary handling agent.',
       type: 'string',
       default: {
-        '@path': '$.properties.first_name'
+        '@path': '$.properties.agent_first_name'
       }
     },
-    last_name: {
-      label: 'Last Name',
+    agent_last_name: {
+      label: 'Agent Last Name',
       description: 'The last name for the primary handling agent.',
       type: 'string',
       default: {
-        '@path': '$.properties.last_name'
+        '@path': '$.properties.agent_last_name'
+      }
+    },
+    assign_first_last_name_by_splitting_email: {
+      label: 'Assign First / Last Name By Splitting Email',
+      description:
+        'When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part.',
+      type: 'boolean',
+      default: {
+        '@path': '$.properties.assign_first_last_name_by_splitting_email'
       }
     },
     channels: {
@@ -213,14 +279,12 @@ const action: ActionDefinition<Settings, Payload> = {
         first_name: {
           label: 'First Name',
           description: 'The first name of the agent for this call leg.',
-          type: 'string',
-          required: true
+          type: 'string'
         },
         last_name: {
           label: 'Last Name',
           description: 'The last name of the agent for this call leg.',
-          type: 'string',
-          required: true
+          type: 'string'
         }
       },
       default: {
@@ -257,11 +321,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    validateSegmentPayload(data.payload)
+    const payload = withEmailSplitNames(data.payload)
+    validateSegmentPayload(payload)
 
     return request(getVoiceopsCallsEndpoint(data.settings.baseUrl), {
       method: 'post',
-      json: data.payload
+      json: payload
     })
   }
 }
