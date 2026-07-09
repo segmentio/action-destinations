@@ -126,7 +126,7 @@ export interface Payload {
      */
     hash_algorithm: string
     /**
-     * How to normalize the value before hashing. Already-hashed values are never normalized. Select None to leave the value unchanged.
+     * How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select None to leave the value unchanged.
      */
     normalize: string
   }[]

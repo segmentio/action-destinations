@@ -263,7 +263,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       normalize: {
         label: 'Normalize',
         description:
-          "How to normalize the value before hashing. Already-hashed values are never normalized. Select 'none' to leave the value unchanged.",
+          "How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select 'none' to leave the value unchanged.",
         type: 'string',
         required: true,
         choices: SUPPORTED_NORMALIZATIONS.map((value) => ({ label: value, value })),
