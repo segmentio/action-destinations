@@ -1,0 +1,170 @@
+REDDIT CONVERSIONS API — v2.0 → v3 FIELD CHANGES
+=================================================
+
+Purpose: A team-facing summary of every field that is new, changed, renamed, or
+deprecated when we move the Reddit Conversions API destination from v2.0 to v3.
+
+Context: v3 is a breaking payload rewrite (new endpoint, new envelope, renamed and
+retyped fields, one new required field). All v3 behavior is gated behind a feature
+flag; with the flag OFF the destination behaves exactly as it does today (v2.0).
+
+Endpoint (for reference):
+  v2.0:  POST https://ads-api.reddit.com/api/v2.0/conversions/events/{Pixel ID}
+  v3:    POST https://ads-api.reddit.com/api/v3/pixels/{Pixel ID}/conversion_events
+
+Request envelope:
+  v2.0:  { "events": [ ... ], "test_mode": false, "partner": "SEGMENT" }
+  v3:    { "data": { "events": [ ... ], "partner": "SEGMENT" } }
+  What changes: the whole payload is now wrapped inside a "data" node.
+
+
+----------------------------------------------------------------------
+1. NEW FIELDS (did not exist in v2.0)
+----------------------------------------------------------------------
+
+action_source   [NEW — required by Reddit in v3]
+  Before (v2.0): Did not exist. We never sent it.
+  After (v3):    Sent on every event. Identifies where the conversion happened
+                 (omnichannel attribution / source-level reporting).
+  Values:        WEBSITE, APP, PHYSICAL_STORE, OTHER
+  Our default:   WEBSITE (the most common case for CAPI web events).
+  Customer impact: A new field appears in the mapping, pre-filled with WEBSITE.
+                 Existing mappings keep working because of the default.
+
+test_id   [NEW — replaces the old test_mode setting for v3]
+  Before (v2.0): We used a "Test Mode" ON/OFF setting instead (see Removed section).
+  After (v3):    An optional per-event string copied from Reddit's "Event Testing"
+                 tool. When set, events route to Event Testing for verification
+                 instead of production.
+  Important:     Must be REMOVED before sending real production traffic. This is
+                 why it is a per-event field, not a persistent setting.
+  Customer impact: Only used during QA/verification. Left empty in production.
+
+event_source_url   [NEW — optional]
+  Before (v2.0): Did not exist.
+  After (v3):    Optional URL of the page where a WEBSITE event fired. Reddit parses
+                 the domain from it for better attribution. Including a click ID in
+                 the URL improves match rate.
+  Our default:   Mapped from the event's page URL when available.
+  Customer impact: Optional; improves attribution quality for website events.
+
+products[].quantity  and  products[].item_price   [NEW — optional]
+  Before (v2.0): Products only carried category, id, and name.
+  After (v3):    Each product can also include quantity (count of that product) and
+                 item_price (unit price).
+  Note:          These are extra detail — they do NOT replace item_count and value,
+                 which still drive optimization for revenue events.
+  Customer impact: Optional richer product data.
+
+
+----------------------------------------------------------------------
+2. CHANGED FIELDS (same purpose, different name / type / format)
+----------------------------------------------------------------------
+
+event_at   [TYPE / FORMAT CHANGE]
+  Before (v2.0): RFC3339 timestamp string, e.g. "2026-06-29T12:00:00.000Z".
+  After (v3):    Integer — Unix epoch time in MILLISECONDS, e.g. 1735707600000.
+  How we handle it: The customer-facing field is unchanged (still a timestamp,
+                 still defaults to the event timestamp). We convert to epoch
+                 milliseconds internally for v3. We enforce this strictly — an
+                 ambiguous value is rejected rather than sent incorrectly, since
+                 we control the timestamp source.
+  Customer impact: None visible; handled internally.
+
+event_type  ->  type   [RENAMED]
+  Before (v2.0): The event wrapper was called "event_type".
+  After (v3):    Same contents, renamed to "type".
+                 Example: type: { tracking_type: "PURCHASE" }
+  Customer impact: None visible; internal rename.
+
+tracking_type value format   [ENUM FORMAT CHANGE]
+  Before (v2.0): Mixed case, e.g. PageVisit, ViewContent, AddToCart, Purchase.
+  After (v3):    UPPER_SNAKE_CASE, e.g. PAGE_VISIT, VIEW_CONTENT, ADD_TO_CART, PURCHASE.
+  Full mapping:
+      PageVisit      -> PAGE_VISIT
+      ViewContent    -> VIEW_CONTENT
+      Search         -> SEARCH
+      AddToCart      -> ADD_TO_CART
+      AddToWishlist  -> ADD_TO_WISHLIST
+      Purchase       -> PURCHASE
+      Lead           -> LEAD
+      SignUp         -> SIGN_UP
+      Custom         -> CUSTOM
+  How we handle it: The customer-facing choices in the field stay in the familiar
+                 v2 casing (PageVisit, etc.) so existing mappings do not break. We
+                 translate to the v3 UPPER_SNAKE values internally.
+  Customer impact: None visible; internal translation.
+
+event_metadata  ->  metadata   [RENAMED]
+  Before (v2.0): The metadata wrapper was called "event_metadata".
+  After (v3):    Same contents, renamed to "metadata".
+  Customer impact: None visible; internal rename.
+
+event_metadata.value_decimal  ->  metadata.value   [RENAMED + TYPE]
+  Before (v2.0): "value_decimal", a number.
+  After (v3):    "value", a double (base unit of the currency, e.g. dollars).
+  Customer impact: None visible; internal rename/format.
+
+custom_event_name (placement)   [MOVED, custom events only]
+  Before (v2.0): Sent inside event_type alongside tracking_type.
+  After (v3):    Sent inside "type": type: { tracking_type: "CUSTOM",
+                 custom_event_name: "Promotion Event" }
+  Customer impact: None visible; internal placement change.
+
+
+----------------------------------------------------------------------
+3. REMOVED / DEPRECATED FIELDS
+----------------------------------------------------------------------
+
+test_mode   [REMOVED in v3 — replaced by test_id]
+  Before (v2.0): A destination-level ON/OFF setting: "treat events as test events."
+  After (v3):    No longer supported. Replaced by the per-event test_id string
+                 (see New Fields).
+  Plan:          The test_mode setting stays for now because v2.0 still uses it.
+                 It will be deprecated/removed once v3 is promoted to the default
+                 and the feature flag is cleaned up.
+  Customer impact: No immediate change. Communicated at v3 promotion.
+
+user.opt_out   [DEPRECATED by Reddit — not used by us]
+  Before (v2.0): Reddit offered user.opt_out.
+  After (v3):    Replaced by user.data_processing_options.
+  Note:          We already use data_processing_options, so this is a no-op for us.
+
+event_at_ms   [DEPRECATED by Reddit — not used by us]
+  Note:          Reddit folded event_at_ms into event_at. We never sent event_at_ms,
+                 so no change for us.
+
+
+----------------------------------------------------------------------
+4. UNCHANGED FIELDS (carried over as-is)
+----------------------------------------------------------------------
+
+These keep the same name, purpose, and behavior in v3:
+
+  click_id
+  conversion_id            (inside metadata; still used for deduplication)
+  currency, item_count     (inside metadata)
+  products[].id, name, category
+  user.email, phone_number, external_id, ip_address, user_agent, uuid
+  user.idfa / aaid         (mobile advertising IDs)
+  user.screen_dimensions   (height, width)
+  user.data_processing_options (modes, country, region)
+
+Hashing of PII (email, phone, external_id, IP, advertising IDs) is unchanged — the
+same SHA-256 canonicalization rules apply in both v2.0 and v3, so we reuse the
+existing logic.
+
+
+----------------------------------------------------------------------
+5. SUMMARY FOR STAKEHOLDERS
+----------------------------------------------------------------------
+
+- Most changes are invisible to customers: renames, casing, and the timestamp format
+  are handled internally. Existing mappings continue to work.
+- Three genuinely new inputs appear in the mapping: action_source (defaulted to
+  WEBSITE), event_source_url (optional), and test_id (QA only).
+- The old "Test Mode" setting is superseded by test_id and will be retired when v3
+  becomes the default.
+- Rollout is gradual and reversible: v3 is behind a feature flag, default OFF. We
+  roll out by percentage and can instantly revert by turning the flag off. We will
+  NOT send the same event to both v2 and v3 (Reddit's guidance).
