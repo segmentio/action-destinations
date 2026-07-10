@@ -22,7 +22,7 @@ function splitNameFromEmail(email?: string): { first_name?: string; last_name?: 
 
   return {
     first_name: titleCase(nameParts[0]),
-    last_name: nameParts.length > 1 ? nameParts.slice(1).map(titleCase).join(' ') : undefined
+    last_name: nameParts.length > 1 ? nameParts.slice(1).map(titleCase).join(' ') : ''
   }
 }
 
@@ -75,11 +75,15 @@ function validateSegmentPayload(payload: Payload): void {
 
   for (const agentLeg of payload.agentLegs ?? []) {
     if (!agentLeg.first_name?.trim()) {
-      throw new PayloadValidationError('agentLegs.first_name is required for every agent leg entry.')
+      throw new PayloadValidationError(
+        'agentLegs.first_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split.'
+      )
     }
 
-    if (!agentLeg.last_name?.trim()) {
-      throw new PayloadValidationError('agentLegs.last_name is required for every agent leg entry.')
+    if (agentLeg.last_name === undefined || agentLeg.last_name === null) {
+      throw new PayloadValidationError(
+        'agentLegs.last_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split. Single-token email local-parts derive an empty last_name.'
+      )
     }
   }
 }
@@ -162,7 +166,7 @@ const action: ActionDefinition<Settings, Payload> = {
     assign_first_last_name_by_splitting_email: {
       label: 'Assign First / Last Name By Splitting Email',
       description:
-        'When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part.',
+        'When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part. Single-token local-parts derive the first name and set last name to an empty string.',
       type: 'boolean',
       default: {
         '@path': '$.properties.assign_first_last_name_by_splitting_email'
@@ -249,7 +253,7 @@ const action: ActionDefinition<Settings, Payload> = {
     agentLegs: {
       label: 'Agent Legs',
       description:
-        'Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.',
+        'Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data. Each leg must include first and last name, or enable Assign First / Last Name By Splitting Email and provide a splittable agent email.',
       type: 'object',
       multiple: true,
       defaultObjectUI: 'arrayeditor',
@@ -278,12 +282,14 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         first_name: {
           label: 'First Name',
-          description: 'The first name of the agent for this call leg.',
+          description:
+            'The first name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email.',
           type: 'string'
         },
         last_name: {
           label: 'Last Name',
-          description: 'The last name of the agent for this call leg.',
+          description:
+            'The last name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email; single-token email local-parts derive an empty last name.',
           type: 'string'
         }
       },

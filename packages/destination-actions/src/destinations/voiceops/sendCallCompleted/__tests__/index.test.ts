@@ -122,6 +122,39 @@ describe('Voiceops.sendCallCompleted', () => {
     })
   })
 
+  it('derives an empty last name from single-token email local-parts when enabled', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      agent_email: 'ava@voiceops.com',
+      assign_first_last_name_by_splitting_email: true,
+      agentLegs: [
+        {
+          agent_email: 'ava@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      agent_first_name: 'Ava',
+      agent_last_name: '',
+      agentLegs: [
+        {
+          agent_email: 'ava@voiceops.com',
+          first_name: 'Ava',
+          last_name: ''
+        }
+      ]
+    })
+  })
+
   it('forwards channels with a supported type unchanged', async () => {
     nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
@@ -411,7 +444,9 @@ describe('Voiceops.sendCallCompleted', () => {
         settings: SETTINGS,
         useDefaultMappings: true
       })
-    ).rejects.toThrow()
+    ).rejects.toThrow(
+      'agentLegs.first_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split.'
+    )
   })
 
   it('fails when an agent leg is missing last_name', async () => {
@@ -431,7 +466,9 @@ describe('Voiceops.sendCallCompleted', () => {
         settings: SETTINGS,
         useDefaultMappings: true
       })
-    ).rejects.toThrow()
+    ).rejects.toThrow(
+      'agentLegs.last_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split. Single-token email local-parts derive an empty last_name.'
+    )
   })
 
   it('fails when a HANDLING_AGENT channel identifier is not an email address', async () => {
