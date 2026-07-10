@@ -1,6 +1,43 @@
 # Destination Generator Skills
 
-This directory contains skills that automate the creation of Segment action-destinations from various sources (OpenAPI specs, website documentation, etc.).
+This directory contains skills that automate the creation of Segment action-destinations from various sources (OpenAPI specs, website documentation, PRDs, etc.).
+
+## 🚀 Start here: `/orchestrate` (the one-command pipeline)
+
+The fastest way to build a destination is the **`/orchestrate`** command. It runs the entire pipeline end-to-end — analysis → mapping → spec → code → tests → deploy → staging tests — pausing for your review between steps and passing outputs between skills for you.
+
+```
+/orchestrate <destination-name>
+```
+
+**Example:**
+
+```
+/orchestrate Vibe Actions
+```
+
+**What it does (7 steps):**
+
+| Step              | Skill                   | Output                                                          |
+| ----------------- | ----------------------- | --------------------------------------------------------------- |
+| 1. Refine         | `/refined-actions`      | `refined-actions.md` / `.json`                                  |
+| 2. Map            | `/endpoint-mapping`     | `endpoint-mapping.md` / `.json`                                 |
+| 3. Spec           | `/spec-generator`       | `final-spec.md`                                                 |
+| 4. Generate       | `/generate-destination` | code in `packages/destination-actions/src/destinations/<slug>/` |
+| 5. Test (local)   | `/test-destination-e2e` | local e2e results                                               |
+| 6. Deploy         | `/deploy-staging`       | staging deploy                                                  |
+| 7. Test (staging) | `/test-destination-e2e` | staging e2e results                                             |
+
+**How to use it:**
+
+1. Type `/orchestrate <destination-name>` in Claude Code.
+2. When asked, provide the **API source** — a docs URL, an OpenAPI spec path, or a PRD/markdown doc.
+3. Confirm (or change) the **output directory** for intermediate files (default `/tmp/<slug>/`).
+4. Review each step's output when the orchestrator pauses, and approve to continue.
+
+The orchestrator asks questions only a human can answer (scope, ambiguous mappings), answers what it can from prior outputs, and remembers where it left off if interrupted. Everything intermediate is written to the output directory so nothing is lost between steps.
+
+> Prefer running the pipeline yourself step-by-step, or only have an OpenAPI spec / website? The individual skills below still work standalone.
 
 ## Overview
 
@@ -15,8 +52,8 @@ Building a new Segment destination typically involves:
 
 These skills automate 70-80% of this process by:
 
-1. Analyzing API documentation (OpenAPI specs or websites) to identify suitable actions
-2. Generating TypeScript destination code with proper types and tests
+1. Analyzing API documentation (OpenAPI specs, websites, or PRDs) to identify suitable actions
+2. Generating TypeScript destination code with proper types, batching, and tests
 
 ## Skills
 
@@ -226,18 +263,29 @@ When prompted:
 ```
 packages/destination-actions/src/destinations/[slug]/
 ├── index.ts                       # Destination definition
-├── generated-types.ts             # Auto-generated TypeScript types
-├── IMPLEMENTATION_NOTES.md        # TODOs and next steps
+├── generated-types.ts             # Auto-generated Settings types
+├── constants.ts                   # Base URL, endpoint paths, enums
+├── types.ts                       # Hand-written request/response interfaces
+├── utils.ts                       # Send-event logic, transforms, batch builders
 ├── __tests__/
-│   └── index.test.ts             # Destination tests
+│   ├── index.test.ts             # Destination tests
+│   └── snapshot.test.ts          # Snapshot tests (loops all actions)
 ├── [action-1]/
-│   ├── index.ts                  # Action definition
-│   ├── generated-types.ts        # Action types
+│   ├── index.ts                  # Action definition (perform + performBatch)
+│   ├── generated-types.ts        # Action payload types
 │   └── __tests__/
 │       └── index.test.ts         # Action tests
 └── [action-2]/
     └── ... (same structure)
 ```
+
+> **Conventions enforced by `/generate-destination`:**
+>
+> - Endpoints/enums in `constants.ts`, request+response interfaces in `types.ts`, send logic in `utils.ts` — not inlined into the action.
+> - Event-sending actions implement **`performBatch`** with `enable_batching` / `batch_size` (+ `batch_keys` when grouping is needed).
+> - All request bodies and API responses are **typed** (no inline untyped objects, no `any` responses).
+> - **Snapshot tests** are generated alongside unit tests.
+> - The destination is **not** registered in `destinations/index.ts` with a placeholder ID — registration is left as a TODO for the production-assigned metadata ID (IDs must match across environments, created in production and synced via `sprout`).
 
 ## What Gets Automated
 
