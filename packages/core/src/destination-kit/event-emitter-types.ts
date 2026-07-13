@@ -1,0 +1,9 @@
+export type EventEmitterSlug =
+  | 'warehouse_entity_added_track'
+  | 'warehouse_entity_removed_track'
+  | 'warehouse_audience_entered_track'
+  | 'warehouse_audience_exited_track'
+  | 'warehouse_audience_membership_changed_identify'
+  | 'warehouse_entity_values_changed_track'
+  | 'warehouse_all_events_track'
+  | 'journeys_step_entered_track'

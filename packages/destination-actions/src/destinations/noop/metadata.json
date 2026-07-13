@@ -1,0 +1,57 @@
+{
+  "slug": "actions-noop",
+  "name": "NOOP",
+  "mode": "cloud",
+  "description": "A NOOP destination used for private internal services.",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "noop": {
+      "title": "Noop",
+      "description": "A NOOP Action used for private internal services",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "noop": {
+          "label": "NOOP",
+          "description": "A single NOOP field",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "noop",
+      "subscribe": "type = \"track\"",
+      "mapping": {},
+      "eventSlug": null
+    }
+  ]
+}
