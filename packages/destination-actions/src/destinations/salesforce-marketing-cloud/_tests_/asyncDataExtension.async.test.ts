@@ -413,7 +413,75 @@ describe('Salesforce Marketing Cloud - Async', () => {
         const errResponse0c = response.multiStatusResponse.getResponseAtIndex(0)
         expect(errResponse0c.value().status).toBe(400)
         expect(errResponse0c instanceof ActionDestinationErrorResponse && errResponse0c.value().errormessage).toEqual(
-          'Failed to upsert rows asynchronously: SFMC API responded with {"resultMessages":[]}.'
+          'SFMC API responded with {"resultMessages":[]}.'
+        )
+      })
+
+      it('should surface 401 status code in multi-status response', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(401, {
+            message: 'Not Authorized',
+            errorcode: 1,
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBeUndefined()
+        const errResponse = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse.value().status).toBe(401)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toEqual(
+          'Not Authorized'
+        )
+      })
+
+      it('should surface 403 status code in multi-status response', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(403, {
+            message: 'Forbidden',
+            errorcode: 3,
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBeUndefined()
+        const errResponse = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse.value().status).toBe(403)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toEqual(
+          'Forbidden'
+        )
+      })
+
+      it('should surface 500 status code in multi-status response', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(500, {
+            message: 'Internal Server Error',
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBeUndefined()
+        const errResponse = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse.value().status).toBe(500)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toEqual(
+          'Internal Server Error'
         )
       })
 
@@ -479,7 +547,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
         const errResponse0d = response.multiStatusResponse.getResponseAtIndex(0)
         expect(errResponse0d.value().status).toBe(400)
         expect(errResponse0d instanceof ActionDestinationErrorResponse && errResponse0d.value().errormessage).toEqual(
-          'Failed to upsert rows asynchronously: SFMC API responded with {"message":"Parameter {id} is invalid.","errorcode":10001,"documentation":""}.'
+          'Parameter {id} is invalid.'
         )
       })
     })

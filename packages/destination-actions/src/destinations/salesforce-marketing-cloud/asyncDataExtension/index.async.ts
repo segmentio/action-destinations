@@ -46,6 +46,12 @@ type AsyncUpsertRowsPollResultsResponse = {
   resultMessages: AsyncUpsertRowsPollResultMessage[]
 }
 
+type GenericAPIErrorResponse = {
+  documentation: string
+  errorcode: number
+  message: string
+}
+
 const asyncAction: AsyncActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
   description: `Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.`,
@@ -86,6 +92,19 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         }
         return response
       }
+      // Handle batch level errors where the entire batch is rejected due to an error (401, 403, 500, etc)
+      else if ((asyncUpsertResponse.data as unknown as GenericAPIErrorResponse).message) {
+        for (let i = 0; i < payload.length; i++) {
+          response.multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: asyncUpsertResponse.status,
+            errormessage: (asyncUpsertResponse.data as unknown as GenericAPIErrorResponse).message,
+            sent: JSON.stringify(payload[i]),
+            body: asyncUpsertResponse.data as unknown as GenericAPIErrorResponse
+          })
+        }
+
+        return response
+      }
       // For other errors, check if SFMC returned any result messages in the response body
       else if (asyncUpsertResponse.data.resultMessages && asyncUpsertResponse.data.resultMessages.length > 0) {
         for (let i = 0; i < payload.length; i++) {
@@ -99,12 +118,17 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
 
         return response
       } else {
-        // If no result messages are returned in the response body, throw a generic error with the HTTP status code and status text
-        throw new IntegrationError(
-          `SFMC API responded with ${JSON.stringify(asyncUpsertResponse.data)}.`,
-          asyncUpsertResponse.statusText,
-          asyncUpsertResponse.status
-        )
+        // If no result messages are returned in the response body, surface the real HTTP status code
+        const errormessage = `SFMC API responded with ${JSON.stringify(asyncUpsertResponse.data)}.`
+        for (let i = 0; i < payload.length; i++) {
+          response.multiStatusResponse.setErrorResponseAtIndex(i, {
+            status: asyncUpsertResponse.status,
+            errormessage,
+            sent: JSON.stringify(payload[i]),
+            body: {}
+          })
+        }
+        return response
       }
     } catch (error) {
       // Throw a generic non-retryable integration error for non HTTPError types
