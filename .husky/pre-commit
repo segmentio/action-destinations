@@ -23,4 +23,9 @@ then
     brew install gitleaks
 fi
 
+# Normalize any Artifactory-proxied npm registry URLs in yarn.lock back to
+# registry.yarnpkg.com before they get committed (see scripts/normalize-yarn-lock-registry.sh).
+bash scripts/normalize-yarn-lock-registry.sh
+git add yarn.lock
+
 yarn lint-staged -c lint-staged.config.js
