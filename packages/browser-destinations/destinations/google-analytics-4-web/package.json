@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-google-analytics-4",
-  "version": "1.110.0",
+  "version": "1.111.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -20,8 +20,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.169.0",
-    "@segment/browser-destination-runtime": "^1.98.0"
+    "@segment/actions-core": "^3.170.0",
+    "@segment/browser-destination-runtime": "^1.99.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
