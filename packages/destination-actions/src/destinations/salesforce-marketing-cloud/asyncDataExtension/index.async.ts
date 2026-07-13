@@ -180,6 +180,18 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       // Check if the request is complete without any errors
       if (statusResponse.data.status.requestStatus === 'Complete' && statusResponse.data.status.resultStatus === 'OK') {
         response.jobStatus = 'SUCCEEDED'
+
+        // The lightweight status API confirms every uploaded record succeeded, so we avoid calling
+        // the heavyweight results API. Report the success count using the uploadCount passed into the poll.
+        response.multiStatusResponse = new MultiStatusResponse()
+        for (let i = 0; i < payload.uploadCount; i++) {
+          response.multiStatusResponse.setSuccessResponseAtIndex(i, {
+            status: 200,
+            sent: {},
+            body: 'OK'
+          })
+        }
+
         return response
       }
 
