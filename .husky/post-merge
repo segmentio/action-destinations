@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-. "$(dirname "$0")/_/husky.sh"
-
-bash scripts/localize-yarn-lock-registry.sh
