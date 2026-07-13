@@ -4,6 +4,9 @@
 # Artifactory npm proxy (any host, any repo-key) end up with
 # https://<host>/artifactory/api/npm/<repo-key>/... resolved URLs instead of
 # https://registry.yarnpkg.com/..., which shouldn't be committed.
+# See scripts/localize-yarn-lock-registry.sh for the inverse (run after
+# checkout/merge, for local installs on machines that need the Artifactory
+# proxy).
 set -e
 
 if [ ! -f yarn.lock ]; then
