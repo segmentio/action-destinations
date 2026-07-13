@@ -15,7 +15,15 @@ module.exports = function (config) {
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine', 'webpack'],
     plugins: ['karma-webpack', 'karma-jasmine', 'karma-chrome-launcher', 'karma-webkit-launcher'],
-    browsers: ['ChromeHeadless', 'WebkitHeadless'],
+    // CI runners disallow Chrome's unprivileged user-namespace sandbox (Ubuntu 24.04+ AppArmor
+    // policy), so ChromeHeadless fails with "No usable sandbox!" without --no-sandbox.
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-setuid-sandbox']
+      }
+    },
+    browsers: ['ChromeHeadlessNoSandbox', 'WebkitHeadless'],
     // list of files / patterns to load in the browser
     // Here I'm including all of the the Jest tests which are all under the __tests__ directory.
     // You may need to tweak this patter to find your test files/
