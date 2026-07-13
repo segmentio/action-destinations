@@ -66,6 +66,8 @@ function createRedditPayloadV3(payloads: StandardEvent[] | CustomEvent[]): V3Pay
     const custom_event_name = clean((payload as CustomEvent).custom_event_name)
     const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
 
+    if (!action_source) throw new PayloadValidationError('action_source is required')
+
     return {
       event_at: toEpochMs(event_at),
       action_source,

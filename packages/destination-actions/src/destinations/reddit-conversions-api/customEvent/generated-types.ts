@@ -129,7 +129,7 @@ export interface Payload {
   /**
    * The source/channel where the conversion occurred (used for omnichannel attribution). Only applies to Reddit Conversions API v3.
    */
-  action_source: string
+  action_source?: string
   /**
    * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API v3.
    */
