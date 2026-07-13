@@ -243,7 +243,7 @@ const action: ActionDefinition<Settings, Payload> = {
         install_time: {
           label: 'Install Time',
           type: 'datetime',
-          description: 'App install time. Will be converted to Unix timestamp in seconds before sending.'
+          description: 'App install time. Accepts ISO 8601 format or Unix timestamp in seconds (10 digit).'
         },
         user_agent: {
           label: 'User Agent',
@@ -311,7 +311,19 @@ const action: ActionDefinition<Settings, Payload> = {
         form_factor: {
           label: 'Form Factor',
           type: 'string',
-          description: 'Device form factor (desktop, laptop, cellphone, tablet, smartwatch, tv, vr, console, other).'
+          description: 'Device form factor (desktop, laptop, cellphone, tablet, smartwatch, tv, vr, console, other).',
+          choices: [
+            { label: 'desktop', value: 'desktop' },
+            { label: 'laptop', value: 'laptop' },
+            { label: 'cellphone', value: 'cellphone' },
+            { label: 'tablet', value: 'tablet' },
+            { label: 'smartwatch', value: 'smartwatch' },
+            { label: 'tv', value: 'tv' },
+            { label: 'vr', value: 'vr' },
+            { label: 'console', value: 'console' },
+            { label: 'other', value: 'other' }
+          ],
+          default: 'other'
         },
         kernel_version: {
           label: 'Kernel Version',
@@ -322,7 +334,7 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Languages',
           type: 'string',
           multiple: true,
-          description: 'List of user installed languages. ISO 639-1 format.'
+          description: 'List of user installed languages. ISO 639-1 format. For example, ["en", "fr", "es"].'
         },
         locale: {
           label: 'Locale',
@@ -343,12 +355,23 @@ const action: ActionDefinition<Settings, Payload> = {
         os_family: {
           label: 'OS Family',
           type: 'string',
-          description: 'OS Family (ios, android, macos, windows, linux, bsd, other).'
+          description: 'OS Family (ios, android, macos, windows, linux, bsd, other).',
+          choices: [
+            { label: 'ios', value: 'ios' },
+            { label: 'android', value: 'android' },
+            { label: 'macos', value: 'macos' },
+            { label: 'windows', value: 'windows' },
+            { label: 'linux', value: 'linux' },
+            { label: 'bsd', value: 'bsd' },
+            { label: 'other', value: 'other' }
+          ],
+          default: 'other'
         },
         os_name: {
           label: 'OS Name',
           type: 'string',
-          description: 'Short name of the OS.'
+          description: 'Short name of the OS.',
+          maximum: 100
         },
         os_release_name: {
           label: 'OS Release Name',
@@ -358,7 +381,8 @@ const action: ActionDefinition<Settings, Payload> = {
         os_version: {
           label: 'OS Version',
           type: 'string',
-          description: 'Full name of the OS version.'
+          description: 'Full name of the OS version.',
+          maximum: 100
         },
         screen_density: {
           label: 'Screen Density',
