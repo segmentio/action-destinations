@@ -48,7 +48,7 @@ jobs:
         if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
-      - name: Use Github Personal Access Token
+      - name: Use GitHub Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
       - name: Derive Nx base/head SHAs
@@ -72,7 +72,7 @@ jobs:
           else
             HEAD_SHA="$CURRENT_SHA"
             LAST_SUCCESS_SHA=$(gh api "repos/$REPOSITORY/actions/workflows/ci.yml/runs?branch=$REF_NAME&status=success&per_page=1" --jq '.workflow_runs[0].head_sha // empty' || true)
-            BASE_SHA="${LAST_SUCCESS_SHA:-$(git rev-parse HEAD~1)}"
+            BASE_SHA="${LAST_SUCCESS_SHA:-$(git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)}"
           fi
           echo "NX_BASE=$BASE_SHA" >> "$GITHUB_ENV"
           echo "NX_HEAD=$HEAD_SHA" >> "$GITHUB_ENV"
@@ -88,7 +88,7 @@ jobs:
         run: NODE_ENV=production yarn nx affected -t build --parallel=3 # nx recipe
 
       - name: Test (Affected)
-        run: yarn nx affected -t test --parallel=3 --coverage # nx recipe
+        run: yarn nx affected -t test --parallel=3 # nx recipe
 
   lint:
     name: Lint
