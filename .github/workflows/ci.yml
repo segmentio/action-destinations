@@ -58,14 +58,20 @@ jobs:
         # last successful run on this branch (falling back to HEAD~1).
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CURRENT_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_SHA=$(git merge-base "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}")
-            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE_SHA=$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")
+            HEAD_SHA="$PR_HEAD_SHA"
           else
-            HEAD_SHA="${{ github.sha }}"
-            LAST_SUCCESS_SHA=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?branch=${{ github.ref_name }}&status=success&per_page=1" --jq '.workflow_runs[0].head_sha // empty' || true)
+            HEAD_SHA="$CURRENT_SHA"
+            LAST_SUCCESS_SHA=$(gh api "repos/$REPOSITORY/actions/workflows/ci.yml/runs?branch=$REF_NAME&status=success&per_page=1" --jq '.workflow_runs[0].head_sha // empty' || true)
             BASE_SHA="${LAST_SUCCESS_SHA:-$(git rev-parse HEAD~1)}"
           fi
           echo "NX_BASE=$BASE_SHA" >> "$GITHUB_ENV"
