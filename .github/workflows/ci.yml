@@ -17,9 +17,11 @@ jobs:
     runs-on: ubuntu-latest-large
     timeout-minutes: 30
     # id-token: write is required so the artifactory-oidc action can mint a token.
+    # actions: read is required to look up the last successful run's SHA for NX_BASE below.
     permissions:
       contents: read
       id-token: write
+      actions: read
     strategy:
       matrix:
         node-version: [22.x]
@@ -49,7 +51,27 @@ jobs:
       - name: Use Github Personal Access Token
         run: git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf ssh://git@github.com/
 
-      - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
+      - name: Derive Nx base/head SHAs
+        # Replaces nrwl/nx-set-shas (blocked by org policy: only GitHub-owned
+        # actions are allowed). Mirrors its non-Cloud behavior: for PRs, diff
+        # against the true merge-base of the PR; for pushes, diff against the
+        # last successful run on this branch (falling back to HEAD~1).
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA=$(git merge-base "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}")
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            HEAD_SHA="${{ github.sha }}"
+            LAST_SUCCESS_SHA=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?branch=${{ github.ref_name }}&status=success&per_page=1" --jq '.workflow_runs[0].head_sha // empty')
+            BASE_SHA="${LAST_SUCCESS_SHA:-$(git rev-parse HEAD~1)}"
+          fi
+          echo "NX_BASE=$BASE_SHA" >> "$GITHUB_ENV"
+          echo "NX_HEAD=$HEAD_SHA" >> "$GITHUB_ENV"
+          echo "Nx base: $BASE_SHA"
+          echo "Nx head: $HEAD_SHA"
 
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
@@ -61,13 +83,6 @@ jobs:
 
       - name: Test (Affected)
         run: yarn nx affected -t test --parallel=3 --coverage # nx recipe
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@0cfda1dd0a4ad9efc75517f399d859cd1ea4ced1 # v4.0.2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: segmentio/action-destinations
-          handle_no_reports_found: true # don't fail if no reports are found
 
   lint:
     name: Lint
@@ -97,13 +112,11 @@ jobs:
         if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
-      - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
-
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
-        run: NODE_ENV=production yarn build # nx recipe
+      - name: Build
+        run: NODE_ENV=production yarn build
 
       - name: Lint
         env:
@@ -138,16 +151,14 @@ jobs:
         if: ${{ env.ARTIFACTORY_URL != '' }}
         uses: ./.github/actions/artifactory-oidc
 
-      - uses: nrwl/nx-set-shas@0e2d18b530b83b68263ff7b74e46b1ba300c83fc # nx recipe v3
-
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
       - name: Assert yarn.lock is up-to-date
         run: bash scripts/assert-lockfile-updated.sh
 
-      - name: Build # TODO: This monorepo should be refactored so packages can be linted invidually. "affected" will not work ATM.
-        run: NODE_ENV=production yarn build # nx recipe
+      - name: Build
+        run: NODE_ENV=production yarn build
 
       - name: Validate Definitions
         run: yarn validate
@@ -260,54 +271,3 @@ jobs:
 
       - name: Browser Test
         run: yarn test-browser
-
-  snyk:
-    name: Snyk
-    runs-on: ubuntu-latest-large
-
-    timeout-minutes: 5
-
-    permissions:
-      contents: read
-      id-token: write
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
-    steps:
-      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
-        with:
-          persist-credentials: false
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@7c12f8017d5436eb855f1ed4399f037a36fbd9e8 # v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
-
-      - name: Artifactory OIDC Auth
-        if: ${{ env.ARTIFACTORY_URL != '' }}
-        uses: ./.github/actions/artifactory-oidc
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@8e119fbb6c251787721d34ba683ed48eba792766 # master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --fail-on=upgradable --all-projects --policy-path=.snyk
