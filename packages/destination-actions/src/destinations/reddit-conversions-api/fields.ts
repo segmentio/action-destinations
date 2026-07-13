@@ -15,7 +15,7 @@ export const action_source: InputField = {
   description:
     'The source/channel where the conversion occurred (used for omnichannel attribution). Only applies to Reddit Conversions API v3.',
   type: 'string',
-  required: true,
+  required: false,
   default: 'WEBSITE',
   choices: [
     { label: 'Website', value: 'WEBSITE' },
