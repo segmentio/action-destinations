@@ -556,9 +556,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
       const jobId = 'test-job-id'
       const pollPayload = {
         jobId,
-        attempt: 1,
-        totalEventsCount: 5,
-        validEventsCount: 5
+        uploadCount: 5
       }
 
       it('should return IN_PROGRESS when requestStatus is Pending', async () => {
@@ -625,7 +623,9 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.status).toBe(500)
       })
 
-      it('should return SUCCEEDED when requestStatus is Complete and resultStatus is OK', async () => {
+      it('should return SUCCEEDED with success count from uploadCount when Complete and OK', async () => {
+        // Only the lightweight status API is mocked. The heavyweight results API is intentionally
+        // not mocked, so if the destination were to call it the request would fail and this test would break.
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -650,7 +650,11 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.jobId).toBe(jobId)
         expect(response.jobStatus).toBe('SUCCEEDED')
         expect(response.status).toBe(200)
-        expect(response.multiStatusResponse).toBeUndefined()
+        // Success count is derived from the uploadCount passed into the poll payload, without
+        // calling the results API.
+        expect(response.multiStatusResponse).toBeDefined()
+        expect(response.multiStatusResponse?.successCount).toBe(pollPayload.uploadCount)
+        expect(response.multiStatusResponse?.errorCount).toBe(0)
       })
 
       it('should return SUCCEEDED with multiStatusResponse when Complete but Has Errors', async () => {
