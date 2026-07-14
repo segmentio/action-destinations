@@ -55,18 +55,6 @@ export async function send(request: RequestClient, payloads: Payload[], settings
   const profiles = stringifyJsonWithEscapedQuotes(profileUpdates)
 
   const mutation = `mutation {
-      upsertProfiles(
-        input: {
-          advertiserId: ${advertiserId},
-          externalProvider: "${EXTERNAL_PROVIDER}",
-          syncId: "${sha256hash(profiles)}",
-          profiles: "${profiles}"
-        }
-      ) {
-        userErrors {
-          message
-        }
-      }
       upsertProfileMapping(
         input: {
           advertiserId: ${advertiserId},
@@ -79,9 +67,20 @@ export async function send(request: RequestClient, payloads: Payload[], settings
           message
         }
       }
+      upsertProfiles(
+        input: {
+          advertiserId: ${advertiserId},
+          externalProvider: "${EXTERNAL_PROVIDER}",
+          syncId: "${sha256hash(profiles)}",
+          profiles: "${profiles}"
+        }
+      ) {
+        userErrors {
+          message
+        }
+      }
       ${ audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA))}
   }`
-
   return await request(GQL_ENDPOINT, {
     body: JSON.stringify({ query: mutation })
   })
