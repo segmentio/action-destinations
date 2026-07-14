@@ -16,12 +16,12 @@ A cloud-mode Actions destination ("Quora Conversions API") that forwards Segment
 
 ### Request body
 - `account_id` (int, required, must match the token's account)
-- `conversion`: `event_name` (required), `timestamp` (microseconds), `value` (number, USD), `event_id`, `click_id`
+- `conversion`: `event_name` (required), `timestamp` (microseconds), `value` (number, in the ad account's currency), `event_id`, `click_id`
 - `user`: `email`, `phone_number`, `name`, `ip`, `country`, `region`, `city`, `postal_code`, `company_name`, `job_title`, `date_of_birth`
 - `device`: `user_agent`, `language`, `mobile_device_id`, `referrer`
 
 ### Batch response
-`{ events_received, events_errored, events: [ { status: "OK"|"ERROR", index, error_code, error_message } ] }`. Per-item error code today: `VALUE_OUT_OF_RANGE` (value above ~$214,748.36).
+`{ events_received, events_errored, events: [ { status: "OK"|"ERROR", index, error_code, error_message } ] }`. Per-item error code today: `VALUE_OUT_OF_RANGE` (value too large).
 
 ## Destination design
 - Cloud-mode Actions destination, modeled on `reddit-conversions-api`.
@@ -62,7 +62,7 @@ All user and device fields are optional strings. The server validates only `emai
 - referer: the referring URL. The API field is spelled `referer` (single r); the public doc's `referrer` is a typo to be fixed, so map to `referer`.
 - event_id: optional (not required); a UUID is recommended but not enforced; empty string is treated as null. Map to Segment `messageId`.
 - click_id (qclid): required for attribution (a conversion without a valid qclid is not attributed), so it is the priority to capture. Cache the most recent qclid client-side and send it on every event (last-click, up to a 90-day click-through window).
-- value: a number, treated as USD; capped near $214,748.36 (above that returns per-item `VALUE_OUT_OF_RANGE`).
+- value: a number in the ad account's currency (no FX is applied); very large values return per-item `VALUE_OUT_OF_RANGE`.
 - timestamp: microseconds; if missing or outside the 90-day window the server substitutes the current time.
 
 ## Design decisions and open questions
