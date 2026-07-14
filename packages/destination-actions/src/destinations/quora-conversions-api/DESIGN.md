@@ -11,7 +11,7 @@ A cloud-mode Actions destination ("Quora Conversions API") that forwards Segment
   - `POST /conversions` (batch, 1 to 1,000 events, processed independently, returns HTTP 200 with a per-item results array). The destination uses this.
 - Rate limit: 1,000 events/min per account. Each batch item counts. A batch that would exceed the limit is rejected whole with 429.
 - `event_name` accepted values: Generic, AppInstall, Purchase, GenerateLead, CompleteRegistration, AddPaymentInfo, AddToCart, AddToWishlist, InitiateCheckout, Search.
-- Attribution needs at least one of `click_id` (Quora "qclid", appended to the landing-page URL after an ad click) or `user.email`. click_id is the strongest signal.
+- Attribution is driven by `click_id` (Quora "qclid", appended to the landing-page URL after an ad click). `user.email` and other identity fields are accepted and mapped, but `click_id` is the signal to prioritize.
 - Dedup on `event_id`, shared with the Quora pixel.
 
 ### Request body
@@ -61,7 +61,7 @@ All user and device fields are optional strings. The server validates only `emai
 - mobile_device_id: the advertising ID (IDFA on iOS, AAID on Android). There is no separate IDFV / device-ID field today.
 - referer: the referring URL. The API field is spelled `referer` (single r); the public doc's `referrer` is a typo to be fixed, so map to `referer`.
 - event_id: optional (not required); a UUID is recommended but not enforced; empty string is treated as null. Map to Segment `messageId`.
-- click_id (qclid): required for attribution unless a matchable email is provided. Cache the most recent qclid client-side and send it on every event (last-click, up to a 90-day click-through window).
+- click_id (qclid): the primary attribution signal, so prioritize capturing it. Cache the most recent qclid client-side and send it on every event (last-click, up to a 90-day click-through window).
 - value: a number, treated as USD; capped near $214,748.36 (above that returns per-item `VALUE_OUT_OF_RANGE`).
 - timestamp: microseconds; if missing or outside the 90-day window the server substitutes the current time.
 
