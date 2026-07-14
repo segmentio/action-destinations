@@ -1,12 +1,12 @@
 import { ActionDefinition, MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { QuoraConversionItem } from '../types'
-import { sendEvents, buildConversionItem, handleBatchResponse, assertSingleEventSucceeded } from '../utils'
+import type { QuoraConversionItem } from './types'
+import { sendEvents, buildConversionItem, handleBatchResponse } from './utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Track Conversion',
+  title: 'Send Conversion',
   description:
     'Send a conversion event to Quora. Supports all standard Quora conversion types, plus Generic pass-through of the Segment event name.',
   defaultSubscription: 'type = "track"',
@@ -14,9 +14,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     const item = buildConversionItem(payload)
-    const response = await sendEvents(request, settings, [item], false)
-    assertSingleEventSucceeded(response)
-    return response
+    return await sendEvents(request, settings, [item], false)
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {

@@ -21,8 +21,7 @@ export interface QuoraDevice {
   mobile_device_id?: string
   user_agent?: string
   language?: string
-  // Note: the API spells this `referer` with a single "r".
-  referer?: string
+  referer?: string // deliberately with 1 'r' to match the Quora API
 }
 
 /** The `conversion` object of a Quora conversion event. */
