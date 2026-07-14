@@ -369,6 +369,27 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(logged).not.toContain('FieldPath')
     })
 
+    it('does not let a throwing logger break the delivery', async () => {
+      // Debug logging runs after Bing has accepted the records; a throwing logger must not
+      // fail the delivery (which would trigger a duplicate re-send on retry).
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+      ;(logger.info as jest.Mock).mockImplementation(() => {
+        throw new Error('logger down')
+      })
+
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(response[0].status).toBe(200)
+    })
+
     it('does not log on the error path (only success responses are logged)', async () => {
       nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
       const logger = makeLogger()
