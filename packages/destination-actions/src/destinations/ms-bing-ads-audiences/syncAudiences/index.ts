@@ -45,96 +45,31 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-// TEMPORARY DEBUG LOGGING — gated behind the 'actions-ms-bing-ads-audiences-debug-logging'
-// feature flag. Logs non-sensitive request metadata (identifier type + item count) plus a
-// redacted summary of the Bing Ads API response/errors to the centralized logging pipeline.
-// It intentionally does NOT log CustomerListItems (hashed emails / CRM IDs) and strips the
-// PartialError free-text fields (Message/Details/FieldPath) that can echo back identifiers —
-// CRM IDs in particular are unhashed. Remove once debugging is complete.
+// TEMPORARY DEBUG LOGGING — gated behind the 'actions-ms-bing-ads-audiences-debug-logging' feature
+// flag (off by default). Logs Microsoft's tracking id (needed to file Bing Ads support tickets)
+// plus non-sensitive request metadata and a redacted error summary. It intentionally does NOT log
+// CustomerListItems (hashed emails / unhashed CRM ids) or the PartialError free-text fields
+// (Message/Details/FieldPath), which can echo back an identifier. Remove once debugging is done.
 const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
 
 const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
-  Boolean(features && features[DEBUG_LOGGING_FLAG])
+  Boolean(features?.[DEBUG_LOGGING_FLAG])
 
-// Cap logged values so a large or malformed response can't produce oversized log entries. The
-// cap is strict: the returned string (including the truncation suffix) never exceeds it.
-const MAX_LOGGED_BODY_LENGTH = 4096
-const TRUNCATION_SUFFIX = '…[truncated]'
-
-// Strip control characters so logged content can't forge log lines or inject control
-// sequences. Applied to every interpolated value; does NOT cap length.
-const stripControlChars = (value: string): string =>
-  // Stripping control chars is the intent here, so no-control-regex is expected.
-  // eslint-disable-next-line no-control-regex
-  value.replace(/[\u0000-\u001f\u007f]/g, ' ')
-
-// Strip control chars AND cap length (truncating without splitting a surrogate pair). Use for
-// values that can be arbitrarily large (response/error bodies); prefer stripControlChars alone
-// for short identifiers that must be logged in full.
-const sanitizeForLog = (value: string): string => {
-  let out = value
-  if (out.length > MAX_LOGGED_BODY_LENGTH) {
-    // Reserve room for the suffix so the total stays within the cap.
-    let end = MAX_LOGGED_BODY_LENGTH - TRUNCATION_SUFFIX.length
-    const code = out.charCodeAt(end - 1)
-    // If the cut lands on the high half of a surrogate pair, drop it.
-    if (code >= 0xd800 && code <= 0xdbff) {
-      end -= 1
-    }
-    out = `${out.slice(0, end)}${TRUNCATION_SUFFIX}`
-  }
-  return stripControlChars(out)
+// Microsoft returns its request/tracking id as a response header (and sometimes echoes it in the
+// body). It's a short opaque id, not PII.
+const extractTrackingId = (response: ModifiedResponse): string => {
+  const header = response.headers?.get('trackingid') || response.headers?.get('x-ms-trackingid')
+  if (header) return header
+  const body = response.data as { TrackingId?: string } | undefined
+  return body?.TrackingId || 'none'
 }
 
-// Build a PII-safe summary of the Bing Ads response. PartialErrors are reduced to their codes
-// and index — the free-text Message/Details/FieldPath fields can echo back the offending
-// identifier value, so they are dropped.
-const summarizeErrors = (errors: PartialError[] | undefined): string => {
-  if (!errors || errors.length === 0) {
-    return '[]'
-  }
-  return JSON.stringify(errors.map((e) => ({ ErrorCode: e.ErrorCode, Code: e.Code, Index: e.Index, Type: e.Type })))
-}
+// Reduce PartialErrors to codes + index; the free-text fields can echo back the offending
+// identifier so they are dropped.
+const summarizeErrors = (errors: PartialError[] | undefined): string =>
+  JSON.stringify((errors ?? []).map((e) => ({ ErrorCode: e.ErrorCode, Code: e.Code, Index: e.Index, Type: e.Type })))
 
-// Extract Microsoft's request/tracking identifier so it can be quoted to Bing Ads support.
-// It is normally returned as a response header (TrackingId / x-ms-trackingid / RequestId) and
-// is sometimes also echoed in the body as a top-level id field. It is a short opaque id, not
-// PII, so it is logged in full (control chars stripped, never truncated).
-const TRACKING_HEADER_NAMES = ['trackingid', 'x-ms-trackingid', 'requestid', 'x-ms-requestid']
-const TRACKING_BODY_KEYS = ['TrackingId', 'RequestId']
-
-const extractTrackingId = (headers: Headers | undefined, body: unknown): string => {
-  for (const name of TRACKING_HEADER_NAMES) {
-    const value = headers?.get(name)
-    if (value) {
-      return value
-    }
-  }
-  if (body && typeof body === 'object') {
-    for (const key of TRACKING_BODY_KEYS) {
-      const value = (body as Record<string, unknown>)[key]
-      if (typeof value === 'string' && value) {
-        return value
-      }
-    }
-  }
-  return 'none'
-}
-
-// Run a logging side effect, swallowing any error: temporary debug logging must never alter
-// the action's control flow (e.g. by masking the original error in the catch path).
-const safeLog = (fn: () => void): void => {
-  try {
-    fn()
-  } catch {
-    // Intentionally ignored — debug logging is best-effort.
-  }
-}
-
-// TEMPORARY: logs a redacted summary of the Bing Ads response, plus non-sensitive metadata about
-// the request and Microsoft's tracking id (for support tickets). We intentionally do NOT log
-// CustomerListItems (hashed emails / CRM IDs) or the PartialError free-text fields — only
-// identifier type, item count, status, tracking id and error codes.
+// TEMPORARY: log a redacted, PII-safe summary of a successful Bing Ads response.
 const logBingAdsResponse = (
   logger: Logger | undefined,
   debugLogging: boolean,
@@ -143,23 +78,14 @@ const logBingAdsResponse = (
   sentPayload: SyncAudiencePayload,
   response: ModifiedResponse
 ): void => {
-  if (!debugLogging || !logger) {
-    return
-  }
+  if (!debugLogging || !logger) return
   const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
   const partialErrors = (response.data as { PartialErrors?: PartialError[] } | undefined)?.PartialErrors
-  const trackingId = extractTrackingId(response.headers, response.data)
-  safeLog(() =>
-    logger.info(
-      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${stripControlChars(audienceId)} status=${
-        response.status
-      } ` +
-        // trackingId is only control-char stripped, never truncated, so it can be quoted in full.
-        `trackingId=${stripControlChars(trackingId)} ` +
-        `identifierType=${CustomerListItemSubType} itemCount=${CustomerListItems.length} ` +
-        `partialErrors=${sanitizeForLog(summarizeErrors(partialErrors))}`
-    )
-  )
+  const line =
+    `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+    `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
+    `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
+  logger.info(line.slice(0, 4096))
 }
 
 /**
