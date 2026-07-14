@@ -60,8 +60,17 @@ export interface Payload {
    * Custom properties for the user. Each property requires a name, type, and value.
    */
   custom_user_properties?: {
+    /**
+     * The name of the custom user property.
+     */
     name: string
+    /**
+     * The data type of the custom user property.
+     */
     type: string
+    /**
+     * The value of the custom user property.
+     */
     value?: string
   }[]
   /**

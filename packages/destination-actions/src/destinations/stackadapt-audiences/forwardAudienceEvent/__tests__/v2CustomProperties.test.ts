@@ -42,14 +42,19 @@ const baseEvent: Partial<SegmentEvent> = {
 }
 
 function mockGql() {
-  let requestBody: Record<string, unknown>
+  let requestBody: Record<string, unknown> | undefined
   nock(gqlHostUrl)
     .post(gqlPath, (body) => {
       requestBody = body
       return body
     })
     .reply(200, { data: { success: true } })
-  return { getBody: () => requestBody }
+  return {
+    getBody: () => {
+      if (!requestBody) throw new Error('Expected the GraphQL request interceptor to have captured a body')
+      return requestBody
+    }
+  }
 }
 
 describe('v1 legacy path — documented gap', () => {
@@ -223,6 +228,73 @@ describe('v2 custom_user_properties — deterministic schema', () => {
     const query: string = getBody().query as string
     expect(query).toContain('custom_trait_1')
     expect(query).toContain('type:STRING')
+  })
+
+  it('normalizes whitespace so the profile key matches the schema key', async () => {
+    // A property name with surrounding whitespace must produce the same (trimmed) key in both
+    // the mappingSchemaV2 and the profile payload — otherwise the field is silently dropped.
+    const { getBody } = mockGql()
+
+    const event = createTestEvent({
+      ...baseEvent,
+      traits: {
+        email: mockEmail,
+        padded: 'padded_value',
+        [basePersonasContext.personas.computation_key]: true
+      }
+    })
+
+    await testDestination.testAction('forwardAudienceEvent', {
+      event,
+      mapping: {
+        ...baseMapping,
+        custom_properties_mode: 'v2',
+        custom_user_properties: [{ name: '  padded_trait  ', type: 'STRING', value: { '@path': '$.traits.padded' } }]
+      },
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    const query: string = getBody().query as string
+    // Schema uses the trimmed key
+    expect(query).toContain('incomingKey:"padded_trait"')
+    // Profile payload uses the same trimmed key (not the untrimmed '  padded_trait  ')
+    const profilesSection = query.slice(query.indexOf('profiles:'), query.indexOf('upsertExternalAudienceMapping'))
+    expect(profilesSection).toContain('\\"padded_trait\\":')
+    expect(profilesSection).not.toContain('\\"  padded_trait  \\":')
+  })
+
+  it('excludes reserved-key-named properties from the mapping schema, not just the profile', async () => {
+    // A property whose name clashes with a reserved key must not appear in mappingSchemaV2 either,
+    // since it is filtered out of every profile payload.
+    const { getBody } = mockGql()
+
+    const event = createTestEvent({
+      ...baseEvent,
+      traits: {
+        email: mockEmail,
+        safe_property: 'safe_value',
+        [basePersonasContext.personas.computation_key]: true
+      }
+    })
+
+    await testDestination.testAction('forwardAudienceEvent', {
+      event,
+      mapping: {
+        ...baseMapping,
+        custom_properties_mode: 'v2',
+        custom_user_properties: [
+          { name: 'first_time_buyer', type: 'STRING', value: { '@path': '$.traits.safe_property' } },
+          { name: 'safe_property', type: 'STRING', value: { '@path': '$.traits.safe_property' } }
+        ]
+      },
+      settings: { apiKey: mockGqlKey, advertiser_id: mockAdvertiserId }
+    })
+
+    const query: string = getBody().query as string
+    const schemaSection = query.slice(query.indexOf('mappingSchemaV2'), query.indexOf('isOptedIn'))
+    expect(schemaSection).toContain('incomingKey:"safe_property"')
+    // reserved-key-named property is absent from the schema
+    expect(schemaSection).not.toContain('incomingKey:"first_time_buyer"')
   })
 
   it('filters properties whose name clashes with a reserved key from the profile payload', async () => {

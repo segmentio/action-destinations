@@ -1,19 +1,23 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import {PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA, MarketingStatus as MarketingStatuses } from './constants'
-import {GQL_ENDPOINT, EXTERNAL_PROVIDER } from '../common-constants'
+import { PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA, MarketingStatus as MarketingStatuses } from './constants'
+import { GQL_ENDPOINT, EXTERNAL_PROVIDER } from '../common-constants'
 import { CustomUserProperty, Mapping, MarketingStatus, ProfileFieldConfig } from './types'
 import type { Payload } from './generated-types'
 import { sha256hash } from '../common-functions'
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings) {
-
   const advertiserId = settings.advertiser_id
   const marketingStatus = payloads[0].marketing_status as MarketingStatus
   const useV2 = payloads[0].custom_properties_mode === 'v2'
 
-  const fieldTypes = useV2 ? getV2FieldTypes(payloads[0]?.custom_user_properties) : getDefaultFieldTypes()
-  const fieldsToMap = useV2 ? getV2FieldsToMap(payloads[0]?.custom_user_properties) : getDefaultFieldsToMap()
+  // Reserved keys are constant across a batch (same audience), so derive them from the first payload.
+  const reservedKeys = [payloads[0]?.segment_computation_key, payloads[0]?.segment_computation_id].filter(Boolean)
+
+  const fieldTypes = useV2 ? getV2FieldTypes(payloads[0]?.custom_user_properties, reservedKeys) : getDefaultFieldTypes()
+  const fieldsToMap = useV2
+    ? getV2FieldsToMap(payloads[0]?.custom_user_properties, reservedKeys)
+    : getDefaultFieldsToMap()
 
   const profileUpdates = payloads.map((p) => {
     const { user_id, standard_traits, custom_traits, custom_user_properties, email } = p
@@ -27,10 +31,12 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
     if (useV2) {
       if (custom_user_properties) {
-        const reservedKeys = [segment_computation_key, segment_computation_id].filter(Boolean)
+        const reserved = [segment_computation_key, segment_computation_id].filter(Boolean)
         for (const prop of custom_user_properties) {
-          if (prop.name && !reservedKeys.includes(prop.name)) {
-            profile[prop.name] = prop.value
+          // Normalize the name once so the profile key matches the (trimmed) schema key exactly.
+          const key = prop.name?.trim()
+          if (key && !reserved.includes(key)) {
+            profile[key] = prop.value
           }
         }
       }
@@ -79,7 +85,7 @@ export async function send(request: RequestClient, payloads: Payload[], settings
           message
         }
       }
-      ${ audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA))}
+      ${audienceMutation(advertiserId, stringifyMappingSchemaForGraphQL(MAPPING_SCHEMA))}
   }`
   return await request(GQL_ENDPOINT, {
     body: JSON.stringify({ query: mutation })
@@ -97,22 +103,25 @@ function audienceMutation(advertiserId: string, audienceMapping: string): string
           userErrors {
             message
           }
-        }`;
+        }`
 }
 
-
-function updateFieldsToMapAndFieldTypes(fieldsToMap: Set<string>, fieldTypes: Record<string, string>, customTraits: Payload['custom_traits'] = {}) {
-   // Process trait keys (already in snake_case) and capture any non-standard fields as mappings 
+function updateFieldsToMapAndFieldTypes(
+  fieldsToMap: Set<string>,
+  fieldTypes: Record<string, string>,
+  customTraits: Payload['custom_traits'] = {}
+) {
+  // Process trait keys (already in snake_case) and capture any non-standard fields as mappings
   return Object.keys(customTraits).reduce((acc: Record<string, unknown>, key) => {
     const value = customTraits[key]
-    
+
     // Skip if key is empty string or value is empty string
     if (key === '' || value === '') {
       return acc
     }
-    
+
     acc[key] = value
-    
+
     const standardFields = getDefaultFieldsToMap()
 
     if (!standardFields.has(key)) {
@@ -136,7 +145,7 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
   for (const field of customFields) {
     // Keys are already in snake_case, so find directly in PROFILE_DEFAULT_FIELDS
     const fieldConfig = PROFILE_DEFAULT_FIELDS.find((f: ProfileFieldConfig) => f.key === field)
-    
+
     if (fieldConfig) {
       // Special mapping cases for StackAdapt destination keys
       let destinationKey: string
@@ -147,8 +156,8 @@ function getProfileMappings(customFields: string[], fieldTypes: Record<string, s
         default:
           destinationKey = fieldConfig.key
       }
-      
-      // StackAdapt uses destinationKey to look up global fields so it has to match 
+
+      // StackAdapt uses destinationKey to look up global fields so it has to match
       mappingSchema.push({
         incomingKey: field, // Use original snake_case field name as incomingKey
         destinationKey,
@@ -192,45 +201,44 @@ function getType(value: unknown) {
 
 function isDateStr(value: unknown) {
   if (typeof value !== 'string') return false
-  
+
   const datePatterns = [
     /^\d{4}-\d{2}-\d{2}/, // YYYY-MM-DD
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, // ISO datetime
     /^\d{1,2}\/\d{1,2}\/\d{4}/, // MM/DD/YYYY
     /^\d{1,2}-\d{1,2}-\d{4}/ // MM-DD-YYYY
   ]
-  
-  const hasDatePattern = datePatterns.some(pattern => pattern.test(value))
+
+  const hasDatePattern = datePatterns.some((pattern) => pattern.test(value))
   if (!hasDatePattern) return false
-  
+
   const parsed = Date.parse(value)
   return !isNaN(parsed)
 }
 
 // transform an array of mapping objects into a string which can be sent as parameter in a GQL request
 export function stringifyJsonWithEscapedQuotes(value: unknown) {
-  const jsonString = JSON.stringify(value);
-  
+  const jsonString = JSON.stringify(value)
+
   // Finally escape all remaining quotes
-  return jsonString.replace(/"/g, '\\"');
+  return jsonString.replace(/"/g, '\\"')
 }
 
 // transform mapping schema for direct insertion into GraphQL queries (no quote escaping)
 export function stringifyMappingSchemaForGraphQL(value: unknown) {
   let jsonString = JSON.stringify(value)
-  
+
   // Replace "type":"VALUE" with type:VALUE (unquoted enum and field)
-  jsonString = jsonString.replace(/"type":"([^"]+)"/g, (_, typeValue: string) => 
-    `type:${typeValue.toUpperCase()}`)
-  
+  jsonString = jsonString.replace(/"type":"([^"]+)"/g, (_, typeValue: string) => `type:${typeValue.toUpperCase()}`)
+
   // Remove quotes from all object keys to make it valid GraphQL syntax
-  jsonString = jsonString.replace(/"([a-zA-Z_][a-zA-Z0-9_]*)"\s*:/g, '$1:');
-  
+  jsonString = jsonString.replace(/"([a-zA-Z_][a-zA-Z0-9_]*)"\s*:/g, '$1:')
+
   return jsonString
 }
 
 const getDefaultFieldsToMap = (): Set<string> => {
-  return new Set(PROFILE_DEFAULT_FIELDS.map(field => field.key))
+  return new Set(PROFILE_DEFAULT_FIELDS.map((field) => field.key))
 }
 
 const getDefaultFieldTypes = (): Record<string, string> => {
@@ -240,13 +248,17 @@ const getDefaultFieldTypes = (): Record<string, string> => {
   }, {} as Record<string, string>)
 }
 
-function getV2FieldsToMap(customUserProperties: CustomUserProperty[] | undefined): Set<string> {
+function getV2FieldsToMap(
+  customUserProperties: CustomUserProperty[] | undefined,
+  reservedKeys: string[] = []
+): Set<string> {
   const standardFieldsToMap = getDefaultFieldsToMap()
 
   if (customUserProperties) {
     for (const prop of customUserProperties) {
       const key = prop.name?.trim()
-      if (key && !standardFieldsToMap.has(key)) {
+      // Exclude reserved keys so the schema never advertises a field that is filtered out of the profile payload.
+      if (key && !reservedKeys.includes(key) && !standardFieldsToMap.has(key)) {
         standardFieldsToMap.add(key)
       }
     }
@@ -255,13 +267,16 @@ function getV2FieldsToMap(customUserProperties: CustomUserProperty[] | undefined
   return standardFieldsToMap
 }
 
-function getV2FieldTypes(customUserProperties: CustomUserProperty[] | undefined): Record<string, string> {
+function getV2FieldTypes(
+  customUserProperties: CustomUserProperty[] | undefined,
+  reservedKeys: string[] = []
+): Record<string, string> {
   const standardFieldTypes = getDefaultFieldTypes()
 
   if (customUserProperties) {
     for (const prop of customUserProperties) {
       const key = prop.name?.trim()
-      if (key && !standardFieldTypes[key]) {
+      if (key && !reservedKeys.includes(key) && !standardFieldTypes[key]) {
         standardFieldTypes[key] = prop.type
       }
     }
