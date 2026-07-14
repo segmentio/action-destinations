@@ -1,4 +1,5 @@
 import { createTestIntegration } from '../create-test-integration'
+import { createTestEvent } from '../create-test-event'
 import { engageAudienceMembership, retlAudienceMembership } from '../audience-membership'
 import { DestinationDefinition } from '../destination-kit'
 import { ExecuteInput } from '../destination-kit/types'
@@ -256,9 +257,9 @@ function makeBatchDestination(captureRef: BatchCaptureRef): DestinationDefinitio
   }
 }
 
-function makeDestination(
-  captureRef: { data?: ExecuteInput<JSONObject, JSONObject> }
-): DestinationDefinition<JSONObject> {
+function makeDestination(captureRef: {
+  data?: ExecuteInput<JSONObject, JSONObject>
+}): DestinationDefinition<JSONObject> {
   return {
     name: 'Test Destination',
     mode: 'cloud',
@@ -302,45 +303,56 @@ async function runAction(
 }
 
 describe('audienceMembership on ExecuteInput in perform()', () => {
-
   describe('Engage payloads', () => {
     it('is true for identify event with membership in traits', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: true }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'identify',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          traits: { my_audience: true }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(true)
     })
 
     it('is false for identify event with membership in traits', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: false }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'identify',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          traits: { my_audience: false }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(false)
     })
 
     it('is true for track event with membership in properties', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        properties: { my_audience: true }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: { my_audience: true }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(true)
     })
 
     it('is false for track event with membership in properties', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        properties: { my_audience: false }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: { my_audience: false }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(false)
     })
   })
@@ -365,11 +377,14 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
 
   describe('non-audience events', () => {
     it('is undefined for a non-audience event', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        properties: { foo: 'bar' }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          properties: { foo: 'bar' }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBeUndefined()
     })
   })
@@ -381,34 +396,34 @@ describe('audienceMembership on ExecuteInput in performBatch()', () => {
     const testDestination = createTestIntegration(makeBatchDestination(captureRef))
 
     const events = [
-      {
+      createTestEvent({
         type: 'identify',
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: true },
         properties: { count: 1 }
-      },
-      {
+      }),
+      createTestEvent({
         type: 'identify',
         userId: 'user-2',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: false },
         properties: { count: 2 }
-      },
-      {
+      }),
+      createTestEvent({
         type: 'identify',
         userId: 'user-3',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: true },
         properties: { count: 'not-a-number' }
-      },
-      {
+      }),
+      createTestEvent({
         type: 'identify',
         userId: 'user-4',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: false },
         properties: { count: 4 }
-      }
+      })
     ]
 
     await testDestination.testBatchAction('testAction', {
