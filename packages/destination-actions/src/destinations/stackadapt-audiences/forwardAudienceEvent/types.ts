@@ -35,8 +35,14 @@ export interface Mapping {
   destinationKey: string
   label: string
   type: string
-  isPii: boolean  
+  isPii: boolean
   value?: string
 }
 
 export type MarketingStatus = typeof MarketingStatus[keyof typeof MarketingStatus]
+
+export interface CustomUserProperty {
+  name: string
+  type: string
+  value?: string
+}

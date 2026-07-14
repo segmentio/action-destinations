@@ -437,8 +437,47 @@
           "format": null,
           "additionalProperties": false
         },
+        "custom_properties_mode": {
+          "label": "Custom Properties Mode",
+          "description": "Select how to configure custom user properties.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "v2",
+          "choices": [
+            {
+              "label": "Legacy (Key-Value)",
+              "value": "v1"
+            },
+            {
+              "label": "Custom User Properties",
+              "value": "v2"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "custom_traits": {
-          "label": "Custom User Properties",
+          "label": "Custom User Properties (Legacy)",
           "description": "Custom properties for the user.",
           "type": "object",
           "required": false,
@@ -450,12 +489,158 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "custom_properties_mode",
+                "operator": "is",
+                "value": "v1"
+              },
+              {
+                "fieldKey": "custom_properties_mode",
+                "operator": "is"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": "keyvalue",
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_user_properties": {
+          "label": "Custom User Properties",
+          "description": "Custom properties for the user. Each property requires a name, type, and value.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "name": {
+              "label": "Name",
+              "description": "The name of the custom user property.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": [
+                "variable",
+                "function",
+                "freeform",
+                "enrichment"
+              ],
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "type": {
+              "label": "Type",
+              "description": "The data type of the custom user property.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "String",
+                  "value": "STRING"
+                },
+                {
+                  "label": "Number",
+                  "value": "NUMBER"
+                },
+                {
+                  "label": "Boolean",
+                  "value": "BOOLEAN"
+                },
+                {
+                  "label": "Date",
+                  "value": "DATE"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": [
+                "variable",
+                "function",
+                "freeform",
+                "enrichment"
+              ],
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "value": {
+              "label": "Value",
+              "description": "The value of the custom user property.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "custom_properties_mode",
+                "operator": "is",
+                "value": "v2"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "arrayeditor",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
