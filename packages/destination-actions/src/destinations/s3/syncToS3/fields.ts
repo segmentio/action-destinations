@@ -1,5 +1,6 @@
 import { ActionDefinition } from '@segment/actions-core'
 import { Settings } from '../generated-types'
+import { SUPPORTED_HASH_ALGORITHMS, SUPPORTED_NORMALIZATIONS } from './constants'
 
 export const commonFields: ActionDefinition<Settings>['fields'] = {
   columns: {
@@ -233,9 +234,9 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     ],
     default: 'csv'
   },
-  columns_to_hash: {
-    label: 'Columns to Hash',
-    description: 'Columns whose values will be hashed before writing to the file.',
+  columns_to_transform: {
+    label: 'Columns to Hash or Normalize',
+    description: 'Columns whose values will be normalized and/or hashed before writing to the file.',
     type: 'object',
     multiple: true,
     required: false,
@@ -244,7 +245,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     properties: {
       column_name: {
         label: 'Column Name',
-        description: 'The name of the column to hash.',
+        description: 'The name of the column to hash or normalize.',
         type: 'string',
         required: true,
         allowNull: false,
@@ -252,12 +253,22 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
       },
       hash_algorithm: {
         label: 'Hash Algorithm',
-        description: 'The hashing algorithm to apply.',
+        description: "The hashing algorithm to apply. Select 'none' to normalize the value without hashing it.",
         type: 'string',
         required: true,
-        choices: [{ label: 'SHA256', value: 'sha256' }],
-        default: 'sha256',
-        disabledInputMethods: ['variable', 'function', 'enrichment']
+        choices: ['none', ...SUPPORTED_HASH_ALGORITHMS].map((value) => ({ label: value, value })),
+        default: 'none',
+        disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
+      },
+      normalize: {
+        label: 'Normalize',
+        description:
+          "How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select 'none' to leave the value unchanged.",
+        type: 'string',
+        required: true,
+        choices: SUPPORTED_NORMALIZATIONS.map((value) => ({ label: value, value })),
+        default: 'none',
+        disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
       }
     }
   },
@@ -268,6 +279,6 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     unsafe_hidden: true,
     required: false,
     multiple: true,
-    default: ['s3_aws_folder_name']
+    default: ['s3_aws_folder_name', 'columns_to_transform']
   }
 }

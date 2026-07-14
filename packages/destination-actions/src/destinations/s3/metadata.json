@@ -799,9 +799,9 @@
           "format": null,
           "additionalProperties": false
         },
-        "columns_to_hash": {
-          "label": "Columns to Hash",
-          "description": "Columns whose values will be hashed before writing to the file.",
+        "columns_to_transform": {
+          "label": "Columns to Hash or Normalize",
+          "description": "Columns whose values will be normalized and/or hashed before writing to the file.",
           "type": "object",
           "required": false,
           "multiple": true,
@@ -813,7 +813,7 @@
           "properties": {
             "column_name": {
               "label": "Column Name",
-              "description": "The name of the column to hash.",
+              "description": "The name of the column to hash or normalize.",
               "type": "string",
               "required": true,
               "multiple": false,
@@ -841,16 +841,20 @@
             },
             "hash_algorithm": {
               "label": "Hash Algorithm",
-              "description": "The hashing algorithm to apply.",
+              "description": "The hashing algorithm to apply. Select 'none' to normalize the value without hashing it.",
               "type": "string",
               "required": true,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
-              "default": "sha256",
+              "default": "none",
               "choices": [
                 {
-                  "label": "SHA256",
+                  "label": "none",
+                  "value": "none"
+                },
+                {
+                  "label": "sha256",
                   "value": "sha256"
                 }
               ],
@@ -864,9 +868,56 @@
               "maximum": null,
               "defaultObjectUI": null,
               "disabledInputMethods": [
-                "variable",
+                "enrichment",
                 "function",
-                "enrichment"
+                "variable",
+                "literal"
+              ],
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "normalize": {
+              "label": "Normalize",
+              "description": "How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select 'none' to leave the value unchanged.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "none",
+              "choices": [
+                {
+                  "label": "none",
+                  "value": "none"
+                },
+                {
+                  "label": "lowercase",
+                  "value": "lowercase"
+                },
+                {
+                  "label": "trim",
+                  "value": "trim"
+                },
+                {
+                  "label": "lowercase_trim",
+                  "value": "lowercase_trim"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": [
+                "enrichment",
+                "function",
+                "variable",
+                "literal"
               ],
               "displayMode": null,
               "format": null,
@@ -894,7 +945,8 @@
           "allowNull": false,
           "dynamic": false,
           "default": [
-            "s3_aws_folder_name"
+            "s3_aws_folder_name",
+            "columns_to_transform"
           ],
           "choices": null,
           "placeholder": null,
