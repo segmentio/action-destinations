@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-friendbuy",
-  "version": "1.104.0",
+  "version": "1.106.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/friendbuy"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,9 +20,9 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.168.0",
-    "@segment/actions-shared": "^1.154.0",
-    "@segment/browser-destination-runtime": "^1.97.0"
+    "@segment/actions-core": "^3.170.0",
+    "@segment/actions-shared": "^1.156.0",
+    "@segment/browser-destination-runtime": "^1.99.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
