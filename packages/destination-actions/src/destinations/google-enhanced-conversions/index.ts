@@ -177,6 +177,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
       try {
         // Step 1: Data Manager token for partner link creation (datamanager.partnerlink scope).
 
+        // Data Manager API partnerlink flow .
+
         const dataManagerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
 
         // Step 2: Link the advertiser's Google Ads account to Segment's Data Partner account.
