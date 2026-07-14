@@ -5,10 +5,9 @@ import {
   createGoogleAudience,
   getGoogleAudience,
   getListIds,
-  handleUpdate,
-  processBatchPayload,
   verifyCustomerId,
-  exchangeForAccessToken
+  exchangeForAccessToken,
+  handleDataManagerUpdate
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -311,7 +310,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-    return await handleUpdate(
+    return await handleDataManagerUpdate(
       request,
       settings,
       audienceSettings,
@@ -340,7 +339,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-    return await processBatchPayload(
+    return await handleDataManagerUpdate(
       request,
       settings,
       audienceSettings,

@@ -15,7 +15,9 @@ import {
   KeyValuePairList,
   KeyValueItem,
   DataManagerUserList,
-  PartnerLinkResponse
+  PartnerLinkResponse,
+  DataManagerAudienceMember,
+  DataManagerIngestResponse
 } from './types'
 import {
   ModifiedResponse,
@@ -265,6 +267,184 @@ export async function getDataManagerUserList(
   })
 
   return response.data
+}
+
+function buildDataManagerDestination(customerId: string, userListId: string, loginCustomerId?: string) {
+  const partnerAccountId = '262932431'
+  // linkedAccount is the account holding the product link.
+  // For MCC setups the manager account (loginCustomerId) holds the link; otherwise it is the operating account.
+  const linkedAccountId = loginCustomerId || customerId
+  return {
+    loginAccount: { accountId: partnerAccountId, accountType: 'DATA_PARTNER' },
+    linkedAccount: { accountId: linkedAccountId, accountType: 'GOOGLE_ADS' },
+    operatingAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
+    productDestinationId: userListId
+  }
+}
+
+function toDataManagerConsentStatus(value?: string): string | undefined {
+  if (value === 'GRANTED') return 'CONSENT_GRANTED'
+  if (value === 'DENIED') return 'CONSENT_DENIED'
+  return undefined
+}
+
+function buildAudienceMember(
+  payload: UserListPayload,
+  idType: string,
+  features?: Features,
+  statsContext?: StatsContext
+): DataManagerAudienceMember | null {
+  const consent = {
+    adUserData: toDataManagerConsentStatus(payload.ad_user_data_consent_state),
+    adPersonalization: toDataManagerConsentStatus(payload.ad_personalization_consent_state)
+  }
+
+  if (idType === 'MOBILE_ADVERTISING_ID') {
+    const mobileId = payload.mobile_advertising_id?.trim()
+    if (!mobileId) return null
+    return { mobileData: { mobileIds: [mobileId] }, consent }
+  }
+
+  if (idType === 'CRM_ID') {
+    const userId = payload.crm_id?.trim()
+    if (!userId) return null
+    return { userIdData: { userId }, consent }
+  }
+
+  // CONTACT_INFO
+  const userIdentifiers: NonNullable<DataManagerAudienceMember['userData']>['userIdentifiers'] = []
+
+  if (payload.email) {
+    userIdentifiers.push({
+      emailAddress: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
+    })
+  }
+
+  if (payload.phone) {
+    userIdentifiers.push({
+      phoneNumber: processHashing(payload.phone, 'sha256', 'hex', (v) =>
+        formatPhone(v, payload.phone_country_code, features, statsContext)
+      )
+    })
+  }
+
+  if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
+    userIdentifiers.push({
+      address: {
+        ...(payload.first_name && { givenName: processHashing(payload.first_name, 'sha256', 'hex') }),
+        ...(payload.last_name && { familyName: processHashing(payload.last_name, 'sha256', 'hex') }),
+        regionCode: payload.country_code ?? '',
+        postalCode: payload.postal_code ?? ''
+      }
+    })
+  }
+
+  if (userIdentifiers.length === 0) return null
+  return { userData: { userIdentifiers }, consent }
+}
+
+export async function ingestAudienceMembers(
+  request: RequestClient,
+  customerId: string,
+  userListId: string,
+  members: DataManagerAudienceMember[],
+  loginCustomerId?: string
+): Promise<DataManagerIngestResponse> {
+  const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
+    method: 'POST',
+    json: {
+      destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
+      audienceMembers: members,
+      encoding: 'HEX',
+      termsOfService: { customerMatchTermsOfServiceStatus: 'ACCEPTED' }
+    }
+  })
+  return response.data
+}
+
+export async function removeAudienceMembers(
+  request: RequestClient,
+  customerId: string,
+  userListId: string,
+  members: DataManagerAudienceMember[],
+  loginCustomerId?: string
+): Promise<DataManagerIngestResponse> {
+  const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
+    method: 'POST',
+    json: {
+      destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
+      audienceMembers: members,
+      encoding: 'HEX'
+    }
+  })
+  return response.data
+}
+
+export async function handleDataManagerUpdate(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  audienceSettings: CreateAudienceInput['audienceSettings'],
+  payloads: UserListPayload[],
+  hookListId: string,
+  hookListType: string,
+  syncMode?: string,
+  features?: Features,
+  statsContext?: StatsContext,
+  audienceMembership?: AudienceMembership | AudienceMembership[],
+  personasContext?: Personas
+) {
+  const externalAudienceId = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
+
+  const customerId = settings.customerId!
+  const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+  const idType = hookListType ?? audienceSettings.external_id_type ?? 'CONTACT_INFO'
+
+  const addMembers: DataManagerAudienceMember[] = []
+  const removeMembers: DataManagerAudienceMember[] = []
+
+  const { computation_class } = personasContext || {}
+
+  for (let i = 0; i < payloads.length; i++) {
+    const payload = payloads[i]
+    const member = buildAudienceMember(payload, idType, features, statsContext)
+    if (!member) continue
+
+    const membership = Array.isArray(audienceMembership) ? audienceMembership[i] : audienceMembership
+
+    const isAdd =
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+      membership === true ||
+      computation_class === 'journey_step'
+
+    const isRemove =
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      membership === false
+
+    if (isAdd) addMembers.push(member)
+    else if (isRemove) removeMembers.push(member)
+  }
+
+  const results: DataManagerIngestResponse[] = []
+
+  if (addMembers.length > 0) {
+    const r = await ingestAudienceMembers(request, customerId, externalAudienceId, addMembers, loginCustomerId)
+    results.push(r)
+  }
+
+  if (removeMembers.length > 0) {
+    const r = await removeAudienceMembers(request, customerId, externalAudienceId, removeMembers, loginCustomerId)
+    results.push(r)
+  }
+
+  statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+  return results
 }
 
 export async function getCustomVariables(
