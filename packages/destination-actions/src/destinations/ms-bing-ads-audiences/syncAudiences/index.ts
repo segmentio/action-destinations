@@ -1,4 +1,4 @@
-import { ActionDefinition, RequestClient, HTTPError } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, HTTPError, Logger, ModifiedResponse } from '@segment/actions-core'
 import { MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -20,7 +20,7 @@ import {
   handleHttpError,
   categorizePayloadByAction
 } from '../utils'
-import { Identifier, SyncAudiencePayload } from '../types'
+import { Identifier, SyncAudiencePayload, PartialError } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences',
@@ -36,13 +36,56 @@ const action: ActionDefinition<Settings, Payload> = {
     batch_size,
     computation_class
   },
-  perform: async (request, { payload }) => {
-    return await syncUser(request, [payload], false)
+  perform: async (request, { payload, features, logger }) => {
+    return await syncUser(request, [payload], false, isDebugLoggingEnabled(features), logger)
   },
 
-  performBatch: async (request, { payload }) => {
-    return await syncUser(request, payload, true)
+  performBatch: async (request, { payload, features, logger }) => {
+    return await syncUser(request, payload, true, isDebugLoggingEnabled(features), logger)
   }
+}
+
+// TEMPORARY DEBUG LOGGING — gated behind the 'actions-ms-bing-ads-audiences-debug-logging' feature
+// flag (off by default). Logs Microsoft's tracking id (needed to file Bing Ads support tickets)
+// plus non-sensitive request metadata and a redacted error summary. It intentionally does NOT log
+// CustomerListItems (hashed emails / unhashed CRM ids) or the PartialError free-text fields
+// (Message/Details/FieldPath), which can echo back an identifier. Remove once debugging is done.
+const DEBUG_LOGGING_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
+
+const isDebugLoggingEnabled = (features: Record<string, boolean> | undefined): boolean =>
+  Boolean(features?.[DEBUG_LOGGING_FLAG])
+
+// Microsoft returns its request/tracking id as a response header (and sometimes echoes it in the
+// body). It's a short opaque id, not PII.
+const extractTrackingId = (response: ModifiedResponse): string => {
+  const header = response.headers?.get('trackingid') || response.headers?.get('x-ms-trackingid')
+  if (header) return header
+  const body = response.data as { TrackingId?: string } | undefined
+  return body?.TrackingId || 'none'
+}
+
+// Reduce PartialErrors to codes + index; the free-text fields can echo back the offending
+// identifier so they are dropped.
+const summarizeErrors = (errors: PartialError[] | undefined): string =>
+  JSON.stringify((errors ?? []).map((e) => ({ ErrorCode: e.ErrorCode, Code: e.Code, Index: e.Index, Type: e.Type })))
+
+// TEMPORARY: log a redacted, PII-safe summary of a successful Bing Ads response.
+const logBingAdsResponse = (
+  logger: Logger | undefined,
+  debugLogging: boolean,
+  action: string,
+  audienceId: string,
+  sentPayload: SyncAudiencePayload,
+  response: ModifiedResponse
+): void => {
+  if (!debugLogging || !logger) return
+  const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
+  const partialErrors = (response.data as { PartialErrors?: PartialError[] } | undefined)?.PartialErrors
+  const line =
+    `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+    `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
+    `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
+  logger.info(line.slice(0, 4096))
 }
 
 /**
@@ -58,7 +101,13 @@ const action: ActionDefinition<Settings, Payload> = {
  * @returns A promise that resolves to a `MultiStatusResponse` object summarizing the results.
  * @throws Will throw an error if a non-batch operation fails, or rethrows non-HTTP errors in batch mode.
  */
-const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boolean) => {
+const syncUser = async (
+  request: RequestClient,
+  payload: Payload[],
+  isBatch: boolean,
+  debugLogging = false,
+  logger?: Logger
+) => {
   const msResponse = new MultiStatusResponse()
 
   if (!Array.isArray(payload) || payload.length === 0) {
@@ -87,10 +136,12 @@ const syncUser = async (request: RequestClient, payload: Payload[], isBatch: boo
     // Send data to Microsoft Bing Ads for both Add and Remove actions if they have entries
     if (addMap.size > 0) {
       const response = await sendDataToMicrosoftBingAds(request, addPayload)
+      logBingAdsResponse(logger, debugLogging, 'Add', audienceId, addPayload, response)
       handleMultistatusResponse(msResponse, response, addItems, addMap, payload, isBatch)
     }
     if (removeMap.size > 0) {
       const response = await sendDataToMicrosoftBingAds(request, removePayload)
+      logBingAdsResponse(logger, debugLogging, 'Remove', audienceId, removePayload, response)
       handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
     }
   } catch (error) {
