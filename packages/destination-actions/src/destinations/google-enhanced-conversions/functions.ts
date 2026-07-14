@@ -176,7 +176,7 @@ export async function createDataManagerPartnerLink(
   customerAccessToken: string,
   loginCustomerId?: string
 ): Promise<PartnerLinkResponse> {
-  const partnerAccountId = '1663649500'
+  const partnerAccountId = '262932431'
   if (!partnerAccountId) {
     throw new IntegrationError(
       'GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID environment variable is not set.',
@@ -222,7 +222,7 @@ export async function createDataManagerUserList(
   segmentAccessToken: string,
   appId?: string
 ): Promise<DataManagerUserList> {
-  const partnerAccountId = '1663649500'
+  const partnerAccountId = '262932431'
   const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`
 
   const response = await request<DataManagerUserList>(url, {
@@ -253,7 +253,7 @@ export async function getDataManagerUserList(
   userListId: string,
   segmentAccessToken: string
 ): Promise<DataManagerUserList> {
-  const partnerAccountId = process.env.GOOGLE_DATA_MANAGER_PARTNER_ACCOUNT_ID
+  const partnerAccountId = '262932431'
   const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${userListId}`
 
   const response = await request<DataManagerUserList>(url, {

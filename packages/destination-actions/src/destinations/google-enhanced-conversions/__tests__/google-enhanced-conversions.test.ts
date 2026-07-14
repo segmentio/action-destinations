@@ -12,7 +12,7 @@ const CUSTOMER_ID = '1234567890'
 const REFRESH_TOKEN = 'test-refresh-token'
 const ACCESS_TOKEN = 'test-access-token'
 const USER_LIST_ID = 'ul_abc123'
-const PARTNER_ACCOUNT_ID = '1663649500'
+const PARTNER_ACCOUNT_ID = '262932431'
 
 describe('GoogleEnhancedConversions', () => {
   describe('testAuthentication', () => {
