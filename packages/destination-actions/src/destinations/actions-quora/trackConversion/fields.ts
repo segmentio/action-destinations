@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { QUORA_EVENT_NAMES, MAX_BATCH_SIZE } from '../constants'
+import { QUORA_EVENT_NAMES, MAX_BATCH_SIZE } from './constants'
 
 export const fields: Record<string, InputField> = {
   event_name: {
@@ -16,8 +16,25 @@ export const fields: Record<string, InputField> = {
     description:
       'The raw Segment event name. Only used when Event Name is set to `Generic`, in which case this value is sent as the Quora `event_name`.',
     type: 'string',
-    required: false,
-    default: { '@path': '$.event' }
+    required: {
+      conditions: [
+        {
+          fieldKey: 'event_name',
+          operator: 'is',
+          value: 'Generic'
+        }
+      ]
+    },
+    default: { '@path': '$.event' }, 
+    depends_on: { 
+      conditions: [
+        {
+          fieldKey: 'event_name',
+          operator: 'is',
+          value: 'Generic'
+        }
+      ]
+    } 
   },
   timestamp: {
     label: 'Event Timestamp',
@@ -36,19 +53,19 @@ export const fields: Record<string, InputField> = {
       '@if': {
         exists: { '@path': '$.properties.qclid' },
         then: { '@path': '$.properties.qclid' },
-        else: { '@path': '$.context.qclid' }
+        else: { '@path': '$.integrations.Quora Conversions API.qclid' }
       }
     }
   },
   value: {
     label: 'Value',
-    description: 'The monetary value associated with the conversion.',
+    description: 'The monetary value associated with the conversion. Quora requires all values to be denominated in USD.',
     type: 'number',
     required: false,
     default: {
       '@if': {
-        exists: { '@path': '$.properties.value' },
-        then: { '@path': '$.properties.value' },
+        exists: { '@path': '$.properties.revenue' },
+        then: { '@path': '$.properties.revenue' },
         else: { '@path': '$.properties.total' }
       }
     }
@@ -67,6 +84,7 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue',
+    additionalProperties: false,
     properties: {
       email: { label: 'Email', description: "The user's email address.", type: 'string' },
       name: { label: 'Name', description: "The user's full name.", type: 'string' },
@@ -77,8 +95,8 @@ export const fields: Record<string, InputField> = {
       },
       date_of_birth: {
         label: 'Date of Birth',
-        description: "The user's date of birth in YYYY-MM-DD format.",
-        type: 'string'
+        description: "The user's date of birth in ISO8601 format, for example, 2001-11-24.",
+        type: 'datetime'
       },
       ip: { label: 'IP Address', description: "The user's IP address.", type: 'string' },
       country: {
@@ -111,6 +129,7 @@ export const fields: Record<string, InputField> = {
     description: 'Device identifiers and attributes.',
     type: 'object',
     required: false,
+    additionalProperties: false,
     defaultObjectUI: 'keyvalue',
     properties: {
       mobile_device_id: {
@@ -124,9 +143,9 @@ export const fields: Record<string, InputField> = {
         description: 'The device locale string (e.g. en-US).',
         type: 'string'
       },
-      referer: {
-        label: 'Referer',
-        description: 'The referring URL. Note the API spells this field "referer" (single r).',
+      referrer: {
+        label: 'Referrer',
+        description: 'The referring URL.',
         type: 'string'
       }
     },
@@ -134,7 +153,7 @@ export const fields: Record<string, InputField> = {
       mobile_device_id: { '@path': '$.context.device.advertisingId' },
       user_agent: { '@path': '$.context.userAgent' },
       language: { '@path': '$.context.locale' },
-      referer: { '@path': '$.context.page.referrer' }
+      referrer: { '@path': '$.context.page.referrer' }
     }
   },
   enable_batching: {

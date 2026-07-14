@@ -6,7 +6,7 @@ import {
   buildConversionItem,
   handleBatchResponse,
   assertSingleEventSucceeded
-} from '../utils'
+} from '../trackConversion/utils'
 import type { QuoraBatchResponse, QuoraSingleResponse, QuoraConversionItem } from '../types'
 import type { Payload } from '../trackConversion/generated-types'
 

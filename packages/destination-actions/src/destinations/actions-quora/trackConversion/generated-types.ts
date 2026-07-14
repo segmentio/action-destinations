@@ -18,7 +18,7 @@ export interface Payload {
    */
   click_id?: string
   /**
-   * The monetary value associated with the conversion.
+   * The monetary value associated with the conversion. Quora requires all values to be denominated in USD.
    */
   value?: number
   /**
@@ -83,9 +83,9 @@ export interface Payload {
      */
     language?: string
     /**
-     * The referring URL. Note the API spells this field "referer" (single r).
+     * The referring URL.
      */
-    referer?: string
+    referrer?: string
   }
   /**
    * When enabled, Segment sends events to Quora in batches.

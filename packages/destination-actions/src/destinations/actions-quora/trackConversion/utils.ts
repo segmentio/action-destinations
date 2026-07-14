@@ -4,10 +4,11 @@ import {
   JSONLikeObject,
   ModifiedResponse,
   PayloadValidationError,
-  IntegrationError
+  IntegrationError,
+  removeUndefined
 } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import type { Payload } from './trackConversion/generated-types'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
 import type {
   QuoraConversionItem,
   QuoraSingleRequest,
@@ -22,6 +23,22 @@ function clean(value: string | undefined | null): string | undefined {
   if (value === undefined || value === null) return undefined
   const trimmed = value.trim()
   return trimmed === '' ? undefined : trimmed
+}
+
+/**
+ * Formats a date-of-birth value as `YYYY-MM-DD`. Accepts undefined, an empty
+ * string, or an ISO 8601 string; returns undefined for absent/empty/invalid input.
+ */
+export function toDateOfBirth(value: string | undefined): string | undefined {
+  const cleaned = clean(value)
+  if (cleaned === undefined) {
+    return undefined
+  }
+  const ms = new Date(cleaned).getTime()
+  if (Number.isNaN(ms)) {
+    return undefined
+  }
+  return new Date(ms).toISOString().slice(0, 10)
 }
 
 /**
@@ -41,7 +58,11 @@ export function toEpochMicroseconds(timestamp: string | number | undefined): num
  */
 export function resolveEventName(payload: Payload): string {
   if (payload.event_name === GENERIC_EVENT_NAME) {
-    return clean(payload.segment_event_name) ?? GENERIC_EVENT_NAME
+    const cleaned = clean(payload.segment_event_name)
+    if(!cleaned) {
+      throw new PayloadValidationError('Segment Event Name is required when using Generic event name.')
+    }
+    return cleaned
   }
   return payload.event_name
 }
@@ -64,37 +85,34 @@ export function resolveAccountId(settings: Settings): number {
  */
 export function buildConversionItem(payload: Payload): QuoraConversionItem {
   const eventName = resolveEventName(payload)
-  if (!clean(eventName)) {
-    throw new PayloadValidationError('Event Name is required.')
-  }
 
-  const user = {
+  const user = removeUndefined({
     email: clean(payload.user?.email),
     name: clean(payload.user?.name),
     phone_number: clean(payload.user?.phone_number),
-    date_of_birth: clean(payload.user?.date_of_birth),
+    date_of_birth: toDateOfBirth(payload.user?.date_of_birth),
     ip: clean(payload.user?.ip),
     country: clean(payload.user?.country),
     region: clean(payload.user?.region),
     city: clean(payload.user?.city),
     postal_code: clean(payload.user?.postal_code)
-  }
+  })
 
-  const device = {
+  const device = removeUndefined({
     mobile_device_id: clean(payload.device?.mobile_device_id),
     user_agent: clean(payload.device?.user_agent),
     language: clean(payload.device?.language),
-    referer: clean(payload.device?.referer)
-  }
+    referer: clean(payload.device?.referrer)
+  })
 
   const item: QuoraConversionItem = {
-    conversion: {
+    conversion: removeUndefined({
       event_name: eventName,
       timestamp: toEpochMicroseconds(payload.timestamp),
       click_id: clean(payload.click_id),
       value: payload.value ?? undefined,
       event_id: clean(payload.event_id)
-    }
+    })
   }
 
   if (Object.values(user).some((v) => v !== undefined)) {
@@ -123,35 +141,19 @@ export async function sendEvents(
   const account_id = resolveAccountId(settings)
 
   if (isBatch) {
-    const body: QuoraBatchRequest = { account_id, data: items }
+    const json: QuoraBatchRequest = { account_id, data: items }
     return request<QuoraBatchResponse>(BATCH_ENDPOINT, {
       method: 'POST',
-      json: body as unknown as JSONLikeObject,
+      json,
       throwHttpErrors: false
     })
   }
 
-  const body: QuoraSingleRequest = { account_id, ...items[0] }
+  const json: QuoraSingleRequest = { account_id, ...items[0] }
   return request<QuoraSingleResponse>(SINGLE_ENDPOINT, {
     method: 'POST',
-    json: body as unknown as JSONLikeObject
+    json
   })
-}
-
-/**
- * Inspects a single-event response. Quora returns HTTP 200 even when the one
- * event is rejected, so interrogate the body and throw a PayloadValidationError
- * if the event errored.
- */
-export function assertSingleEventSucceeded(response: ModifiedResponse<QuoraSingleResponse | QuoraBatchResponse>): void {
-  const data = response.data
-  if (!data) return
-  const errored = data.events?.find((event) => event.status !== 'OK')
-  if (data.events_errored || errored) {
-    const code = errored?.error_code ?? 'unknown error'
-    const message = errored?.error_message ?? `Quora rejected the event: ${code}`
-    throw new PayloadValidationError(message)
-  }
 }
 
 /**
