@@ -44,6 +44,7 @@ const defaultIdentifyPayload: Partial<SegmentEvent> = {
 const mockIdentifyMapping = {
   user_id: { '@path': '$.userId' },
   email: { '@path': '$.traits.email' },
+  custom_properties_mode: undefined,
   standard_traits: {
     first_name: { '@path': '$.traits.first_name' },
     last_name: { '@path': '$.traits.last_name' },
@@ -107,6 +108,7 @@ const defaultTrackPayload: Partial<SegmentEvent> = {
 const mockTrackMapping = {
   user_id: { '@path': '$.userId' },
   email: { '@path': '$.context.traits.email' },
+  custom_properties_mode: undefined,
   standard_traits: {
     first_name: { '@path': '$.context.traits.first_name' },
     last_name: { '@path': '$.context.traits.last_name' },

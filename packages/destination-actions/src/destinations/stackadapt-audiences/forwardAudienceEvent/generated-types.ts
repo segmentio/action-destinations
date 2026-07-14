@@ -47,11 +47,23 @@ export interface Payload {
     birth_date?: string
   }
   /**
+   * Select how to configure custom user properties.
+   */
+  custom_properties_mode?: string
+  /**
    * Custom properties for the user.
    */
   custom_traits?: {
     [k: string]: unknown
   }
+  /**
+   * Custom properties for the user. Each property requires a name, type, and value.
+   */
+  custom_user_properties?: {
+    name: string
+    type: string
+    value?: string
+  }[]
   /**
    * The ID of the user in Segment
    */

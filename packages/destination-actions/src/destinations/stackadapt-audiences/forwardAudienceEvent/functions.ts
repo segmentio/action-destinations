@@ -2,45 +2,51 @@ import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import {PROFILE_DEFAULT_FIELDS, MAPPING_SCHEMA, MarketingStatus as MarketingStatuses } from './constants'
 import {GQL_ENDPOINT, EXTERNAL_PROVIDER } from '../common-constants'
-import {  Mapping, MarketingStatus, ProfileFieldConfig } from './types'
+import { CustomUserProperty, Mapping, MarketingStatus, ProfileFieldConfig } from './types'
 import type { Payload } from './generated-types'
 import { sha256hash } from '../common-functions'
 
 export async function send(request: RequestClient, payloads: Payload[], settings: Settings) {
 
-  const fieldTypes = getDefaultFieldTypes()
-  const fieldsToMap = getDefaultFieldsToMap()
   const advertiserId = settings.advertiser_id
   const marketingStatus = payloads[0].marketing_status as MarketingStatus
-  
-  const profileUpdates = payloads.map((p) => {  
-    const {
-      user_id,
-      standard_traits,
-      custom_traits,
-      email
-    } = p
+  const useV2 = payloads[0].custom_properties_mode === 'v2'
 
+  const fieldTypes = useV2 ? getV2FieldTypes(payloads[0]?.custom_user_properties) : getDefaultFieldTypes()
+  const fieldsToMap = useV2 ? getV2FieldsToMap(payloads[0]?.custom_user_properties) : getDefaultFieldsToMap()
+
+  const profileUpdates = payloads.map((p) => {
+    const { user_id, standard_traits, custom_traits, custom_user_properties, email } = p
     const { segment_computation_key, segment_computation_id, traits_or_props } = p
-
-    if(custom_traits) {
-        // Remove reserved keys from custom traits just incase the customer accidentally maps them
-        delete custom_traits[segment_computation_key] 
-        delete custom_traits[segment_computation_id] 
-    }
 
     const profile: Record<string, string | number | undefined> = {
       userId: user_id,
       email,
-      ...standard_traits,
-      ...custom_traits
+      ...standard_traits
+    }
+
+    if (useV2) {
+      if (custom_user_properties) {
+        const reservedKeys = [segment_computation_key, segment_computation_id].filter(Boolean)
+        for (const prop of custom_user_properties) {
+          if (prop.name && !reservedKeys.includes(prop.name)) {
+            profile[prop.name] = prop.value
+          }
+        }
+      }
+    } else {
+      if (custom_traits) {
+        // Remove reserved keys from custom traits just incase the customer accidentally maps them
+        delete custom_traits[segment_computation_key]
+        delete custom_traits[segment_computation_id]
+        Object.assign(profile, custom_traits)
+      }
+      updateFieldsToMapAndFieldTypes(fieldsToMap, fieldTypes, custom_traits)
     }
 
     profile.audienceId = segment_computation_id
     profile.audienceName = segment_computation_key
     profile.action = traits_or_props[segment_computation_key] ? 'enter' : 'exit'
-
-    updateFieldsToMapAndFieldTypes(fieldsToMap, fieldTypes, custom_traits)
 
     return profile
   })
@@ -233,4 +239,34 @@ const getDefaultFieldTypes = (): Record<string, string> => {
     acc[field.key] = field.type.toUpperCase()
     return acc
   }, {} as Record<string, string>)
+}
+
+function getV2FieldsToMap(customUserProperties: CustomUserProperty[] | undefined): Set<string> {
+  const standardFieldsToMap = getDefaultFieldsToMap()
+
+  if (customUserProperties) {
+    for (const prop of customUserProperties) {
+      const key = prop.name?.trim()
+      if (key && !standardFieldsToMap.has(key)) {
+        standardFieldsToMap.add(key)
+      }
+    }
+  }
+
+  return standardFieldsToMap
+}
+
+function getV2FieldTypes(customUserProperties: CustomUserProperty[] | undefined): Record<string, string> {
+  const standardFieldTypes = getDefaultFieldTypes()
+
+  if (customUserProperties) {
+    for (const prop of customUserProperties) {
+      const key = prop.name?.trim()
+      if (key && !standardFieldTypes[key]) {
+        standardFieldTypes[key] = prop.type
+      }
+    }
+  }
+
+  return standardFieldTypes
 }

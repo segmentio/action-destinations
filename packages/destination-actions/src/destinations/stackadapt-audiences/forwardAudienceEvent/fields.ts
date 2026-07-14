@@ -183,12 +183,73 @@ export const profile_fields: Record<string, InputField> = {
         }
       }
     },
+    custom_properties_mode: {
+      label: 'Custom Properties Mode',
+      description: 'Select how to configure custom user properties.',
+      type: 'string',
+      required: false,
+      default: 'v2',
+      choices: [
+        { label: 'Legacy (Key-Value)', value: 'v1' },
+        { label: 'Custom User Properties', value: 'v2' }
+      ],
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+    },
     custom_traits: {
-      label: 'Custom User Properties',
+      label: 'Custom User Properties (Legacy)',
       type: 'object',
       description: 'Custom properties for the user.',
-      defaultObjectUI: 'keyvalue',
-      required: false
+      defaultObjectUI: 'keyvalue:only',
+      required: false,
+      depends_on: {
+        match: 'any',
+        conditions: [
+          { fieldKey: 'custom_properties_mode', operator: 'is', value: 'v1' },
+          { fieldKey: 'custom_properties_mode', operator: 'is', value: undefined }
+        ]
+      }
+    },
+    custom_user_properties: {
+      label: 'Custom User Properties',
+      description: 'Custom properties for the user. Each property requires a name, type, and value.',
+      type: 'object',
+      multiple: true,
+      required: false,
+      defaultObjectUI: 'arrayeditor',
+      additionalProperties: false,
+      properties: {
+        name: {
+          label: 'Name',
+          description: 'The name of the custom user property.',
+          type: 'string',
+          required: true,
+          disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+        },
+        type: {
+          label: 'Type',
+          description: 'The data type of the custom user property.',
+          type: 'string',
+          required: true,
+          choices: [
+            { label: 'String', value: 'STRING' },
+            { label: 'Number', value: 'NUMBER' },
+            { label: 'Boolean', value: 'BOOLEAN' },
+            { label: 'Date', value: 'DATE' }
+          ],
+          disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+        },
+        value: {
+          label: 'Value',
+          description: 'The value of the custom user property.',
+          type: 'string'
+        }
+      },
+      depends_on: {
+        match: 'all',
+        conditions: [
+          { fieldKey: 'custom_properties_mode', operator: 'is', value: 'v2' }
+        ]
+      }
     },
     user_id: {
       label: 'Segment User ID',
