@@ -117,4 +117,22 @@ describe('Quora Conversions API - trackConversion', () => {
     expect((captured.data as Record<string, unknown>[])[0].account_id).toBeUndefined()
     expect(responses[0].status).toBe(200)
   })
+
+  it('retries the whole batch when the batch endpoint returns a retryable status', async () => {
+    nock(BASE_URL).post('/ads/v0/conversions').reply(503)
+
+    const events = [
+      createTestEvent({ type: 'track', event: 'Order Completed', properties: { value: 1 } }),
+      createTestEvent({ type: 'track', event: 'Order Completed', properties: { value: 2 } })
+    ]
+
+    await expect(
+      testDestination.testBatchAction('trackConversion', {
+        events,
+        settings,
+        mapping: { event_name: 'Purchase' },
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
+  })
 })
