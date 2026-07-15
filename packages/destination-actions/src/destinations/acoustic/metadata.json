@@ -101,16 +101,6 @@
         "choices": null,
         "default": 15,
         "depends_on": null
-      },
-      "version": {
-        "label": "Version:",
-        "description": "\nLast-Modified: 06.28.2023 16.15.37\n",
-        "type": "string",
-        "required": false,
-        "multiple": false,
-        "choices": null,
-        "default": "Version 3.1   (nodeJS: v22.13.1)",
-        "depends_on": null
       }
     }
   },

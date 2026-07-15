@@ -1,5 +1,5 @@
 {
-  "slug": "actions-quora",
+  "slug": "quora-actions",
   "name": "Quora Conversions API",
   "mode": "cloud",
   "description": "Send Segment events to the Quora Conversions API.",
@@ -31,7 +31,7 @@
   "audienceConfig": null,
   "actions": {
     "trackConversion": {
-      "title": "Track Conversion",
+      "title": "Send Conversion",
       "description": "Send a conversion event to Quora. Supports all standard Quora conversion types, plus Generic pass-through of the Segment event name.",
       "platform": "cloud",
       "defaultSubscription": "type = \"track\"",
@@ -110,7 +110,15 @@
           "label": "Segment Event Name",
           "description": "The raw Segment event name. Only used when Event Name is set to `Generic`, in which case this value is sent as the Quora `event_name`.",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "Generic"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -121,7 +129,15 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "Generic"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -175,7 +191,7 @@
                 "@path": "$.properties.qclid"
               },
               "else": {
-                "@path": "$.context.qclid"
+                "@path": "$.integrations.Quora Conversions API.qclid"
               }
             }
           },
@@ -196,7 +212,7 @@
         },
         "value": {
           "label": "Value",
-          "description": "The monetary value associated with the conversion.",
+          "description": "The monetary value associated with the conversion. Quora requires all values to be denominated in USD.",
           "type": "number",
           "required": false,
           "multiple": false,
@@ -205,10 +221,10 @@
           "default": {
             "@if": {
               "exists": {
-                "@path": "$.properties.value"
+                "@path": "$.properties.revenue"
               },
               "then": {
-                "@path": "$.properties.value"
+                "@path": "$.properties.revenue"
               },
               "else": {
                 "@path": "$.properties.total"
@@ -370,8 +386,8 @@
             },
             "date_of_birth": {
               "label": "Date of Birth",
-              "description": "The user's date of birth in YYYY-MM-DD format.",
-              "type": "string",
+              "description": "The user's date of birth in ISO8601 format, for example, 2001-11-24.",
+              "type": "datetime",
               "required": false,
               "multiple": false,
               "allowNull": false,
@@ -543,7 +559,7 @@
             "language": {
               "@path": "$.context.locale"
             },
-            "referer": {
+            "referrer": {
               "@path": "$.context.page.referrer"
             }
           },
@@ -622,9 +638,9 @@
               "format": null,
               "additionalProperties": false
             },
-            "referer": {
-              "label": "Referer",
-              "description": "The referring URL. Note the API spells this field \"referer\" (single r).",
+            "referrer": {
+              "label": "Referrer",
+              "description": "The referring URL.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -733,22 +749,12 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
-          "@if": {
-            "exists": {
-              "@path": "$.properties.value"
-            },
-            "then": {
-              "@path": "$.properties.value"
-            },
-            "else": {
-              "@path": "$.properties.total"
-            }
-          }
+          "@path": "$.properties.value"
         },
         "event_id": {
           "@path": "$.messageId"
@@ -792,7 +798,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -823,17 +829,17 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
           "@if": {
             "exists": {
-              "@path": "$.properties.value"
+              "@path": "$.properties.revenue"
             },
             "then": {
-              "@path": "$.properties.value"
+              "@path": "$.properties.revenue"
             },
             "else": {
               "@path": "$.properties.total"
@@ -882,7 +888,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -913,22 +919,12 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
-          "@if": {
-            "exists": {
-              "@path": "$.properties.value"
-            },
-            "then": {
-              "@path": "$.properties.value"
-            },
-            "else": {
-              "@path": "$.properties.total"
-            }
-          }
+          "@path": "$.properties.value"
         },
         "event_id": {
           "@path": "$.messageId"
@@ -972,7 +968,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -1003,17 +999,17 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
           "@if": {
             "exists": {
-              "@path": "$.properties.value"
+              "@path": "$.properties.revenue"
             },
             "then": {
-              "@path": "$.properties.value"
+              "@path": "$.properties.revenue"
             },
             "else": {
               "@path": "$.properties.total"
@@ -1062,7 +1058,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -1093,22 +1089,12 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
-          "@if": {
-            "exists": {
-              "@path": "$.properties.value"
-            },
-            "then": {
-              "@path": "$.properties.value"
-            },
-            "else": {
-              "@path": "$.properties.total"
-            }
-          }
+          "@path": "$.properties.price"
         },
         "event_id": {
           "@path": "$.messageId"
@@ -1152,7 +1138,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -1183,22 +1169,12 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
-          "@if": {
-            "exists": {
-              "@path": "$.properties.value"
-            },
-            "then": {
-              "@path": "$.properties.value"
-            },
-            "else": {
-              "@path": "$.properties.total"
-            }
-          }
+          "@path": "$.properties.price"
         },
         "event_id": {
           "@path": "$.messageId"
@@ -1242,7 +1218,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -1273,17 +1249,17 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
           "@if": {
             "exists": {
-              "@path": "$.properties.value"
+              "@path": "$.properties.revenue"
             },
             "then": {
-              "@path": "$.properties.value"
+              "@path": "$.properties.revenue"
             },
             "else": {
               "@path": "$.properties.total"
@@ -1332,7 +1308,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
@@ -1363,22 +1339,12 @@
               "@path": "$.properties.qclid"
             },
             "else": {
-              "@path": "$.context.qclid"
+              "@path": "$.integrations.Quora Conversions API.qclid"
             }
           }
         },
         "value": {
-          "@if": {
-            "exists": {
-              "@path": "$.properties.value"
-            },
-            "then": {
-              "@path": "$.properties.value"
-            },
-            "else": {
-              "@path": "$.properties.total"
-            }
-          }
+          "@path": "$.properties.value"
         },
         "event_id": {
           "@path": "$.messageId"
@@ -1422,7 +1388,7 @@
           "language": {
             "@path": "$.context.locale"
           },
-          "referer": {
+          "referrer": {
             "@path": "$.context.page.referrer"
           }
         },
