@@ -1,16 +1,41 @@
-import { IntegrationError, ErrorCodes, getErrorCodeFromHttpStatus, RequestClient, MultiStatusResponse, JSONLikeObject, PayloadValidationError } from '@segment/actions-core'
+import {
+  IntegrationError,
+  ErrorCodes,
+  getErrorCodeFromHttpStatus,
+  RequestClient,
+  MultiStatusResponse,
+  JSONLikeObject,
+  PayloadValidationError,
+  InvalidAudienceMembershipError,
+  RetryableError,
+  AudienceMembership
+} from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { AddMap, RemoveMap, PatchBodyJSON, BatchPatchResponse, BatchMultistatusItem } from './types'
 import { SEGMENT_ENDPOINT } from '../constants'
 import { getDomain } from '../functions'
 
-export async function send(request: RequestClient, region: string, payload: Payload[], isBatch: boolean): Promise<MultiStatusResponse | void> {
+export async function send(
+  request: RequestClient,
+  region: string,
+  payload: Payload[],
+  isBatch: boolean,
+  audienceMemberships: AudienceMembership[]
+): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const segmentId = payload[0]?.segmentAudienceId
 
   if (!segmentId) {
     payload.forEach((p, index) => {
-      handleError('PayloadValidationError', 'Missing Pendo Segment ID', isBatch, msResponse, index, p, 400)
+      handleError(
+        'PayloadValidationError',
+        'Missing Pendo Segment ID',
+        isBatch,
+        msResponse,
+        index,
+        400,
+        p as unknown as JSONLikeObject
+      )
     })
     return msResponse
   }
@@ -19,13 +44,33 @@ export async function send(request: RequestClient, region: string, payload: Payl
   const removes: RemoveMap = new Map()
 
   payload.forEach((p, index) => {
-    const { visitorId, traitsOrProperties, segmentAudienceKey } = p
+    const { visitorId } = p
     if (!visitorId) {
-      handleError('PayloadValidationError','Visitor ID is required', isBatch, msResponse, index, p, 400)
+      handleError(
+        'PayloadValidationError',
+        'Visitor ID is required',
+        isBatch,
+        msResponse,
+        index,
+        400,
+        p as unknown as JSONLikeObject
+      )
       return
     }
-    const isAdding = Boolean(traitsOrProperties[segmentAudienceKey])
-    if (isAdding) {
+    const membership = Array.isArray(audienceMemberships) ? audienceMemberships[index] : undefined
+    if (typeof membership !== 'boolean') {
+      handleError(
+        'InvalidAudienceMembershipError',
+        'Unable to determine audience membership for this event',
+        isBatch,
+        msResponse,
+        index,
+        400,
+        p as unknown as JSONLikeObject
+      )
+      return
+    }
+    if (membership) {
       adds.set(index, visitorId)
     } else {
       removes.set(index, visitorId)
@@ -55,7 +100,6 @@ export async function send(request: RequestClient, region: string, payload: Payl
   }
 
   try {
-    
     const response = await request<BatchPatchResponse>(
       `${getDomain(region)}/${SEGMENT_ENDPOINT}/${segmentId}/visitor`,
       {
@@ -75,50 +119,85 @@ export async function send(request: RequestClient, region: string, payload: Payl
         if (isSuccess) {
           msResponse.setSuccessResponseAtIndex(index, {
             status: item.status,
-            body: p as unknown as JSONLikeObject,
-            sent: buildSent(item.operation, visitorId)
+            sent: p as unknown as JSONLikeObject,
+            body: buildPendoRequest(item.operation, [visitorId])
           })
         } else {
-          handleError('IntegrationError', item.message, isBatch, msResponse, index, p, item.status, buildSent(item.operation, visitorId))
+          handleError(
+            'IntegrationError',
+            item.message,
+            isBatch,
+            msResponse,
+            index,
+            item.status,
+            p as unknown as JSONLikeObject,
+            buildPendoRequest(item.operation, [visitorId])
+          )
         }
       })
     })
-  } 
-  catch (error) {
+  } catch (error) {
     const status = (error?.response?.status as number) || 500
     const message = (error?.message as string) || 'An error occurred while syncing visitors to Pendo Segment.'
+
+    // Pendo returns 409 ("Operation in progress") when a write to the segment is already underway.
+    // This is transient, so throw a RetryableError to let Segment retry the whole request later.
+    // Throwing (rather than setting per-item responses) retries the entire batch, which is correct
+    // since the single PATCH for all visitors is what Pendo rejected.
+    if (status === 409) {
+      throw new RetryableError('Pendo returned a 409. Segment is returning a 429 to trigger a retry.', 429)
+    }
 
     const allIndices = [...adds.keys(), ...removes.keys()]
     allIndices.forEach((index) => {
       const visitorId = adds.get(index) ?? removes.get(index)
       const op = adds.has(index) ? 'add' : 'remove'
-      handleError('IntegrationError', message, isBatch, msResponse, index, payload[index], status, buildSent(op, visitorId as string))
+      handleError(
+        'IntegrationError',
+        message,
+        isBatch,
+        msResponse,
+        index,
+        status,
+        payload[index] as unknown as JSONLikeObject,
+        buildPendoRequest(op, [visitorId as string])
+      )
     })
   }
 
-  if(isBatch) {
+  if (isBatch) {
     return msResponse
   }
   return
 }
 
-function buildSent(op: 'add' | 'remove', visitorId: string): JSONLikeObject {
-  return { patch: [{ op, path: '/visitors', value: [visitorId] }] } as unknown as JSONLikeObject
+function buildPendoRequest(op: 'add' | 'remove', visitorIds: string[]): JSONLikeObject {
+  return { patch: [{ op, path: '/visitors', value: visitorIds }] } as unknown as JSONLikeObject
 }
 
-function handleError(errType: 'PayloadValidationError' | 'IntegrationError', message: string, isBatch: boolean, msResponse: MultiStatusResponse, index: number, payload: Payload, status = 400, sent?: JSONLikeObject): void {
+function handleError(
+  errType: 'PayloadValidationError' | 'IntegrationError' | 'InvalidAudienceMembershipError',
+  message: string,
+  isBatch: boolean,
+  msResponse: MultiStatusResponse,
+  index: number,
+  status = 400,
+  sent?: JSONLikeObject,
+  body?: JSONLikeObject
+): void {
   if (!isBatch) {
-    if(errType === 'PayloadValidationError') {
+    if (errType === 'PayloadValidationError') {
       throw new PayloadValidationError(message)
-    }
-    else {
-      throw new IntegrationError( message, getErrorCodeFromHttpStatus(status) || ErrorCodes.UNKNOWN_ERROR, status)
+    } else if (errType === 'InvalidAudienceMembershipError' ) {
+      throw new InvalidAudienceMembershipError(message)
+    } else {
+      throw new IntegrationError(message, getErrorCodeFromHttpStatus(status) || ErrorCodes.UNKNOWN_ERROR, status)
     }
   }
   msResponse.setErrorResponseAtIndex(index, {
     status,
-    body: payload as unknown as JSONLikeObject,
     errormessage: message,
-    ...(sent && { sent })
+    ...(sent && { sent }),
+    ...(body && { body })
   })
 }
