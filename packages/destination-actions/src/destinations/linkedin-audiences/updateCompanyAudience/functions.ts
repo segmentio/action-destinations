@@ -14,9 +14,10 @@ import type { AudienceJSON, LinkedInCompanyAudienceElement, ValidCompanyPayload,
 import { AUDIENCE_ACTION, ORGANIZATION_URN_PREFIX, RETRYABLE_STATUSES } from './constants'
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
-  return linkedInCompanyId.startsWith(ORGANIZATION_URN_PREFIX)
-    ? linkedInCompanyId
-    : `${ORGANIZATION_URN_PREFIX}${linkedInCompanyId}`
+  if (linkedInCompanyId.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)) {
+    return `${ORGANIZATION_URN_PREFIX}${linkedInCompanyId.slice(ORGANIZATION_URN_PREFIX.length)}`
+  }
+  return `${ORGANIZATION_URN_PREFIX}${linkedInCompanyId}`
 }
 
 export function validate(
