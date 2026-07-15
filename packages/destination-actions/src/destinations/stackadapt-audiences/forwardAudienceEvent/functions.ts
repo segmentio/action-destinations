@@ -42,7 +42,7 @@ export async function send(request: RequestClient, payloads: Payload[], settings
       }
     } else {
       if (custom_traits) {
-        // Remove reserved keys from custom traits just incase the customer accidentally maps them
+        // Remove reserved keys from custom traits just in-case the customer accidentally maps them
         delete custom_traits[segment_computation_key]
         delete custom_traits[segment_computation_id]
         Object.assign(profile, custom_traits)
