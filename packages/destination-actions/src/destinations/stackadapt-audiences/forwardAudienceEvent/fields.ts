@@ -19,7 +19,7 @@ export const audience_only_fields: Record<string, InputField> = {
   segment_computation_class: {
     label: 'Segment Computation Class',
     required: true,
-    description: "Segment computation class used to determine if input event is from an Engage Audience'.",
+    description: "Segment computation class used to determine if input event is from an Engage Audience.",
     type: 'string',
     unsafe_hidden: true,
     default: {

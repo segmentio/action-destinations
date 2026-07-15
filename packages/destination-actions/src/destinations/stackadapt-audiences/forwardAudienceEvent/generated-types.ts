@@ -96,7 +96,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Segment computation class used to determine if input event is from an Engage Audience'.
+   * Segment computation class used to determine if input event is from an Engage Audience.
    */
   segment_computation_class: string
   /**
