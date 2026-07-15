@@ -52,7 +52,7 @@ describe('Quora Conversions API - trackConversion', () => {
     expect((body.device as Record<string, unknown>).referer).toBe('https://example.com')
   })
 
-  it('passes through the Segment event name when event_name is Generic', async () => {
+  it('passes the Segment event name through as the Quora event_name', async () => {
     nock(BASE_URL).post('/ads/v0/conversion').reply(200, { events_received: 1, events_errored: 0 })
 
     const event = createTestEvent({ type: 'track', event: 'Custom Thing', properties: {} })
@@ -60,7 +60,7 @@ describe('Quora Conversions API - trackConversion', () => {
     const responses = await testDestination.testAction('trackConversion', {
       event,
       settings,
-      mapping: { event_name: 'Generic', segment_event_name: { '@path': '$.event' } },
+      mapping: { event_name: { '@path': '$.event' } },
       useDefaultMappings: true
     })
 

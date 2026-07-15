@@ -22,8 +22,7 @@ export const BATCH_ENDPOINT = `${BASE_URL}/ads/v0/conversions`
 export const MAX_BATCH_SIZE = 1000
 
 /**
- * The ten standard Quora conversion types. `Generic` passes through the
- * Segment event name in `conversion.event_name`.
+ * The ten standard Quora conversion types.
  */
 export const QUORA_EVENT_NAMES = [
   'Generic',
@@ -39,8 +38,3 @@ export const QUORA_EVENT_NAMES = [
 ] as const
 
 export type QuoraEventName = typeof QUORA_EVENT_NAMES[number]
-
-/**
- * The `Generic` sentinel — when selected, the raw Segment event name is sent through.
- */
-export const GENERIC_EVENT_NAME = 'Generic'

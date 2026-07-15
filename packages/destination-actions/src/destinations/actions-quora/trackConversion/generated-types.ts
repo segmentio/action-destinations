@@ -2,13 +2,9 @@
 
 export interface Payload {
   /**
-   * The Quora standard conversion type. Select `Generic` to pass through the Segment event name provided in the "Segment Event Name" field.
+   * The conversion event name sent to Quora.
    */
   event_name: string
-  /**
-   * The raw Segment event name. Only used when Event Name is set to `Generic`, in which case this value is sent as the Quora `event_name`.
-   */
-  segment_event_name?: string
   /**
    * The time the conversion occurred. Sent to Quora as epoch microseconds.
    */
@@ -42,9 +38,9 @@ export interface Payload {
      */
     phone_number?: string
     /**
-     * The user's date of birth in YYYY-MM-DD format.
+     * The user's date of birth in ISO8601 format, for example, 2001-11-24.
      */
-    date_of_birth?: string
+    date_of_birth?: string | number
     /**
      * The user's IP address.
      */

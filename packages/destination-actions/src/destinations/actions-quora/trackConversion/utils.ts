@@ -3,7 +3,6 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ModifiedResponse,
-  PayloadValidationError,
   IntegrationError,
   removeUndefined
 } from '@segment/actions-core'
@@ -16,7 +15,7 @@ import type {
   QuoraBatchResponse,
   QuoraSingleResponse
 } from './types'
-import { SINGLE_ENDPOINT, BATCH_ENDPOINT, GENERIC_EVENT_NAME } from './constants'
+import { SINGLE_ENDPOINT, BATCH_ENDPOINT } from './constants'
 
 /** Returns a trimmed string, or undefined for empty/nullish input. */
 function clean(value: string | undefined | null): string | undefined {
@@ -53,21 +52,6 @@ export function toEpochMicroseconds(timestamp: string | number | undefined): num
 }
 
 /**
- * Resolves the Quora `event_name`. When the mapped event name is `Generic`,
- * the raw Segment event name is passed through instead.
- */
-export function resolveEventName(payload: Payload): string {
-  if (payload.event_name === GENERIC_EVENT_NAME) {
-    const cleaned = clean(payload.segment_event_name)
-    if(!cleaned) {
-      throw new PayloadValidationError('Segment Event Name is required when using Generic event name.')
-    }
-    return cleaned
-  }
-  return payload.event_name
-}
-
-/**
  * Coerces the ad account id setting to a number and validates it is a safe integer.
  */
 export function resolveAccountId(settings: Settings): number {
@@ -81,11 +65,8 @@ export function resolveAccountId(settings: Settings): number {
 /**
  * Builds a single Quora conversion item (`{ user, device, conversion }`) from a payload.
  * Shared by both the single and batch delivery paths. Empty sub-objects are omitted.
- * Throws a PayloadValidationError if no event name is resolvable.
  */
 export function buildConversionItem(payload: Payload): QuoraConversionItem {
-  const eventName = resolveEventName(payload)
-
   const user = removeUndefined({
     email: clean(payload.user?.email),
     name: clean(payload.user?.name),
@@ -107,7 +88,7 @@ export function buildConversionItem(payload: Payload): QuoraConversionItem {
 
   const item: QuoraConversionItem = {
     conversion: removeUndefined({
-      event_name: eventName,
+      event_name: payload.event_name,
       timestamp: toEpochMicroseconds(payload.timestamp),
       click_id: clean(payload.click_id),
       value: payload.value ?? undefined,

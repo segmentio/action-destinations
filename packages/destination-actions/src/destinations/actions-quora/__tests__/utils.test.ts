@@ -1,7 +1,6 @@
-import { MultiStatusResponse, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { MultiStatusResponse, ModifiedResponse } from '@segment/actions-core'
 import {
   toEpochMicroseconds,
-  resolveEventName,
   resolveAccountId,
   buildConversionItem,
   handleBatchResponse,
@@ -30,22 +29,6 @@ describe('toEpochMicroseconds', () => {
   it('returns undefined for missing/invalid input', () => {
     expect(toEpochMicroseconds(undefined)).toBeUndefined()
     expect(toEpochMicroseconds('not-a-date')).toBeUndefined()
-  })
-})
-
-describe('resolveEventName', () => {
-  it('returns the standard event name directly', () => {
-    expect(resolveEventName(basePayload({ event_name: 'AddToCart' }))).toBe('AddToCart')
-  })
-
-  it('passes through the Segment event name when Generic', () => {
-    expect(resolveEventName(basePayload({ event_name: 'Generic', segment_event_name: 'Custom Thing' }))).toBe(
-      'Custom Thing'
-    )
-  })
-
-  it('falls back to Generic when Generic is selected but no Segment event name is present', () => {
-    expect(resolveEventName(basePayload({ event_name: 'Generic' }))).toBe('Generic')
   })
 })
 
@@ -78,9 +61,8 @@ describe('buildConversionItem', () => {
     expect(item.device).toBeUndefined()
   })
 
-  it('throws PayloadValidationError when no event name resolves', () => {
-    expect(() => buildConversionItem(basePayload({ event_name: 'Generic', segment_event_name: '' }))).not.toThrow()
-    expect(() => buildConversionItem({ event_name: '' } as Payload)).toThrow(PayloadValidationError)
+  it('passes the event name straight through', () => {
+    expect(buildConversionItem(basePayload({ event_name: 'Custom Thing' })).conversion.event_name).toBe('Custom Thing')
   })
 })
 
