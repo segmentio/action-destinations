@@ -1,7 +1,7 @@
-import { MultiStatusResponse, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { MultiStatusResponse, ModifiedResponse, RetryableError, PayloadValidationError } from '@segment/actions-core'
 import {
   toEpochMicroseconds,
-  resolveEventName,
+  toDateOfBirth,
   resolveAccountId,
   buildConversionItem,
   handleBatchResponse,
@@ -23,29 +23,37 @@ describe('toEpochMicroseconds', () => {
     expect(toEpochMicroseconds('2023-09-26T15:29:30.036Z')).toBe(1695742170036000)
   })
 
-  it('converts an epoch-ms number to microseconds', () => {
+  it('converts a 13-digit epoch-ms number to microseconds', () => {
     expect(toEpochMicroseconds(1695742170036)).toBe(1695742170036000)
+  })
+
+  it('converts a 10-digit epoch-seconds number to microseconds', () => {
+    expect(toEpochMicroseconds(1695742170)).toBe(1695742170000000)
   })
 
   it('returns undefined for missing/invalid input', () => {
     expect(toEpochMicroseconds(undefined)).toBeUndefined()
     expect(toEpochMicroseconds('not-a-date')).toBeUndefined()
   })
+
+  it('returns undefined for a number that is neither 10 nor 13 digits', () => {
+    // 16-digit microseconds are not a supported input
+    expect(toEpochMicroseconds(1006560000000000)).toBeUndefined()
+  })
 })
 
-describe('resolveEventName', () => {
-  it('returns the standard event name directly', () => {
-    expect(resolveEventName(basePayload({ event_name: 'AddToCart' }))).toBe('AddToCart')
+describe('toDateOfBirth', () => {
+  it('formats an ISO 8601 string as YYYY-MM-DD', () => {
+    expect(toDateOfBirth('2001-11-24T00:00:00.000Z')).toBe('2001-11-24')
   })
 
-  it('passes through the Segment event name when Generic', () => {
-    expect(resolveEventName(basePayload({ event_name: 'Generic', segment_event_name: 'Custom Thing' }))).toBe(
-      'Custom Thing'
-    )
+  it('rejects a numeric value with a PayloadValidationError', () => {
+    expect(() => toDateOfBirth(1006560000000000)).toThrow(PayloadValidationError)
   })
 
-  it('falls back to Generic when Generic is selected but no Segment event name is present', () => {
-    expect(resolveEventName(basePayload({ event_name: 'Generic' }))).toBe('Generic')
+  it('returns undefined for absent/empty input', () => {
+    expect(toDateOfBirth(undefined)).toBeUndefined()
+    expect(toDateOfBirth('')).toBeUndefined()
   })
 })
 
@@ -78,9 +86,8 @@ describe('buildConversionItem', () => {
     expect(item.device).toBeUndefined()
   })
 
-  it('throws PayloadValidationError when no event name resolves', () => {
-    expect(() => buildConversionItem(basePayload({ event_name: 'Generic', segment_event_name: '' }))).not.toThrow()
-    expect(() => buildConversionItem({ event_name: '' } as Payload)).toThrow(PayloadValidationError)
+  it('passes the event name straight through', () => {
+    expect(buildConversionItem(basePayload({ event_name: 'Custom Thing' })).conversion.event_name).toBe('Custom Thing')
   })
 })
 
@@ -136,11 +143,18 @@ describe('handleBatchResponse', () => {
     expect(msr.isSuccessResponseAtIndex(1)).toBe(true)
   })
 
-  it('marks every item errored on a transport-level failure', () => {
+  it('marks every item errored on a non-retryable transport-level failure', () => {
     const msr = new MultiStatusResponse()
-    handleBatchResponse(mockResponse<QuoraBatchResponse>(500), items, [0, 1], msr)
+    handleBatchResponse(mockResponse<QuoraBatchResponse>(400), items, [0, 1], msr)
     expect(msr.isErrorResponseAtIndex(0)).toBe(true)
     expect(msr.isErrorResponseAtIndex(1)).toBe(true)
+  })
+
+  it('throws a RetryableError for the whole batch on a retryable status', () => {
+    const msr = new MultiStatusResponse()
+    expect(() => handleBatchResponse(mockResponse<QuoraBatchResponse>(429), items, [0, 1], msr)).toThrow(RetryableError)
+    expect(() => handleBatchResponse(mockResponse<QuoraBatchResponse>(500), items, [0, 1], msr)).toThrow(RetryableError)
+    expect(() => handleBatchResponse(mockResponse<QuoraBatchResponse>(503), items, [0, 1], msr)).toThrow(RetryableError)
   })
 
   it('correlates results to original indices when some payloads were skipped', () => {

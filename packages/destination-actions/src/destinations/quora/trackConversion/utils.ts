@@ -3,8 +3,9 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   ModifiedResponse,
-  PayloadValidationError,
   IntegrationError,
+  PayloadValidationError,
+  RetryableError,
   removeUndefined
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
@@ -16,7 +17,7 @@ import type {
   QuoraBatchResponse,
   QuoraSingleResponse
 } from './types'
-import { SINGLE_ENDPOINT, BATCH_ENDPOINT, GENERIC_EVENT_NAME } from './constants'
+import { SINGLE_ENDPOINT, BATCH_ENDPOINT, RETRYABLE_STATUS_CODES } from './constants'
 
 /** Returns a trimmed string, or undefined for empty/nullish input. */
 function clean(value: string | undefined | null): string | undefined {
@@ -26,14 +27,23 @@ function clean(value: string | undefined | null): string | undefined {
 }
 
 /**
- * Formats a date-of-birth value as `YYYY-MM-DD`. Accepts undefined, an empty
- * string, or an ISO 8601 string; returns undefined for absent/empty/invalid input.
+ * Formats a date-of-birth value as `YYYY-MM-DD`. Only ISO 8601 date strings are
+ * accepted; a numeric value is rejected with a PayloadValidationError (which fails
+ * the payload) since an ambiguous epoch cannot be reliably interpreted as a birth
+ * date. Returns undefined for absent/empty input.
  */
-export function toDateOfBirth(value: string | undefined): string | undefined {
+export function toDateOfBirth(value: string | number | undefined): string | undefined {
+  if (value === undefined || value === null) return undefined
+
+  if (typeof value === 'number') {
+    throw new PayloadValidationError('Date of Birth must be an ISO 8601 date string (for example, 2001-11-24).')
+  }
+
   const cleaned = clean(value)
   if (cleaned === undefined) {
     return undefined
   }
+
   const ms = new Date(cleaned).getTime()
   if (Number.isNaN(ms)) {
     return undefined
@@ -42,37 +52,42 @@ export function toDateOfBirth(value: string | undefined): string | undefined {
 }
 
 /**
- * Converts a Segment timestamp (ISO 8601 string, epoch ms number, or Date)
- * into Quora's epoch-microseconds integer. Returns undefined if absent/invalid.
+ * Converts a Segment timestamp into Quora's epoch-microseconds integer.
+ * Accepts an ISO 8601 string, a 10-digit epoch-seconds number, or a 13-digit
+ * epoch-milliseconds number. Returns undefined if absent/invalid.
  */
 export function toEpochMicroseconds(timestamp: string | number | undefined): number | undefined {
-  if (timestamp === undefined || timestamp === null) return undefined
-  const ms = typeof timestamp === 'number' ? timestamp : new Date(timestamp).getTime()
-  if (Number.isNaN(ms)) return undefined
+  if (timestamp === undefined || timestamp === null) {
+    return undefined
+  }
+
+  let ms: number
+  if (typeof timestamp === 'number') {
+    const digits = Math.trunc(Math.abs(timestamp)).toString().length
+    if (digits === 10) {
+      ms = timestamp * 1000 // epoch seconds -> milliseconds
+    } else if (digits === 13) {
+      ms = timestamp // already epoch milliseconds
+    } else {
+      return undefined
+    }
+  } else {
+    ms = new Date(timestamp).getTime()
+  }
+
+  if (Number.isNaN(ms)) {
+    return undefined
+  }
+
   return Math.round(ms * 1000)
 }
 
 /**
- * Resolves the Quora `event_name`. When the mapped event name is `Generic`,
- * the raw Segment event name is passed through instead.
- */
-export function resolveEventName(payload: Payload): string {
-  if (payload.event_name === GENERIC_EVENT_NAME) {
-    const cleaned = clean(payload.segment_event_name)
-    if(!cleaned) {
-      throw new PayloadValidationError('Segment Event Name is required when using Generic event name.')
-    }
-    return cleaned
-  }
-  return payload.event_name
-}
-
-/**
- * Coerces the ad account id setting to a number and validates it is a safe integer.
+ * Coerces the ad account id setting to a number and validates it is numeric.
  */
 export function resolveAccountId(settings: Settings): number {
   const accountId = Number(settings.account_id)
-  if (!Number.isFinite(accountId) || !Number.isSafeInteger(accountId)) {
+  if (!Number.isFinite(accountId)) {
     throw new IntegrationError('Account ID must be a valid numeric value.', 'INVALID_ACCOUNT_ID', 400)
   }
   return accountId
@@ -81,11 +96,8 @@ export function resolveAccountId(settings: Settings): number {
 /**
  * Builds a single Quora conversion item (`{ user, device, conversion }`) from a payload.
  * Shared by both the single and batch delivery paths. Empty sub-objects are omitted.
- * Throws a PayloadValidationError if no event name is resolvable.
  */
 export function buildConversionItem(payload: Payload): QuoraConversionItem {
-  const eventName = resolveEventName(payload)
-
   const user = removeUndefined({
     email: clean(payload.user?.email),
     name: clean(payload.user?.name),
@@ -107,7 +119,7 @@ export function buildConversionItem(payload: Payload): QuoraConversionItem {
 
   const item: QuoraConversionItem = {
     conversion: removeUndefined({
-      event_name: eventName,
+      event_name: payload.event_name,
       timestamp: toEpochMicroseconds(payload.timestamp),
       click_id: clean(payload.click_id),
       value: payload.value ?? undefined,
@@ -157,11 +169,30 @@ export async function sendEvents(
 }
 
 /**
+ * Asserts that a single-event response did not report a rejection. The single
+ * endpoint returns HTTP 200 even when the event is rejected, surfacing the failure
+ * in the body, so `perform` calls this to throw a PayloadValidationError instead.
+ */
+export function assertSingleEventSucceeded(response: ModifiedResponse<QuoraSingleResponse | QuoraBatchResponse>): void {
+  const data = response.data
+  if (!data) return
+  const errored = data.events?.find((event) => event.status !== 'OK')
+  if (data.events_errored || errored) {
+    const code = errored?.error_code ?? 'unknown error'
+    const message = errored?.error_message ?? `Quora rejected the event: ${code}`
+    throw new PayloadValidationError(message)
+  }
+}
+
+/**
  * Interprets a batch multi-status response and populates a MultiStatusResponse.
  *
  * `validPayloadIndices` maps each position in `items` back to its original index in
  * the caller's payload array (positions that failed local validation are excluded).
  * Any item not represented in the response `events[]` array defaults to success.
+ *
+ * Throws a RetryableError for the entire batch when the response carries a retryable
+ * status code, so Segment retries the whole batch rather than the individual events.
  */
 export function handleBatchResponse(
   response: ModifiedResponse<QuoraSingleResponse | QuoraBatchResponse>,
@@ -171,6 +202,14 @@ export function handleBatchResponse(
 ): MultiStatusResponse {
   const status = response.status
   const data = response.data
+
+  // Retryable failure — throw the whole batch so Segment retries every event together.
+  if (RETRYABLE_STATUS_CODES.has(status)) {
+    throw new RetryableError(
+      response.statusText || `Quora Conversions API request failed with a retryable status (${status})`,
+      status as ConstructorParameters<typeof RetryableError>[1]
+    )
+  }
 
   // Transport-level failure — mark every valid item errored with the transport status.
   if (status < 200 || status >= 300 || !data) {

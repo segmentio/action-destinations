@@ -4,37 +4,10 @@ import { QUORA_EVENT_NAMES, MAX_BATCH_SIZE } from './constants'
 export const fields: Record<string, InputField> = {
   event_name: {
     label: 'Event Name',
-    description:
-      'The Quora standard conversion type. Select `Generic` to pass through the Segment event name provided in the "Segment Event Name" field.',
+    description: 'The conversion event name sent to Quora.',
     type: 'string',
     required: true,
-    choices: QUORA_EVENT_NAMES.map((value) => ({ label: value, value })),
-    default: 'Generic'
-  },
-  segment_event_name: {
-    label: 'Segment Event Name',
-    description:
-      'The raw Segment event name. Only used when Event Name is set to `Generic`, in which case this value is sent as the Quora `event_name`.',
-    type: 'string',
-    required: {
-      conditions: [
-        {
-          fieldKey: 'event_name',
-          operator: 'is',
-          value: 'Generic'
-        }
-      ]
-    },
-    default: { '@path': '$.event' }, 
-    depends_on: { 
-      conditions: [
-        {
-          fieldKey: 'event_name',
-          operator: 'is',
-          value: 'Generic'
-        }
-      ]
-    } 
+    choices: QUORA_EVENT_NAMES.map((value) => ({ label: value, value }))
   },
   timestamp: {
     label: 'Event Timestamp',
@@ -59,7 +32,8 @@ export const fields: Record<string, InputField> = {
   },
   value: {
     label: 'Value',
-    description: 'The monetary value associated with the conversion. Quora requires all values to be denominated in USD.',
+    description:
+      'The monetary value associated with the conversion, in your account currency. Sent to Quora as a number, for example `99.99`. Do not include currency symbols or codes.',
     type: 'number',
     required: false,
     default: {
