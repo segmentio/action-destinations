@@ -14,7 +14,7 @@ export interface Payload {
    */
   click_id?: string
   /**
-   * The monetary value associated with the conversion. Quora requires all values to be denominated in USD.
+   * The monetary value associated with the conversion, in your account currency. Sent to Quora as a number, for example `99.99`. Do not include currency symbols or codes.
    */
   value?: number
   /**

@@ -83,11 +83,11 @@ export function toEpochMicroseconds(timestamp: string | number | undefined): num
 }
 
 /**
- * Coerces the ad account id setting to a number and validates it is a safe integer.
+ * Coerces the ad account id setting to a number and validates it is numeric.
  */
 export function resolveAccountId(settings: Settings): number {
   const accountId = Number(settings.account_id)
-  if (!Number.isFinite(accountId) || !Number.isSafeInteger(accountId)) {
+  if (!Number.isFinite(accountId)) {
     throw new IntegrationError('Account ID must be a valid numeric value.', 'INVALID_ACCOUNT_ID', 400)
   }
   return accountId

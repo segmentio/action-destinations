@@ -43,13 +43,13 @@
       "fields": {
         "event_name": {
           "label": "Event Name",
-          "description": "The Quora standard conversion type. Select `Generic` to pass through the Segment event name provided in the \"Segment Event Name\" field.",
+          "description": "The conversion event name sent to Quora.",
           "type": "string",
           "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": "Generic",
+          "default": null,
           "choices": [
             {
               "label": "Generic",
@@ -96,48 +96,6 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "segment_event_name": {
-          "label": "Segment Event Name",
-          "description": "The raw Segment event name. Only used when Event Name is set to `Generic`, in which case this value is sent as the Quora `event_name`.",
-          "type": "string",
-          "required": {
-            "conditions": [
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "Generic"
-              }
-            ]
-          },
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.event"
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": {
-            "conditions": [
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "Generic"
-              }
-            ]
-          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -733,10 +691,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Application Installed\"",
       "mapping": {
-        "event_name": "AppInstall",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -803,7 +757,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "AppInstall"
       },
       "eventSlug": null
     },
@@ -813,10 +768,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Order Completed\"",
       "mapping": {
-        "event_name": "Purchase",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -893,7 +844,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "Purchase"
       },
       "eventSlug": null
     },
@@ -903,10 +855,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Signed Up\"",
       "mapping": {
-        "event_name": "CompleteRegistration",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -973,7 +921,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "CompleteRegistration"
       },
       "eventSlug": null
     },
@@ -983,10 +932,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Payment Info Entered\"",
       "mapping": {
-        "event_name": "AddPaymentInfo",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -1063,7 +1008,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "AddPaymentInfo"
       },
       "eventSlug": null
     },
@@ -1073,10 +1019,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Product Added\"",
       "mapping": {
-        "event_name": "AddToCart",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -1143,7 +1085,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "AddToCart"
       },
       "eventSlug": null
     },
@@ -1153,10 +1096,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
       "mapping": {
-        "event_name": "AddToWishlist",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -1223,7 +1162,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "AddToWishlist"
       },
       "eventSlug": null
     },
@@ -1233,10 +1173,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Checkout Started\"",
       "mapping": {
-        "event_name": "InitiateCheckout",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -1313,7 +1249,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "InitiateCheckout"
       },
       "eventSlug": null
     },
@@ -1323,10 +1260,6 @@
       "partnerAction": "trackConversion",
       "subscribe": "type = \"track\" and event = \"Products Searched\"",
       "mapping": {
-        "event_name": "Search",
-        "segment_event_name": {
-          "@path": "$.event"
-        },
         "timestamp": {
           "@path": "$.timestamp"
         },
@@ -1393,7 +1326,8 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "event_name": "Search"
       },
       "eventSlug": null
     }

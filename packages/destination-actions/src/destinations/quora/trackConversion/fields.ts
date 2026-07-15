@@ -33,7 +33,7 @@ export const fields: Record<string, InputField> = {
   },
   value: {
     label: 'Value',
-    description: 'The monetary value associated with the conversion. Quora requires all values to be denominated in USD.',
+    description: 'The monetary value associated with the conversion, in your account currency. Sent to Quora as a number, for example `99.99`. Do not include currency symbols or codes.',
     type: 'number',
     required: false,
     default: {
