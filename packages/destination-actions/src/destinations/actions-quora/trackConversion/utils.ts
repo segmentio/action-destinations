@@ -169,6 +169,24 @@ export async function sendEvents(
 }
 
 /**
+ * Asserts that a single-event response did not report a rejection. The single
+ * endpoint returns HTTP 200 even when the event is rejected, surfacing the failure
+ * in the body, so `perform` calls this to throw a PayloadValidationError instead.
+ */
+export function assertSingleEventSucceeded(
+  response: ModifiedResponse<QuoraSingleResponse | QuoraBatchResponse>
+): void {
+  const data = response.data
+  if (!data) return
+  const errored = data.events?.find((event) => event.status !== 'OK')
+  if (data.events_errored || errored) {
+    const code = errored?.error_code ?? 'unknown error'
+    const message = errored?.error_message ?? `Quora rejected the event: ${code}`
+    throw new PayloadValidationError(message)
+  }
+}
+
+/**
  * Interprets a batch multi-status response and populates a MultiStatusResponse.
  *
  * `validPayloadIndices` maps each position in `items` back to its original index in

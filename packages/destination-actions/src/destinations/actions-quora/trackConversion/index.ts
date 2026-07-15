@@ -2,7 +2,7 @@ import { ActionDefinition, MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { QuoraConversionItem } from './types'
-import { sendEvents, buildConversionItem, handleBatchResponse } from './utils'
+import { sendEvents, buildConversionItem, handleBatchResponse, assertSingleEventSucceeded } from './utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -14,7 +14,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     const item = buildConversionItem(payload)
-    return await sendEvents(request, settings, [item], false)
+    const response = await sendEvents(request, settings, [item], false)
+    assertSingleEventSucceeded(response)
+    return response
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {
