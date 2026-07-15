@@ -52,7 +52,11 @@ const destination: DestinationDefinition<Settings> = {
       name: 'App Install',
       subscribe: 'type = "track" and event = "Application Installed"',
       partnerAction: 'trackConversion',
-      mapping: { ...defaultValues(trackConversion.fields), event_name: 'AppInstall', value: { '@path': '$.properties.value' } },
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        event_name: 'AppInstall',
+        value: { '@path': '$.properties.value' }
+      },
       type: 'automatic'
     },
     {
@@ -66,7 +70,11 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Complete Registration',
       subscribe: 'type = "track" and event = "Signed Up"',
       partnerAction: 'trackConversion',
-      mapping: { ...defaultValues(trackConversion.fields), event_name: 'CompleteRegistration', value: { '@path': '$.properties.value' } },
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        event_name: 'CompleteRegistration',
+        value: { '@path': '$.properties.value' }
+      },
       type: 'automatic'
     },
     {
@@ -80,14 +88,22 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Add to Cart',
       subscribe: 'type = "track" and event = "Product Added"',
       partnerAction: 'trackConversion',
-      mapping: { ...defaultValues(trackConversion.fields), event_name: 'AddToCart', value: { '@path': '$.properties.price' } },
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        event_name: 'AddToCart',
+        value: { '@path': '$.properties.price' }
+      },
       type: 'automatic'
     },
     {
       name: 'Add to Wishlist',
       subscribe: 'type = "track" and event = "Product Added to Wishlist"',
       partnerAction: 'trackConversion',
-      mapping: { ...defaultValues(trackConversion.fields), event_name: 'AddToWishlist', value: { '@path': '$.properties.price' } },
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        event_name: 'AddToWishlist',
+        value: { '@path': '$.properties.price' }
+      },
       type: 'automatic'
     },
     {
@@ -101,7 +117,11 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Search',
       subscribe: 'type = "track" and event = "Products Searched"',
       partnerAction: 'trackConversion',
-      mapping: { ...defaultValues(trackConversion.fields), event_name: 'Search', value: { '@path': '$.properties.value' } },
+      mapping: {
+        ...defaultValues(trackConversion.fields),
+        event_name: 'Search',
+        value: { '@path': '$.properties.value' }
+      },
       type: 'automatic'
     }
   ],

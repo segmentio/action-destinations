@@ -23,7 +23,7 @@ describe('Quora Conversions API - trackConversion', () => {
       event: 'Order Completed',
       timestamp: '2023-09-26T15:29:30.036Z',
       messageId: 'evt-001',
-      properties: { qclid: '0%7C212106239366182%7C0', value: 5.99 },
+      properties: { qclid: '0%7C212106239366182%7C0', revenue: 5.99 },
       context: {
         traits: { email: 'user@quora.com', name: 'John Smith' },
         ip: '127.0.0.1',
@@ -52,20 +52,20 @@ describe('Quora Conversions API - trackConversion', () => {
     expect((body.device as Record<string, unknown>).referer).toBe('https://example.com')
   })
 
-  it('passes through the Segment event name when event_name is Generic', async () => {
+  it('maps the event name from the event when it is a standard Quora type', async () => {
     nock(BASE_URL).post('/ads/v0/conversion').reply(200, { events_received: 1, events_errored: 0 })
 
-    const event = createTestEvent({ type: 'track', event: 'Custom Thing', properties: {} })
+    const event = createTestEvent({ type: 'track', event: 'AddToCart', properties: {} })
 
     const responses = await testDestination.testAction('trackConversion', {
       event,
       settings,
-      mapping: { event_name: 'Generic', segment_event_name: { '@path': '$.event' } },
+      mapping: { event_name: { '@path': '$.event' } },
       useDefaultMappings: true
     })
 
     const body = responses[0].options.json as Record<string, unknown>
-    expect((body.conversion as Record<string, unknown>).event_name).toBe('Custom Thing')
+    expect((body.conversion as Record<string, unknown>).event_name).toBe('AddToCart')
   })
 
   it('throws when the single event is rejected in the 200 body', async () => {
@@ -116,5 +116,23 @@ describe('Quora Conversions API - trackConversion', () => {
     // account_id is not repeated inside each item
     expect((captured.data as Record<string, unknown>[])[0].account_id).toBeUndefined()
     expect(responses[0].status).toBe(200)
+  })
+
+  it('retries the whole batch when the batch endpoint returns a retryable status', async () => {
+    nock(BASE_URL).post('/ads/v0/conversions').reply(503)
+
+    const events = [
+      createTestEvent({ type: 'track', event: 'Order Completed', properties: { value: 1 } }),
+      createTestEvent({ type: 'track', event: 'Order Completed', properties: { value: 2 } })
+    ]
+
+    await expect(
+      testDestination.testBatchAction('trackConversion', {
+        events,
+        settings,
+        mapping: { event_name: 'Purchase' },
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow()
   })
 })
